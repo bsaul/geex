@@ -19,10 +19,9 @@ example <- list(eeFUN = eefun, splitdt = s_data, theta = coef(mglm))
 
 mats <- compute_matrices(obj = example,
                          contrast = c(0, 1),
-                         corrections = c('bias'),
+                         corrections = c('df'),
                          correction_options = list(b = 0.75),
                          model = mglm)
-
 
 compute_sigma(mats)
 
