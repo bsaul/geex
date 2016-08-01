@@ -92,8 +92,8 @@ compute_matrices <- function(obj,
 }
 
 estimate_df <- function(A, C){
-  AC <- as.matrix(A %*% C)
-  (sum(diag(AC)))^2 / sum(diag(AC %*% AC))
+  AC <- A %*% C
+  (sum(Matrix::diag(AC)))^2 / sum(Matrix::diag(AC %*% AC))
 }
 
 compute_sigma <- function(matrices, ...){
