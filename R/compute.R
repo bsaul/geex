@@ -3,7 +3,7 @@ compute_matrices <- function(obj,
                              contrast = NULL,
                              corrections = NULL,
                              correction_options = list(),
-                             numDeriv_options = list(method = 'simple'),
+                             numDeriv_options = list(method = 'Richardson'),
                              ...){
   # Warnings
   if('bias' %in% corrections & is.null(correction_options$b)){
@@ -15,10 +15,11 @@ compute_matrices <- function(obj,
 
     # Create list of estimating eqn functions per unit
     psi_i <- lapply(splitdt, function(data_i){
-      psi_i <- eeFUN(data = data_i, ...)
+      eeFUN(data = data_i, ...)
     })
 
     # Compute the negative of the derivative matrix of estimating eqn functions
+    # (the information matrix)
     A_i <- lapply(psi_i, function(ee){
       args <- append(list(fun = ee, x = theta), numDeriv_options)
       val  <- do.call(numDeriv::jacobian, args = args)
@@ -36,6 +37,10 @@ compute_matrices <- function(obj,
 
     # Bias correction
     if(any(c('bias', 'df') %in% corrections)){
+      if(is.null(correction_options$b)){
+        stop('b must be specified in correction_options')
+      }
+
       b   <- correction_options$b
       H_i <- lapply(A_i, function(m){
         diag( (1 - pmin(b, diag(m %*% solve(A)) ) )^(-0.5) )
@@ -50,7 +55,7 @@ compute_matrices <- function(obj,
     }
 
     # Degrees of Freedom corrections
-    if('df' %in% corrections){
+    if(any('df' %in% corrections)){
       if(is.null(contrast)){
         stop('contrast must be specified for df correction')
       }
@@ -96,6 +101,11 @@ estimate_df <- function(A, C){
   (sum(Matrix::diag(AC)))^2 / sum(Matrix::diag(AC %*% AC))
 }
 
-compute_sigma <- function(matrices, ...){
-  with(matrices, solve(A) %*% B %*% t(solve(A)))
+compute_sigma <- function(matrices, corrections = NULL){
+  with(matrices,
+       if(any('bias' %in% corrections)){
+         solve(A) %*% Bbc %*% t(solve(A))
+       } else {
+         solve(A) %*% B %*% t(solve(A))
+       })
 }
