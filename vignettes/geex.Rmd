@@ -117,8 +117,9 @@ A^{bc}_i = \frac{w_i}{\bar{w}} B^{bc}
 ## Example: comparison to `sandwich`
 
 I'll use the `vaccinesim` dataset.
-```{r, echo = TRUE}
+```{r, echo = TRUE, message = FALSE, warning=FALSE}
 library(eex)
+library(dplyr)
 library(inferference)
 library(sandwich)
 library(microbenchmark)
@@ -221,3 +222,133 @@ direct_effect(test, allocation = .35)$std.error
 
 Fairly close. I would expect them to be somewhat different, since `inferference` computes the variance with the block diagonal trick in the Perez appendix.
 
+## Stefanski \& Boos example 1
+
+```{r SB_example1, echo=TRUE}
+n  <- 100
+dt <- data.frame(Y = rnorm(n, mean = 5, sd = 4), id = 1:n)
+split_data <- split(dt, dt$id)
+
+SB_ex1_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(Y - theta[1],
+       (Y - theta[1])^2 - theta[2] )
+    )
+  }
+}
+
+example <- list(eeFUN   = SB_ex1_eefun, 
+                splitdt = split_data,
+                theta   = c(mean(dt$Y), var(dt$Y)))
+
+mats  <- compute_matrices(obj = example,
+                          numDeriv_options = list(method = 'Richardson'))
+Sigma <- compute_sigma(mats)
+
+## Compare to closed form ##
+
+A <- diag(1, nrow = 2)
+
+B <- with(dt, {
+  Ybar <- mean(Y)
+  B11 <- mean( (Y - Ybar)^2 )
+  B12 <- mean( (Y - Ybar) * ((Y - Ybar)^2 - B11) )
+  B22 <- mean( ((Y - Ybar)^2 - B11)^2 )
+  matrix(
+    c(B11, B12,
+      B12, B22), nrow = 2
+  )
+})
+
+# geex variance estimate
+Sigma
+
+# closed form
+(solve(A) %*% B %*% t(solve(A))) / n
+
+```
+
+
+## Stefanski \& Boos example 2
+
+```{r SB_example2, echo=TRUE}
+n  <- 100
+dt <- data.frame(Y  = rnorm(n, mean = 5, sd = 4), 
+                 X  = rnorm(n, mean = 2, sd = .09),
+                 id = 1:n)
+split_data <- split(dt, dt$id)
+
+SB_ex2_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(Y - theta[1],
+        X - theta[2],
+        theta[1] - (theta[3] * theta[2]) )
+    )
+  }
+}
+
+example <- list(eeFUN   = SB_ex2_eefun, 
+                splitdt = split_data, 
+                theta   = c(mean(dt$Y),
+                            mean(dt$X),
+                            mean(dt$Y)/mean(dt$X)))
+
+mats  <- compute_matrices(obj = example,
+                          numDeriv_options = list(method = 'Richardson'))
+Sigma <- compute_sigma(mats)
+
+## Compare to closed form ##
+
+A <- with(dt, {
+ matrix(
+  c(1 , 0, 0,
+    0 , 1, 0,
+    -1, mean(Y)/mean(X), mean(X)),
+  byrow = TRUE, nrow = 3)
+})
+
+B <- with(dt, {
+  matrix(
+    c(var(Y)   , cov(Y, X), 0,
+      cov(Y, X), var(X)   , 0,
+      0, 0, 0),
+    byrow = TRUE, nrow = 3)
+})
+
+# geex variance estimate
+Sigma
+
+# closed form
+(solve(A) %*% B %*% t(solve(A))) / n
+
+```
+
+## Point estimates?
+
+```{r point_estimates, echo = TRUE}
+
+psi_i <- lapply(split_data, function(dt) {
+  SB_ex2_eefun(dt)
+})
+
+# In theory I can solve the following function (without the abs()) to get formulas
+# for theta. 
+
+psi <- function(theta){
+  psi_ <- lapply(psi_i, function(f) f(theta))
+  abs(sum(unlist(psi_)))
+}
+
+# Can I solve the equations numerically instead? This seems hard. 
+# How do I know where to start?  Here I start at the truth. 
+
+coef(optimx::optimx(par = c(5, 4, 5/4), fn = psi))
+
+# Notice that the optimization esitmates are pretty bad compared to the closed form
+# estimators
+
+summarize(dt, p1 = mean(Y), p2 = mean(X), p3 = p1/p2)
+
+```
