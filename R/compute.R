@@ -1,6 +1,23 @@
+eeroot <- function(obj, start, root_options = NULL, ...){
+
+  psi_i <- lapply(obj$splitdt, function(data_i){
+    obj$eeFUN(data = data_i, ...)
+  })
+
+  psi <- function(theta){
+    psii <- lapply(psi_i, function(f) f(theta))
+    apply(simplify2array(psii), 1, sum)
+  }
+
+  rargs <- append(root_options, list(f = psi, start = start))
+
+  do.call(rootSolve::multiroot, args = rargs)
+}
+
 
 compute_matrices <- function(obj,
                              contrast = NULL,
+                             theta,
                              corrections = NULL,
                              correction_options = list(),
                              numDeriv_options = list(method = 'Richardson'),
