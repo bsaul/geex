@@ -1,132 +1,11 @@
----
-title: "Estimating Equations in R: `geex`"
-author: "B. Saul"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-M-estimation theory provides a framework for asympotic properties of estimators that are solutions to estimating equations. Regression methods such as Generalized Linear Models (GLM) and Generalized Estimating Equations (GEE) fit in this framework.  Countless R packages implement specific applications of estimating equations. A common reason to use M-estimation is to compute the empirical sandwich variance estimator - an asymptotically Normal and "robust" covariance. Many packages compute this variance estimator automatically, and packages such as `sandwich` take the output of other modeling methods to compute this variance estimate. 
-
-`geex` aims to be provide a more general framework that any modelling method can use to compute point and variance estimates for parameters that are solutions to estimating equations. The basic idea:
-
-* Analyst provides three things: (1) data, (2) instructions on how to split the data into independent units and (3) a function that takes unit-level data and returns a function in terms of parameters.
-* `geex` computes point estimates and variance estimates for the parameters.
-
-> Currently, `geex` does not compute point estimates. I am evaluating different optimizers for this purpose.
-
-## Basic Setup
-
-I mostly follow the notation of Stefanski and Boos. I tried to keep notation in the code similar to mathematical notation.
-
-Suppose we have $m$ independent or nearly independent units of observations.
-
-\[
-\sum_{i = 1}^m \psi(O_i, \theta) = 0
-\]
-
-Where $\psi$ is vector of length $p$ corresponding to the number of parameters in $\theta$.
-
-For notational ease, let $\psi(O_i, \theta) = \psi_i$ Let:
-\[
-A_i = - \frac{\partial \psi(O_i, \theta)}{\partial \theta}
-\]
-
-\[
-A = \sum_{i = 1}^m A_i
-\]
-
-\[
-B_i = \psi_i \psi_i^T
-\]
-
-\[
-B = \sum_{i = 1}^m B_i
-\]
-
-\[
-\Sigma = A^{-1} B \{A^{-1}\}^T
-\]
-
-## Small Sample Corrections of Fay (2001)
-
-### Bias correction
-
-\[
-H_i = \{1 - min(b, \{A_i A\}_{jj}) \}^{-1/2}
-\]
-Where $b$ is a constant chosen by the analyst. Fay lets $b = 0.75$. Note that $H_i$ is a diagonal matrix.
-
-\[
-B^{bc}_i = H_i \psi_i \psi_i^T H_i
-\]
-
-\[
-B^{bc} = \sum_{i = 1}^m B^{bc}_i
-\]
-
-\[
-\Sigma^{bc} = A^{-1} B^{bc} \{A^{-1}\}^T
-\]
-
-### Degrees of Freedom corrections
-
-Let $L$ be the contrast of interest (e.g.) $(0, \dots, 0, 1, -1)$ for a causal difference when the last two elements of the estimating equations are the counterfactual means.
-
-\[
-\mathcal{I} = [I_p \cdots I_p]
-\]
-
-where $I_p$ is a $p \times p$ identity matrix.
-
-\[
-G = I_{pm} - \begin{bmatrix}A^{bc}_1 \\ \vdots \\ A_m \end{bmatrix} A^{-1} \mathcal{I} 
-\]
-
-\[
-M = diag\{H_i A^{-1} L L^T (A^{-1})^T H_i \}
-\]
-
-\[
-C = G^T M G
-\]
-
-\[
-w_i = L^T \left[ \left\{\sum_{j \neq i} A_i \right\}^{-1} - A^{-1} \right] L
-\]
-
-\[
-\bar{w} = \sum_{i = 1}^m w_i
-\]
-
-\[
-A^{bc}_i = \frac{w_i}{\bar{w}} B^{bc}
-\]
-
-\[
-\hat{df}_1 = \frac{ \left\{ Tr( diag(A_i) C ) \right\}^2  }{ Tr( diag(A_i) C diag(A_i) C)}  
-\]
-
-\[
-\hat{df}_2 = \frac{ \left\{ Tr( diag(A^{bc}_i) C ) \right\}^2  }{ Tr( diag(A^{bc}_i) C diag(A^{bc}_i) C)}  
-\]
-
-## Example: comparison to `sandwich`
-
-I'll use the `vaccinesim` dataset.
-```{r, echo = TRUE, message = FALSE, warning=FALSE}
+## ---- echo = TRUE, message = FALSE, warning=FALSE------------------------
 library(eex)
 library(dplyr)
 library(inferference)
 library(sandwich)
 # library(microbenchmark)
-```
 
-An example $\psi$ function written in `R`. This function computes the score functions for a GLM.
-```{r eefun, echo=TRUE}
+## ----eefun, echo=TRUE----------------------------------------------------
 eefun <- function(data, model){
   X <- model.matrix(model, data = data)
   Y <- model.response(model.frame(model, data = data))
@@ -138,10 +17,8 @@ eefun <- function(data, model){
     score_eqns
   }
 }
-```
 
-Compare sandwich variance estimators to `sandwich` treating individuals as units:
-```{r example1}
+## ----example1------------------------------------------------------------
 vaccinesim$ID <- 1:nrow(vaccinesim)
 mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
 split_data  <- split(vaccinesim, vaccinesim$ID)
@@ -160,15 +37,8 @@ coef(mglm) # from the GLM function
 # Compare variance estimates
 compute_sigma(mats)
 sandwich::sandwich(mglm)
-```
 
-Pretty darn good! Note that the `geex` method is much slower than `sandwich` (especially using `method = 'Richardson'` for `numDeriv`), but this is because `sandwich` uses the closed form of the score equations, while `geex` compute them numerically. However, `geex`'s real utility comes when you have more complicated estimating equations. Also, the analyst has the ability to code faster $\psi$ functions by optimizing their code or using `Rccp`, for example. 
-
-## Example: IPW estimator of counterfactual mean
-
-An example $\psi$ function written in `R`. This function computes the score functions for a GLM, plus two counterfactual means estimated by inverse probability weighting.
-
-```{r eefun2, echo=TRUE}
+## ----eefun2, echo=TRUE---------------------------------------------------
 eefun2 <- function(data, model, alpha){
   X <- model.matrix(model, data = data)
   A <- model.response(model.frame(model, data = data))
@@ -193,11 +63,8 @@ eefun2 <- function(data, model, alpha){
     })
   }
 }
-```
 
-Compare to what `inferference` gets.
-
-```{r example2, echo =TRUE}
+## ----example2, echo =TRUE------------------------------------------------
 test <- interference(Y | A ~ X1 | group, 
                      data = vaccinesim,
                      model_method = 'glm',
@@ -226,29 +93,18 @@ L <- c(0, 0, -1, 1)
 Sigma <- compute_sigma(mats)
 sqrt(t(L) %*% Sigma %*% L)  # from GEEX
 direct_effect(test, allocation = .35)$std.error # from inferference
-```
 
-
-Fairly close. I would expect them to be somewhat different, since `inferference` computes the variance with the block diagonal trick in the Perez appendix.
-
-```{r,  echo = TRUE}
+## ----  echo = TRUE-------------------------------------------------------
 ### Point Estimate via inferference
 c(coef(mglm), 0.42186669,  0.15507946)
 
 ### Points Estimates with GEEX
 root
-```
-Not so good. What happens if we start the geex root solver at the inferference estimates?
 
-```{r, echo = TRUE}
+## ---- echo = TRUE--------------------------------------------------------
 eeroot(example, start =c(coef(mglm), 0.42186669,  0.15507946), model = mglm, alpha = .35 )$root
-```
-Hmmm, still not so good for the causal effects
 
-
-## Stefanski \& Boos example 1
-
-```{r SB_example1, echo=TRUE}
+## ----SB_example1, echo=TRUE----------------------------------------------
 n  <- 100
 dt <- data.frame(Y = rnorm(n, mean = 5, sd = 4), id = 1:n)
 split_data <- split(dt, dt$id)
@@ -300,12 +156,8 @@ Sigma
 # closed form
 (solve(A) %*% B %*% t(solve(A))) / n
 
-```
 
-
-## Stefanski \& Boos example 2
-
-```{r SB_example2, echo=TRUE}
+## ----SB_example2, echo=TRUE----------------------------------------------
 n  <- 100
 dt <- data.frame(Y  = rnorm(n, mean = 5, sd = 4), 
                  X  = rnorm(n, mean = 2, sd = .09),
@@ -360,13 +212,8 @@ Sigma
 # closed form
 (solve(A) %*% B %*% t(solve(A))) / n
 
-```
 
-## Stefanski \& Boos example 3
-
-Closed form variance is complicated, so didn't do for now.
-
-```{r SB_example3, echo=TRUE}
+## ----SB_example3, echo=TRUE----------------------------------------------
 set.seed(100) # running into issue where sqrt(theta2) and log(theta2) return NaN for some seeds
 n  <- 100
 dt <- data.frame(Y  = rnorm(n, mean = 5, sd = 4), 
@@ -404,12 +251,8 @@ summarize(dt, p1 = mean(Y), p2 = sum((Y - p1)^2)/n(), p3 = sqrt(p2), p4 = log(p2
 Sigma
 
 
-```
 
-
-## Stefanski \& Boos example 4
-
-```{r SB_example4, echo=TRUE}
+## ----SB_example4, echo=TRUE----------------------------------------------
 n  <- 100
 
 # Oracle parms
@@ -423,5 +266,4 @@ e1 <- e2 <- e3 <- rnorm(n)
 
 ### TBD
 
-```
 
