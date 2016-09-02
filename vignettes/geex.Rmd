@@ -122,7 +122,7 @@ library(eex)
 library(dplyr)
 library(inferference)
 library(sandwich)
-library(microbenchmark)
+# library(microbenchmark)
 ```
 
 An example $\psi$ function written in `R`. This function computes the score functions for a GLM.
@@ -145,14 +145,19 @@ Compare sandwich variance estimators to `sandwich` treating individuals as units
 vaccinesim$ID <- 1:nrow(vaccinesim)
 mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
 split_data  <- split(vaccinesim, vaccinesim$ID)
-
 # The list needed for the compute_matrices
 # For now, theta needs to be passed since geex does not do point estimates yet
-example <- list(eeFUN = eefun, splitdt = split_data, theta = coef(mglm))
+example <- list(eeFUN = eefun, splitdt = split_data)
+root <- eeroot(example, start = c(-.35, 0), model = mglm )$root
 
-mats <- compute_matrices(obj = example, model = mglm, 
+mats <- compute_matrices(obj = example, model = mglm,
+                         theta = coef(mglm),
                          numDeriv_options = list(method = 'Richardson'))
+# Compare point estimates
+root # from GEEX
+coef(mglm) # from the GLM function
 
+# Compare variance estimates
 compute_sigma(mats)
 sandwich::sandwich(mglm)
 ```
@@ -203,24 +208,43 @@ split_data  <- split(vaccinesim, vaccinesim$group)
 
 # The list needed for the compute_matrices
 example <- list(eeFUN   = eefun2, 
-                splitdt = split_data, 
+                splitdt = split_data)
+
+root <- eeroot(example, start =c(coef(mglm), .4,  .13), model = mglm, alpha = .35 )$root
                 # Plugging in the values of CE_hat(0) and CE_hat(1)
-                # since geex does not currently do point estimates
-                theta   = c(coef(mglm), 0.42186669,  0.15507946))
+                # since geex does not currently do point estimates)
 
 mats <- compute_matrices(obj = example, 
                          numDeriv_options = list(method = 'Richardson'),
+                         theta   = c(coef(mglm), 0.42186669,  0.15507946),
+                # Plugging in the values of CE_hat(0) and CE_hat(1)
+                # since geex returns incorrect point estimates for this problem at the moment
                          model = mglm, 
                          alpha = .35)
+# conpare SE estimates
 L <- c(0, 0, -1, 1)
 Sigma <- compute_sigma(mats)
-
-sqrt(t(L) %*% Sigma %*% L) 
-
-direct_effect(test, allocation = .35)$std.error
+sqrt(t(L) %*% Sigma %*% L)  # from GEEX
+direct_effect(test, allocation = .35)$std.error # from inferference
 ```
 
+
 Fairly close. I would expect them to be somewhat different, since `inferference` computes the variance with the block diagonal trick in the Perez appendix.
+
+```{r,  echo = TRUE}
+### Point Estimate via inferference
+c(coef(mglm), 0.42186669,  0.15507946)
+
+### Points Estimates with GEEX
+root
+```
+Not so good. What happens if we start the geex root solver at the inferference estimates?
+
+```{r, echo = TRUE}
+eeroot(example, start =c(coef(mglm), 0.42186669,  0.15507946), model = mglm, alpha = .35 )$root
+```
+Hmmm, still not so good for the causal effects
+
 
 ## Stefanski \& Boos example 1
 
@@ -239,10 +263,12 @@ SB_ex1_eefun <- function(data){
 }
 
 example <- list(eeFUN   = SB_ex1_eefun, 
-                splitdt = split_data,
-                theta   = c(mean(dt$Y), var(dt$Y)))
+                splitdt = split_data)
+
+root <- eeroot(example, start = c(1,1))$root
 
 mats  <- compute_matrices(obj = example,
+                          theta = root,
                           numDeriv_options = list(method = 'Richardson'))
 Sigma <- compute_sigma(mats)
 
@@ -260,6 +286,13 @@ B <- with(dt, {
       B12, B22), nrow = 2
   )
 })
+
+## geex roots 
+root
+
+## closed form roots
+# note that var() divides by n - 1, not n
+summarize(dt, p1 = mean(Y), p2 = var(Y))
 
 # geex variance estimate
 Sigma
@@ -290,12 +323,10 @@ SB_ex2_eefun <- function(data){
 }
 
 example <- list(eeFUN   = SB_ex2_eefun, 
-                splitdt = split_data, 
-                theta   = c(mean(dt$Y),
-                            mean(dt$X),
-                            mean(dt$Y)/mean(dt$X)))
-
+                splitdt = split_data)
+root <- eeroot(obj = example, start = c(1, 1, 1))$root
 mats  <- compute_matrices(obj = example,
+                          theta = root,
                           numDeriv_options = list(method = 'Richardson'))
 Sigma <- compute_sigma(mats)
 
@@ -317,6 +348,12 @@ B <- with(dt, {
     byrow = TRUE, nrow = 3)
 })
 
+## geex roots 
+root
+
+## closed form roots
+summarize(dt, p1 = mean(Y), p2 = mean(X), p3 = p1/p2)
+
 # geex variance estimate
 Sigma
 
@@ -325,30 +362,66 @@ Sigma
 
 ```
 
-## Point estimates?
+## Stefanski \& Boos example 3
 
-```{r point_estimates, echo = TRUE}
+Closed form variance is complicated, so didn't do for now.
 
-psi_i <- lapply(split_data, function(dt) {
-  SB_ex2_eefun(dt)
-})
+```{r SB_example3, echo=TRUE}
+set.seed(100) # running into issue where sqrt(theta2) and log(theta2) return NaN for some seeds
+n  <- 100
+dt <- data.frame(Y  = rnorm(n, mean = 5, sd = 4), 
+                 id = 1:n)
+split_data <- split(dt, dt$id)
 
-# In theory I can solve the following function (without the abs()) to get formulas
-# for theta. 
-
-psi <- function(theta){
-  psi_ <- lapply(psi_i, function(f) f(theta))
-  abs(sum(unlist(psi_)))
+SB_ex3_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(Y - theta[1],
+       (Y - theta[1])^2 - theta[2],
+       sqrt(theta[2]) - theta[3],
+       log(theta[2]) - theta[4])
+    )
+  }
 }
 
-# Can I solve the equations numerically instead? This seems hard. 
-# How do I know where to start?  Here I start at the truth. 
+example <- list(eeFUN   = SB_ex3_eefun, 
+                splitdt = split_data)
+root <- eeroot(obj = example, start = c(1, 1, 1, 1))$root
 
-coef(optimx::optimx(par = c(5, 4, 5/4), fn = psi))
 
-# Notice that the optimization esitmates are pretty bad compared to the closed form
-# estimators
+mats  <- compute_matrices(obj = example,
+                          theta = root,
+                          numDeriv_options = list(method = 'Richardson'))
+Sigma <- compute_sigma(mats)
 
-summarize(dt, p1 = mean(Y), p2 = mean(X), p3 = p1/p2)
+## geex roots 
+root
+
+## closed form roots
+summarize(dt, p1 = mean(Y), p2 = sum((Y - p1)^2)/n(), p3 = sqrt(p2), p4 = log(p2))
+
+# geex variance estimate
+Sigma
+
 
 ```
+
+
+## Stefanski \& Boos example 4
+
+```{r SB_example4, echo=TRUE}
+n  <- 100
+
+# Oracle parms
+alpha <- 2
+beta  <- 3
+gamma <- 0
+delta <- -1
+
+
+e1 <- e2 <- e3 <- rnorm(n)
+
+### TBD
+
+```
+
