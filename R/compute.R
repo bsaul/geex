@@ -1,3 +1,8 @@
+#------------------------------------------------------------------------------#
+#' Compute roots for a set of estimating equations
+#' @export
+#------------------------------------------------------------------------------#
+
 eeroot <- function(obj, start, root_options = NULL, ...){
 
   psi_i <- lapply(obj$splitdt, function(data_i){
@@ -14,6 +19,12 @@ eeroot <- function(obj, start, root_options = NULL, ...){
   do.call(rootSolve::multiroot, args = rargs)
 }
 
+#------------------------------------------------------------------------------#
+#' Compute component matrices for covariance matrix for a set of
+#' estimating equations
+#'
+#' @export
+#------------------------------------------------------------------------------#
 
 compute_matrices <- function(obj,
                              contrast = NULL,
@@ -113,10 +124,22 @@ compute_matrices <- function(obj,
   })
 }
 
+#------------------------------------------------------------------------------#
+#' Estimate Fay's degrees of freedom corrections
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
 estimate_df <- function(A, C){
   AC <- A %*% C
   (sum(Matrix::diag(AC)))^2 / sum(Matrix::diag(AC %*% AC))
 }
+
+#------------------------------------------------------------------------------#
+#' Compute covariance matrix for set of estimating equations
+#'
+#' @export
+#------------------------------------------------------------------------------#
 
 compute_sigma <- function(matrices, corrections = NULL){
   with(matrices,
