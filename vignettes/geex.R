@@ -253,17 +253,127 @@ Sigma
 
 
 ## ----SB_example4, echo=TRUE----------------------------------------------
-n  <- 100
+n  <- 10000
 
 # Oracle parms
 alpha <- 2
 beta  <- 3
-gamma <- 0
-delta <- -1
-
-
+gamma <- 2
+delta <- 1.5
 e1 <- e2 <- e3 <- rnorm(n)
+sigma_e <- 1
+sigma_U <- .25
+sigma_tau <- 1
+### Random variables
 
-### TBD
+X <- rgamma(n, shape = 5)
+X <- rnorm(n, sd = 1)
+
+dt <- data.frame(Y  = alpha + (beta * X) + (sigma_e * e1), 
+                 W  = X + (sigma_U * e2),
+                 T_  = gamma + (delta * X) + (sigma_tau * e3),
+                 id = 1:n)
+split_data <- split(dt, dt$id)
+
+SB_ex4_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(theta[1] - T_,
+        theta[2] - W,
+        (Y - (theta[3] * W)) * (theta[2] - W),
+        (Y - (theta[4] * W)) * (theta[1] - T_))
+    )
+  }
+}
+
+
+
+example <- list(eeFUN   = SB_ex4_eefun, 
+                splitdt = split_data)
+root <- eeroot(obj = example, start = c(1, 1, 1, 1))$root
+root
+
+## compare to closed form
+c(theta1 = mean(dt$T_),
+  theta2 = mean(dt$W),
+  theta3 = coef(lm(Y ~ W, data = dt))[2],
+  theta4 = coef(lm(Y ~ T_, data = dt))[2]/coef(lm(W ~ T_, data = dt))[2])
+
+
+mats  <- compute_matrices(obj = example,
+                          theta = root,
+                          numDeriv_options = list(method = 'Richardson'))
+Sigma <- compute_sigma(mats)
+
+Sigma
+
+
+## compare to closed form
+# TODO
+
+
+## ----SB_example5, echo=TRUE----------------------------------------------
+
+n <- 100
+theta0 <- 0
+dt <- data.frame(X = rnorm(n, mean = 2),
+                 id = 1:n)
+split_data <- split(dt, dt$id)
+
+distr <- function(x, theta0){
+  FF <- ecdf(x - theta0)
+  approxfun(x - theta0, y = FF(x - theta0), method = "linear",
+            0, 1, rule = 1, f = 0, ties = mean)
+}
+
+FF <- distr(dt$X, 0)
+dens <- density(dt$X)
+ff2 <- approxfun(dens$x, dens$y, yleft = 0, yright = 0)
+integrand <- function(y){
+  ff2(y)^2
+}
+
+IC_denom <- integrate(integrand, lower = min(dt$X), upper = max(dt$X))$value
+
+SB_ex5_eefun <- function(data, theta0 = 0){
+  Xi <- data$X
+  function(theta){
+     IC_HL <- (FF(Xi - theta0) - 0.5)/IC_denom
+     c(IC_HL - (theta[1] - theta0),
+       Xi - theta[2])
+  }
+}
+
+split_data <- split(dt, dt$id)
+
+example <- list(eeFUN   = SB_ex5_eefun, 
+                splitdt = split_data)
+
+root <- eeroot(obj = example, start = c(2.2, 1))$root
+root
+
+X <- dt$X
+pair_means <- numeric(length(dt$X) - 1)
+for(i in 1:(length(X) - 1)){
+ pair_means[i] <-  (X[i] + X[i + 1])/2
+}
+
+c(median(pair_means), mean(dt$X))
+
+# Asymp correlation btn HL estimator and mean
+mats  <- compute_matrices(obj = example,
+                          theta = root,
+                          numDeriv_options = list(method = 'Richardson'))
+Sigma <- compute_sigma(mats)
+Sigma
+
+
+
+## ----SB_example6, echo=TRUE----------------------------------------------
+
+
+
+## ----SB_example7, echo=TRUE----------------------------------------------
+
 
 

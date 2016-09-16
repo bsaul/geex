@@ -12,7 +12,7 @@
 
 <meta name="author" content="B. Saul" />
 
-<meta name="date" content="2016-09-02" />
+<meta name="date" content="2016-09-16" />
 
 <title>Estimating Equations in R: geex</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Estimating Equations in R: <code>geex</code></h1>
 <h4 class="author"><em>B. Saul</em></h4>
-<h4 class="date"><em>2016-09-02</em></h4>
+<h4 class="date"><em>2016-09-16</em></h4>
 
 
 
@@ -322,22 +322,22 @@ B &lt;-<span class="st"> </span><span class="kw">with</span>(dt, {
 
 ## geex roots 
 root</code></pre></div>
-<pre><code>## [1]  4.341391 16.244891</code></pre>
+<pre><code>## [1]  4.464417 20.664317</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## closed form roots
 <span class="co"># note that var() divides by n - 1, not n</span>
 <span class="kw">summarize</span>(dt, <span class="dt">p1 =</span> <span class="kw">mean</span>(Y), <span class="dt">p2 =</span> <span class="kw">var</span>(Y))</code></pre></div>
 <pre><code>##         p1       p2
-## 1 4.341391 16.40898</code></pre>
+## 1 4.464417 20.87305</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># geex variance estimate</span>
 Sigma</code></pre></div>
-<pre><code>##            [,1]       [,2]
-## [1,]  0.1624489 -0.2044818
-## [2,] -0.2044818  7.0801129</code></pre>
+<pre><code>##           [,1]     [,2]
+## [1,] 0.2066432 0.166128
+## [2,] 0.1661280 9.339998</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># closed form</span>
 (<span class="kw">solve</span>(A) %*%<span class="st"> </span>B %*%<span class="st"> </span><span class="kw">t</span>(<span class="kw">solve</span>(A))) /<span class="st"> </span>n</code></pre></div>
-<pre><code>##            [,1]       [,2]
-## [1,]  0.1624489 -0.2044818
-## [2,] -0.2044818  7.0801129</code></pre>
+<pre><code>##           [,1]     [,2]
+## [1,] 0.2066432 0.166128
+## [2,] 0.1661280 9.339998</code></pre>
 </div>
 <div id="stefanski-boos-example-2" class="section level2">
 <h2>Stefanski &amp; Boos example 2</h2>
@@ -385,23 +385,23 @@ B &lt;-<span class="st"> </span><span class="kw">with</span>(dt, {
 
 ## geex roots 
 root</code></pre></div>
-<pre><code>## [1] 4.668593 1.981439 2.356163</code></pre>
+<pre><code>## [1] 5.229084 2.005274 2.607666</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## closed form roots
 <span class="kw">summarize</span>(dt, <span class="dt">p1 =</span> <span class="kw">mean</span>(Y), <span class="dt">p2 =</span> <span class="kw">mean</span>(X), <span class="dt">p3 =</span> p1/p2)</code></pre></div>
 <pre><code>##         p1       p2       p3
-## 1 4.668593 1.981439 2.356163</code></pre>
+## 1 5.229084 2.005274 2.607666</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># geex variance estimate</span>
 Sigma</code></pre></div>
 <pre><code>##               [,1]          [,2]          [,3]
-## [1,]  0.1706741979 -3.296641e-04  0.0865285196
-## [2,] -0.0003296641  7.562636e-05 -0.0002563048
-## [3,]  0.0865285196 -2.563048e-04  0.0439743224</code></pre>
+## [1,]  1.736112e-01 -4.898502e-05  0.0866410225
+## [2,] -4.898502e-05  8.474268e-05 -0.0001346278
+## [3,]  8.664102e-02 -1.346278e-04  0.0433816531</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># closed form</span>
 (<span class="kw">solve</span>(A) %*%<span class="st"> </span>B %*%<span class="st"> </span><span class="kw">t</span>(<span class="kw">solve</span>(A))) /<span class="st"> </span>n</code></pre></div>
-<pre><code>##              [,1]          [,2]          [,3]
-## [1,]  0.172398180 -3.329940e-04  0.0874025451
-## [2,] -0.000332994  7.639026e-05 -0.0002588937
-## [3,]  0.087402545 -2.588937e-04  0.0444185075</code></pre>
+<pre><code>##               [,1]          [,2]          [,3]
+## [1,]  1.753649e-01 -4.947982e-05  0.0875161844
+## [2,] -4.947982e-05  8.559866e-05 -0.0001359877
+## [3,]  8.751618e-02 -1.359877e-04  0.0438198516</code></pre>
 </div>
 <div id="stefanski-boos-example-3" class="section level2">
 <h2>Stefanski &amp; Boos example 3</h2>
@@ -450,18 +450,130 @@ Sigma</code></pre></div>
 </div>
 <div id="stefanski-boos-example-4" class="section level2">
 <h2>Stefanski &amp; Boos example 4</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n  &lt;-<span class="st"> </span><span class="dv">100</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n  &lt;-<span class="st"> </span><span class="dv">10000</span>
 
 <span class="co"># Oracle parms</span>
 alpha &lt;-<span class="st"> </span><span class="dv">2</span>
 beta  &lt;-<span class="st"> </span><span class="dv">3</span>
-gamma &lt;-<span class="st"> </span><span class="dv">0</span>
-delta &lt;-<span class="st"> </span>-<span class="dv">1</span>
-
-
+gamma &lt;-<span class="st"> </span><span class="dv">2</span>
+delta &lt;-<span class="st"> </span><span class="fl">1.5</span>
 e1 &lt;-<span class="st"> </span>e2 &lt;-<span class="st"> </span>e3 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(n)
+sigma_e &lt;-<span class="st"> </span><span class="dv">1</span>
+sigma_U &lt;-<span class="st"> </span>.<span class="dv">25</span>
+sigma_tau &lt;-<span class="st"> </span><span class="dv">1</span>
+### Random variables
 
-### TBD</code></pre></div>
+X &lt;-<span class="st"> </span><span class="kw">rgamma</span>(n, <span class="dt">shape =</span> <span class="dv">5</span>)
+X &lt;-<span class="st"> </span><span class="kw">rnorm</span>(n, <span class="dt">sd =</span> <span class="dv">1</span>)
+
+dt &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">Y  =</span> alpha +<span class="st"> </span>(beta *<span class="st"> </span>X) +<span class="st"> </span>(sigma_e *<span class="st"> </span>e1), 
+                 <span class="dt">W  =</span> X +<span class="st"> </span>(sigma_U *<span class="st"> </span>e2),
+                 <span class="dt">T_  =</span> gamma +<span class="st"> </span>(delta *<span class="st"> </span>X) +<span class="st"> </span>(sigma_tau *<span class="st"> </span>e3),
+                 <span class="dt">id =</span> <span class="dv">1</span>:n)
+split_data &lt;-<span class="st"> </span><span class="kw">split</span>(dt, dt$id)
+
+SB_ex4_eefun &lt;-<span class="st"> </span>function(data){
+  function(theta){
+    <span class="kw">with</span>(data,
+      <span class="kw">c</span>(theta[<span class="dv">1</span>] -<span class="st"> </span>T_,
+        theta[<span class="dv">2</span>] -<span class="st"> </span>W,
+        (Y -<span class="st"> </span>(theta[<span class="dv">3</span>] *<span class="st"> </span>W)) *<span class="st"> </span>(theta[<span class="dv">2</span>] -<span class="st"> </span>W),
+        (Y -<span class="st"> </span>(theta[<span class="dv">4</span>] *<span class="st"> </span>W)) *<span class="st"> </span>(theta[<span class="dv">1</span>] -<span class="st"> </span>T_))
+    )
+  }
+}
+
+
+
+example &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">eeFUN   =</span> SB_ex4_eefun, 
+                <span class="dt">splitdt =</span> split_data)
+root &lt;-<span class="st"> </span><span class="kw">eeroot</span>(<span class="dt">obj =</span> example, <span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))$root
+root</code></pre></div>
+<pre><code>## [1]  1.992230490 -0.007677779  3.057672357  3.139695685</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## compare to closed form
+<span class="kw">c</span>(<span class="dt">theta1 =</span> <span class="kw">mean</span>(dt$T_),
+  <span class="dt">theta2 =</span> <span class="kw">mean</span>(dt$W),
+  <span class="dt">theta3 =</span> <span class="kw">coef</span>(<span class="kw">lm</span>(Y ~<span class="st"> </span>W, <span class="dt">data =</span> dt))[<span class="dv">2</span>],
+  <span class="dt">theta4 =</span> <span class="kw">coef</span>(<span class="kw">lm</span>(Y ~<span class="st"> </span>T_, <span class="dt">data =</span> dt))[<span class="dv">2</span>]/<span class="kw">coef</span>(<span class="kw">lm</span>(W ~<span class="st"> </span>T_, <span class="dt">data =</span> dt))[<span class="dv">2</span>])</code></pre></div>
+<pre><code>##       theta1       theta2     theta3.W    theta4.T_ 
+##  1.992230490 -0.007677779  3.057672357  3.139695685</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mats  &lt;-<span class="st"> </span><span class="kw">compute_matrices</span>(<span class="dt">obj =</span> example,
+                          <span class="dt">theta =</span> root,
+                          <span class="dt">numDeriv_options =</span> <span class="kw">list</span>(<span class="dt">method =</span> <span class="st">'Richardson'</span>))
+Sigma &lt;-<span class="st"> </span><span class="kw">compute_sigma</span>(mats)
+
+Sigma</code></pre></div>
+<pre><code>##               [,1]          [,2]          [,3]          [,4]
+## [1,]  3.278241e-04  1.772751e-04 -2.329839e-07 -1.379687e-07
+## [2,]  1.772751e-04  1.078197e-04 -4.405633e-08  2.194675e-08
+## [3,] -2.329839e-07 -4.405633e-08  5.294602e-06  4.603733e-06
+## [4,] -1.379687e-07  2.194675e-08  4.603733e-06  6.693499e-06</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## compare to closed form
+<span class="co"># TODO</span></code></pre></div>
+</div>
+<div id="stefanski-boos-example-5" class="section level2">
+<h2>Stefanski &amp; Boos example 5</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n &lt;-<span class="st"> </span><span class="dv">100</span>
+theta0 &lt;-<span class="st"> </span><span class="dv">0</span>
+dt &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">X =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">2</span>),
+                 <span class="dt">id =</span> <span class="dv">1</span>:n)
+split_data &lt;-<span class="st"> </span><span class="kw">split</span>(dt, dt$id)
+
+distr &lt;-<span class="st"> </span>function(x, theta0){
+  FF &lt;-<span class="st"> </span><span class="kw">ecdf</span>(x -<span class="st"> </span>theta0)
+  <span class="kw">approxfun</span>(x -<span class="st"> </span>theta0, <span class="dt">y =</span> <span class="kw">FF</span>(x -<span class="st"> </span>theta0), <span class="dt">method =</span> <span class="st">&quot;linear&quot;</span>,
+            <span class="dv">0</span>, <span class="dv">1</span>, <span class="dt">rule =</span> <span class="dv">1</span>, <span class="dt">f =</span> <span class="dv">0</span>, <span class="dt">ties =</span> mean)
+}
+
+FF &lt;-<span class="st"> </span><span class="kw">distr</span>(dt$X, <span class="dv">0</span>)
+dens &lt;-<span class="st"> </span><span class="kw">density</span>(dt$X)
+ff2 &lt;-<span class="st"> </span><span class="kw">approxfun</span>(dens$x, dens$y, <span class="dt">yleft =</span> <span class="dv">0</span>, <span class="dt">yright =</span> <span class="dv">0</span>)
+integrand &lt;-<span class="st"> </span>function(y){
+  <span class="kw">ff2</span>(y)^<span class="dv">2</span>
+}
+
+IC_denom &lt;-<span class="st"> </span><span class="kw">integrate</span>(integrand, <span class="dt">lower =</span> <span class="kw">min</span>(dt$X), <span class="dt">upper =</span> <span class="kw">max</span>(dt$X))$value
+
+SB_ex5_eefun &lt;-<span class="st"> </span>function(data, <span class="dt">theta0 =</span> <span class="dv">0</span>){
+  Xi &lt;-<span class="st"> </span>data$X
+  function(theta){
+     IC_HL &lt;-<span class="st"> </span>(<span class="kw">FF</span>(Xi -<span class="st"> </span>theta0) -<span class="st"> </span><span class="fl">0.5</span>)/IC_denom
+     <span class="kw">c</span>(IC_HL -<span class="st"> </span>(theta[<span class="dv">1</span>] -<span class="st"> </span>theta0),
+       Xi -<span class="st"> </span>theta[<span class="dv">2</span>])
+  }
+}
+
+split_data &lt;-<span class="st"> </span><span class="kw">split</span>(dt, dt$id)
+
+example &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">eeFUN   =</span> SB_ex5_eefun, 
+                <span class="dt">splitdt =</span> split_data)
+
+root &lt;-<span class="st"> </span><span class="kw">eeroot</span>(<span class="dt">obj =</span> example, <span class="dt">start =</span> <span class="kw">c</span>(<span class="fl">2.2</span>, <span class="dv">1</span>))$root
+root</code></pre></div>
+<pre><code>## [1] 0.01923757 1.99342513</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">X &lt;-<span class="st"> </span>dt$X
+pair_means &lt;-<span class="st"> </span><span class="kw">numeric</span>(<span class="kw">length</span>(dt$X) -<span class="st"> </span><span class="dv">1</span>)
+for(i in <span class="dv">1</span>:(<span class="kw">length</span>(X) -<span class="st"> </span><span class="dv">1</span>)){
+ pair_means[i] &lt;-<span class="st">  </span>(X[i] +<span class="st"> </span>X[i +<span class="st"> </span><span class="dv">1</span>])/<span class="dv">2</span>
+}
+
+<span class="kw">c</span>(<span class="kw">median</span>(pair_means), <span class="kw">mean</span>(dt$X))</code></pre></div>
+<pre><code>## [1] 1.986615 1.993425</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Asymp correlation btn HL estimator and mean</span>
+mats  &lt;-<span class="st"> </span><span class="kw">compute_matrices</span>(<span class="dt">obj =</span> example,
+                          <span class="dt">theta =</span> root,
+                          <span class="dt">numDeriv_options =</span> <span class="kw">list</span>(<span class="dt">method =</span> <span class="st">'Richardson'</span>))
+Sigma &lt;-<span class="st"> </span><span class="kw">compute_sigma</span>(mats)
+Sigma</code></pre></div>
+<pre><code>##            [,1]       [,2]
+## [1,] 0.01233491 0.01133982
+## [2,] 0.01133982 0.01115920</code></pre>
+</div>
+<div id="stefanski-boos-example-6" class="section level2">
+<h2>Stefanski &amp; Boos example 6</h2>
+</div>
+<div id="stefanski-boos-example-7" class="section level2">
+<h2>Stefanski &amp; Boos example 7</h2>
 </div>
 
 
