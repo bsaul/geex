@@ -38,6 +38,9 @@ compute_matrices <- function(obj,
     stop('b argument must be present if using bias correction')
   }
 
+  correct_bias <- any(c('bias') %in% corrections)
+  correct_df   <- any(c('df') %in% corrections)
+
   with(obj, {
     m <- length(splitdt)
 
@@ -63,65 +66,132 @@ compute_matrices <- function(obj,
 
     #### Compute corrections ####
 
-    # Bias correction
-    if(any(c('bias', 'df') %in% corrections)){
-      if(is.null(correction_options$b)){
-        stop('b must be specified in correction_options')
+    # Bias correction #
+    if(correct_bias|correct_df){
+      bias_try <- try(bias_correction(m = m, A = A, Ai = A_i, Bi = B_i,
+                                      b = correction_options$b),
+                       silent = TRUE)
+
+      if(is(bias_try, 'try-error')){
+        bias_fail <- TRUE
+      } else {
+        bias_fail <- FALSE
+        bias_mats <- bias_try
+        Bbc <- bias_mats$Bbc
+        H_i <- bias_mats$H_i
+        out$Bbc <- Bbc
       }
 
-      b   <- correction_options$b
-      H_i <- lapply(A_i, function(m){
-        diag( (1 - pmin(b, diag(m %*% solve(A)) ) )^(-0.5) )
-      })
-
-      Bbc_i <- lapply(1:m, function(i){
-        H_i[[i]] %*% B_i[[i]] %*% H_i[[i]]
-      })
-      Bbc   <- apply(simplify2array(Bbc_i), 1:2, sum)
-
-      out$Bbc <- Bbc
+      out$bias_fail <- bias_fail
     }
 
-    # Degrees of Freedom corrections
-    if(any('df' %in% corrections)){
+    # Degrees of Freedom corrections #
+    if(correct_df){
       if(is.null(contrast)){
         stop('contrast must be specified for df correction')
       }
 
-      L <- contrast
-      p <- ncol(A)
+      if(!bias_fail){
 
-      II   <- diag(1, p*m)
-      AA   <- do.call(rbind, A_i)
-      calI <- do.call(cbind, args = lapply(1:m, function(i) diag(1, p) ))
-      G    <- II - (AA %*% solve(A) %*% calI)
+        df_prep <- df_correction_prep(m = m, L = contrast, A = A, A_i = A_i, H_i = H_i)
 
-      M_i  <- lapply(H_i, function(mat){
-        mat %*% solve(A) %*% L %*% t(L) %*% t(solve(A)) %*% mat
-      })
-      M    <- Matrix::bdiag(M_i)
+        # DF correction 1 #
+        df1 <- df_correction_1(A_d = df_prep$A_d, C = df_prep$C)
 
-      C    <- t(G) %*% M %*% G
+        # DF correction 2 #
+        df2_try <- try(df_correction_2(m = m, A = A, A_i = A_i, C = df_prep$C,
+                                       L = contrast, Bbc = Bbc), silent = TRUE)
+        if(is(df2_try, 'try-error')){
+          df2 <- NA_real_
+        } else {
+          df2 <- df2_try
+        }
 
-      A_d  <- Matrix::bdiag(A_i)
-
-      w_i  <- lapply(1:m, function(i) {
-        # exclude the ith element
-        Oi <- apply(simplify2array(A_i[-i]), 1:2, sum)
-        t(L) %*% (solve(Oi) - solve(A) ) %*% L
-      })
-      wbar <- sum(unlist(w_i))
-
-      Abc_i <- lapply(w_i, function(w){
-        as.numeric(w/wbar) * Bbc
-      })
-      Abc  <- Matrix::bdiag(Abc_i)
-
-      out$df1  <- estimate_df(A = A_d, C = C)
-      out$df2  <- estimate_df(A = Abc, C = C)
+        out$df1 <- df1
+        out$df2 <- df2
+      }
     }
+
     out
   })
+}
+
+#------------------------------------------------------------------------------#
+#' Estimate Fay's bias correction
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+bias_correction <- function(m, A, Ai, Bi, b){
+
+  H_i <- lapply(Ai, function(m){
+    diag( (1 - pmin(b, diag(m %*% solve(A)) ) )^(-0.5) )
+  })
+
+  Bbc_i <- lapply(1:m, function(i){
+    H_i[[i]] %*% Bi[[i]] %*% H_i[[i]]
+  })
+  Bbc   <- apply(simplify2array(Bbc_i), 1:2, sum)
+
+  list(H_i = H_i, Bbc = Bbc)
+}
+
+
+
+#------------------------------------------------------------------------------#
+#' Preparations for Fay's degrees of freedom corrections
+#'
+#' @export
+#------------------------------------------------------------------------------#
+df_correction_prep <- function(m, L, A, A_i, H_i){
+  p <- ncol(A)
+
+  II   <- diag(1, p*m)
+  AA   <- do.call(rbind, A_i)
+  calI <- do.call(cbind, args = lapply(1:m, function(i) diag(1, p) ))
+  G    <- II - (AA %*% solve(A) %*% calI)
+
+  M_i  <- lapply(H_i, function(mat){
+    mat %*% solve(A) %*% L %*% t(L) %*% t(solve(A)) %*% mat
+  })
+  M    <- Matrix::bdiag(M_i)
+
+  C    <- t(G) %*% M %*% G
+
+  A_d  <- Matrix::bdiag(A_i)
+
+  list(A_d = A_d, C = C)
+}
+
+#------------------------------------------------------------------------------#
+#' Estimate Fay's degrees of freedom corrections 1
+#'
+#' @export
+#------------------------------------------------------------------------------#
+df_correction_1 <- function(A_d, C){
+  estimate_df(A = A_d, C = C)
+}
+
+
+#------------------------------------------------------------------------------#
+#' Estimate Fay's degrees of freedom correction 2
+#'
+#' @export
+#------------------------------------------------------------------------------#
+df_correction_2 <- function(m, A, A_i, C, L,  Bbc){
+  w_i  <- lapply(1:m, function(i) {
+    # exclude the ith element
+    Oi <- apply(simplify2array(A_i[-i]), 1:2, sum)
+    t(L) %*% (solve(Oi) - solve(A) ) %*% L
+  })
+  wbar <- sum(unlist(w_i))
+
+  Abc_i <- lapply(w_i, function(w){
+    as.numeric(w/wbar) * Bbc
+  })
+  Abc  <- Matrix::bdiag(Abc_i)
+
+  estimate_df(A = Abc, C = C)
 }
 
 #------------------------------------------------------------------------------#
