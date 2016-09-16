@@ -10,6 +10,8 @@ Depends:
 Imports:
   Matrix (>= 1.2-6),
   rootSolve (>= 1.6.6)
+Suggests:
+  testthat
 License: GPL (>= 2)
 LazyData: TRUE
 VignetteBuilder: knitr
