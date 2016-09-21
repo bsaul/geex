@@ -118,7 +118,7 @@ A^{bc}_i = \frac{w_i}{\bar{w}} B^{bc}
 
 I'll use the `vaccinesim` dataset.
 ```{r, echo = TRUE, message = FALSE, warning=FALSE}
-library(eex)
+library(geex)
 library(dplyr)
 library(inferference)
 library(sandwich)
@@ -480,36 +480,35 @@ dt <- data.frame(X = rnorm(n, mean = 2),
                  id = 1:n)
 split_data <- split(dt, dt$id)
 
-distr <- function(x, theta0){
-  FF <- ecdf(x - theta0)
-  approxfun(x - theta0, y = FF(x - theta0), method = "linear",
-            0, 1, rule = 1, f = 0, ties = mean)
+F0 <- function(y, theta0, distrFUN = pnorm){
+  distrFUN(y - theta0, mean = 0)
 }
 
-FF <- distr(dt$X, 0)
-dens <- density(dt$X)
-ff2 <- approxfun(dens$x, dens$y, yleft = 0, yright = 0)
-integrand <- function(y){
-  ff2(y)^2
+f0 <- function(y, densFUN){
+  densFUN(y, mean = 0)
 }
 
-IC_denom <- integrate(integrand, lower = min(dt$X), upper = max(dt$X))$value
+integrand <- function(y, densFUN = dnorm){
+  f0(y, densFUN = densFUN)^2
+}
+
+IC_denom <- integrate(integrand, lower = -Inf, upper = Inf)$value
+
 
 SB_ex5_eefun <- function(data, theta0 = 0){
   Xi <- data$X
+  IC_HL <- (1/IC_denom) * (F0(Xi, theta0) - 0.5)
   function(theta){
-     IC_HL <- (FF(Xi - theta0) - 0.5)/IC_denom
-     c(IC_HL - (theta[1] - theta0),
-       Xi - theta[2])
+     c(IC_HL - (theta[1] - theta0), #psi for HL estimator
+       Xi - theta[2]) # psi for sample mean
   }
 }
 
-split_data <- split(dt, dt$id)
 
 example <- list(eeFUN   = SB_ex5_eefun, 
                 splitdt = split_data)
 
-root <- eeroot(obj = example, start = c(2.2, 1))$root
+root <- eeroot(obj = example, start = c(1, 1))$root
 root
 
 X <- dt$X
@@ -544,4 +543,86 @@ Sigma
 ```{r SB_example7, echo=TRUE}
 
 
+```
+
+## Stefanski \& Boos example 8
+
+```{r SB_example8, echo=TRUE}
+n <- 50
+beta <- c(0.5, 2)
+dt <- data.frame(X  = cbind(1, rep(0:1, each = n/2)),
+                 e  = rnorm(n),
+                 Y  = X %*% beta + e,
+                 id = 1:n)
+
+split_data <- split(dt, dt$id)
+
+psi_k <- function(x, k = 4){
+  if(abs(x) <= k) x else sign(x) * k
+}
+
+SB_ex8_eefun <- function(data){
+  Yi <- data$Y
+  xi <- model.matrix(Y ~ X.2, data = data)
+  function(theta){
+    r <- Yi - xi %*% theta
+    psi_k(r) %*% xi
+  }
+}
+
+SB_ex8_eefun(split_data[[2]])(c(.5, 2))
+
+example <- list(eeFUN   = SB_ex8_eefun, 
+                splitdt = split_data)
+
+root <- eeroot(obj = example, start = c(1, 2))$root
+root
+```
+
+
+## Stefanski \& Boos example 9
+
+```{r SB_example9, echo=TRUE}
+n <- 50
+beta <- c(0.5, 2, .1)
+
+dt <- data_frame(X1 = rep(0:1, each = n/2), 
+                 X2 = rnorm(n),
+                 Y  = rbinom(n, 1, prob = as.numeric(plogis(cbind(1, X1, X2) %*% beta))),
+                 id = 1:n)
+split_data <- split(dt, dt$id)
+
+
+SB_ex9_eefun <- function(data){
+  Yi <- data$Y
+  xi <- model.matrix(Y ~ X1 + X2, data = data, drop = FALSE)
+  function(theta){
+    lp <- xi %*% theta[1:3]
+    mu <- plogis(lp)
+    D  <- dlogis(lp)
+    V  <- mu * (1 - mu)
+    c(D * solve(V) * (Yi - mu),
+      Yi - theta[4])
+  }
+}
+
+SB_ex9_eefun(split_data[[6]])(c(.5, 2, .1))
+
+example <- list(eeFUN   = SB_ex9_eefun, 
+                splitdt = split_data)
+
+  psi1 <- lapply(split_data, function(data_i){
+    SB_ex9_eefun(data = data_i)
+  })
+
+numDeriv::jacobian(psi1[[1]], x = c(0, 0, 0, 0))
+  psi1[[1]](c(1, 0, 0, 0))
+  psi <- function(theta){
+    psii <- lapply(psi_i, function(f) f(theta))
+    apply(simplify2array(psii), 1, sum)
+  }
+
+
+root <- eeroot(obj = example, start = c(1, 1, 1, 1))$root
+root
 ```
