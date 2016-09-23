@@ -179,13 +179,13 @@ eefun2 <- function(data, model, alpha){
     lp  <- X %*% theta[1:p1]
     rho <- plogis(lp)
 
-    hh  <- (rho/alpha)^A * ((1-rho)/(1-alpha))^(1 - A)
+    hh  <- ((rho/alpha)^A * ((1-rho)/(1-alpha))^(1 - A)) 
     IPW <- 1/(exp(sum(log(hh))))
 
     score_eqns <- apply(X, 2, function(x) sum((A - rho) * x))
     with(data, {
-      ce0 <- mean(Y * (A == 0)) * IPW
-      ce1 <- mean(Y * (A == 1)) * IPW
+      ce0 <- mean(Y * (A == 0)) * IPW / (1 - alpha)
+      ce1 <- mean(Y * (A == 1)) * IPW / (alpha)
       
       c(score_eqns,
         ce0 - theta[p - 1],
@@ -211,40 +211,26 @@ example <- list(eeFUN   = eefun2,
                 splitdt = split_data)
 
 root <- eeroot(example, start =c(coef(mglm), .4,  .13), model = mglm, alpha = .35 )$root
-                # Plugging in the values of CE_hat(0) and CE_hat(1)
-                # since geex does not currently do point estimates)
+
 
 mats <- compute_matrices(obj = example, 
                          numDeriv_options = list(method = 'Richardson'),
-                         theta   = c(coef(mglm), 0.42186669,  0.15507946),
-                # Plugging in the values of CE_hat(0) and CE_hat(1)
-                # since geex returns incorrect point estimates for this problem at the moment
+                         theta   = root,
                          model = mglm, 
                          alpha = .35)
+# Compare parameter estimates
+direct_effect(test, allocation = .35)$estimate
+root[3] - root[4]
+
 # conpare SE estimates
-L <- c(0, 0, -1, 1)
+L <- c(0, 0, 1, -1)
 Sigma <- compute_sigma(mats)
 sqrt(t(L) %*% Sigma %*% L)  # from GEEX
 direct_effect(test, allocation = .35)$std.error # from inferference
 ```
 
 
-Fairly close. I would expect them to be somewhat different, since `inferference` computes the variance with the block diagonal trick in the Perez appendix.
-
-```{r,  echo = TRUE}
-### Point Estimate via inferference
-c(coef(mglm), 0.42186669,  0.15507946)
-
-### Points Estimates with GEEX
-root
-```
-Not so good. What happens if we start the geex root solver at the inferference estimates?
-
-```{r, echo = TRUE}
-eeroot(example, start =c(coef(mglm), 0.42186669,  0.15507946), model = mglm, alpha = .35 )$root
-```
-Hmmm, still not so good for the causal effects
-
+I would expect them to be somewhat different, since `inferference` computes the variance with the block diagonal trick in the Perez appendix.
 
 ## Stefanski \& Boos example 1
 
@@ -550,79 +536,139 @@ Sigma
 ```{r SB_example8, echo=TRUE}
 n <- 50
 beta <- c(0.5, 2)
-dt <- data.frame(X  = cbind(1, rep(0:1, each = n/2)),
+dt <- data_frame(X  = rep(0:1, each = n/2),
                  e  = rnorm(n),
-                 Y  = X %*% beta + e,
+                 Y  = as.numeric(cbind(1, X) %*% beta) + e,
                  id = 1:n)
-
 split_data <- split(dt, dt$id)
 
-psi_k <- function(x, k = 4){
+psi_k <- function(x, k = 1.345){
   if(abs(x) <= k) x else sign(x) * k
 }
 
 SB_ex8_eefun <- function(data){
   Yi <- data$Y
-  xi <- model.matrix(Y ~ X.2, data = data)
+  xi <- model.matrix(Y ~ X, data = data)
   function(theta){
     r <- Yi - xi %*% theta
-    psi_k(r) %*% xi
+    c(psi_k(r) %*% xi)
   }
 }
-
-SB_ex8_eefun(split_data[[2]])(c(.5, 2))
 
 example <- list(eeFUN   = SB_ex8_eefun, 
                 splitdt = split_data)
 
 root <- eeroot(obj = example, start = c(1, 2))$root
-root
+
+
+m <- MASS::rlm(Y ~ X, data = dt, method = 'M')
+
+# Compare paramter estimates
+root # GEEX
+coef(m) # rlm
+
+# Asymp correlation btn HL estimator and mean
+mats  <- compute_matrices(obj = example,
+                          theta = root,
+                          numDeriv_options = list(method = 'Richardson'))
+Sigma <- compute_sigma(mats)
+
+# Compare variance
+Sigma
+vcov(m)
+
 ```
 
 
 ## Stefanski \& Boos example 9
 
 ```{r SB_example9, echo=TRUE}
-n <- 50
+n <- 100
 beta <- c(0.5, 2, .1)
 
 dt <- data_frame(X1 = rep(0:1, each = n/2), 
-                 X2 = rnorm(n),
+                 X2 = rep(0:1, times = n/2),
                  Y  = rbinom(n, 1, prob = as.numeric(plogis(cbind(1, X1, X2) %*% beta))),
                  id = 1:n)
 split_data <- split(dt, dt$id)
-
 
 SB_ex9_eefun <- function(data){
   Yi <- data$Y
   xi <- model.matrix(Y ~ X1 + X2, data = data, drop = FALSE)
   function(theta){
-    lp <- xi %*% theta[1:3]
+    lp <- xi %*% theta
     mu <- plogis(lp)
-    D  <- dlogis(lp)
+    D  <- t(xi) %*% dlogis(lp)
     V  <- mu * (1 - mu)
-    c(D * solve(V) * (Yi - mu),
-      Yi - theta[4])
+    D %*% solve(V) %*% (Yi - mu)
   }
 }
 
-SB_ex9_eefun(split_data[[6]])(c(.5, 2, .1))
+# SB_ex9_eefun(split_data[[6]])(c(.5, 2, .1))
 
 example <- list(eeFUN   = SB_ex9_eefun, 
                 splitdt = split_data)
 
-  psi1 <- lapply(split_data, function(data_i){
-    SB_ex9_eefun(data = data_i)
-  })
+root <- eeroot(obj = example, start = c(.5, 2, 1))$root
+m <- glm(Y ~ X1 + X2, data = dt, family = binomial(link = 'logit'))
 
-numDeriv::jacobian(psi1[[1]], x = c(0, 0, 0, 0))
-  psi1[[1]](c(1, 0, 0, 0))
-  psi <- function(theta){
-    psii <- lapply(psi_i, function(f) f(theta))
-    apply(simplify2array(psii), 1, sum)
-  }
-
-
-root <- eeroot(obj = example, start = c(1, 1, 1, 1))$root
+# Compare parameter estimates
 root
+coef(m)
+mats <- compute_matrices(example, theta = root)
+Sigma <- compute_sigma(mats)
+
+# Compare variance estimates
+Sigma
+sandwich(m)
+```
+
+
+
+## Stefanski \& Boos example 10
+
+```{r SB_example10, echo=TRUE}
+
+dt <- data_frame(game = 1:23,
+                 ft_made = c(4, 5, 5, 5, 2, 7, 6, 9, 4, 1, 13, 5, 6, 9, 7, 3, 8, 1, 18, 3, 10, 1, 3),
+                 ft_attp = c(5, 11, 14, 12, 7, 10, 14, 15, 12, 4, 27, 17, 12, 9, 12, 10, 12, 6, 39, 13, 17, 6, 12))
+
+split_data <- split(dt, dt$game)
+
+SB_ex10_eefun <- function(data){
+  Y <- data$ft_made
+  n <- data$ft_attp
+  function(theta){
+    p <- theta[2]
+    c(((Y - (n * p))^2)/(n * p * (1 - p))  - theta[1], 
+      Y - n * p)
+  }
+}
+SB_ex10_eefun(split_data[[1]])(c(.5, .5))
+example <- list(eeFUN   = SB_ex10_eefun, 
+                splitdt = split_data)
+
+root <- eeroot(obj = example, start = c(.5, .5))$root
+root
+
+V11 <- function(p) {
+  k <- length(nrow(dt))
+  sumn <- sum(dt$ft_attp)
+  sumn_inv <- sum(1/dt$ft_attp)
+  term2_n <- 1 - (6 * p) + (6 * p^2)
+  term2_d <- p * (1 - p) 
+  term2 <- term2_n/term2_d
+  print(term2)
+  term3 <- ((1 - 2 * p)^2)/( (sumn/k) * p * (1 - p))
+  print(term3)
+  2 + (term2 * (1/k) * sumn_inv)  - term3
+}
+
+### ???? I keep getting a negative value for V11
+
+p_tilde <- sum(dt$ft_made)/sum(dt$ft_attp)
+V <- V11(.45)
+V
+pnorm(root[1], mean = 1, sd = sqrt(V))
+
 ```
