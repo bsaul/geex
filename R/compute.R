@@ -219,3 +219,53 @@ compute_sigma <- function(matrices, corrections = NULL){
          solve(A) %*% B %*% t(solve(A))
        })
 }
+
+#------------------------------------------------------------------------------#
+#' ee
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+estimate_equations <- function(eeFUN,
+                               data,
+                               units,
+                               corrections = NULL,
+                               correction_options = list(),
+                               numDeriv_options = list(method = 'Richardson'),
+                               rootsolver = rootSolve::multiroot,
+                               rootsolver_options = NULL,
+                               findroots  = TRUE,
+                               roots = NULL,
+                               ...){
+
+  ## Warnings ##
+  if(missing(roots) & findroots){
+    stop('If findroots = TRUE, then starting values for the rootsolver must be specified in roots argument.')
+  }
+
+  split_data <- split(x = data, f = data[[units]] )
+  eeobj      <- list(eeFUN = eeFUN, splitdt = split_data)
+
+  ## Compute estimating equation roots ##
+  if(findroots){
+    eesolved <- eeroot(eeobj, start = roots,
+                       root_options = rootsolver_options,
+                       ...)
+    theta_hat <- eesolved$root
+  } else {
+    theta_hat <- roots
+  }
+
+  ## Compute variance estimates ##
+  mats <- compute_matrices(obj   = eeobj,
+                           theta = theta_hat,
+                           corrections = corrections,
+                           numDeriv_options = numDeriv_options,
+                           correction_options = correction_options,
+                           ...)
+
+  Sigma_hat <- compute_sigma(mats)
+
+  list(parameters = theta_hat, vcov = Sigma_hat)
+}
+
