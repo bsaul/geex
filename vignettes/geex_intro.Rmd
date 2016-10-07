@@ -127,10 +127,10 @@ print_results <- function(results, label, caption){
 
 ## Stefanski \& Boos example 6
 
-```{r SB_example6, echo=TRUE}
-
-
+```{r child = 'examples/SB6.Rmd'}
 ```
+
+
 
 
 ## Stefanski \& Boos example 7
