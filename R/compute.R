@@ -1,4 +1,18 @@
 #------------------------------------------------------------------------------#
+#' Handles the case where there a single estimating equation
+#' @export
+#------------------------------------------------------------------------------#
+
+check_array <- function(vals){
+  if(!is.array(vals)){
+    array(vals, dim = c(1, 1, length(vals)))
+  } else {
+    vals
+  }
+}
+
+
+#------------------------------------------------------------------------------#
 #' Compute roots for a set of estimating equations
 #' @export
 #------------------------------------------------------------------------------#
@@ -11,7 +25,7 @@ eeroot <- function(obj, start, root_options = NULL, ...){
 
   psi <- function(theta){
     psii <- lapply(psi_i, function(f) f(theta))
-    apply(simplify2array(psii), 1, sum)
+    apply(check_array(simplify2array(psii)), 1, sum)
   }
 
   rargs <- append(root_options, list(f = psi, start = start))
@@ -56,11 +70,12 @@ compute_matrices <- function(obj,
       val  <- do.call(numDeriv::jacobian, args = args)
       -val
     })
-    A   <- apply(simplify2array(A_i), 1:2, sum)
+    A_i <- check_array(simplify2array(A_i))
+    A   <- apply(A_i, 1:2, sum)
 
     # Compute outer product of observed estimating eqns
     B_i <- lapply(psi_i, function(ee) ee(theta) %*% t(ee(theta)) )
-    B   <- apply(simplify2array(B_i), 1:2, sum)
+    B   <- apply(check_array(simplify2array(B_i)), 1:2, sum)
 
     out <-  list(A = A, A_i = A_i, B = B, B_i = B_i)
 
