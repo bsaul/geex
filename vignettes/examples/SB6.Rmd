@@ -1,0 +1,75 @@
+---
+output: pdf_document
+---
+
+
+```{r SB6_setup, echo=FALSE}
+n <- 50
+beta <- c(0.5, 2)
+dt <- data_frame(X  = rep(0:1, each = n/2),
+                 e  = rnorm(n),
+                 Y  = as.numeric(cbind(1, X) %*% beta) + e,
+                 id = 1:n)
+
+
+```
+
+Example 4 illustrates calculation of an instumental variable estimator. I generate a data set with `r n` observations where $X \sim N$(`r theta_tru`, `r sigma`). Let $\theta_0 =$ `r theta0`. Table \ref{ex5} translates the estimating equations for the Hodges-Lehmann location estimation and the sample mean into the `R` function needed for `geex`:
+
+\begin{table}[!ht]
+\centering
+\label{ex5}
+\caption{Translating math to code}
+\begin{tabular}{cc}
+$\psi(Y_i, \theta) = 
+\begin{pmatrix}
+IC_{\hat{\theta}_{HL}}(X; \theta_0) - (\theta_1 - \theta_0) \\
+X_i - \theta_2 \\
+\end{pmatrix}$ &
+\begin{minipage}{3in}
+\begin{verbatim}
+SB6_eefun <- function(data, theta0 = 0){
+  Xi <- data$X
+  IC_HL <- (1/IC_denom) * (F0(Xi, theta0) - 0.5)
+  function(theta){
+     c(IC_HL - (theta[1] - theta0), 
+       Xi - theta[2]) 
+  }
+}
+\end{verbatim}
+\end{minipage}
+\end{tabular}
+\end{table}
+
+```{r SB6_eefun, echo = TRUE}
+psi_k <- function(x, k = 1.345){
+  if(abs(x) <= k) x else sign(x) * k
+}
+```
+
+```{r SB6_run, echo = TRUE}
+estimates <- estimate_equations(eeFUN = SB6_eefun, 
+                                data  = dt, units = 'id', 
+                                roots = c(1))
+```
+
+```{r SB6_clsform, echo = TRUE}
+X <- dt$X
+pair_means <- numeric(length(X) - 1)
+for(i in 1:(length(X) - 1)){
+ pair_means[i] <-  (X[i] + X[i + 1])/2
+}
+
+theta_cls <- c(median(pair_means), mean(X))
+
+## closed form covariance
+# Not sure how compute SB's closed form since it depends on X, which is
+# supposed to be unobserved.
+Sigma_cls <- matrix(c(1/(12 * IC_denom^2) / n, NA, NA, NA), 
+                    nrow = 2, ncol = 2, byrow = TRUE)
+```
+
+```{r SB6_results, echo = FALSE, results = 'asis'}
+results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+print_results(results, 'Example 5', 'Example 5')
+```

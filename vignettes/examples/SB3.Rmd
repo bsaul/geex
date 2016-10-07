@@ -1,0 +1,100 @@
+---
+output: pdf_document
+---
+
+
+```{r SB3_setup, echo=FALSE}
+n  <- 100
+mu <- 5
+sigma <- 4
+set.seed(100) # running into issue where sqrt(theta2) and log(theta2) return NaN for some seeds
+dt <- data.frame(Y  = rnorm(n, mean = mu, sd = sigma), 
+                 id = 1:n)
+```
+
+Example 3 illustrates calculation of a ratio estimator. I generate a data set with `r n` observations where $Y \sim N$(`r mu`, `r sigma`). Table \ref{ex3} translates the estimating equations into the `R` function needed for `geex`:
+
+
+\begin{table}[ht]
+\centering
+\label{ex3}
+\caption{Translating math to code}
+\begin{tabular}{cc}
+$\psi(Y_i, \theta) = 
+\begin{pmatrix}
+Y_i - \theta_1 \\
+X_i - \theta_2 \\
+\sqrt{\theta_2} - \theta_3 \\
+log(\theta_2) - \theta_4
+\end{pmatrix}$ &
+\begin{minipage}{3in}
+\begin{verbatim}
+SB3_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(Y - theta[1],
+       (Y - theta[1])^2 - theta[2],
+       sqrt(theta[2]) - theta[3],
+       log(theta[2]) - theta[4])
+    )
+  }
+}
+\end{verbatim}
+\end{minipage}
+\end{tabular}
+\end{table}
+
+```{r SB3_eefun, echo = FALSE}
+SB3_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(Y - theta[1],
+       (Y - theta[1])^2 - theta[2],
+       sqrt(theta[2]) - theta[3],
+       log(theta[2]) - theta[4])
+    )
+  }
+}
+```
+
+```{r SB3_run, echo = TRUE}
+estimates <- estimate_equations(eeFUN= SB3_eefun, 
+                                data  = dt, units = 'id', 
+                                roots = c(1, 1, 1, 1))
+```
+
+```{r SB3_clsform, echo = FALSE}
+## closed form roots
+theta_cls <- summarize(dt, p1 = mean(Y), p2 = sum((Y - p1)^2)/n(), p3 = sqrt(p2), p4 = log(p2))
+
+## Compare to closed form ##
+theta2 <- theta_cls$p2
+mu3 <- moments::moment(dt$Y, order = 3, central = TRUE)
+mu4 <- moments::moment(dt$Y, order = 4, central = TRUE)
+# A <- matrix(c(1, 0, 0, 0,
+#               0, 1, 0, 0,
+#               0, -1/(2 * sqrt(theta2)), 1, 0,
+#               0, -1/theta2, 0, 1), 
+#             byrow = TRUE, nrow = 4)
+# B <- matrix(c(1/theta2, mu3/(2 * theta2^3), 0, 0,
+#               mu3/(2 * theta2^3), (mu4 - theta2^2)/(4 * theta2^4), 0, 0,
+#               0, 0, 0, 0,
+#               0, 0, 0, 0),
+#             byrow = TRUE, nrow = 4)
+
+## closed form covariance
+Sigma_cls <- matrix(
+  c(theta2, mu3, mu3/(2*sqrt(theta2)), mu3/theta2,
+    mu3, mu4 - theta2^2, (mu4 - theta2^2)/(2*sqrt(theta2)), (mu4 - theta2^2)/theta2,
+    mu3/(2 * sqrt(theta2)), (mu4 - theta2^2)/(2*sqrt(theta2)), (mu4 - theta2^2)/(4*theta2), (mu4 - theta2^2)/(2*theta2^(3/2)),
+    mu3/theta2, (mu4 - theta2^2)/theta2, (mu4 - theta2^2)/(2*theta2^(3/2)), (mu4/theta2^2) - 1) ,
+  nrow = 4, byrow = TRUE) / n
+## closed form covariance
+# Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
+```
+
+
+```{r SB3_results, echo = FALSE, results = 'asis'}
+results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+print_results(results, 'ex3_results', 'Example 3')
+```

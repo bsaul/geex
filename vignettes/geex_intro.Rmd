@@ -2,11 +2,7 @@
 title: "Estimating Equations in R: `geex`"
 author: "B. Saul"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: pdf_document
 ---
 
 ```{r, echo = FALSE, message = FALSE, warning=FALSE}
@@ -15,6 +11,7 @@ library(dplyr)
 library(inferference)
 library(sandwich)
 library(xtable)
+library(moments)
 # library(microbenchmark)
 ```
 
@@ -58,328 +55,73 @@ B = \sum_{i = 1}^m B_i
 \Sigma = A^{-1} B \{A^{-1}\}^T
 \]
 
-## Stefanski \& Boos example 1
 
-```{r SB1_setup, echo=FALSE}
-n  <- 100
-mu <- 5
-sigma2 <- 4
-dt <- data.frame(Y = rnorm(n, mean = mu, sd = sigma2), id = 1:n)
-split_data <- split(dt, dt$id)
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+library(geex)
+library(dplyr)
+library(inferference)
+library(sandwich)
+library(xtable)
+# library(microbenchmark)
 ```
 
-Example 1 illustrates calculation of sample mean and variance using estimating equations. I generate a data set with `r n` observations drawn from a Normal(`r mu`, `r sigma2`) distribution. Table 1 translated the estimating equations into the R function needed for `geex`:
-
-<table>
-<tr>
-<td>
-\[
-\psi(Y_i, \theta) = 
-\begin{pmatrix}
-Y_i - \theta_1 \\
-(Y_i - \theta_1)^2 - \theta_2
-\end{pmatrix}
-\] 
-</td>
-<td>
-```{r SB1_eefun, echo=TRUE, results='asis'}
-SB1_eefun <- function(data){
-  function(theta){
-    with(data,
-      c(Y - theta[1],
-       (Y - theta[1])^2 - theta[2] )
-    )
+```{r functions_results, echo = FALSE}
+print_pmatrix <- function(object, digits = 4){
+  if(!is.matrix(object)){
+    object <- matrix(object, nrow = 1)
   }
+  
+  paste0('$', print(xtable(object, align=rep("",ncol(object)+1), digits =digits), comment = FALSE,
+        floating=FALSE, tabular.environment="pmatrix", hline.after=NULL, 
+        include.rownames=FALSE, include.colnames=FALSE, print.results = FALSE), '$')
+}
+
+first_diff_dec <- function(x){
+  -floor(log10(abs(x)))
+}
+
+print_results <- function(results, label, caption){
+  r <- results
+  cat('\\begin{table}[!htbp] \n',
+      '\\centering \n',
+      '\\label{', label, '} \n',
+      '\\caption{"', caption, '"} \n',
+      '\\begin{tabular}{lcc} \n',
+      ' & $\\hat{\\theta}$ & $\\hat{\\Sigma}$  \\\\ \n',
+      'Closed form &', print_pmatrix(r$cls$parameters),  '&', print_pmatrix(r$cls$vcov), '\\\\ \n',
+      'geex &',  print_pmatrix(r$geex$parameters),  '&', print_pmatrix(r$geex$vcov), '\\\\ \n',
+      'Decimal of difference &',  print_pmatrix(first_diff_dec(r$cls$parameters - r$geex$parameters), d = 0),  '&',
+                                  print_pmatrix(first_diff_dec(r$cls$vcov - r$geex$vcov), d = 0), '\\\\ \n',
+      '\\end{tabular} \n', 
+      '\\end{table}')
 }
 ```
-</td>
-</tr>
-</table>
 
-With the `eeFUN` function prepared, it is passed to `estimate_equations` along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.
 
-```{r SB1_run, echo=FALSE}
-estimates <- estimate_equations(eeFUN = SB1_eefun, data  = dt, units = 'id', roots = c(1,1))
+## Stefanski \& Boos example 1
+
+```{r child = 'examples/SB1.Rmd'}
 ```
-
-```{r SB1_clsform, echo=FALSE}
-## Compare to closed form ##
-
-A <- diag(1, nrow = 2)
-
-B <- with(dt, {
-  Ybar <- mean(Y)
-  B11 <- mean( (Y - Ybar)^2 )
-  B12 <- mean( (Y - Ybar) * ((Y - Ybar)^2 - B11) )
-  B22 <- mean( ((Y - Ybar)^2 - B11)^2 )
-  matrix(
-    c(B11, B12,
-      B12, B22), nrow = 2
-  )
-})
-
-## closed form roots
-# note that var() divides by n - 1, not n
-theta_cls <- summarize(dt, p1 = mean(Y), p2 = var(Y) * (n() - 1)/ n() )
-
-# closed form
-Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
-```
-
-```{r}
-
-```
-
-|      | Closed form | `geex` |
-|------|------|------|  
-| $\hat{\theta}$ | `r theta_cls` | `r estimates$parameters` |
-| $\hat{\Sigma}$ | `r Sigma_cls` | `r print(xtable(estimates$vcov), floating=FALSE, tabular.environment="pmatrix", hline.after=NULL, include.rownames=FALSE, include.colnames=FALSE)` |
 
 
 ## Stefanski \& Boos example 2
 
-```{r SB_example2, echo=TRUE}
-n  <- 100
-dt <- data.frame(Y  = rnorm(n, mean = 5, sd = 4), 
-                 X  = rnorm(n, mean = 2, sd = .09),
-                 id = 1:n)
-split_data <- split(dt, dt$id)
-
-SB_ex2_eefun <- function(data){
-  function(theta){
-    with(data,
-      c(Y - theta[1],
-        X - theta[2],
-        theta[1] - (theta[3] * theta[2]) )
-    )
-  }
-}
-
-example <- list(eeFUN   = SB_ex2_eefun, 
-                splitdt = split_data)
-root <- eeroot(obj = example, start = c(1, 1, 1))$root
-mats  <- compute_matrices(obj = example,
-                          theta = root,
-                          numDeriv_options = list(method = 'Richardson'))
-Sigma <- compute_sigma(mats)
-
-## Compare to closed form ##
-
-A <- with(dt, {
- matrix(
-  c(1 , 0, 0,
-    0 , 1, 0,
-    -1, mean(Y)/mean(X), mean(X)),
-  byrow = TRUE, nrow = 3)
-})
-
-B <- with(dt, {
-  matrix(
-    c(var(Y)   , cov(Y, X), 0,
-      cov(Y, X), var(X)   , 0,
-      0, 0, 0),
-    byrow = TRUE, nrow = 3)
-})
-
-## geex roots 
-root
-
-## closed form roots
-summarize(dt, p1 = mean(Y), p2 = mean(X), p3 = p1/p2)
-
-# geex variance estimate
-Sigma
-
-# closed form
-(solve(A) %*% B %*% t(solve(A))) / n
-
+```{r child = 'examples/SB2.Rmd'}
 ```
+
 
 ## Stefanski \& Boos example 3
-
-Closed form variance is complicated, so didn't do for now.
-
-```{r SB_example3, echo=TRUE}
-set.seed(100) # running into issue where sqrt(theta2) and log(theta2) return NaN for some seeds
-n  <- 100
-dt <- data.frame(Y  = rnorm(n, mean = 5, sd = 4), 
-                 id = 1:n)
-split_data <- split(dt, dt$id)
-
-SB_ex3_eefun <- function(data){
-  function(theta){
-    with(data,
-      c(Y - theta[1],
-       (Y - theta[1])^2 - theta[2],
-       sqrt(theta[2]) - theta[3],
-       log(theta[2]) - theta[4])
-    )
-  }
-}
-
-example <- list(eeFUN   = SB_ex3_eefun, 
-                splitdt = split_data)
-theta_geex <- eeroot(obj = example, start = c(1, 1, 1, 1))$root
-
-
-mats  <- compute_matrices(obj = example,
-                          theta = theta_geex,
-                          numDeriv_options = list(method = 'Richardson'))
-Sigma <- compute_sigma(mats)
-
-## geex roots 
-theta_geex
-
-## closed form roots
-theta_cls <- summarize(dt, p1 = mean(Y), p2 = sum((Y - p1)^2)/n(), p3 = sqrt(p2), p4 = log(p2))
-
-# geex variance estimate
-Sigma
-
-## Closed form variance
-theta2 <- theta_cls$p2
-mu3 <- moments::moment(dt$Y, order = 3, central = TRUE)
-mu4 <- moments::moment(dt$Y, order = 4, central = TRUE)
-A <- matrix(c(1, 0, 0, 0,
-              0, 1, 0, 0,
-              0, -1/(2 * sqrt(theta2)), 1, 0,
-              0, -1/theta2, 0, 1), 
-            byrow = TRUE, nrow = 4)
-B <- matrix(c(1/theta2, mu3/(2 * theta2^3), 0, 0,
-              mu3/(2 * theta2^3), (mu4 - theta2^2)/(4 * theta2^4), 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0),
-            byrow = TRUE, nrow = 4)
-# closed form estimators for 
-(solve(A) %*% B %*% t(solve(A))) / n
-
-Sigma
-(mu4 - theta2^2)/(4*theta2)/100
-(mu4/(theta2^2) - 1)/100
-
+```{r child = 'examples/SB3.Rmd'}
 ```
-
 
 ## Stefanski \& Boos example 4
 
-```{r SB_example4, echo=TRUE}
-n  <- 10000
-
-# Oracle parms
-alpha <- 2
-beta  <- 3
-gamma <- 2
-delta <- 1.5
-e1 <- e2 <- e3 <- rnorm(n)
-sigma_e <- 1
-sigma_U <- .25
-sigma_tau <- 1
-### Random variables
-
-X <- rgamma(n, shape = 5)
-X <- rnorm(n, sd = 1)
-
-dt <- data.frame(Y  = alpha + (beta * X) + (sigma_e * e1), 
-                 W  = X + (sigma_U * e2),
-                 T_  = gamma + (delta * X) + (sigma_tau * e3),
-                 id = 1:n)
-split_data <- split(dt, dt$id)
-
-SB_ex4_eefun <- function(data){
-  function(theta){
-    with(data,
-      c(theta[1] - T_,
-        theta[2] - W,
-        (Y - (theta[3] * W)) * (theta[2] - W),
-        (Y - (theta[4] * W)) * (theta[1] - T_))
-    )
-  }
-}
-
-
-
-example <- list(eeFUN   = SB_ex4_eefun, 
-                splitdt = split_data)
-root <- eeroot(obj = example, start = c(1, 1, 1, 1))$root
-root
-
-## compare to closed form
-c(theta1 = mean(dt$T_),
-  theta2 = mean(dt$W),
-  theta3 = coef(lm(Y ~ W, data = dt))[2],
-  theta4 = coef(lm(Y ~ T_, data = dt))[2]/coef(lm(W ~ T_, data = dt))[2])
-
-
-mats  <- compute_matrices(obj = example,
-                          theta = root,
-                          numDeriv_options = list(method = 'Richardson'))
-Sigma <- compute_sigma(mats)
-
-Sigma
-
-
-## compare to closed form
-# TODO
-
+```{r child = 'examples/SB4.Rmd'}
 ```
 
 ## Stefanski \& Boos example 5
 
-```{r SB_example5, echo=TRUE}
-
-n <- 100
-theta0 <- 0
-dt <- data.frame(X = rnorm(n, mean = 2),
-                 id = 1:n)
-split_data <- split(dt, dt$id)
-
-F0 <- function(y, theta0, distrFUN = pnorm){
-  distrFUN(y - theta0, mean = 0)
-}
-
-f0 <- function(y, densFUN){
-  densFUN(y, mean = 0)
-}
-
-integrand <- function(y, densFUN = dnorm){
-  f0(y, densFUN = densFUN)^2
-}
-
-IC_denom <- integrate(integrand, lower = -Inf, upper = Inf)$value
-
-
-SB_ex5_eefun <- function(data, theta0 = 0){
-  Xi <- data$X
-  IC_HL <- (1/IC_denom) * (F0(Xi, theta0) - 0.5)
-  function(theta){
-     c(IC_HL - (theta[1] - theta0), #psi for HL estimator
-       Xi - theta[2]) # psi for sample mean
-  }
-}
-
-
-example <- list(eeFUN   = SB_ex5_eefun, 
-                splitdt = split_data)
-
-root <- eeroot(obj = example, start = c(1, 1))$root
-root
-
-X <- dt$X
-pair_means <- numeric(length(dt$X) - 1)
-for(i in 1:(length(X) - 1)){
- pair_means[i] <-  (X[i] + X[i + 1])/2
-}
-
-c(median(pair_means), mean(dt$X))
-
-# Asymp correlation btn HL estimator and mean
-mats  <- compute_matrices(obj = example,
-                          theta = root,
-                          numDeriv_options = list(method = 'Richardson'))
-Sigma <- compute_sigma(mats)
-Sigma
-
-
+```{r child = 'examples/SB5.Rmd'}
 ```
 
 

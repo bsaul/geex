@@ -1,0 +1,101 @@
+---
+output: pdf_document
+---
+
+
+```{r SB4_setup, echo=FALSE}
+n  <- 100
+
+# Oracle parms
+alpha <- 2
+beta  <- 3
+gamma <- 2
+delta <- 1.5
+e1 <- e2 <- e3 <- rnorm(n)
+sigma_e <- 1
+sigma_U <- .25
+sigma_tau <- 1
+### Random variables
+
+X <- rgamma(n, shape = 5)
+X <- rnorm(n, sd = 1)
+
+dt <- data.frame(Y  = alpha + (beta * X) + (sigma_e * e1), 
+                 W  = X + (sigma_U * e2),
+                 T_  = gamma + (delta * X) + (sigma_tau * e3),
+                 id = 1:n)
+```
+
+Example 4 illustrates calculation of an instumental variable estimator. I generate a data set with `r n` observations where INPUT data generation. Table \ref{ex4} translates the estimating equations into the `R` function needed for `geex`:
+
+
+\begin{table}[ht]
+\centering
+\label{ex4}
+\caption{Translating math to code}
+\begin{tabular}{cc}
+$\psi(Y_i, T_i, W_i \theta) = 
+\begin{pmatrix}
+\theta_1 - T_i\\
+\theta_2 - W_i \\
+(Y_i - \theta_3 W_i)(\theta_2 - W_i) \\
+(Y_i - \theta_4 W_i)(\theta_1 - T_i) \\
+\end{pmatrix}$ &
+\begin{minipage}{3in}
+\begin{verbatim}
+SB_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(theta[1] - T_,
+        theta[2] - W,
+        (Y - (theta[3] * W)) * (theta[2] - W),
+        (Y - (theta[4] * W)) * (theta[1] - T_))
+    )
+  }
+}
+\end{verbatim}
+\end{minipage}
+\end{tabular}
+\end{table}
+
+```{r SB4_eefun, echo = FALSE}
+SB4_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(theta[1] - T_,
+        theta[2] - W,
+        (Y - (theta[3] * W)) * (theta[2] - W),
+        (Y - (theta[4] * W)) * (theta[1] - T_))
+    )
+  }
+}
+```
+
+```{r SB4_run, echo = TRUE}
+estimates <- estimate_equations(eeFUN = SB4_eefun, 
+                                data  = dt, units = 'id', 
+                                roots = c(1, 1, 1, 1))
+```
+
+```{r SB4_clsform, echo = TRUE}
+YW_model <- lm(Y ~ W, data = dt)
+YT_model <- lm(Y ~ T_, data = dt)
+WT_model <- lm(W ~ T_, data = dt)
+## closed form roots
+theta_cls <- c(theta1 = mean(dt$T_),
+  theta2 = mean(dt$W),
+  theta3 = coef(YW_model)[2],
+  theta4 = coef(YT_model)[2]/coef(WT_model)[2])
+
+## closed form covariance
+# Not sure how compute SB's closed form since it depends on X, which is
+# supposed to be unobserved.
+Sigma_cls <- matrix(NA, nrow = 2, ncol = 2)
+```
+
+```{r SB4_results, echo = FALSE, results = 'asis'}
+# primary interest lies in the lower 2 x 2 submatrix of the asymptotic variance matrix
+estimates$vcov <- estimates$vcov[3:4, 3:4]
+results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+print_results(results, 'Example 4', 'Example 4')
+```

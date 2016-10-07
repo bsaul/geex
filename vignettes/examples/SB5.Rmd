@@ -1,0 +1,92 @@
+---
+output: pdf_document
+---
+
+
+```{r SB5_setup, echo=FALSE}
+n <- 100
+theta0 <- 0
+theta_tru <- 2
+sigma <- 1
+dt <- data.frame(X = rnorm(n, mean = 2, sd = sigma),
+                 id = 1:n)
+```
+
+Example 4 illustrates calculation of an instumental variable estimator. I generate a data set with `r n` observations where $X \sim N$(`r theta_tru`, `r sigma`). Let $\theta_0 =$ `r theta0`. Table \ref{ex5} translates the estimating equations for the Hodges-Lehmann location estimation and the sample mean into the `R` function needed for `geex`:
+
+\begin{table}[!ht]
+\centering
+\label{ex5}
+\caption{Translating math to code}
+\begin{tabular}{cc}
+$\psi(Y_i, \theta) = 
+\begin{pmatrix}
+IC_{\hat{\theta}_{HL}}(X; \theta_0) - (\theta_1 - \theta_0) \\
+X_i - \theta_2 \\
+\end{pmatrix}$ &
+\begin{minipage}{3in}
+\begin{verbatim}
+SB5_eefun <- function(data, theta0 = 0){
+  Xi <- data$X
+  IC_HL <- (1/IC_denom) * (F0(Xi, theta0) - 0.5)
+  function(theta){
+     c(IC_HL - (theta[1] - theta0), 
+       Xi - theta[2]) 
+  }
+}
+\end{verbatim}
+\end{minipage}
+\end{tabular}
+\end{table}
+
+```{r SB5_eefun, echo = TRUE}
+F0 <- function(y, theta0, distrFUN = pnorm){
+  distrFUN(y - theta0, mean = 0)
+}
+
+f0 <- function(y, densFUN){
+  densFUN(y, mean = 0)
+}
+
+integrand <- function(y, densFUN = dnorm){
+  f0(y, densFUN = densFUN)^2
+}
+
+IC_denom <- integrate(integrand, lower = -Inf, upper = Inf)$value
+
+SB5_eefun <- function(data, theta0 = 0){
+  Xi <- data$X
+  IC_HL <- (1/IC_denom) * (F0(Xi, theta0) - 0.5)
+  function(theta){
+     c(IC_HL - (theta[1] - theta0),
+       Xi - theta[2]) 
+  }
+}
+```
+
+```{r SB5_run, echo = TRUE}
+estimates <- estimate_equations(eeFUN = SB5_eefun, 
+                                data  = dt, units = 'id', 
+                                roots = c(1, 1))
+```
+
+```{r SB5_clsform, echo = TRUE}
+X <- dt$X
+pair_means <- numeric(length(X) - 1)
+for(i in 1:(length(X) - 1)){
+ pair_means[i] <-  (X[i] + X[i + 1])/2
+}
+
+theta_cls <- c(median(pair_means), mean(X))
+
+## closed form covariance
+# Not sure how compute SB's closed form since it depends on X, which is
+# supposed to be unobserved.
+Sigma_cls <- matrix(c(1/(12 * IC_denom^2) / n, NA, NA, NA), 
+                    nrow = 2, ncol = 2, byrow = TRUE)
+```
+
+```{r SB5_results, echo = FALSE, results = 'asis'}
+results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+print_results(results, 'Example 5', 'Example 5')
+```
