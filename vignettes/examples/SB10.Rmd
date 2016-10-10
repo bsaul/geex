@@ -1,0 +1,84 @@
+---
+output: pdf_document
+---
+
+```{r SB10_setup, echo=FALSE}
+shaq <- data_frame(game = 1:23,
+                 ft_made = c(4, 5, 5, 5, 2, 7, 6, 9, 4, 1, 13, 5, 6, 9, 7, 3, 8, 1, 18, 3, 10, 1, 3),
+                 ft_attp = c(5, 11, 14, 12, 7, 10, 14, 15, 12, 4, 27, 17, 12, 9, 12, 10, 12, 6, 39, 13, 17, 6, 12))
+
+```
+
+Example 10 illustrates testing equality of success probablities. 
+
+\begin{table}[H]
+\centering
+\label{ex9}
+\caption{Translating math to code}
+\begin{tabular}{cc}
+$\psi_k(Y_i, n_i, \theta) = 
+\begin{pmatrix}
+\frac{(Y_i - n_i \theta_2)^2}{n_i \theta_2( 1 - \theta_2 )} - \theta_1 \\
+Y_i - n_i \theta_2
+\end{pmatrix}$ &
+\begin{minipage}{3in}
+\begin{verbatim}
+SB10_eefun <- function(data){
+  Y <- data$ft_made
+  n <- data$ft_attp
+  function(theta){
+    p <- theta[2]
+    c(((Y - (n * p))^2)/(n * p * (1 - p))  - theta[1], 
+      Y - n * p)
+  }
+}
+\end{verbatim}
+\end{minipage}
+\end{tabular}
+\end{table}
+
+```{r SB10_eefun, echo = FALSE}
+SB10_eefun <- function(data){
+  Y <- data$ft_made
+  n <- data$ft_attp
+  function(theta){
+    p <- theta[2]
+    c(((Y - (n * p))^2)/(n * p * (1 - p))  - theta[1], 
+      Y - n * p)
+  }
+}
+```
+
+```{r SB10_run, echo = TRUE}
+estimates <- estimate_equations(eeFUN = SB10_eefun, 
+                                data  = shaq, units = 'game', 
+                                roots = c(.5, .5))
+```
+
+```{r SB10_clsform, echo = TRUE}
+V11 <- function(p) {
+  k <- length(nrow(shaq))
+  sumn <- sum(shaq$ft_attp)
+  sumn_inv <- sum(1/shaq$ft_attp)
+  term2_n <- 1 - (6 * p) + (6 * p^2)
+  term2_d <- p * (1 - p) 
+  term2 <- term2_n/term2_d
+  print(term2)
+  term3 <- ((1 - 2 * p)^2)/( (sumn/k) * p * (1 - p))
+  print(term3)
+  2 + (term2 * (1/k) * sumn_inv)  - term3
+}
+
+### ???? I keep getting a negative value for V11
+
+p_tilde <- sum(shaq$ft_made)/sum(shaq$ft_attp)
+V <- V11(.45)
+V
+pnorm(estimates$parameters[1], mean = 1, sd = sqrt(V))
+
+```
+
+```{r SB10_results, echo = FALSE, results = 'asis', eval = FALSE}
+results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+print_results(results, 'Example 10', 'Example 10')
+```
