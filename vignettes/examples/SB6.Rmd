@@ -11,7 +11,7 @@ dt <- data.frame(Y = rnorm(n, mean = 2, sd = sigma),
                  id = 1:n)
 ```
 
-Example 6 illustrates calculation of an instumental variable estimator. I generate a data set with `r n` observations where $Y \sim N$(`r theta_tru`, `r sigma`). Table \ref{ex6} translates the estimating equations for the Huber estimator for the center of symmetric distributions into the `R` function needed for `geex`:
+Example 6 illustrates calculation of the Huber estimator of the center of symmetric distributions. I generate a data set with `r n` observations where $Y \sim N$(`r theta_tru`, `r sigma`). Table \ref{ex6} translates the estimating equations for the Huber estimator for the center of symmetric distributions into the `R` function needed for `geex`:
 
 \begin{table}[!ht]
 \centering
@@ -51,11 +51,24 @@ estimates <- estimate_equations(eeFUN = SB6_eefun,
 ```
 
 ```{r SB6_clsform, echo = TRUE}
-library(MASS)
 theta_cls <- MASS::huber(dt$Y)$mu
 
-## closed form covariance: TODO
-Sigma_cls <- matrix(NA)
+psi_k <- function(x, k = 1.5){
+  if(abs(x) <= k) x else sign(x) * k
+}
+
+A <- lapply(dt$Y, function(y){
+  x <- y - theta_cls
+  -numDeriv::grad(psi_k, x = x)
+}) %>% unlist() %>% mean()
+
+B <- lapply(dt$Y, function(y){
+  x <- y - theta_cls
+  psi_k(x = x)^2
+}) %>% unlist() %>% mean()
+
+## closed form covariance
+Sigma_cls <- matrix(A * B * A / n)
 ```
 
 ```{r SB6_results, echo = FALSE, results = 'asis'}
