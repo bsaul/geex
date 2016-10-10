@@ -1,0 +1,65 @@
+---
+output: pdf_document
+---
+
+```{r SB7_setup, echo=FALSE}
+n <- 100
+theta_tru <- 2
+sigma <- 1
+dt <- data.frame(Y = rnorm(n, mean = 2, sd = sigma),
+                 id = 1:n)
+```
+
+Example 7 illustrates calculation of sample quantiles using M-estimation. I generate a data set with `r n` observations where $Y \sim N$(`r theta_tru`, `r sigma`). Table \ref{ex7} translates the estimating equations for two sample quantiles (median and 65th percentile) into the `R` function needed for `geex`:
+
+\begin{table}[!ht]
+\centering
+\label{ex7}
+\caption{Translating math to code}
+\begin{tabular}{cc}
+$\psi_k(Y_i, \theta) = 
+\begin{pmatrix}
+0.5 - I(Y_i \leq \theta_1) \\
+0.65 - I(Y_i \leq \theta_2) 
+\end{pmatrix}$ &
+\begin{minipage}{3in}
+\begin{verbatim}
+SB7_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(0.5  - (Y <= theta[1]),
+        0.65 - (Y <= theta[2]))
+    )
+  }
+}
+\end{verbatim}
+\end{minipage}
+\end{tabular}
+\end{table}
+
+```{r SB7_eefun, echo = TRUE}
+SB7_eefun <- function(data){
+  function(theta){
+    with(data,
+      c(0.5  - (Y <= theta[1]),
+        0.65 - (Y <= theta[2]))
+    )
+  }
+}
+```
+
+```{r SB7_run, echo = TRUE, eval=FALSE}
+estimates <- estimate_equations(eeFUN = SB7_eefun, 
+                                data  = dt, units = 'id', 
+                                roots = c(.5, .65))
+```
+
+```{r SB7_clsform, echo = TRUE}
+theta_cls <- c(quantile(dt$Y, 0.5), quantile(dt$Y, 0.65))
+
+```
+
+```{r SB7_results, echo = FALSE, results = 'asis', eval=FALSE}
+results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+print_results(results, 'Example 7', 'Example 7')
+```
