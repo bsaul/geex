@@ -3,6 +3,8 @@ title: "Estimating Equations in R: `geex`"
 author: "B. Saul"
 date: "`r Sys.Date()`"
 output: pdf_document
+header-includes:
+- \usepackage{float}
 ---
 
 ```{r, echo = FALSE, message = FALSE, warning=FALSE}
@@ -83,7 +85,7 @@ first_diff_dec <- function(x){
 
 print_results <- function(results, label, caption){
   r <- results
-  cat('\\begin{table}[!htbp] \n',
+  cat('\\begin{table}[H] \n',
       '\\centering \n',
       '\\label{', label, '} \n',
       '\\caption{"', caption, '"} \n',
@@ -125,7 +127,6 @@ print_results <- function(results, label, caption){
 ```{r child = 'examples/SB5.Rmd'}
 ```
 
-
 ## Stefanski \& Boos example 6
 
 ```{r child = 'examples/SB6.Rmd'}
@@ -141,105 +142,20 @@ print_results <- function(results, label, caption){
 ```{r child = 'examples/SB8.Rmd'}
 ```
 
-
-
 ## Stefanski \& Boos example 9
 
-```{r SB_example9, echo=TRUE}
-n <- 100
-beta <- c(0.5, 2, .1)
-
-dt <- data_frame(X1 = rep(0:1, each = n/2), 
-                 X2 = rep(0:1, times = n/2),
-                 Y  = rbinom(n, 1, prob = as.numeric(plogis(cbind(1, X1, X2) %*% beta))),
-                 id = 1:n)
-split_data <- split(dt, dt$id)
-
-SB_ex9_eefun <- function(data){
-  Yi <- data$Y
-  xi <- model.matrix(Y ~ X1 + X2, data = data, drop = FALSE)
-  function(theta){
-    lp <- xi %*% theta
-    mu <- plogis(lp)
-    D  <- t(xi) %*% dlogis(lp)
-    V  <- mu * (1 - mu)
-    D %*% solve(V) %*% (Yi - mu)
-  }
-}
-
-# SB_ex9_eefun(split_data[[6]])(c(.5, 2, .1))
-
-example <- list(eeFUN   = SB_ex9_eefun, 
-                splitdt = split_data)
-
-root <- eeroot(obj = example, start = c(.5, 2, 1))$root
-m <- glm(Y ~ X1 + X2, data = dt, family = binomial(link = 'logit'))
-
-# Compare parameter estimates
-root
-coef(m)
-mats <- compute_matrices(example, theta = root)
-Sigma <- compute_sigma(mats)
-
-# Compare variance estimates
-Sigma
-sandwich(m)
+```{r child = 'examples/SB9.Rmd'}
 ```
-
-
 
 ## Stefanski \& Boos example 10
 
-```{r SB_example10, echo=TRUE}
-
-dt <- data_frame(game = 1:23,
-                 ft_made = c(4, 5, 5, 5, 2, 7, 6, 9, 4, 1, 13, 5, 6, 9, 7, 3, 8, 1, 18, 3, 10, 1, 3),
-                 ft_attp = c(5, 11, 14, 12, 7, 10, 14, 15, 12, 4, 27, 17, 12, 9, 12, 10, 12, 6, 39, 13, 17, 6, 12))
-
-split_data <- split(dt, dt$game)
-
-SB_ex10_eefun <- function(data){
-  Y <- data$ft_made
-  n <- data$ft_attp
-  function(theta){
-    p <- theta[2]
-    c(((Y - (n * p))^2)/(n * p * (1 - p))  - theta[1], 
-      Y - n * p)
-  }
-}
-SB_ex10_eefun(split_data[[1]])(c(.5, .5))
-example <- list(eeFUN   = SB_ex10_eefun, 
-                splitdt = split_data)
-
-root <- eeroot(obj = example, start = c(.5, .5))$root
-root
-
-V11 <- function(p) {
-  k <- length(nrow(dt))
-  sumn <- sum(dt$ft_attp)
-  sumn_inv <- sum(1/dt$ft_attp)
-  term2_n <- 1 - (6 * p) + (6 * p^2)
-  term2_d <- p * (1 - p) 
-  term2 <- term2_n/term2_d
-  print(term2)
-  term3 <- ((1 - 2 * p)^2)/( (sumn/k) * p * (1 - p))
-  print(term3)
-  2 + (term2 * (1/k) * sumn_inv)  - term3
-}
-
-### ???? I keep getting a negative value for V11
-
-p_tilde <- sum(dt$ft_made)/sum(dt$ft_attp)
-V <- V11(.45)
-V
-pnorm(root[1], mean = 1, sd = sqrt(V))
-
+```{r child = 'examples/SB10.Rmd'}
 ```
 
 
-## Small Sample Corrections of Fay (2001)
+# Small Sample Corrections of Fay (2001)
 
-### Bias correction
+## Bias correction
 
 \[
 H_i = \{1 - min(b, \{A_i A\}_{jj}) \}^{-1/2}
