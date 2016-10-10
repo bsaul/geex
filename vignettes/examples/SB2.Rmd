@@ -17,7 +17,7 @@ dt <- data.frame(Y  = rnorm(n, mean = muY, sd = sigmaY),
 Example 2 illustrates calculation of a ratio estimator. I generate a data set with `r n` observations where $Y \sim N$(`r muY`, `r sigmaY`) and $X \sim N$(`r muX`, `r sigmaX`). Table \ref{ex2} translates the estimating equations into the `R` function needed for `geex`:
 
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \label{ex2}
 \caption{Translating math to code}

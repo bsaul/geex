@@ -13,7 +13,7 @@ dt <- data_frame(X  = rep(0:1, each = n/2),
 
 Example 8 illustrates robust regression. I generate a data set with `r n` observations where half of the observation have $X_i = 1$ and the others have $X_i = 0$. $Y = $ `r beta[1]` $+$ `r beta[2]` $X_i + \epsilon_i$ and $\epsilon_i \sim N(0, 1)$. Table \ref{ex8} translates the estimating equations for two sample quantiles (median and 65th percentile) into the `R` function needed for `geex`:
 
-\begin{table}[!ht]
+\begin{table}[H]
 \centering
 \label{ex8}
 \caption{Translating math to code}
@@ -37,7 +37,7 @@ SB8_eefun <- function(data){
 \end{tabular}
 \end{table}
 
-```{r SB8_eefun, echo = TRUE}
+```{r SB8_eefun, echo = FALSE}
 psi_k <- function(x, k = 1.345){
   if(abs(x) <= k) x else sign(x) * k
 }

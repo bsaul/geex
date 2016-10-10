@@ -14,7 +14,7 @@ dt <- data.frame(X = rnorm(n, mean = 2, sd = sigma),
 
 Example 5 illustrates calculation of an instumental variable estimator. I generate a data set with `r n` observations where $X \sim N$(`r theta_tru`, `r sigma`). Let $\theta_0 =$ `r theta0`. Table \ref{ex5} translates the estimating equations for the Hodges-Lehmann location estimation and the sample mean into the `R` function needed for `geex`:
 
-\begin{table}[!ht]
+\begin{table}[H]
 \centering
 \label{ex5}
 \caption{Translating math to code}

@@ -12,7 +12,7 @@ dt <- data.frame(Y = rnorm(n, mean = mu, sd = sigma), id = 1:n)
 Example 1 illustrates calculation of sample mean and variance using estimating equations. I generate a data set with `r n` observations drawn from a Normal(`r mu`, `r sigma`) distribution. Table \ref{ex1} translates the estimating equations into the `R` function needed for `geex`:
 
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \label{ex1}
 \caption{Translating math to code}

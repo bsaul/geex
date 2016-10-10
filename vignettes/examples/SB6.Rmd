@@ -2,7 +2,6 @@
 output: pdf_document
 ---
 
-
 ```{r SB6_setup, echo=FALSE}
 n <- 100
 theta_tru <- 2
@@ -13,7 +12,7 @@ dt <- data.frame(Y = rnorm(n, mean = 2, sd = sigma),
 
 Example 6 illustrates calculation of the Huber estimator of the center of symmetric distributions. I generate a data set with `r n` observations where $Y \sim N$(`r theta_tru`, `r sigma`). Table \ref{ex6} translates the estimating equations for the Huber estimator for the center of symmetric distributions into the `R` function needed for `geex`:
 
-\begin{table}[!ht]
+\begin{table}[H]
 \centering
 \label{ex6}
 \caption{Translating math to code}
@@ -35,7 +34,7 @@ SB6_eefun <- function(data, k = 1.345){
 \end{tabular}
 \end{table}
 
-```{r SB6_eefun, echo = TRUE}
+```{r SB6_eefun, echo = FALSE}
 SB6_eefun <- function(data, k = 1.5){
   function(theta){
     x <- data$Y - theta[1]
