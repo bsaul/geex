@@ -12,6 +12,7 @@ library(inferference)
 library(sandwich)
 library(xtable)
 library(moments)
+library(MASS)
 # library(microbenchmark)
 ```
 
@@ -130,63 +131,16 @@ print_results <- function(results, label, caption){
 ```{r child = 'examples/SB6.Rmd'}
 ```
 
-
-
-
 ## Stefanski \& Boos example 7
 
-```{r SB_example7, echo=TRUE}
-
-
+```{r child = 'examples/SB7.Rmd'}
 ```
 
 ## Stefanski \& Boos example 8
 
-```{r SB_example8, echo=TRUE}
-n <- 50
-beta <- c(0.5, 2)
-dt <- data_frame(X  = rep(0:1, each = n/2),
-                 e  = rnorm(n),
-                 Y  = as.numeric(cbind(1, X) %*% beta) + e,
-                 id = 1:n)
-split_data <- split(dt, dt$id)
-
-psi_k <- function(x, k = 1.345){
-  if(abs(x) <= k) x else sign(x) * k
-}
-
-SB_ex8_eefun <- function(data){
-  Yi <- data$Y
-  xi <- model.matrix(Y ~ X, data = data)
-  function(theta){
-    r <- Yi - xi %*% theta
-    c(psi_k(r) %*% xi)
-  }
-}
-
-example <- list(eeFUN   = SB_ex8_eefun, 
-                splitdt = split_data)
-
-root <- eeroot(obj = example, start = c(1, 2))$root
-
-
-m <- MASS::rlm(Y ~ X, data = dt, method = 'M')
-
-# Compare paramter estimates
-root # GEEX
-coef(m) # rlm
-
-# Asymp correlation btn HL estimator and mean
-mats  <- compute_matrices(obj = example,
-                          theta = root,
-                          numDeriv_options = list(method = 'Richardson'))
-Sigma <- compute_sigma(mats)
-
-# Compare variance
-Sigma
-vcov(m)
-
+```{r child = 'examples/SB8.Rmd'}
 ```
+
 
 
 ## Stefanski \& Boos example 9
