@@ -161,10 +161,20 @@ compute_matrices <- function(geex_list,
 #------------------------------------------------------------------------------#
 #' Estimate Fay's bias correction
 #'
+#' @param m the number of groups
+#' @param A the bread matrix
+#' @param Ai a list of bread matrices per group
+#' @param Bi a list of meat matrices per group
+#' @param b a numeric value < 1. Defaults to 0.75 as in Fay
+#' @return a list with
+#' \itemize{
+#' \item H_i - the H_i matrix
+#' \item Bbc - the 'bias corrected' meat matrix
+#' }
 #' @export
 #------------------------------------------------------------------------------#
 
-bias_correction <- function(m, A, Ai, Bi, b){
+bias_correction <- function(m, A, Ai, Bi, b = 0.75){
 
   H_i <- lapply(Ai, function(m){
     diag( (1 - pmin(b, diag(m %*% solve(A)) ) )^(-0.5) )
@@ -177,8 +187,6 @@ bias_correction <- function(m, A, Ai, Bi, b){
 
   list(H_i = H_i, Bbc = Bbc)
 }
-
-
 
 #------------------------------------------------------------------------------#
 #' Preparations for Fay's degrees of freedom corrections
