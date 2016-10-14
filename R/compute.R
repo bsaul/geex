@@ -271,8 +271,28 @@ compute_sigma <- function(matrices, corrections = NULL){
 }
 
 #------------------------------------------------------------------------------#
-#' ee
+#' Estimate parameters and their covariance from a set of estimating equations
 #'
+#' @param eeFUN a function that takes in group-level data and returns a function
+#' that takes parameters as its first argument
+#' @param data a data.frame
+#' @param units a string identifying the grouping variable in \code{data}
+#' @param corrections character vector of small sample corrections to apply
+#' @param correction_options a list of options for the small sample corrections
+#' @param numDeriv_options a list of options for \code{\link[numDeriv]{jacobian}}
+#' @param rootsolver the function that will find roots of the estimating equations
+#' when \code{findroots = TRUE}.
+#' @param rootsolver_options a list of options for the \code{rootsolver} function
+#' @param findroots whether or not to find the roots of the estimating equations.
+#' Defaults to \code{TRUE}.
+#' @param roots a numeric vector containing either starting values for the roots when using
+#' the default \code{rootsolver} or roots that have been estimated elsewhere
+#' @param ... additional arguments passed to the \code{eeFUN}.
+#' @return a list with the following
+#' \itemize{
+#' \item \code{parameters} - a vector of estimated parameters
+#' \item \code{vcov} - the variance-covariance matrix for the parameters
+#' }
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -294,11 +314,11 @@ estimate_equations <- function(eeFUN,
   }
 
   split_data <- split(x = data, f = data[[units]] )
-  eeobj      <- list(eeFUN = eeFUN, splitdt = split_data)
+  geex_list  <- list(eeFUN = eeFUN, splitdt = split_data)
 
   ## Compute estimating equation roots ##
   if(findroots){
-    eesolved <- eeroot(eeobj, start = roots,
+    eesolved <- eeroot(geex_list, start = roots,
                        root_options = rootsolver_options,
                        ...)
     theta_hat <- eesolved$root
@@ -307,8 +327,8 @@ estimate_equations <- function(eeFUN,
   }
 
   ## Compute variance estimates ##
-  mats <- compute_matrices(obj   = eeobj,
-                           theta = theta_hat,
+  mats <- compute_matrices(geex_list   = geex_list,
+                           theta       = theta_hat,
                            corrections = corrections,
                            numDeriv_options = numDeriv_options,
                            correction_options = correction_options,
