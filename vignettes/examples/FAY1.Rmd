@@ -1,0 +1,147 @@
+---
+output: pdf_document
+---
+
+```{r FAY1_setup, echo=FALSE}
+library(gee)
+library(saws)
+data(warpbreaks)
+g<-gee(breaks~tension,id=wool, data=warpbreaks, corstr="exchangeable")
+guo<-geeUOmega(g)
+saws(guo)
+
+# set.seed(1)
+# n<-20
+# x1<-rnorm(n)
+# x2<-factor(c(rep("a",n/2),rep("b",n/2)))
+# y<-rnorm(n,x1)
+# out<-lmfitSaws(model.matrix(~x1*x2),y)
+# saws(out)
+```
+
+Example 11 compares to Michael Fay's `saws` package. Also demonstrates implementing a two-step estimation method for GEE using `geex`.
+
+
+```{r FAY1_eefun, echo = FALSE}
+#https://support.sas.com/documentation/cdl/en/statug/63347/HTML/default/viewer.htm#statug_genmod_sect049.htm
+
+make_dispersionFun <- function(data, formula, id){
+  function(theta){
+    N   <- length(unique(id))
+    X   <- model.matrix(formula, data = data)
+    Y   <- model.response(model.frame(formula, data = data))
+    mu  <- as.numeric(X %*% theta)
+    res <- Y - mu
+    tapply(res^2, warpbreaks$wool, sum)/(N - ncol(X))
+  }
+}
+
+dispersionFun <- make_dispersionFun(warpbreaks, breaks ~ tension, id = warpbreaks$wool)
+dispersionFun(c(0, 0, 0))
+
+n <- tapply(rep(1, nrow(warpbreaks)), warpbreaks$wool, function(x) sum(x) )
+N_star <- 0.5 * sum(n *(n - 1))
+
+make_alphaFun_part <- function(data, formula, family){
+  X <- model.matrix(formula, data)
+  Y <- model.response(model.frame(formula, data = data))
+  thelink <- family 
+  function(theta){
+    mu   <- thelink$linkfun(X %*% theta)
+    res  <- (Y - mu)/thelink$variance(mu)
+    psi_new <- res %*% t(res)
+    alpha0 <- sum(psi_new[lower.tri(psi_new)])
+    alpha0
+  }
+}
+
+alphaFuns <- lapply(split(warpbreaks, warpbreaks$wool), function(group_dt) {
+  make_alphaFun_part(group_dt, formula = breaks ~ tension, family = gaussian())
+})
+
+compute_alpha <- function(phi, theta){
+  x <- lapply(alphaFuns, function(f) f(theta))
+  sum(unlist(x))/(phi * (N_star - 3))
+}
+
+compute_alpha(phi = 1, theta = c(0, 0, 0))
+
+make_working_corr <- function(data, alpha){
+  n <- nrow(data)
+  R <- matrix(alpha, nrow = n, ncol = n)
+  diag(R) <- 1
+  R
+}
+
+make_V <- function(data, formula, alpha, psi, theta, family){
+  X  <- model.matrix(formula, data)
+  mu <- family$linkfun(X %*% theta) 
+  R  <- make_working_corr(data, alpha)
+  A_sqrt  <- diag(sqrt(family$variance(mu)), nrow = nrow(X))
+  psi * (A_sqrt %*% R %*% A_sqrt)
+}
+
+make_V(warpbreaks, breaks ~ tension, 0.5, .1, c(1, .2, .3), gaussian())
+
+FAY1_eefun <- function(data, alpha){
+  X <- model.matrix(form, data)
+  Y <- model.response(model.frame(form, data = data))
+  function(theta){
+    p <- ncol(X)
+    mu   <- as.numeric(exp(X %*% theta))
+    Dt   <- t(X) %*% diag(mu)
+    # Vinv <- V_inverse(mu, alpha)
+    Vinv <- make_V(mu, alpha)
+    res  <- Y - mu
+    # Estimating Eqns
+    Dt %*% Vinv %*% res
+  }
+}
+
+start_vals <- c(-2.79, -1.34, 0.95, 0.91, -0.16, 0.56)
+for(i in 1:25){
+  if(i == 1){estimates <- start_vals}
+  # phi   <- dispersionFun(estimates)
+  phi   <- dispersionFun(estimates) 
+  # alpha <- alphaFun(phi, estimates)
+  alpha <- alphaFun(mean(phi), estimates)
+  estimates  <- rootSolve::multiroot(f = objFun, 
+                      start = estimates, 
+                      alpha = c(phi, alpha))$root
+}
+
+```
+
+```{r FAY1_run, echo = TRUE}
+estimates <- estimate_equations(eeFUN = FAY1_eefun, 
+                                data  = shaq, units = 'game', 
+                                roots = c(.5, .5))
+```
+
+```{r FAY1_clsform, echo = TRUE}
+V11 <- function(p) {
+  k <- length(nrow(shaq))
+  sumn <- sum(shaq$ft_attp)
+  sumn_inv <- sum(1/shaq$ft_attp)
+  term2_n <- 1 - (6 * p) + (6 * p^2)
+  term2_d <- p * (1 - p) 
+  term2 <- term2_n/term2_d
+  print(term2)
+  term3 <- ((1 - 2 * p)^2)/( (sumn/k) * p * (1 - p))
+  print(term3)
+  2 + (term2 * (1/k) * sumn_inv)  - term3
+}
+
+### ???? I keep getting a negative value for V11
+
+p_tilde <- sum(shaq$ft_made)/sum(shaq$ft_attp)
+V <- V11(.45)
+V
+pnorm(estimates$parameters[1], mean = 1, sd = sqrt(V))
+
+```
+
+```{r FAY1_results, echo = FALSE, results = 'asis', eval = FALSE}
+results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+print_results(results, 'Example 10', 'Example 10')
+```
