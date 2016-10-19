@@ -70,6 +70,7 @@ compute_matrices <- function(geex_list,
                              corrections = NULL,
                              correction_options = list(),
                              numDeriv_options = list(method = 'Richardson'),
+                             silent = TRUE,
                              ...){
   # Warnings
   if('bias' %in% corrections & is.null(correction_options$b)){

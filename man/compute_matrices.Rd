@@ -6,7 +6,7 @@
 \usage{
 compute_matrices(geex_list, theta, corrections = NULL,
   correction_options = list(), numDeriv_options = list(method =
-  "Richardson"), ...)
+  "Richardson"), silent = TRUE, ...)
 }
 \arguments{
 \item{geex_list}{a list containing \code{splitdt} (a \code{data.frame} that
