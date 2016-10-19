@@ -95,8 +95,8 @@ compute_matrices <- function(geex_list,
       val  <- do.call(numDeriv::jacobian, args = args)
       -val
     })
-    A_i <- check_array(simplify2array(A_i))
-    A   <- apply(A_i, 1:2, sum)
+    A_i_array <- check_array(simplify2array(A_i))
+    A   <- apply(A_i_array, 1:2, sum)
 
     # Compute outer product of observed estimating eqns
     B_i <- lapply(psi_i, function(ee) ee(theta) %*% t(ee(theta)) )
@@ -131,11 +131,11 @@ compute_matrices <- function(geex_list,
         stop('contrast must be specified for df correction')
       }
 
-      constrast <- correction_options$constrast
+      contrast <- correction_options$contrast
 
       if(!bias_fail){
 
-        df_prep <- df_correction_prep(m = m, L = constrast,
+        df_prep <- df_correction_prep(m = m, L = contrast,
                                       A = A, A_i = A_i, H_i = H_i)
 
         # DF correction 1 #
@@ -222,7 +222,6 @@ df_correction_prep <- function(m, L, A, A_i, H_i){
 df_correction_1 <- function(A_d, C){
   estimate_df(A = A_d, C = C)
 }
-
 
 #------------------------------------------------------------------------------#
 #' Estimate Fay's degrees of freedom correction 2
