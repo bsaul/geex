@@ -1,51 +1,76 @@
 #------------------------------------------------------------------------------#
-#' Handles the case where there a single estimating equation
-#' @export
-#------------------------------------------------------------------------------#
-
-check_array <- function(vals){
-  if(!is.array(vals)){
-    array(vals, dim = c(1, 1, length(vals)))
-  } else {
-    vals
-  }
-}
-
-
-#------------------------------------------------------------------------------#
 #' Compute roots for a set of estimating equations
+#'
+#' @param geex_list a list containing \code{splitdt} (a \code{data.frame} that
+#' has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
+#' (see \code{\link{estimate_equations}})
+#' @param start vector with length of the number of parameters to find. Passed to
+#' \code{\link[rootSolve]{multiroot}} if not NULL. Defaults to NULL.
+#' @param rootsolver the function used to find roots of the estimating equations.
+#' Defaults to \code{\link[rootSolve]{multiroot}}.
+#' @param root_options a list of options to be passed to the \code{rootsolver}
+#' function
+#' @param ... additional arguments passed to \code{geex_list$eeFUN}
+#' @return the output of the \code{rootsolver} function
 #' @export
 #------------------------------------------------------------------------------#
 
-eeroot <- function(obj, start, root_options = NULL, ...){
+eeroot <- function(geex_list,
+                   start        = NULL,
+                   rootsolver   = rootSolve::multiroot,
+                   root_options = NULL,
+                   ...){
 
-  psi_i <- lapply(obj$splitdt, function(data_i){
-    obj$eeFUN(data = data_i, ...)
+  # Create estimating equation functions per group
+  psi_i <- lapply(geex_list$splitdt, function(data_i){
+    geex_list$eeFUN(data = data_i, ...)
   })
 
+  # Create psi function that sums over all ee funs
   psi <- function(theta){
     psii <- lapply(psi_i, function(f) f(theta))
     apply(check_array(simplify2array(psii)), 1, sum)
   }
 
+  # Find roots of psi
   rargs <- append(root_options, list(f = psi, start = start))
-
-  do.call(rootSolve::multiroot, args = rargs)
+  do.call(rootsolver, args = rargs)
 }
 
 #------------------------------------------------------------------------------#
-#' Compute component matrices for covariance matrix for a set of
-#' estimating equations
+#' Compute component matrices for covariance matrix
+#'
+#' For a given set of estimating equations computes the 'meat' and 'bread' matrices
+#' necessary to compute the covariance matrix.
+#'
+#' @param geex_list a list containing \code{splitdt} (a \code{data.frame} that
+#' has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
+#' (see \code{\link{estimate_equations}})
+#' @param theta vector of parameters passed to \code{geex_list$eeFUN}.
+#' @param corrections character vector of small sample corrections to perform
+#' @param corrections_options a list of options to be used for corrections. If
+#' \code{corrections} includes `bias' then the list must include a numeric
+#' value for \code{b}. If \code{corrections} includes 'df' then the list must
+#' include a \code{contrast} vector of length \code{theta}.
+#' @param numDeriv_options a list of options passed to \code{\link[numDeriv]{jacobian}}.
+#' @param ... additional arguments passed to \code{geex_list$eeFUN}.
+#' @return a list with
+#' \itemize{
+#' \item A - the 'bread' matrix
+#' \item B - the 'meat' matrix
+#' \item A_i - the 'bread' matrix for each group
+#' \item B_i - the 'meat' matrix for each group
+#' }
 #'
 #' @export
 #------------------------------------------------------------------------------#
 
-compute_matrices <- function(obj,
-                             contrast = NULL,
+compute_matrices <- function(geex_list,
                              theta,
                              corrections = NULL,
                              correction_options = list(),
                              numDeriv_options = list(method = 'Richardson'),
+                             silent = TRUE,
                              ...){
   # Warnings
   if('bias' %in% corrections & is.null(correction_options$b)){
@@ -55,7 +80,7 @@ compute_matrices <- function(obj,
   correct_bias <- any(c('bias') %in% corrections)
   correct_df   <- any(c('df') %in% corrections)
 
-  with(obj, {
+  with(geex_list, {
     m <- length(splitdt)
 
     # Create list of estimating eqn functions per unit
@@ -70,8 +95,8 @@ compute_matrices <- function(obj,
       val  <- do.call(numDeriv::jacobian, args = args)
       -val
     })
-    A_i <- check_array(simplify2array(A_i))
-    A   <- apply(A_i, 1:2, sum)
+    A_i_array <- check_array(simplify2array(A_i))
+    A   <- apply(A_i_array, 1:2, sum)
 
     # Compute outer product of observed estimating eqns
     B_i <- lapply(psi_i, function(ee) ee(theta) %*% t(ee(theta)) )
@@ -85,7 +110,7 @@ compute_matrices <- function(obj,
     if(correct_bias|correct_df){
       bias_try <- try(bias_correction(m = m, A = A, Ai = A_i, Bi = B_i,
                                       b = correction_options$b),
-                       silent = TRUE)
+                       silent = silent)
 
       if(is(bias_try, 'try-error')){
         bias_fail <- TRUE
@@ -102,20 +127,23 @@ compute_matrices <- function(obj,
 
     # Degrees of Freedom corrections #
     if(correct_df){
-      if(is.null(contrast)){
+      if(is.null(correction_options$contrast)){
         stop('contrast must be specified for df correction')
       }
 
+      contrast <- correction_options$contrast
+
       if(!bias_fail){
 
-        df_prep <- df_correction_prep(m = m, L = contrast, A = A, A_i = A_i, H_i = H_i)
+        df_prep <- df_correction_prep(m = m, L = contrast,
+                                      A = A, A_i = A_i, H_i = H_i)
 
         # DF correction 1 #
         df1 <- df_correction_1(A_d = df_prep$A_d, C = df_prep$C)
 
         # DF correction 2 #
         df2_try <- try(df_correction_2(m = m, A = A, A_i = A_i, C = df_prep$C,
-                                       L = contrast, Bbc = Bbc), silent = TRUE)
+                                       L = contrast, Bbc = Bbc), silent = silent)
         if(is(df2_try, 'try-error')){
           df2 <- NA_real_
         } else {
@@ -134,10 +162,20 @@ compute_matrices <- function(obj,
 #------------------------------------------------------------------------------#
 #' Estimate Fay's bias correction
 #'
+#' @param m the number of groups
+#' @param A the bread matrix
+#' @param Ai a list of bread matrices per group
+#' @param Bi a list of meat matrices per group
+#' @param b a numeric value < 1. Defaults to 0.75 as in Fay
+#' @return a list with
+#' \itemize{
+#' \item H_i - the H_i matrix
+#' \item Bbc - the 'bias corrected' meat matrix
+#' }
 #' @export
 #------------------------------------------------------------------------------#
 
-bias_correction <- function(m, A, Ai, Bi, b){
+bias_correction <- function(m, A, Ai, Bi, b = 0.75){
 
   H_i <- lapply(Ai, function(m){
     diag( (1 - pmin(b, diag(m %*% solve(A)) ) )^(-0.5) )
@@ -150,8 +188,6 @@ bias_correction <- function(m, A, Ai, Bi, b){
 
   list(H_i = H_i, Bbc = Bbc)
 }
-
-
 
 #------------------------------------------------------------------------------#
 #' Preparations for Fay's degrees of freedom corrections
@@ -186,7 +222,6 @@ df_correction_prep <- function(m, L, A, A_i, H_i){
 df_correction_1 <- function(A_d, C){
   estimate_df(A = A_d, C = C)
 }
-
 
 #------------------------------------------------------------------------------#
 #' Estimate Fay's degrees of freedom correction 2
@@ -236,8 +271,28 @@ compute_sigma <- function(matrices, corrections = NULL){
 }
 
 #------------------------------------------------------------------------------#
-#' ee
+#' Estimate parameters and their covariance from a set of estimating equations
 #'
+#' @param eeFUN a function that takes in group-level data and returns a function
+#' that takes parameters as its first argument
+#' @param data a data.frame
+#' @param units a string identifying the grouping variable in \code{data}
+#' @param corrections character vector of small sample corrections to apply
+#' @param correction_options a list of options for the small sample corrections
+#' @param numDeriv_options a list of options for \code{\link[numDeriv]{jacobian}}
+#' @param rootsolver the function that will find roots of the estimating equations
+#' when \code{findroots = TRUE}.
+#' @param rootsolver_options a list of options for the \code{rootsolver} function
+#' @param findroots whether or not to find the roots of the estimating equations.
+#' Defaults to \code{TRUE}.
+#' @param roots a numeric vector containing either starting values for the roots when using
+#' the default \code{rootsolver} or roots that have been estimated elsewhere
+#' @param ... additional arguments passed to the \code{eeFUN}.
+#' @return a list with the following
+#' \itemize{
+#' \item \code{parameters} - a vector of estimated parameters
+#' \item \code{vcov} - the variance-covariance matrix for the parameters
+#' }
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -259,11 +314,11 @@ estimate_equations <- function(eeFUN,
   }
 
   split_data <- split(x = data, f = data[[units]] )
-  eeobj      <- list(eeFUN = eeFUN, splitdt = split_data)
+  geex_list  <- list(eeFUN = eeFUN, splitdt = split_data)
 
   ## Compute estimating equation roots ##
   if(findroots){
-    eesolved <- eeroot(eeobj, start = roots,
+    eesolved <- eeroot(geex_list, start = roots,
                        root_options = rootsolver_options,
                        ...)
     theta_hat <- eesolved$root
@@ -272,8 +327,8 @@ estimate_equations <- function(eeFUN,
   }
 
   ## Compute variance estimates ##
-  mats <- compute_matrices(obj   = eeobj,
-                           theta = theta_hat,
+  mats <- compute_matrices(geex_list   = geex_list,
+                           theta       = theta_hat,
                            corrections = corrections,
                            numDeriv_options = numDeriv_options,
                            correction_options = correction_options,

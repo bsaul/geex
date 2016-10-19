@@ -2,14 +2,48 @@
 % Please edit documentation in R/compute.R
 \name{estimate_equations}
 \alias{estimate_equations}
-\title{ee}
+\title{Estimate parameters and their covariance from a set of estimating equations}
 \usage{
 estimate_equations(eeFUN, data, units, corrections = NULL,
   correction_options = list(), numDeriv_options = list(method =
   "Richardson"), rootsolver = rootSolve::multiroot,
   rootsolver_options = NULL, findroots = TRUE, roots = NULL, ...)
 }
+\arguments{
+\item{eeFUN}{a function that takes in group-level data and returns a function
+that takes parameters as its first argument}
+
+\item{data}{a data.frame}
+
+\item{units}{a string identifying the grouping variable in \code{data}}
+
+\item{corrections}{character vector of small sample corrections to apply}
+
+\item{correction_options}{a list of options for the small sample corrections}
+
+\item{numDeriv_options}{a list of options for \code{\link[numDeriv]{jacobian}}}
+
+\item{rootsolver}{the function that will find roots of the estimating equations
+when \code{findroots = TRUE}.}
+
+\item{rootsolver_options}{a list of options for the \code{rootsolver} function}
+
+\item{findroots}{whether or not to find the roots of the estimating equations.
+Defaults to \code{TRUE}.}
+
+\item{roots}{a numeric vector containing either starting values for the roots when using
+the default \code{rootsolver} or roots that have been estimated elsewhere}
+
+\item{...}{additional arguments passed to the \code{eeFUN}.}
+}
+\value{
+a list with the following
+\itemize{
+\item \code{parameters} - a vector of estimated parameters
+\item \code{vcov} - the variance-covariance matrix for the parameters
+}
+}
 \description{
-ee
+Estimate parameters and their covariance from a set of estimating equations
 }
 

@@ -2,15 +2,41 @@
 % Please edit documentation in R/compute.R
 \name{compute_matrices}
 \alias{compute_matrices}
-\title{Compute component matrices for covariance matrix for a set of
-estimating equations}
+\title{Compute component matrices for covariance matrix}
 \usage{
-compute_matrices(obj, contrast = NULL, theta, corrections = NULL,
+compute_matrices(geex_list, theta, corrections = NULL,
   correction_options = list(), numDeriv_options = list(method =
-  "Richardson"), ...)
+  "Richardson"), silent = TRUE, ...)
+}
+\arguments{
+\item{geex_list}{a list containing \code{splitdt} (a \code{data.frame} that
+has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
+(see \code{\link{estimate_equations}})}
+
+\item{theta}{vector of parameters passed to \code{geex_list$eeFUN}.}
+
+\item{corrections}{character vector of small sample corrections to perform}
+
+\item{numDeriv_options}{a list of options passed to \code{\link[numDeriv]{jacobian}}.}
+
+\item{...}{additional arguments passed to \code{geex_list$eeFUN}.}
+
+\item{corrections_options}{a list of options to be used for corrections. If
+\code{corrections} includes `bias' then the list must include a numeric
+value for \code{b}. If \code{corrections} includes 'df' then the list must
+include a \code{contrast} vector of length \code{theta}.}
+}
+\value{
+a list with
+\itemize{
+\item A - the 'bread' matrix
+\item B - the 'meat' matrix
+\item A_i - the 'bread' matrix for each group
+\item B_i - the 'meat' matrix for each group
+}
 }
 \description{
-Compute component matrices for covariance matrix for a set of
-estimating equations
+For a given set of estimating equations computes the 'meat' and 'bread' matrices
+necessary to compute the covariance matrix.
 }
 

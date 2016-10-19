@@ -4,7 +4,25 @@
 \alias{bias_correction}
 \title{Estimate Fay's bias correction}
 \usage{
-bias_correction(m, A, Ai, Bi, b)
+bias_correction(m, A, Ai, Bi, b = 0.75)
+}
+\arguments{
+\item{m}{the number of groups}
+
+\item{A}{the bread matrix}
+
+\item{Ai}{a list of bread matrices per group}
+
+\item{Bi}{a list of meat matrices per group}
+
+\item{b}{a numeric value < 1. Defaults to 0.75 as in Fay}
+}
+\value{
+a list with
+\itemize{
+\item H_i - the H_i matrix
+\item Bbc - the 'bias corrected' meat matrix
+}
 }
 \description{
 Estimate Fay's bias correction

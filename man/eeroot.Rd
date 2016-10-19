@@ -4,7 +4,27 @@
 \alias{eeroot}
 \title{Compute roots for a set of estimating equations}
 \usage{
-eeroot(obj, start, root_options = NULL, ...)
+eeroot(geex_list, start = NULL, rootsolver = rootSolve::multiroot,
+  root_options = NULL, ...)
+}
+\arguments{
+\item{geex_list}{a list containing \code{splitdt} (a \code{data.frame} that
+has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
+(see \code{\link{estimate_equations}})}
+
+\item{start}{vector with length of the number of parameters to find. Passed to
+\code{\link[rootSolve]{multiroot}} if not NULL. Defaults to NULL.}
+
+\item{rootsolver}{the function used to find roots of the estimating equations.
+Defaults to \code{\link[rootSolve]{multiroot}}.}
+
+\item{root_options}{a list of options to be passed to the \code{rootsolver}
+function}
+
+\item{...}{additional arguments passed to \code{geex_list$eeFUN}}
+}
+\value{
+the output of the \code{rootsolver} function
 }
 \description{
 Compute roots for a set of estimating equations
