@@ -12,7 +12,7 @@
 check_array <- function(object){
   if(!is.array(object)){
     stopifnot(is.numeric(object))
-    array(object, dim = c(1, 1, length(vals)))
+    array(object, dim = c(1, 1, length(object)))
   } else {
     object
   }
