@@ -10,10 +10,13 @@
 #------------------------------------------------------------------------------#
 
 check_array <- function(object){
-  if(!is.array(object)){
-    stopifnot(is.numeric(object))
+  if(is.array(object)){
+    object
+  } else if(is.numeric(object)){
+    array(object, dim = c(1, 1, length(object)))
+  } else if(is.matrix(object)){
     array(object, dim = c(1, 1, length(object)))
   } else {
-    object
+    stop('Object is not an array, matrix, or numeric')
   }
 }
