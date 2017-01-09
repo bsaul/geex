@@ -6,6 +6,11 @@
 \usage{
 compute_sigma(matrices, corrections = NULL)
 }
+\arguments{
+\item{matrices}{the list of matrices returned from \code{\link{compute_matrices}}}
+
+\item{corrections}{character vector of corrections to perform}
+}
 \description{
 Compute covariance matrix for set of estimating equations
 }
