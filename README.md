@@ -10,7 +10,7 @@ The key piece is the user-defined set of estimating equations, which is a functi
 
 For example, to estimate the mean and variance, one can solve the following set of estimating equations:
 
-\[
+$$
 \sum_{i = 1}^n \begin{pmatrix}
 Y_i - \mu \\
 (Y_i - \mu)^2 - \sigma^2
@@ -18,7 +18,7 @@ Y_i - \mu \\
 \begin{pmatrix}
 0 \\ 0 
 \end{pmatrix}
-\]
+$$
 
 For use in `geex`, this set of estimating equations is translated to code as follows:
 
