@@ -71,8 +71,6 @@ compute_matrices <- function(geex_list,
   }
 
   with(geex_list, {
-    m <- length(splitdt)
-
     # Create list of estimating eqn functions per unit
     psi_i <- lapply(splitdt, function(data_i){
       eeFUN(data = data_i, ...)
