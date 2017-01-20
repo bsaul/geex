@@ -171,6 +171,8 @@ estimate_equations <- function(eeFUN,
   ## Compute corrections ##
   if(!is.null(corrections_list)){
     corrections <- make_corrections(mats, corrections_list)
+  } else {
+    corrections <- NULL
   }
 
   ## Compute covariance estimate(s) ##
