@@ -4,7 +4,7 @@
 \alias{compute_sigma}
 \title{Compute covariance matrix for set of estimating equations}
 \usage{
-compute_sigma(matrices, corrections = NULL)
+compute_sigma(A, B)
 }
 \arguments{
 \item{matrices}{the list of matrices returned from \code{\link{compute_matrices}}}

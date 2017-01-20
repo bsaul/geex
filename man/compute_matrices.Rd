@@ -4,8 +4,7 @@
 \alias{compute_matrices}
 \title{Compute component matrices for covariance matrix}
 \usage{
-compute_matrices(geex_list, theta, corrections = NULL,
-  correction_options = list(), numDeriv_options = list(method =
+compute_matrices(geex_list, theta, numDeriv_options = list(method =
   "Richardson"), silent = TRUE, ...)
 }
 \arguments{
@@ -15,16 +14,9 @@ has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
 
 \item{theta}{vector of parameters passed to \code{geex_list$eeFUN}.}
 
-\item{corrections}{character vector of small sample corrections to perform}
-
 \item{numDeriv_options}{a list of options passed to \code{\link[numDeriv]{jacobian}}.}
 
 \item{...}{additional arguments passed to \code{geex_list$eeFUN}.}
-
-\item{corrections_options}{a list of options to be used for corrections. If
-\code{corrections} includes `bias' then the list must include a numeric
-value for \code{b}. If \code{corrections} includes 'df' then the list must
-include a \code{contrast} vector of length \code{theta}.}
 }
 \value{
 a list with

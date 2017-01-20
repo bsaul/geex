@@ -4,10 +4,10 @@
 \alias{estimate_equations}
 \title{Estimate parameters and their covariance from a set of estimating equations}
 \usage{
-estimate_equations(eeFUN, data, units, corrections = NULL,
-  correction_options = list(), numDeriv_options = list(method =
-  "Richardson"), rootsolver = rootSolve::multiroot,
-  rootsolver_options = NULL, findroots = TRUE, roots = NULL, ...)
+estimate_equations(eeFUN, data, units, corrections_list = NULL,
+  numDeriv_options = list(method = "Richardson"),
+  rootsolver = rootSolve::multiroot, rootsolver_options = NULL,
+  findroots = TRUE, roots = NULL, ...)
 }
 \arguments{
 \item{eeFUN}{a function that takes in group-level data and returns a function
@@ -16,10 +16,6 @@ that takes parameters as its first argument}
 \item{data}{a data.frame}
 
 \item{units}{a string identifying the grouping variable in \code{data}}
-
-\item{corrections}{character vector of small sample corrections to apply}
-
-\item{correction_options}{a list of options for the small sample corrections}
 
 \item{numDeriv_options}{a list of options for \code{\link[numDeriv]{jacobian}}}
 
@@ -35,6 +31,10 @@ Defaults to \code{TRUE}.}
 the default \code{rootsolver} or roots that have been estimated elsewhere}
 
 \item{...}{additional arguments passed to the \code{eeFUN}.}
+
+\item{corrections}{character vector of small sample corrections to apply}
+
+\item{correction_options}{a list of options for the small sample corrections}
 }
 \value{
 a list with the following
