@@ -65,10 +65,6 @@ compute_matrices <- function(geex_list,
                              numDeriv_options = list(method = 'Richardson'),
                              silent = TRUE,
                              ...){
-  # Warnings
-  if('bias' %in% corrections & is.null(correction_options$b)){
-    stop('b argument must be present if using bias correction')
-  }
 
   with(geex_list, {
     # Create list of estimating eqn functions per unit
@@ -105,13 +101,8 @@ compute_matrices <- function(geex_list,
 #' @export
 #------------------------------------------------------------------------------#
 
-compute_sigma <- function(matrices, corrections = NULL){
-  with(matrices,
-       if(any('bias' %in% corrections)){
-         solve(A) %*% Bbc %*% t(solve(A))
-       } else {
-         solve(A) %*% B %*% t(solve(A))
-       })
+compute_sigma <- function(A, B){
+  solve(A) %*% B %*% t(solve(A))
 }
 
 #------------------------------------------------------------------------------#
@@ -143,8 +134,7 @@ compute_sigma <- function(matrices, corrections = NULL){
 estimate_equations <- function(eeFUN,
                                data,
                                units,
-                               corrections = NULL,
-                               correction_options = list(),
+                               corrections_list = NULL,
                                numDeriv_options = list(method = 'Richardson'),
                                rootsolver = rootSolve::multiroot,
                                rootsolver_options = NULL,
@@ -179,10 +169,13 @@ estimate_equations <- function(eeFUN,
                            ...)
 
   ## Compute corrections ##
+  if(!is.null(corrections_list)){
+    corrections <- make_corrections(mats, corrections_list)
+  }
 
   ## Compute covariance estimate(s) ##
-  Sigma_hat <- compute_sigma(mats)
+  Sigma_hat <- compute_sigma(A = mats$A, B = mats$B)
 
-  list(parameters = theta_hat, vcov = Sigma_hat)
+  list(parameters = theta_hat, vcov = Sigma_hat, corrections = corrections)
 }
 
