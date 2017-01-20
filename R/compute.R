@@ -47,11 +47,6 @@ eeroot <- function(geex_list,
 #' has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
 #' (see \code{\link{estimate_equations}})
 #' @param theta vector of parameters passed to \code{geex_list$eeFUN}.
-#' @param corrections character vector of small sample corrections to perform
-#' @param corrections_options a list of options to be used for corrections. If
-#' \code{corrections} includes `bias' then the list must include a numeric
-#' value for \code{b}. If \code{corrections} includes 'df' then the list must
-#' include a \code{contrast} vector of length \code{theta}.
 #' @param numDeriv_options a list of options passed to \code{\link[numDeriv]{jacobian}}.
 #' @param ... additional arguments passed to \code{geex_list$eeFUN}.
 #' @return a list with
@@ -67,8 +62,6 @@ eeroot <- function(geex_list,
 
 compute_matrices <- function(geex_list,
                              theta,
-                             corrections = NULL,
-                             correction_options = list(),
                              numDeriv_options = list(method = 'Richardson'),
                              silent = TRUE,
                              ...){
@@ -76,9 +69,6 @@ compute_matrices <- function(geex_list,
   if('bias' %in% corrections & is.null(correction_options$b)){
     stop('b argument must be present if using bias correction')
   }
-
-  correct_bias <- any(c('bias') %in% corrections)
-  correct_df   <- any(c('df') %in% corrections)
 
   with(geex_list, {
     m <- length(splitdt)
@@ -102,60 +92,7 @@ compute_matrices <- function(geex_list,
     B_i <- lapply(psi_i, function(ee) ee(theta) %*% t(ee(theta)) )
     B   <- apply(check_array(simplify2array(B_i)), 1:2, sum)
 
-    out <-  list(A = A, A_i = A_i, B = B, B_i = B_i)
-
-    #### Compute corrections ####
-
-    # Bias correction #
-    if(correct_bias|correct_df){
-      bias_try <- try(bias_correction(m = m, A = A, Ai = A_i, Bi = B_i,
-                                      b = correction_options$b),
-                       silent = silent)
-
-      if(is(bias_try, 'try-error')){
-        bias_fail <- TRUE
-      } else {
-        bias_fail <- FALSE
-        bias_mats <- bias_try
-        Bbc <- bias_mats$Bbc
-        H_i <- bias_mats$H_i
-        out$Bbc <- Bbc
-      }
-
-      out$bias_fail <- bias_fail
-    }
-
-    # Degrees of Freedom corrections #
-    if(correct_df){
-      if(is.null(correction_options$contrast)){
-        stop('contrast must be specified for df correction')
-      }
-
-      contrast <- correction_options$contrast
-
-      if(!bias_fail){
-
-        df_prep <- df_correction_prep(m = m, L = contrast,
-                                      A = A, A_i = A_i, H_i = H_i)
-
-        # DF correction 1 #
-        df1 <- df_correction_1(A_d = df_prep$A_d, C = df_prep$C)
-
-        # DF correction 2 #
-        df2_try <- try(df_correction_2(m = m, A = A, A_i = A_i, C = df_prep$C,
-                                       L = contrast, Bbc = Bbc), silent = silent)
-        if(is(df2_try, 'try-error')){
-          df2 <- NA_real_
-        } else {
-          df2 <- df2_try
-        }
-
-        out$df1 <- df1
-        out$df2 <- df2
-      }
-    }
-
-    out
+    list(A = A, A_i = A_i, B = B, B_i = B_i)
   })
 }
 
@@ -227,7 +164,9 @@ estimate_equations <- function(eeFUN,
 
   ## Compute estimating equation roots ##
   if(findroots){
-    eesolved <- eeroot(geex_list, start = roots,
+    eesolved <- eeroot(geex_list,
+                       start        = roots,
+                       rootsolver   = rootsolver,
                        root_options = rootsolver_options,
                        ...)
     theta_hat <- eesolved$root
@@ -235,14 +174,15 @@ estimate_equations <- function(eeFUN,
     theta_hat <- roots
   }
 
-  ## Compute variance estimates ##
+  ## Compute core matrices ##
   mats <- compute_matrices(geex_list   = geex_list,
                            theta       = theta_hat,
-                           corrections = corrections,
                            numDeriv_options = numDeriv_options,
-                           correction_options = correction_options,
                            ...)
 
+  ## Compute corrections ##
+
+  ## Compute covariance estimate(s) ##
   Sigma_hat <- compute_sigma(mats)
 
   list(parameters = theta_hat, vcov = Sigma_hat)
