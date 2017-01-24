@@ -9,11 +9,11 @@ shaq <- data_frame(game = 1:23,
 
 ```
 
-Example 10 illustrates testing equality of success probablities. 
+Example 10 illustrates testing equality of success probablities. Table \ref{ex10} translates the estimating equations into the `R` function needed for `geex`:
 
 \begin{table}[H]
 \centering
-\label{ex9}
+\label{ex10}
 \caption{Translating math to code}
 \begin{tabular}{cc}
 $\psi_k(Y_i, n_i, \theta) = 
