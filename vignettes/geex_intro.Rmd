@@ -82,7 +82,7 @@ print_pmatrix <- function(object, digits = 4){
     object <- matrix(object, nrow = 1)
   }
   
-  paste0('$', print(xtable(object, align=rep("",ncol(object)+1), digits =digits), comment = FALSE,
+  paste0('$', print(xtable::xtable(object, align=rep("",ncol(object)+1), digits =digits), comment = FALSE,
         floating=FALSE, tabular.environment="pmatrix", hline.after=NULL, 
         include.rownames=FALSE, include.colnames=FALSE, print.results = FALSE), '$')
 }
