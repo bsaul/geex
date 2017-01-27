@@ -52,7 +52,8 @@ With the `eeFUN` function prepared, it is passed to `estimate_equations` along w
 
 ```{r SB1_run, echo=TRUE}
 estimates <- estimate_equations(eeFUN = SB1_eefun, 
-                                data  = dt, units = 'id', 
+                                data  = dt,
+                                units = 'id', 
                                 roots = c(1,1))
 ```
 
@@ -83,5 +84,5 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```{r SB1_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
 
-print_results(results, 'test', 'test')
+print_results(results, 'ex1', 'Comparing estimates from closed form versus geex')
 ```
