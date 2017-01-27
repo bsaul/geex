@@ -23,7 +23,7 @@ $\psi_k(Y_i, \theta) =
 \end{pmatrix}$ &
 \begin{minipage}{3in}
 \begin{verbatim}
-SB6_eefun <- function(data, k = 1.345){
+SB6_eefun <- function(data, k = 1.5){
   function(theta){
     x <- data$Y - theta[1]
     if(abs(x) <= k) x else sign(x) * k
@@ -50,7 +50,7 @@ estimates <- estimate_equations(eeFUN = SB6_eefun,
 ```
 
 ```{r SB6_clsform, echo = TRUE}
-theta_cls <- MASS::huber(dt$Y)$mu
+theta_cls <- MASS::huber(dt$Y, tol = 1e-10)$mu
 
 psi_k <- function(x, k = 1.5){
   if(abs(x) <= k) x else sign(x) * k
