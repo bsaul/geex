@@ -22,7 +22,7 @@ make_eefun <- function(model, data, ...)
 #' @export
 #------------------------------------------------------------------------------#
 
-make_eefun.merMod <- function(object, data)
+make_eefun.merMod <- function(object, data, numderiv_opts = NULL)
 {
   ## Warnings ##
   if(length(lme4::getME(object, 'theta')) > 1){
@@ -37,7 +37,8 @@ make_eefun.merMod <- function(object, data)
   objfun <- objFun_merMod(family$family)
 
   function(theta){
-    objfun(parms = theta, response = Y, xmatrix = X, linkinv = lnkinv)
+    args <- list(func = objfun, x = theta, response = Y, xmatrix = X, linkinv = lnkinv)
+    do.call(numDeriv::grad, args = append(args, numderiv_opts))
   }
 }
 
