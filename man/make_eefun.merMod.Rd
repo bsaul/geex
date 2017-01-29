@@ -4,7 +4,7 @@
 \alias{make_eefun.merMod}
 \title{glmer Estimating Equations}
 \usage{
-\method{make_eefun}{merMod}(object, data)
+\method{make_eefun}{merMod}(object, data, numderiv_opts = NULL)
 }
 \arguments{
 \item{data}{data with which to create the estimating equation function}
