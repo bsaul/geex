@@ -28,7 +28,9 @@ eeroot <- function(geex_list,
 
   # Create psi function that sums over all ee funs
   psi <- function(theta){
-    psii <- lapply(psi_i, function(f) f(theta))
+    psii <- lapply(psi_i, function(f) {
+      do.call(f, args = append(list(theta = theta), geex_list$ee_args))
+    })
     apply(check_array(simplify2array(psii)), 1, sum)
   }
 
@@ -65,8 +67,12 @@ compute_matrices <- function(geex_list,
                              numDeriv_options = list(method = 'Richardson'),
                              silent = TRUE,
                              ...){
+  if(is.null(geex_list$ee_args)){
+    ee_args <- NULL
+  }
 
   with(geex_list, {
+
     # Create list of estimating eqn functions per unit
     psi_i <- lapply(splitdt, function(data_i){
       eeFUN(data = data_i, ...)
@@ -76,14 +82,17 @@ compute_matrices <- function(geex_list,
     # (the information matrix)
     A_i <- lapply(psi_i, function(ee){
       args <- append(list(fun = ee, x = theta), numDeriv_options)
-      val  <- do.call(numDeriv::jacobian, args = args)
+      val  <- do.call(numDeriv::jacobian, args = append(args, ee_args))
       -val
     })
     A_i_array <- check_array(simplify2array(A_i))
     A   <- apply(A_i_array, 1:2, sum)
 
     # Compute outer product of observed estimating eqns
-    B_i <- lapply(psi_i, function(ee) ee(theta) %*% t(ee(theta)) )
+    B_i <- lapply(psi_i, function(ee) {
+      ee_val <- do.call(ee, args = append(list(theta = theta), ee_args))
+      ee_val %*% t(ee_val)
+    })
     B   <- apply(check_array(simplify2array(B_i)), 1:2, sum)
 
     list(A = A, A_i = A_i, B = B, B_i = B_i)
@@ -140,6 +149,7 @@ estimate_equations <- function(eeFUN,
                                rootsolver_options = NULL,
                                findroots  = TRUE,
                                roots = NULL,
+                               ee_args = NULL,
                                ...){
 
   ## Warnings ##
@@ -148,7 +158,7 @@ estimate_equations <- function(eeFUN,
   }
 
   split_data <- split(x = data, f = data[[units]] )
-  geex_list  <- list(eeFUN = eeFUN, splitdt = split_data)
+  geex_list  <- list(eeFUN = eeFUN, splitdt = split_data, ee_args = ee_args)
 
   ## Compute estimating equation roots ##
   if(findroots){
