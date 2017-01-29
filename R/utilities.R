@@ -61,5 +61,6 @@ get_design_matrix <- function(rhs_formula, data){
 #------------------------------------------------------------------------------#
 
 get_response <- function(formula, data){
+  stopifnot(class(formula) == 'formula')
   model.response(model.frame(formula, data = data))
 }
