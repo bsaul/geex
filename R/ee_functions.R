@@ -14,6 +14,51 @@ make_eefun <- function(model, data, ...)
 }
 
 #------------------------------------------------------------------------------#
+#' geeglm Estimating Equations
+#'
+#' Create estimating equation function from a \code{geeglm} object
+#'
+#' @inheritParams make_eefun
+#' @export
+#------------------------------------------------------------------------------#
+
+make_eefun.geeglm <- function(model, data)
+{
+  if(model$corstr != 'independence'){
+    stop("only independence working correlation is supported at this time")
+  }
+
+  X <- model.matrix(model$formula, data = data)
+  # DO NOT use model.matrix(geepack_obj, data = subdata)) -
+  # returns entire model matrix, not just the subset
+  Y  <- model.response(model.frame(model, data = data))
+  n  <- length(Y)
+  p  <- length(coef(model))
+  phi    <- summary(model)$dispersion$Estimate
+  family <- model$family$family
+  link   <- model$family$link
+  invlnk <- model$family$linkinv
+  family_link <- paste(family, link, sep = '_')
+
+  function(theta){
+    lp <- X %*% theta # linear predictor
+    f  <- as.numeric(invlnk(lp))  # fitted values
+    r  <- Y - f       # residuals
+
+    ### TODO: this is cludgy and needs to be reworked to be more general
+    ### TODO: how to handle weights
+    if(family_link == 'gaussian_identity'){
+      D <- X
+      V <- phi * diag(1, nrow = n, ncol = n)
+    } else if(family_link == 'binomial_logit'){
+      D <- apply(X, 2, function(x) x * exp(lp)/((1+exp(lp))^2) )
+      V <- phi * diag(f * (1 - f), ncol = length(f) )/length(f)
+    }
+    t(D) %*% solve(V) %*% (r)
+  }
+}
+
+#------------------------------------------------------------------------------#
 #' glmer Estimating Equations
 #'
 #' Create estimating equation function from a \code{merMod} object
