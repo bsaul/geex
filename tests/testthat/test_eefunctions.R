@@ -1,4 +1,4 @@
-context("Test extraction model eefun utilies")
+context("Test extraction model eefun utilies for merMod objects")
 library(lme4, quietly = TRUE)
 # Using VerbAagg dataset because it's including in lme4, not because it makes
 # sense.
