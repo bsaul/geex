@@ -34,11 +34,12 @@ make_eefun.geeglm <- function(model, data)
   Y  <- model.response(model.frame(model, data = data))
   n  <- length(Y)
   p  <- length(coef(model))
-  phi    <- summary(model)$dispersion$Estimate
+  phi    <- as.numeric(summary(model)$dispersion[1])
   family <- model$family$family
   link   <- model$family$link
   invlnk <- model$family$linkinv
   family_link <- paste(family, link, sep = '_')
+
 
   function(theta){
     lp <- X %*% theta # linear predictor
