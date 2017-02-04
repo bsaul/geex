@@ -150,6 +150,7 @@ estimate_equations <- function(eeFUN,
                                findroots  = TRUE,
                                roots = NULL,
                                ee_args = NULL,
+                               compute_vcov = TRUE,
                                ...){
 
   ## Warnings ##
@@ -170,6 +171,9 @@ estimate_equations <- function(eeFUN,
     theta_hat <- eesolved$root
   } else {
     theta_hat <- roots
+  }
+  if (compute_vcov == FALSE){
+    return(list(parameters = theta_hat))
   }
 
   ## Compute core matrices ##
