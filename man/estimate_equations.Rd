@@ -7,7 +7,8 @@
 estimate_equations(eeFUN, data, units, corrections_list = NULL,
   numDeriv_options = list(method = "Richardson"),
   rootsolver = rootSolve::multiroot, rootsolver_options = NULL,
-  findroots = TRUE, roots = NULL, ee_args = NULL, ...)
+  findroots = TRUE, roots = NULL, ee_args = NULL, compute_vcov = TRUE,
+  ...)
 }
 \arguments{
 \item{eeFUN}{a function that takes in group-level data and returns a function
