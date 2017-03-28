@@ -14,6 +14,52 @@ make_eefun <- function(model, data, ...)
 }
 
 #------------------------------------------------------------------------------#
+#' glm Estimating Equations
+#'
+#' Create estimating equation function from a \code{glm} object
+#'
+#' @inheritParams make_eefun
+#' @export
+#------------------------------------------------------------------------------#
+
+make_eefun.glm <- function(model, data, weights = 1)
+{
+
+  X  <- model.matrix(model$formula, data = data)
+  Y  <- as.numeric(model.frame(get_response_formula(model), data = data)[[1]])
+  n  <- length(Y)
+  p  <- length(coef(model))
+  phi    <- as.numeric(summary(model)$dispersion[1])
+  W      <- weights
+  family <- model$family$family
+  link   <- model$family$link
+  invlnk <- model$family$linkinv
+  family_link <- paste(family, link, sep = '_')
+
+  stopifnot(length(W) == 1 | length(W) == n)
+  if(length(W) == 1){
+    W <- rep(W, n)
+  }
+
+  function(theta){
+    lp <- X %*% theta # linear predictor
+    f  <- as.numeric(invlnk(lp))  # fitted values
+    r  <- Y - f       # residuals
+
+    ### TODO: this is cludgy and needs to be reworked to be more general
+    if(family_link == 'gaussian_identity'){
+      D <- X
+      V <- phi * diag(1, nrow = n, ncol = n)
+    } else if(family_link == 'binomial_logit'){
+      D <- apply(X, 2, function(x) x * exp(lp)/((1+exp(lp))^2) )
+      V <- phi * diag(f * (1 - f), ncol = length(f) )/length(f)
+    }
+
+    t(D) %*% solve(V) %*% diag(W, nrow = n, ncol = n) %*% (r)
+  }
+}
+
+#------------------------------------------------------------------------------#
 #' geeglm Estimating Equations
 #'
 #' Create estimating equation function from a \code{geeglm} object
