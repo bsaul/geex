@@ -18,7 +18,7 @@ sigma_tau <- 1
 ### Random variables
 
 X <- rgamma(n, shape = 5)
-X <- rnorm(n, sd = 1)
+# X <- rnorm(n, sd = 1)
 
 dt <- data.frame(Y  = alpha + (beta * X) + (sigma_e * e1), 
                  W  = X + (sigma_U * e2),
@@ -80,6 +80,7 @@ estimates <- estimate_equations(eeFUN = SB4_eefun,
 ```{r SB4_clsform, echo = TRUE}
 YW_model <- lm(Y ~ W, data = dt)
 YT_model <- lm(Y ~ T_, data = dt)
+
 WT_model <- lm(W ~ T_, data = dt)
 ## closed form roots
 theta_cls <- c(theta1 = mean(dt$T_),
@@ -90,6 +91,12 @@ theta_cls <- c(theta1 = mean(dt$T_),
 ## closed form covariance
 # Not sure how compute SB's closed form since it depends on X, which is
 # supposed to be unobserved.
+# sigma2_e <- var(residuals(YW_model))
+# sigma2_W <- var(dt$W)
+# sigma2_U <- var(residuals(YT_model))
+
+# ((sigma_e^2 * (1 + sigma_U^2 * sigma_e^2) + beta^2 * (sigma_U^2 * 1))/(1 + sigma_U^2 * sigma_e^2)^2) / (100^2)
+# ((sigma_e^2 * (1 + sigma_U^2 * sigma_e^2) + beta^2 * (sigma_U^2 * 1))/(1 + sigma_U^2 * sigma_e^2)^2) / (100^2)
 Sigma_cls <- matrix(NA, nrow = 2, ncol = 2)
 ```
 
@@ -97,5 +104,6 @@ Sigma_cls <- matrix(NA, nrow = 2, ncol = 2)
 # primary interest lies in the lower 2 x 2 submatrix of the asymptotic variance matrix
 estimates$vcov <- estimates$vcov[3:4, 3:4]
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+
 print_results(results, 'Example 4', 'Example 4')
 ```
