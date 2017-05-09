@@ -4,6 +4,7 @@ output: pdf_document
 
 
 ```{r SB5_setup, echo=FALSE}
+library(ICSNP)
 n <- 100
 theta0 <- 0
 theta_tru <- 2
@@ -54,11 +55,11 @@ integrand <- function(y, densFUN = dnorm){
 
 IC_denom <- integrate(integrand, lower = -Inf, upper = Inf)$value
 
-SB5_eefun <- function(data, theta0 = 0){
+SB5_eefun <- function(data){
   Xi <- data$X
-  IC_HL <- (1/IC_denom) * (F0(Xi, theta0) - 0.5)
   function(theta){
-     c(IC_HL - (theta[1] - theta0),
+     IC_HL <- (1/IC_denom) * (F0(Xi, theta[1]) - 0.5)
+     c(IC_HL,
        Xi - theta[2]) 
   }
 }
@@ -67,22 +68,16 @@ SB5_eefun <- function(data, theta0 = 0){
 ```{r SB5_run, echo = TRUE}
 estimates <- estimate_equations(eeFUN = SB5_eefun, 
                                 data  = dt, units = 'id', 
-                                roots = c(1, 1))
+                                roots = c(2, 1))
 ```
 
 ```{r SB5_clsform, echo = TRUE}
-X <- dt$X
-pair_means <- numeric(length(X) - 1)
-for(i in 1:(length(X) - 1)){
- pair_means[i] <-  (X[i] + X[i + 1])/2
-}
-
-theta_cls <- c(median(pair_means), mean(X))
+theta_cls <- c(hl.loc(dt$X), mean(dt$X))
 
 ## closed form covariance
 # Not sure how compute SB's closed form since it depends on X, which is
 # supposed to be unobserved.
-Sigma_cls <- matrix(c(1/(12 * IC_denom^2) / n, NA, NA, NA), 
+Sigma_cls <- matrix(c(1/(12 * IC_denom^2) / n, NA, NA, var(dt$X)/100), 
                     nrow = 2, ncol = 2, byrow = TRUE)
 ```
 
