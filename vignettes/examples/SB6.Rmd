@@ -67,7 +67,7 @@ B <- lapply(dt$Y, function(y){
 }) %>% unlist() %>% mean()
 
 ## closed form covariance
-Sigma_cls <- matrix(A * B * A / n)
+Sigma_cls <- matrix(1/A * B * 1/A / n)
 ```
 
 ```{r SB6_results, echo = FALSE, results = 'asis'}
