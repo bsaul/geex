@@ -1,23 +1,4 @@
----
-title: "Causal example"
-author: "B. Saul"
-date: "`r Sys.Date()`"
-output: pdf_document
-header-includes:
-- \usepackage{float}
-vignette: >
-  %\VignetteIndexEntry{geex intro}
-  %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
----
-
-## Example: comparison to `sandwich`
-
-I'll use the `vaccinesim` dataset.
-
-
-An example $\psi$ function written in `R`. This function computes the score functions for a GLM.
-```{r eefun, echo=TRUE}
+## ----eefun, echo=TRUE----------------------------------------------------
 eefun <- function(data, model){
   X <- model.matrix(model, data = data)
   Y <- model.response(model.frame(model, data = data))
@@ -29,10 +10,8 @@ eefun <- function(data, model){
     score_eqns
   }
 }
-```
 
-Compare sandwich variance estimators to `sandwich` treating individuals as units:
-```{r example1}
+## ----example1------------------------------------------------------------
 library(inferference)
 vaccinesim$ID <- 1:nrow(vaccinesim)
 mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
@@ -53,15 +32,8 @@ coef(mglm) # from the GLM function
 # Compare variance estimates
 estimates$vcov
 sandwich::sandwich(mglm)
-```
 
-Pretty darn good! Note that the `geex` method is much slower than `sandwich` (especially using `method = 'Richardson'` for `numDeriv`), but this is because `sandwich` uses the closed form of the score equations, while `geex` compute them numerically. However, `geex`'s real utility comes when you have more complicated estimating equations. Also, the analyst has the ability to code faster $\psi$ functions by optimizing their code or using `Rccp`, for example. 
-
-## Example: IPW estimator of counterfactual mean
-
-An example $\psi$ function written in `R`. This function computes the score functions for a GLM, plus two counterfactual means estimated by inverse probability weighting.
-
-```{r eefun2, echo=TRUE}
+## ----eefun2, echo=TRUE---------------------------------------------------
 eefun2 <- function(data, model, alpha){
   X <- model.matrix(model, data = data)
   A <- model.response(model.frame(model, data = data))
@@ -86,11 +58,8 @@ eefun2 <- function(data, model, alpha){
     })
   }
 }
-```
 
-Compare to what `inferference` gets.
-
-```{r example2, echo =TRUE}
+## ----example2, echo =TRUE------------------------------------------------
 test <- interference(Y | A ~ X1 | group, 
                      data = vaccinesim,
                      model_method = 'glm',
@@ -123,7 +92,4 @@ L <- c(0, 0, 1, -1)
 Sigma <- ce_estimates$vcov
 sqrt(t(L) %*% Sigma %*% L)  # from GEEX
 direct_effect(test, allocation = .35)$std.error # from inferference
-```
 
-
-I would expect them to be somewhat different, since `inferference` computes the variance with the block diagonal trick in the Perez appendix.
