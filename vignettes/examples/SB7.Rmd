@@ -37,21 +37,250 @@ SB7_eefun <- function(data){
 \end{tabular}
 \end{table}
 
-```{r SB7_eefun, echo = FALSE}
+This example is *under development*. The core functions need to be modified in order approximate the $\psi$ and $\psi_i$ functions. I propose to add an additional API that allows users to manipulate these functions. The example below illustate. 
+
+I begin with a nondifferentiable $\psi$ function of a single dimension.
+```{r SB7_eefun, echo = TRUE}
 SB7_eefun <- function(data){
   function(theta){
-    with(data,
-      c(0.5  - (Y <= theta[1]),
-        0.65 - (Y <= theta[2]))
-    )
+    0.5  - (data$Y <= theta[1])
   }
 }
+```
+
+```{r check_array, echo = FALSE}
+# this is not an exported function from geex, so add it here
+check_array <- function(object){
+  if(is.array(object)){
+    object
+  } else if(is.numeric(object)){
+    array(object, dim = c(1, 1, length(object)))
+  } else if(is.matrix(object)){
+    array(object, dim = c(1, 1, length(object)))
+  } else {
+    stop('Object is not an array, matrix, or numeric')
+  }
+}
+```
+
+Here, I modify the `eeroot` function in order to approximate the $\psi = \sum_i \psi_i$ function.
+
+```{r eeroot_modified, echo = TRUE, eval=FALSE}
+eeroot_mod <- function(geex_list,
+                   start         = NULL,
+                   rootsolver    = rootSolve::multiroot,
+                   root_options  = NULL,
+                   apprx_fun     = NULL,
+                   apprx_options = NULL,
+                   ...){
+
+  # Create estimating equation functions per group
+  psi_i <- lapply(geex_list$splitdt, function(data_i){
+    geex_list$eeFUN(data = data_i, ...)
+  })
+
+  # Create psi function that sums over all ee funs
+  psi <- function(theta){
+    psii <- lapply(psi_i, function(f) {
+      do.call(f, args = append(list(theta = theta), geex_list$ee_args))
+    })
+    apply(check_array(simplify2array(psii)), 1, sum)
+  }
+
+  # apprx_fun is a function that manipulates the psi function and returns a new psi function
+  if(!is.null(apprx_fun)){
+    psi <- do.call(apprx_fun, args = append(list(psi = psi), apprx_options))
+  }
+  # Find roots of psi
+  rargs <- append(root_options, list(f = psi, start = start))
+  do.call(rootsolver, args = rargs)
+}
+```
+
+Here's an example of how it would work using `splinefun`.
+
+```{r splinefun, echo = TRUE}
+spline_approx <- function(psi, eval_theta){
+  ### Use splinefun ####
+  psi2 <- Vectorize(psi)
+  psi <- splinefun(x = eval_theta, psi2(eval_theta))
+  psi
+}
+
+
+myList <- list(eeFUN = SB7_eefun, splitdt = split(dt, f = dt$id))
+
+root_spline1 <- eeroot_mod(
+  geex_list = myList,
+  start     = 2,
+  apprx_fun = spline_approx,
+  apprx_options = list(eval_theta = seq(1, 5, by = .5))
+)
+
+# Compare to the truth
+median(dt$Y) - root_spline1$root
+
+# But notice that the basis of the spline matters too
+root_spline2 <- eeroot_mod(
+  geex_list = myList,
+  start     = 2,
+  apprx_fun = spline_approx,
+  apprx_options = list(eval_theta = seq(1, 5, by = .1))
+)
+
+# Compare to the truth
+median(dt$Y) - root_spline2$root
+
+
+# But notice that the basis of the spline matters too
+root_spline3 <- eeroot_mod(
+  geex_list = myList,
+  start     = 2,
+  apprx_fun = spline_approx,
+  apprx_options = list(eval_theta = seq(-5, 5, by = 1))
+)
+
+# Compare to the truth
+median(dt$Y) - root_spline3$root
+
+```
+
+The above method works, but (a) it's not clear how to choose `eval_theta` and (b) it would not work with a $\psi$ function of greater than 1 dimension since `splinefun` only takes univariate arguments.
+
+We might be able to improve the above. Here's an example of how it would work using `mgcv::gam`.
+
+```{r gam_approx, echo = TRUE}
+gam_approx <- function(psi, eval_theta){
+  ### Use splinefun ####
+  psi2 <- Vectorize(psi)
+  psi <- splinefun(x = eval_theta, psi2(eval_theta))
+  psi
+}
+
+```
+
+```{r}
+
+hat_theta <- median(dt$Y)
+
+# Create estimating equation functions per group
+psi_i <- lapply(splitdt, function(data_i){
+  SB7_eefun(data = data_i)
+})
+
+# Create psi function that sums over all ee funs
+psi <- function(theta){
+  psii <- lapply(psi_i, function(f) {
+    do.call(f, args = list(theta = theta))
+  })
+  sum(simplify2array(psii)) 
+}
+
+### Use splinefun ####
+psi2 <- Vectorize(psi)
+eval_theta <- seq(0, 4, by = .3)
+psi3 <- splinefun(x = eval_theta, psi2(eval_theta))
+rootSolve::multiroot(psi3, start = 2.1)$root
+rootSolve::multiroot(psi3, start = 2.3)$root
+hat_theta
+
+### Use splines package ####
+eval_theta <- seq(0, 4, by = .3)
+basis <- ns(psi2(eval_theta))
+ff <- function(theta) predict(basis, newx = theta)
+
+ff(2)
+psi4 <- ff
+rootSolve::multiroot(psi4, start = 2.1)
+rootSolve::multiroot(psi4, start = 2.3)
+
+
+### Use mcgv package ####
+library(mgcv)
+eval_theta <- seq(0, 4, by = .3)
+eval_theta <- seq(0, 4, length.out = 14)
+eval_theta <- seq(0, 4, by = .5)
+eval_theta <- seq(-100, 100, by = .1)
+Y <- psi2(eval_theta)
+gam_basis <- gam(Y ~ s(eval_theta, bs = 'cr', k = 1000))
+ff <- function(theta) predict(gam_basis, newdata = data_frame(eval_theta = theta))
+
+psi4 <- ff
+rootSolve::multiroot(psi4, start = 2.1)
+rootSolve::multiroot(psi4, start = 2.3)
+rootSolve::multiroot(psi4, start = 7, maxiter = 1000) # doesn't work if extraopolating beyond range of eval_theta
+hat_theta
+```
+
+```{r Aderiv, echo = TRUE, eval=FALSE}
+
+## Using splinefun ####
+eval_theta <- seq(0, 4, by = .3)
+psi_i_splined <- lapply(splitdt, function(data_i){
+  f <- SB7_eefun(data = data_i)
+  f <- Vectorize(f)
+  splinefun(x = eval_theta, f(eval_theta), method ='natural')
+})
+
+A_i <- lapply(psi_i_splined, function(ee){
+  val <- numDeriv::jacobian(func = ee, x = hat_theta)
+  -val
+})
+A_i_array <- simplify2array(A_i)
+A <-  -sum(A_i_array)
+
+B_i <- lapply(psi_i, function(ee) {
+  ee_val <- ee(hat_theta)
+  ee_val %*% t(ee_val)
+})
+B <- sum(unlist(B_i))
+
+sqrt(1/A * B * 1/A)
+
+## Using splinefun ####
+eval_theta <- seq(0, 4, length.out = 100)
+psi_i_gam <- lapply(splitdt, function(data_i){
+  f <- SB7_eefun(data = data_i)
+  f <- Vectorize(f)
+  Y <- f(eval_theta)
+  gam_basis <- gam(Y ~ s(eval_theta))
+  function(theta) predict(gam_basis, newdata = data_frame(eval_theta = theta))
+})
+A_i <- lapply(psi_i_gam, function(ee){
+  val <- numDeriv::jacobian(func = ee, x = hat_theta)
+  -val
+})
+A_i_array <- simplify2array(A_i)
+A <-  -sum(A_i_array)
+
+B_i <- lapply(psi_i, function(ee) {
+  ee_val <- ee(hat_theta)
+  ee_val %*% t(ee_val)
+})
+B <- sum(unlist(B_i))
+
+sqrt(1/A * B * 1/A)
+
+## does this work for finding root too?
+psi_gam <- function(theta){
+  psii <- lapply(psi_i_gam, function(f) {
+    do.call(f, args = list(theta = theta))
+  })
+  sum(simplify2array(psii)) 
+}
+
+# Yes, but appears not as accurate
+rootSolve::multiroot(psi_gam, start = 2.1)
+rootSolve::multiroot(psi_gam, start = 2.4)
+
+
 ```
 
 ```{r SB7_run, echo = TRUE, eval=FALSE}
 estimates <- estimate_equations(eeFUN = SB7_eefun, 
                                 data  = dt, units = 'id', 
-                                roots = c(.5, .65))
+                                findroots = FALSE,
+                                roots = c(2))
 ```
 
 ```{r SB7_clsform, echo = TRUE}
