@@ -4,6 +4,7 @@ output: pdf_document
 
 ```{r SB7_setup, echo=FALSE}
 library(geex)
+set.seed(9)
 n <- 100
 theta_tru <- 2
 sigma <- 1
@@ -48,7 +49,7 @@ SB7_eefun <- function(data){
 }
 ```
 
-```{r check_array, echo = FALSE}
+```{r check_array, echo = FALSE, eval = TRUE}
 # this is not an exported function from geex, so add it here
 check_array <- function(object){
   if(is.array(object)){
@@ -65,7 +66,7 @@ check_array <- function(object){
 
 Here, I modify the `eeroot` function in order to approximate the $\psi = \sum_i \psi_i$ function.
 
-```{r eeroot_modified, echo = TRUE, eval=FALSE}
+```{r eeroot_modified, echo = TRUE, eval=TRUE}
 eeroot_mod <- function(geex_list,
                    start         = NULL,
                    rootsolver    = rootSolve::multiroot,
@@ -275,8 +276,6 @@ gam_matrices1 <- compute_matrices_mod(
   apprx_options = list(eval_theta = seq(0, 4, by = .3))
 )
 
-gam_matrices1$A_i
-
 compute_sigma(A = gam_matrices1$A, B = gam_matrices1$B) 
 
 # V(theta) from Stefanski and Boos
@@ -306,7 +305,7 @@ compute_sigma(A = density_matrices1$A, B = density_matrices1$B)
 What would happen if instead of approximating $\psi$ for finding roots, we approximated $\psi_i$? I'm sure it would be slower, but if making same approximations for both situations (finding roots and derivatives of $A_i$) seems more principled plus the code would be modified in the same location in both `eeroot` and `compute_matrices`.
 
 
-```{r eeroot_modified, echo = TRUE, eval=FALSE}
+```{r eeroot_modified2, echo = TRUE, eval=TRUE}
 
 # Put apprx_fun code in same place as compute_matrices
 eeroot_mod2<- function(geex_list,
@@ -351,7 +350,7 @@ root_spline5 <- eeroot_mod2(
 # Compare to the truth
 median(dt$Y) - root_spline5$root
 
-root_gam5 <- eeroot_mod(
+root_gam5 <- eeroot_mod2(
   geex_list = myList,
   start     = 2,
   apprx_fun = gam_approx,
@@ -362,7 +361,6 @@ root_gam5 <- eeroot_mod(
 median(dt$Y) - root_gam5$root
 ```
 
-Okay, that doesn't work all that well. Does it work for large samples?
 
 ```{r, echo = TRUE}
 # But notice that the basis of the spline matters too
