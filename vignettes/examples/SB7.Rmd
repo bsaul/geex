@@ -3,11 +3,11 @@ output: pdf_document
 ---
 
 ```{r SB7_setup, echo=FALSE}
+library(geex)
 n <- 100
 theta_tru <- 2
 sigma <- 1
-dt <- data.frame(Y = rnorm(n, mean = 2, sd = sigma),
-                 id = 1:n)
+dt <- data.frame(Y = rnorm(n, mean = theta_tru, sd = sigma), id = 1:n)
 ```
 
 Example 7 illustrates calculation of sample quantiles using M-estimation. I generate a data set with `r n` observations where $Y \sim N$(`r theta_tru`, `r sigma`). Table \ref{ex7} translates the estimating equations for two sample quantiles (median and 65th percentile) into the `R` function needed for `geex`:
@@ -103,7 +103,7 @@ Here's an example of how it would work using `splinefun`.
 spline_approx <- function(psi, eval_theta){
   ### Use splinefun ####
   psi2 <- Vectorize(psi)
-  psi <- splinefun(x = eval_theta, psi2(eval_theta))
+  psi <- function(theta) splinefun(x = eval_theta, psi2(eval_theta))(theta)
   psi
 }
 
@@ -147,134 +147,313 @@ median(dt$Y) - root_spline3$root
 
 The above method works, but (a) it's not clear how to choose `eval_theta` and (b) it would not work with a $\psi$ function of greater than 1 dimension since `splinefun` only takes univariate arguments.
 
-We might be able to improve the above. Here's an example of how it would work using `mgcv::gam`.
+Here's an example of how it would work using `mgcv::gam`.
 
 ```{r gam_approx, echo = TRUE}
+library(mgcv)
 gam_approx <- function(psi, eval_theta){
   ### Use splinefun ####
   psi2 <- Vectorize(psi)
-  psi <- splinefun(x = eval_theta, psi2(eval_theta))
+  Y    <- psi2(eval_theta)
+  gam_basis <- gam(Y ~ s(eval_theta))
+  psi <- function(theta) predict(gam_basis, newdata = data.frame(eval_theta = theta))
   psi
 }
 
+root_gam1 <- eeroot_mod(
+  geex_list = myList,
+  start     = 2,
+  apprx_fun = gam_approx,
+  apprx_options = list(eval_theta = seq(1, 5, by = .3))
+)
+
+# Compare to the truth
+median(dt$Y) - root_gam1$root
+
+
+# Still, the basis of the spline influences the result
+root_gam2 <- eeroot_mod(
+  geex_list = myList,
+  start     = 2,
+  apprx_fun = gam_approx,
+  apprx_options = list(eval_theta = seq(1.5, 3.5, length.out = 20))
+)
+
+# Compare to the truth
+median(dt$Y) - root_gam2$root
+
 ```
 
-```{r}
+What happens when the $n$ increases from 100 to 10000?
 
-hat_theta <- median(dt$Y)
+```{r gam_approx_10000, echo = TRUE}
+dt2 <- data.frame(Y = rnorm(n, mean = theta_tru, sd = sigma), id = 1:10000)
+myList2 <- list(eeFUN = SB7_eefun, splitdt = split(dt2, f = dt2$id))
 
-# Create estimating equation functions per group
-psi_i <- lapply(splitdt, function(data_i){
-  SB7_eefun(data = data_i)
-})
+root_spline4 <- eeroot_mod(
+  geex_list = myList2,
+  start     = 2,
+  apprx_fun = spline_approx,
+  apprx_options = list(eval_theta = seq(0, 5, by = .1))
+)
 
-# Create psi function that sums over all ee funs
-psi <- function(theta){
-  psii <- lapply(psi_i, function(f) {
-    do.call(f, args = list(theta = theta))
+median(dt2$Y) - root_spline4$root
+
+root_gam3 <- eeroot_mod(
+  geex_list = myList2,
+  start     = 2,
+  apprx_fun = gam_approx,
+  apprx_options = list(eval_theta = seq(0, 5, by = .1))
+)
+
+# Compare to the truth
+median(dt$Y) - root_gam3$root
+```
+
+In order to compute $A_i$, we need to approximate $\psi_i$, so I'll make a similar modification to `compute_matrices`.
+
+```{r compute_matrices_mod, echo = TRUE}
+compute_matrices_mod <- function(geex_list,
+                             theta,
+                             numDeriv_options = list(method = 'Richardson'),
+                             silent = TRUE,
+                             apprx_fun     = NULL,
+                             apprx_options = NULL,
+                             ...){
+  if(is.null(geex_list$ee_args)){
+    ee_args <- NULL
+  }
+
+  with(geex_list, {
+
+    # Create list of estimating eqn functions per unit
+    psi_i <- lapply(splitdt, function(data_i){
+      f <- eeFUN(data = data_i, ...)
+      if(!is.null(apprx_fun)){
+        f <- do.call(apprx_fun, args = append(list(psi = f), apprx_options))
+      }
+      f
+    })
+
+    # Compute the negative of the derivative matrix of estimating eqn functions
+    # (the information matrix)
+    A_i <- lapply(psi_i, function(ee){
+      args <- append(list(fun = ee, x = theta), numDeriv_options)
+      val  <- do.call(numDeriv::jacobian, args = append(args, ee_args))
+      -val
+    })
+    A_i_array <- check_array(simplify2array(A_i))
+    A   <- apply(A_i_array, 1:2, sum)
+
+    # Compute outer product of observed estimating eqns
+    B_i <- lapply(psi_i, function(ee) {
+      ee_val <- do.call(ee, args = append(list(theta = theta), ee_args))
+      ee_val %*% t(ee_val)
+    })
+    B   <- apply(check_array(simplify2array(B_i)), 1:2, sum)
+
+    list(A = A, A_i = A_i, B = B, B_i = B_i)
   })
-  sum(simplify2array(psii)) 
+}
+```
+
+```{r matrices, echo = TRUE}
+spline_matrices1 <- compute_matrices_mod(
+  geex_list = myList,
+  theta     = median(dt$Y),
+  apprx_fun = spline_approx,
+  apprx_options = list(eval_theta = seq(0, 4, by = .5))
+)
+
+compute_sigma(A = spline_matrices1$A, B = spline_matrices1$B) 
+
+
+gam_matrices1 <- compute_matrices_mod(
+  geex_list = myList,
+  theta     = median(dt$Y),
+  apprx_fun = gam_approx,
+  apprx_options = list(eval_theta = seq(0, 4, by = .3))
+)
+
+gam_matrices1$A_i
+
+compute_sigma(A = gam_matrices1$A, B = gam_matrices1$B) 
+
+# V(theta) from Stefanski and Boos
+((0.5 * (1 -0.5))/((dnorm(median(dt2$Y), mean = mean(dt2$Y), sd = sd(dt2$Y)))^2) ) 
+```
+
+For the the quantiles in particular, Stefanski and Boos suggest directly approximating f(theta) by a kernel density.
+Let's try that.
+
+```{r dens_approx, echo = TRUE}
+dens <- density(dt$Y)
+ff <- splinefun(x = dens$x, y = dens$y)
+density_apprx <- function(psi){
+  function(theta) ff(theta)
 }
 
-### Use splinefun ####
-psi2 <- Vectorize(psi)
-eval_theta <- seq(0, 4, by = .3)
-psi3 <- splinefun(x = eval_theta, psi2(eval_theta))
-rootSolve::multiroot(psi3, start = 2.1)$root
-rootSolve::multiroot(psi3, start = 2.3)$root
-hat_theta
+density_matrices1 <- compute_matrices_mod(
+  geex_list = myList,
+  theta     = median(dt$Y),
+  apprx_fun = density_apprx
+)
 
-### Use splines package ####
-eval_theta <- seq(0, 4, by = .3)
-basis <- ns(psi2(eval_theta))
-ff <- function(theta) predict(basis, newx = theta)
+compute_sigma(A = density_matrices1$A, B = density_matrices1$B) 
 
-ff(2)
-psi4 <- ff
-rootSolve::multiroot(psi4, start = 2.1)
-rootSolve::multiroot(psi4, start = 2.3)
-
-
-### Use mcgv package ####
-library(mgcv)
-eval_theta <- seq(0, 4, by = .3)
-eval_theta <- seq(0, 4, length.out = 14)
-eval_theta <- seq(0, 4, by = .5)
-eval_theta <- seq(-100, 100, by = .1)
-Y <- psi2(eval_theta)
-gam_basis <- gam(Y ~ s(eval_theta, bs = 'cr', k = 1000))
-ff <- function(theta) predict(gam_basis, newdata = data_frame(eval_theta = theta))
-
-psi4 <- ff
-rootSolve::multiroot(psi4, start = 2.1)
-rootSolve::multiroot(psi4, start = 2.3)
-rootSolve::multiroot(psi4, start = 7, maxiter = 1000) # doesn't work if extraopolating beyond range of eval_theta
-hat_theta
 ```
 
-```{r Aderiv, echo = TRUE, eval=FALSE}
+What would happen if instead of approximating $\psi$ for finding roots, we approximated $\psi_i$? I'm sure it would be slower, but if making same approximations for both situations (finding roots and derivatives of $A_i$) seems more principled plus the code would be modified in the same location in both `eeroot` and `compute_matrices`.
 
-## Using splinefun ####
-eval_theta <- seq(0, 4, by = .3)
-psi_i_splined <- lapply(splitdt, function(data_i){
-  f <- SB7_eefun(data = data_i)
-  f <- Vectorize(f)
-  splinefun(x = eval_theta, f(eval_theta), method ='natural')
-})
 
-A_i <- lapply(psi_i_splined, function(ee){
-  val <- numDeriv::jacobian(func = ee, x = hat_theta)
-  -val
-})
-A_i_array <- simplify2array(A_i)
-A <-  -sum(A_i_array)
+```{r eeroot_modified, echo = TRUE, eval=FALSE}
 
-B_i <- lapply(psi_i, function(ee) {
-  ee_val <- ee(hat_theta)
-  ee_val %*% t(ee_val)
-})
-B <- sum(unlist(B_i))
+# Put apprx_fun code in same place as compute_matrices
+eeroot_mod2<- function(geex_list,
+                   start         = NULL,
+                   rootsolver    = rootSolve::multiroot,
+                   root_options  = NULL,
+                   apprx_fun     = NULL,
+                   apprx_options = NULL,
+                   ...){
 
-sqrt(1/A * B * 1/A)
-
-## Using splinefun ####
-eval_theta <- seq(0, 4, length.out = 100)
-psi_i_gam <- lapply(splitdt, function(data_i){
-  f <- SB7_eefun(data = data_i)
-  f <- Vectorize(f)
-  Y <- f(eval_theta)
-  gam_basis <- gam(Y ~ s(eval_theta))
-  function(theta) predict(gam_basis, newdata = data_frame(eval_theta = theta))
-})
-A_i <- lapply(psi_i_gam, function(ee){
-  val <- numDeriv::jacobian(func = ee, x = hat_theta)
-  -val
-})
-A_i_array <- simplify2array(A_i)
-A <-  -sum(A_i_array)
-
-B_i <- lapply(psi_i, function(ee) {
-  ee_val <- ee(hat_theta)
-  ee_val %*% t(ee_val)
-})
-B <- sum(unlist(B_i))
-
-sqrt(1/A * B * 1/A)
-
-## does this work for finding root too?
-psi_gam <- function(theta){
-  psii <- lapply(psi_i_gam, function(f) {
-    do.call(f, args = list(theta = theta))
+  # Create estimating equation functions per group
+  psi_i <- lapply(geex_list$splitdt, function(data_i){
+      f <- geex_list$eeFUN(data = data_i, ...)
+      if(!is.null(apprx_fun)){
+        f <- do.call(apprx_fun, args = append(list(psi = f), apprx_options))
+      }
+      f
   })
-  sum(simplify2array(psii)) 
+
+  # Create psi function that sums over all ee funs
+  psi <- function(theta){
+    psii <- lapply(psi_i, function(f) {
+      do.call(f, args = append(list(theta = theta), geex_list$ee_args))
+    })
+    apply(check_array(simplify2array(psii)), 1, sum)
+  }
+  # Find roots of psi
+  rargs <- append(root_options, list(f = psi, start = start))
+  do.call(rootsolver, args = rargs)
+}
+```
+
+```{r, echo = TRUE}
+# But notice that the basis of the spline matters too
+root_spline5 <- eeroot_mod2(
+  geex_list = myList,
+  start     = 2,
+  apprx_fun = spline_approx,
+  apprx_options = list(eval_theta = seq(-5, 5, by = 1))
+)
+
+# Compare to the truth
+median(dt$Y) - root_spline5$root
+
+root_gam5 <- eeroot_mod(
+  geex_list = myList,
+  start     = 2,
+  apprx_fun = gam_approx,
+  apprx_options = list(eval_theta = seq(0, 5, by = .1))
+)
+
+# Compare to the truth
+median(dt$Y) - root_gam5$root
+```
+
+Okay, that doesn't work all that well. Does it work for large samples?
+
+```{r, echo = TRUE}
+# But notice that the basis of the spline matters too
+root_spline6 <- eeroot_mod2(
+  geex_list = myList2,
+  start     = 2,
+  apprx_fun = spline_approx,
+  apprx_options = list(eval_theta = seq(-5, 5, by = 1))
+)
+
+# Compare to the truth
+median(dt$Y) - root_spline6$root
+
+root_gam6 <- eeroot_mod(
+  geex_list = myList2,
+  start     = 2,
+  apprx_fun = gam_approx,
+  apprx_options = list(eval_theta = seq(0, 5, by = .1))
+)
+
+# Compare to the truth
+median(dt$Y) - root_gam6$root
+```
+
+Not really.
+
+Now try to approximate a multidimensional $\psi$ function.
+```{r SB7_eefun2, echo = TRUE}
+SB7_eefun2 <- function(data){
+  function(theta){
+    with(data,
+    c(0.25  - (Y <= theta[1]),
+      0.5   - (Y <= theta[2]),
+      0.75  - (Y <= theta[3]))
+    )
+  }
+}
+```
+
+The code next is work in progress. No good, so far.
+
+```{r multi_psi, echo = TRUE, eval=FALSE}
+gam_approx_multi <- function(psi, eval_theta1, eval_theta2, eval_theta3){
+  ### Use splinefun ####
+  # psi2 <- Vectorize(psi)
+  Y <- matrix(NA, nrow = length(eval_theta1), ncol = 3)
+  for(i in 1:length(eval_theta1)){
+      Y[i, ]  <- psi(c(eval_theta1[i], eval_theta2[i], eval_theta3[i]))
+  }
+
+  gam_data <- data.frame(
+    Y1 = Y[, 1],
+    Y2 = Y[, 2],
+    Y3 = Y[, 3],
+    x1 = eval_theta1,
+    x2 = eval_theta2,
+    x3 = eval_theta3
+  )
+
+  gam_basis <- gam(list(Y1 ~ s(x1),
+                        Y2 ~ s(x2),
+                        Y3 ~ s(x3)),
+                   family = mvn(d = 3),
+                   data = gam_data)
+  print(gam_basis)
+  psi <- function(theta) {
+    predict(gam_basis, newdata = data.frame(eval_theta1 = theta[1],
+                                            eval_theta2 = theta[2],
+                                            eval_theta3 = theta[3]))
+  }
+  psi
 }
 
-# Yes, but appears not as accurate
-rootSolve::multiroot(psi_gam, start = 2.1)
-rootSolve::multiroot(psi_gam, start = 2.4)
+SB7_eefun2(dt[1, ])(c(1, 2, 3))
+
+myList3 <- list(eeFUN = SB7_eefun2, splitdt = split(dt, f = dt$id))
+
+root_gam1 <- eeroot_mod(
+  geex_list = myList3,
+  start     = c(1, 2, 3),
+  apprx_fun = gam_approx_multi,
+  apprx_options = list(eval_theta1 = seq(-5, 5, by = .1),
+                       eval_theta2 = seq(-5, 5, by = .1),
+                       eval_theta3 = seq(-5, 5, by = .1))
+)
+
+quantile(dt$Y, probs = c(.25, .5, .75))
 
 
 ```
+
 
 ```{r SB7_run, echo = TRUE, eval=FALSE}
 estimates <- estimate_equations(eeFUN = SB7_eefun, 
