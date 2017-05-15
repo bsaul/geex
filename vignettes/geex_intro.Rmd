@@ -111,48 +111,48 @@ print_results <- function(results, label, caption){
 
 ## Stefanski \& Boos example 1
 
-```{r child = 'SB1.Rmd'}
+```{r child = 'SB01.Rmd'}
 ```
 
 
 ## Stefanski \& Boos example 2
 
-```{r child = 'SB2.Rmd'}
+```{r child = 'SB02.Rmd'}
 ```
 
 
 ## Stefanski \& Boos example 3
-```{r child = 'SB3.Rmd'}
+```{r child = 'SB03.Rmd'}
 ```
 
 ## Stefanski \& Boos example 4
 
-```{r child = 'SB4.Rmd'}
+```{r child = 'SB04.Rmd'}
 ```
 
 ## Stefanski \& Boos example 5
 
-```{r child = 'SB5.Rmd'}
+```{r child = 'SB05.Rmd'}
 ```
 
 ## Stefanski \& Boos example 6
 
-```{r child = 'SB6.Rmd'}
+```{r child = 'SB06.Rmd'}
 ```
 
 ## Stefanski \& Boos example 7
 
-```{r child = 'SB7.Rmd'}
+```{r child = 'SB07.Rmd'}
 ```
 
 ## Stefanski \& Boos example 8
 
-```{r child = 'SB8.Rmd'}
+```{r child = 'SB08.Rmd'}
 ```
 
 ## Stefanski \& Boos example 9
 
-```{r child = 'SB9.Rmd'}
+```{r child = 'SB09.Rmd'}
 ```
 
 ## Stefanski \& Boos example 10
