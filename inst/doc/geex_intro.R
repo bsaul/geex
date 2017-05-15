@@ -850,7 +850,6 @@ shaq <- data_frame(game = 1:23,
                  ft_made = c(4, 5, 5, 5, 2, 7, 6, 9, 4, 1, 13, 5, 6, 9, 7, 3, 8, 1, 18, 3, 10, 1, 3),
                  ft_attp = c(5, 11, 14, 12, 7, 10, 14, 15, 12, 4, 27, 17, 12, 9, 12, 10, 12, 6, 39, 13, 17, 6, 12))
 
-
 ## ----SB10_eefun, echo = FALSE--------------------------------------------
 SB10_eefun <- function(data){
   Y <- data$ft_made
@@ -864,29 +863,37 @@ SB10_eefun <- function(data){
 
 ## ----SB10_run, echo = TRUE-----------------------------------------------
 estimates <- estimate_equations(eeFUN = SB10_eefun, 
-                                data  = shaq, units = 'game', 
+                                data  = shaq, 
+                                units = 'game', 
+                                numDeriv_options = list(method.args = list(eps = 1e-7, r = 10, zero.tol = .Machine$double.eps)), 
                                 roots = c(.5, .5))
 
 ## ----SB10_clsform, echo = TRUE-------------------------------------------
 V11 <- function(p) {
-  k <- length(nrow(shaq))
+  k    <- nrow(shaq)
   sumn <- sum(shaq$ft_attp)
   sumn_inv <- sum(1/shaq$ft_attp)
-  term2_n <- 1 - (6 * p) + (6 * p^2)
+  term2_n  <- 1 - (6 * p) + (6 * p^2)
   term2_d <- p * (1 - p) 
-  term2 <- term2_n/term2_d
-  print(term2)
-  term3 <- ((1 - 2 * p)^2)/( (sumn/k) * p * (1 - p))
-  print(term3)
-  2 + (term2 * (1/k) * sumn_inv)  - term3
+  term2  <- term2_n/term2_d
+  term3  <- ((1 - (2 * p))^2) / ((sumn/k) * p * (1 - p))
+  2 + (term2 * (1/k) * sumn_inv) - term3
 }
 
-### ???? I keep getting a negative value for V11
-
 p_tilde <- sum(shaq$ft_made)/sum(shaq$ft_attp)
-V <- V11(.45)
-V
-pnorm(estimates$parameters[1], mean = 1, sd = sqrt(V))
+V11_hat <- V11(p_tilde)/23
+
+# Compare variance estimates
+V11_hat
+estimates$vcov[1, 1]
+
+# Compare p-values
+pnorm(35.51/23, mean  = 1, sd = sqrt(V11_hat), lower.tail = FALSE)
+
+pnorm(estimates$parameters[1], 
+      mean = 1, 
+      sd = sqrt(estimates$vcov[1, 1]),
+      lower.tail = FALSE)
 
 
 ## ----SB10_results, echo = FALSE, results = 'asis', eval = FALSE----------
