@@ -4,19 +4,11 @@ output: pdf_document
 
 ```{r FAY1_setup, echo=FALSE}
 library(gee)
+library(geex)
 library(saws)
 data(warpbreaks)
 g<-gee(breaks~tension,id=wool, data=warpbreaks, corstr="exchangeable")
 guo<-geeUOmega(g)
-
-
-# set.seed(1)
-# n<-20
-# x1<-rnorm(n)
-# x2<-factor(c(rep("a",n/2),rep("b",n/2)))
-# y<-rnorm(n,x1)
-# out<-lmfitSaws(model.matrix(~x1*x2),y)
-# saws(out)
 ```
 
 Example 11 compares to Michael Fay's `saws` package. Also demonstrates implementing a two-step estimation method for GEE using `geex`.
@@ -52,9 +44,9 @@ estimates <- estimate_equations(eeFUN = FAY1_eefun,
                                 data  = warpbreaks, units = 'wool', 
                                 roots = c(30, .5, .5), 
                                 formula = breaks ~ tension,
-                                corrections = c('bias', 'df'),
-                                correction_options = list(b = 0.75, contrast = c(1, 1, 1)),
-                                
+                                corrections_list = list(df1  = list(fun = fay_df_correction, options = list(b = 0.75, L = c(1, 1, 1), version = 2)),
+                                                        bias.3 = list(fun = fay_bias_correction, options = list(b = 0.3)),
+                                                        bias.75 = list(fun = fay_bias_correction, options = list(b = 0.75))),
                                 family  = gaussian(),
                                 alpha = .0252,
                                 psi   = 141)
@@ -62,10 +54,17 @@ estimates <- estimate_equations(eeFUN = FAY1_eefun,
 ```
 
 ```{r FAY1_clsform, echo = TRUE}
-saws(guo, method = 'd1')$V
-estimates$vcov 
+saws(guo, method = 'd1')$V # 'standard sandwich method'
+estimates$vcov
+estimates
+saws(guo, method = 'd2')$df
+saws(guo, method = 'd4', bound  = 0.3)$V
+saws(guo, method = 'd4', bound  = 0.75)$V
 
 ```
+
+
+
 
 ```{r FAY1_results, echo = FALSE, results = 'asis', eval = FALSE}
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
