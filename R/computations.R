@@ -104,8 +104,10 @@ compute_matrices <- function(geex_list,
 #------------------------------------------------------------------------------#
 #' Compute covariance matrix for set of estimating equations
 #'
-#' @param matrices the list of matrices returned from \code{\link{compute_matrices}}
-#' @param corrections character vector of corrections to perform
+#' @param A the 'bread' matrix returned in the list of matrices from
+#'   \code{\link{compute_matrices}}
+#' @param B the 'meat' matrix returned in the list of matrices from
+#'   \code{\link{compute_matrices}}
 #'
 #' @export
 #------------------------------------------------------------------------------#
