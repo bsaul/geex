@@ -33,6 +33,7 @@ eefun <- function(data, model){
 
 Compare sandwich variance estimators to `sandwich` treating individuals as units:
 ```{r example1}
+library(geex)
 library(inferference)
 vaccinesim$ID <- 1:nrow(vaccinesim)
 mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)

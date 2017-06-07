@@ -12,6 +12,7 @@ eefun <- function(data, model){
 }
 
 ## ----example1------------------------------------------------------------
+library(geex)
 library(inferference)
 vaccinesim$ID <- 1:nrow(vaccinesim)
 mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
