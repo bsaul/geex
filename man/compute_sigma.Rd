@@ -7,9 +7,11 @@
 compute_sigma(A, B)
 }
 \arguments{
-\item{matrices}{the list of matrices returned from \code{\link{compute_matrices}}}
+\item{A}{the 'bread' matrix returned in the list of matrices from
+\code{\link{compute_matrices}}}
 
-\item{corrections}{character vector of corrections to perform}
+\item{B}{the 'meat' matrix returned in the list of matrices from
+\code{\link{compute_matrices}}}
 }
 \description{
 Compute covariance matrix for set of estimating equations
