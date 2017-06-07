@@ -10,7 +10,9 @@ eeroot(geex_list, start = NULL, rootsolver = rootSolve::multiroot,
 \arguments{
 \item{geex_list}{a list containing \code{splitdt} (a \code{data.frame} that
 has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
-(see \code{\link{estimate_equations}})}
+(see \code{\link{estimate_equations}}). Note that the function that is
+returned by \code{eeFUN} must take \code{theta} as its first argument, where
+\code{theta} represents the parameters.}
 
 \item{start}{vector with length of the number of parameters to find. Passed to
 \code{\link[rootSolve]{multiroot}} if not NULL. Defaults to NULL.}
