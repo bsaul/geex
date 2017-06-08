@@ -3,7 +3,7 @@ output: pdf_document
 ---
 
 
-```{r SB_setup, echo=FALSE}
+```{r SB2_setup, echo=FALSE}
 n  <- 100
 muY <- 5
 sigmaY <- 2
