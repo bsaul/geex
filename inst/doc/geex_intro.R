@@ -101,7 +101,7 @@ results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigm
 
 print_results(results, 'ex1', 'Comparing estimates from closed form versus geex')
 
-## ----SB_setup, echo=FALSE------------------------------------------------
+## ----SB2_setup, echo=FALSE-----------------------------------------------
 n  <- 100
 muY <- 5
 sigmaY <- 2
