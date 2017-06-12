@@ -75,21 +75,22 @@ fay_bias_correction_partial <- function(m, A, A_i, B, B_i, b){
 df_correction_prep <- function(m, L, A, A_i, H_i){
   p <- ncol(A)
 
+  Ainv <- solve(A)
   II   <- diag(1, p*m)
   AA   <- do.call(rbind, A_i)
   calI <- do.call(cbind, args = lapply(1:m, function(i) diag(1, p) ))
   G    <- II - (AA %*% solve(A) %*% calI)
 
   M_i  <- lapply(H_i, function(mat){
-    mat %*% solve(A) %*% L %*% t(L) %*% t(solve(A)) %*% mat
+    mat %*% Ainv %*% L %*% t(L) %*% t(Ainv) %*% mat
   })
   M    <- Matrix::bdiag(M_i)
 
   C    <- t(G) %*% M %*% G
 
-  A_d  <- Matrix::bdiag(A_i)
+  A_diag  <- Matrix::bdiag(A_i)
 
-  list(A_d = A_d, C = C)
+  list(A_d = A_diag, C = C)
 }
 
 #------------------------------------------------------------------------------#
