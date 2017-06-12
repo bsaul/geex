@@ -23,7 +23,7 @@ make_eefun <- function(model, data, ...)
 #' @export
 #------------------------------------------------------------------------------#
 
-make_eefun.glm <- function(model, data, weights = 1)
+make_eefun.glm <- function(model, data, weights = 1, ...)
 {
 
   X  <- stats::model.matrix(model$formula, data = data)
@@ -69,7 +69,7 @@ make_eefun.glm <- function(model, data, weights = 1)
 #' @export
 #------------------------------------------------------------------------------#
 
-make_eefun.geeglm <- function(model, data)
+make_eefun.geeglm <- function(model, data, ...)
 {
   if(model$corstr != 'independence'){
     stop("only independence working correlation is supported at this time")
@@ -115,17 +115,17 @@ make_eefun.geeglm <- function(model, data)
 #' @export
 #------------------------------------------------------------------------------#
 
-make_eefun.merMod <- function(object, data, numderiv_opts = NULL)
+make_eefun.merMod <- function(model, data, numderiv_opts = NULL, ...)
 {
   ## Warnings ##
-  if(length(lme4::getME(object, 'theta')) > 1){
+  if(length(lme4::getME(model, 'theta')) > 1){
     stop('make_eefun.merMod currently does not handle >1 random effect')
   }
 
-  fm     <- get_fixed_formula(object)
+  fm     <- get_fixed_formula(model)
   X      <- get_design_matrix(fm, data)
-  Y      <- get_response(stats::formula(object), data = data)
-  family <- object@resp$family
+  Y      <- get_response(stats::formula(model), data = data)
+  family <- model@resp$family
   lnkinv <- family$linkinv
   objfun <- objFun_merMod(family$family)
 
