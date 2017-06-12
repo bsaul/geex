@@ -19,16 +19,17 @@ make_eefun <- function(model, data, ...)
 #' Create estimating equation function from a \code{glm} object
 #'
 #' @inheritParams make_eefun
+#' @param weights a scalar or vector of weight values
 #' @export
 #------------------------------------------------------------------------------#
 
 make_eefun.glm <- function(model, data, weights = 1)
 {
 
-  X  <- model.matrix(model$formula, data = data)
-  Y  <- as.numeric(model.frame(get_response_formula(model), data = data)[[1]])
+  X  <- stats::model.matrix(model$formula, data = data)
+  Y  <- as.numeric(stats::model.frame(get_response_formula(model), data = data)[[1]])
   n  <- length(Y)
-  p  <- length(coef(model))
+  p  <- length(stats::coef(model))
   phi    <- as.numeric(summary(model)$dispersion[1])
   W      <- weights
   family <- model$family$family
@@ -74,12 +75,12 @@ make_eefun.geeglm <- function(model, data)
     stop("only independence working correlation is supported at this time")
   }
 
-  X <- model.matrix(model$formula, data = data)
-  # DO NOT use model.matrix(geepack_obj, data = subdata)) -
+  X <- stats::model.matrix(model$formula, data = data)
+  # DO NOT use stats::model.matrix(geepack_obj, data = subdata)) -
   # returns entire model matrix, not just the subset
-  Y  <- model.response(model.frame(model, data = data))
+  Y  <- stats::model.response(stats::model.frame(model, data = data))
   n  <- length(Y)
-  p  <- length(coef(model))
+  p  <- length(stats::coef(model))
   phi    <- as.numeric(summary(model)$dispersion[1])
   family <- model$family$family
   link   <- model$family$link
@@ -123,7 +124,7 @@ make_eefun.merMod <- function(object, data, numderiv_opts = NULL)
 
   fm     <- get_fixed_formula(object)
   X      <- get_design_matrix(fm, data)
-  Y      <- get_response(formula(object), data = data)
+  Y      <- get_response(stats::formula(object), data = data)
   family <- object@resp$family
   lnkinv <- family$linkinv
   objfun <- objFun_merMod(family$family)
@@ -160,7 +161,7 @@ objFun_merMod <- function(family, ...){
 
 objFun_glmerMod_binomial <- function(parms, response, xmatrix, linkinv)
 {
-  log(integrate(binomial_integrand, lower = -Inf, upper = Inf,
+  log(stats::integrate(binomial_integrand, lower = -Inf, upper = Inf,
                 parms    = parms,
                 response = response,
                 xmatrix  = xmatrix,
@@ -180,7 +181,7 @@ binomial_integrand <- function(b, response, xmatrix, parms, linkinv){
     xmatrix <- as.matrix(xmatrix)
   }
   pr  <- linkinv( drop(outer(xmatrix %*% parms[-length(parms)], b, '+') ) )
-  hh  <- dbinom(response, 1, prob = pr)
+  hh  <- stats::dbinom(response, 1, prob = pr)
   hha <- apply(hh, 2, prod)
-  hha * dnorm(b, mean = 0, sd = parms[length(parms)])
+  hha * stats::dnorm(b, mean = 0, sd = parms[length(parms)])
 }

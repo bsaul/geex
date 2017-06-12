@@ -28,7 +28,7 @@ check_array <- function(object){
 #' @export
 #------------------------------------------------------------------------------#
 get_fixed_formula <- function(model){
-  formula(model, fixed.only = TRUE)[-2]
+  stats::formula(model, fixed.only = TRUE)[-2]
 }
 
 #------------------------------------------------------------------------------#
@@ -38,7 +38,7 @@ get_fixed_formula <- function(model){
 #' @export
 #------------------------------------------------------------------------------#
 get_response_formula <- function(model){
-  formula(model)[-3]
+  stats::formula(model)[-3]
 }
 
 #------------------------------------------------------------------------------#
@@ -49,7 +49,7 @@ get_response_formula <- function(model){
 #' @export
 #------------------------------------------------------------------------------#
 get_design_matrix <- function(rhs_formula, data){
-  model.matrix(rhs_formula, data)
+  stats::model.matrix(rhs_formula, data)
 }
 
 #------------------------------------------------------------------------------#
@@ -62,5 +62,5 @@ get_design_matrix <- function(rhs_formula, data){
 
 get_response <- function(formula, data){
   stopifnot(class(formula) == 'formula')
-  model.response(model.frame(formula, data = data))
+  stats::model.response(stats::model.frame(formula, data = data))
 }
