@@ -1,13 +1,15 @@
 context("Test extraction model eefun utilies for merMod objects")
-library(lme4, quietly = TRUE)
+# library(MASS, quietly = TRUE)
+# library(lme4, quietly = TRUE)
 # Using VerbAagg dataset because it's including in lme4, not because it makes
 # sense.
+data("VerbAgg", package = 'lme4')
 testdt   <- VerbAgg
 testdt$id <- as.integer(testdt$id)
 testdt$y  <- testdt$r2 == 'Y'
 testdt_id1 <- subset(testdt, id == 1)
-m <- glmer(y ~ Gender + (1|id), data = testdt, family = binomial(link = 'logit'))
-theta <- unlist(getME(m, c('beta', 'theta')))
+m <- lme4::glmer(y ~ Gender + (1|id), data = testdt, family = binomial(link = 'logit'))
+theta <- unlist(lme4::getME(m, c('beta', 'theta')))
 
 rf  <- get_fixed_formula(m)
 X   <- get_design_matrix(rf, testdt_id1)
