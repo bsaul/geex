@@ -3,6 +3,8 @@ output: pdf_document
 ---
 
 ```{r SB6_setup, echo=FALSE}
+library(geex)
+library(dplyr)
 n <- 100
 theta_tru <- 2
 sigma <- 1
@@ -72,5 +74,6 @@ Sigma_cls <- matrix(1/A * B * 1/A / n)
 
 ```{r SB6_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'Example 6', 'Example 6')
+results
+# print_results(results, 'Example 6', 'Example 6')
 ```

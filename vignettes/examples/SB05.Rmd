@@ -5,6 +5,8 @@ output: pdf_document
 
 ```{r SB5_setup, echo=FALSE}
 library(ICSNP)
+library(geex)
+library(dplyr)
 n <- 100
 theta0 <- 0
 theta_tru <- 2
@@ -83,5 +85,6 @@ Sigma_cls <- matrix(c(1/(12 * IC_denom^2) / n, NA, NA, var(dt$X)/100),
 
 ```{r SB5_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'Example 5', 'Example 5')
+results
+# print_results(results, 'Example 5', 'Example 5')
 ```

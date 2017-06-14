@@ -4,6 +4,7 @@ output: pdf_document
 
 ```{r SB7_setup, echo=FALSE}
 library(geex)
+library(dplyr)
 set.seed(9)
 n <- 100
 theta_tru <- 2
@@ -467,5 +468,6 @@ theta_cls <- c(quantile(dt$Y, 0.5), quantile(dt$Y, 0.65))
 
 ```{r SB7_results, echo = FALSE, results = 'asis', eval=FALSE}
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'Example 7', 'Example 7')
+results
+# print_results(results, 'Example 7', 'Example 7')
 ```

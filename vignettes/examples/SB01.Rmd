@@ -3,6 +3,8 @@ output: pdf_document
 ---
 
 ```{r SB1_setup, echo=FALSE}
+library(geex)
+library(dplyr)
 n  <- 100
 mu <- 5
 sigma <- 2
@@ -83,6 +85,6 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
 ```{r SB1_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-
-print_results(results, 'ex1', 'Comparing estimates from closed form versus geex')
+results
+# print_results(results, 'ex1', 'Comparing estimates from closed form versus geex')
 ```

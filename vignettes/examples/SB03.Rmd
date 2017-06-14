@@ -4,6 +4,8 @@ output: pdf_document
 
 
 ```{r SB3_setup, echo=FALSE}
+library(geex)
+library(dplyr)
 n  <- 100
 mu <- 5
 sigma <- 4
@@ -96,5 +98,6 @@ Sigma_cls <- matrix(
 
 ```{r SB3_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'ex3_results', 'Example 3')
+results
+# print_results(results, 'ex3_results', 'Example 3')
 ```

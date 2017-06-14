@@ -4,6 +4,8 @@ output: pdf_document
 
 
 ```{r SB2_setup, echo=FALSE}
+library(geex)
+library(dplyr)
 n  <- 100
 muY <- 5
 sigmaY <- 2
@@ -90,5 +92,6 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
 ```{r SB2_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'test', 'test')
+results
+# print_results(results, 'test', 'test')
 ```

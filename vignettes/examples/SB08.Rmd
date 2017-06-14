@@ -3,6 +3,8 @@ output: pdf_document
 ---
 
 ```{r SB8_setup, echo=FALSE}
+library(geex)
+library(dplyr)
 n <- 50
 beta <- c(0.5, 2)
 dt <- data_frame(X  = rep(0:1, each = n/2),
@@ -67,5 +69,6 @@ Sigma_cls <- vcov(m)
 
 ```{r SB8_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'Example 8', 'Example 8')
+results
+# print_results(results, 'Example 8', 'Example 8')
 ```

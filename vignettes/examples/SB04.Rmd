@@ -4,6 +4,8 @@ output: pdf_document
 
 
 ```{r SB4_setup, echo=FALSE}
+library(geex)
+library(dplyr)
 n  <- 100
 
 # Oracle parms
@@ -104,6 +106,6 @@ Sigma_cls <- matrix(NA, nrow = 2, ncol = 2)
 # primary interest lies in the lower 2 x 2 submatrix of the asymptotic variance matrix
 estimates$vcov <- estimates$vcov[3:4, 3:4]
 results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-
-print_results(results, 'Example 4', 'Example 4')
+results
+# print_results(results, 'Example 4', 'Example 4')
 ```
