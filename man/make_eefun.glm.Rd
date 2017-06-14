@@ -4,12 +4,16 @@
 \alias{make_eefun.glm}
 \title{glm Estimating Equations}
 \usage{
-\method{make_eefun}{glm}(model, data, weights = 1)
+\method{make_eefun}{glm}(model, data, weights = 1, ...)
 }
 \arguments{
 \item{model}{a model object object}
 
 \item{data}{data with which to create the estimating equation function}
+
+\item{weights}{a scalar or vector of weight values}
+
+\item{...}{passed to methods}
 }
 \description{
 Create estimating equation function from a \code{glm} object

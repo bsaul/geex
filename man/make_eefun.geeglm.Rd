@@ -4,12 +4,14 @@
 \alias{make_eefun.geeglm}
 \title{geeglm Estimating Equations}
 \usage{
-\method{make_eefun}{geeglm}(model, data)
+\method{make_eefun}{geeglm}(model, data, ...)
 }
 \arguments{
 \item{model}{a model object object}
 
 \item{data}{data with which to create the estimating equation function}
+
+\item{...}{passed to methods}
 }
 \description{
 Create estimating equation function from a \code{geeglm} object
