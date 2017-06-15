@@ -8,8 +8,7 @@
 #' @export
 #------------------------------------------------------------------------------#
 make_corrections <- function(mats, corrections){
-  m <- length(mats$A_i)
-  input_args <- append(mats, list(m = m))
+  input_args <- mats
 
   lapply(corrections, function(correction){
     do.call(correction$fun, args = append(input_args, correction$options))
@@ -19,7 +18,6 @@ make_corrections <- function(mats, corrections){
 #------------------------------------------------------------------------------#
 #' Estimate Fay's bias correction
 #'
-#' @param m the number of groups
 #' @param A the bread matrix
 #' @param Ai a list of bread matrices per group
 #' @param Bi a list of meat matrices per group
@@ -27,20 +25,15 @@ make_corrections <- function(mats, corrections){
 #' @return a corrected covariance matrix
 #' @export
 #------------------------------------------------------------------------------#
-fay_bias_correction <- function(m, A_i, A, B_i, B, b  =0.75){
-  corrected_matrices <- fay_bias_correction_partial(m   = m,
-                                                    A_i = A_i,
-                                                    A   = A,
-                                                    B_i = B_i,
-                                                    B   = B,
-                                                    b   = b)
+fay_bias_correction <- function(A_i, A, B_i, B, b  =0.75){
+  fay_bias_correction_partial(
+    A_i = A_i, A  = A, B_i = B_i, B = B, b = b) ->  corrected_matrices
 
   compute_sigma(A = A, B = corrected_matrices$Bbc)
 }
 #------------------------------------------------------------------------------#
 #' Compute the matrices necessary for Fay's bias correction
 #'
-#' @param m the number of groups
 #' @param A the bread matrix
 #' @param Ai a list of bread matrices per group
 #' @param Bi a list of meat matrices per group
@@ -53,13 +46,16 @@ fay_bias_correction <- function(m, A_i, A, B_i, B, b  =0.75){
 # @export
 #------------------------------------------------------------------------------#
 
-fay_bias_correction_partial <- function(m, A, A_i, B, B_i, b){
+fay_bias_correction_partial <- function(A, A_i, B, B_i, b){
 
-  H_i <- lapply(A_i, function(m){
-    diag( (1 - pmin(b, diag(m %*% solve(A)) ) )^(-0.5) )
+  Ainv <- solve(A)
+  H_i <- lapply(A_i, function(Ai){
+    diag( (1 - pmin(b, diag(Ai %*% Ainv) ))^(-0.5) )
   })
 
-  Bbc_i <- lapply(1:m, function(i){
+  stopifnot(length(B_i) == length(H_i))
+
+  Bbc_i <- lapply(seq_along(B_i), function(i){
     H_i[[i]] %*% B_i[[i]] %*% H_i[[i]]
   })
   Bbc   <- apply(simplify2array(Bbc_i), 1:2, sum)
@@ -72,8 +68,9 @@ fay_bias_correction_partial <- function(m, A, A_i, B, B_i, b){
 #'
 # @export
 #------------------------------------------------------------------------------#
-df_correction_prep <- function(m, L, A, A_i, H_i){
+df_correction_prep <- function(L, A, A_i, H_i){
   p <- ncol(A)
+  m <- length(A_i)
 
   Ainv <- solve(A)
   II   <- diag(1, p*m)
@@ -110,8 +107,8 @@ df_correction_1 <- function(A_d, C){
 #'
 # @export
 #------------------------------------------------------------------------------#
-df_correction_2 <- function(m, A, A_i, C, L, Bbc){
-  w_i  <- lapply(1:m, function(i) {
+df_correction_2 <- function(A, A_i, C, L, Bbc){
+  w_i  <- lapply(seq_along(A_i), function(i) {
     # exclude the ith element
     Oi <- apply(simplify2array(A_i[-i]), 1:2, sum)
     t(L) %*% (solve(Oi) - solve(A) ) %*% L
@@ -143,17 +140,17 @@ estimate_df <- function(A, C){
 #' @export
 #------------------------------------------------------------------------------#
 
-fay_df_correction <- function(m, A_i, A, B_i, B, b = .75, L, version){
+fay_df_correction <- function(A_i, A, B_i, B, b = .75, L, version){
 
   ## Prepare necessary matrices ##
-  bias_mats <- fay_bias_correction_partial(m = m, A_i = A_i, A = A, B_i = B_i, B = B, b = b)
-  df_prep   <- df_correction_prep(m = m, L = L, A = A, A_i = A_i, H_i = bias_mats$H_i)
+  bias_mats <- fay_bias_correction_partial(A_i = A_i, A = A, B_i = B_i, B = B, b = b)
+  df_prep   <- df_correction_prep(L = L, A = A, A_i = A_i, H_i = bias_mats$H_i)
 
   ## Compute DF corrections ##
   if(version == 1){
     out <- df_correction_1(A = df_prep$A_d, C = df_prep$C)
   } else if(version == 2){
-    out <- df_correction_2(m = m, A = A, A_i = A_i, C = df_prep$C, L = L, Bbc = bias_mats$Bbc)
+    out <- df_correction_2(A = A, A_i = A_i, C = df_prep$C, L = L, Bbc = bias_mats$Bbc)
   }
   out
 }

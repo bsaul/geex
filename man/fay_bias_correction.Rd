@@ -4,11 +4,9 @@
 \alias{fay_bias_correction}
 \title{Estimate Fay's bias correction}
 \usage{
-fay_bias_correction(m, A_i, A, B_i, B, b = 0.75)
+fay_bias_correction(A_i, A, B_i, B, b = 0.75)
 }
 \arguments{
-\item{m}{the number of groups}
-
 \item{A}{the bread matrix}
 
 \item{b}{a numeric value < 1. Defaults to 0.75 as in Fay}

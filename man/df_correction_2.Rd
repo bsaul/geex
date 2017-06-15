@@ -4,7 +4,7 @@
 \alias{df_correction_2}
 \title{Estimate Fay's degrees of freedom correction 2}
 \usage{
-df_correction_2(m, A, A_i, C, L, Bbc)
+df_correction_2(A, A_i, C, L, Bbc)
 }
 \description{
 Estimate Fay's degrees of freedom correction 2

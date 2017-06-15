@@ -4,11 +4,9 @@
 \alias{fay_bias_correction_partial}
 \title{Compute the matrices necessary for Fay's bias correction}
 \usage{
-fay_bias_correction_partial(m, A, A_i, B, B_i, b)
+fay_bias_correction_partial(A, A_i, B, B_i, b)
 }
 \arguments{
-\item{m}{the number of groups}
-
 \item{A}{the bread matrix}
 
 \item{b}{a numeric value < 1. Defaults to 0.75 as in Fay}
