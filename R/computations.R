@@ -127,22 +127,61 @@ compute_sigma <- function(A, B){
 #' that takes parameters as its first argument
 #' @param data a data.frame
 #' @param units a string identifying the grouping variable in \code{data}
+#' @param ee_args an optional list of arguments passed to the inner function of the `eeFUN`.
+#' See details for an example.
 #' @param corrections_list an optional list of small sample corrections where each
 #' list element is a list with two elements: `fun` and `options`. See details.
 #' @param numDeriv_options a list of options for \code{\link[numDeriv]{jacobian}}
 #' @param rootsolver the function that will find roots of the estimating equations
-#' when \code{findroots = TRUE}.
+#' when \code{compute_roots = TRUE}.
 #' @param rootsolver_options a list of options for the \code{rootsolver} function
-#' @param findroots whether or not to find the roots of the estimating equations.
+#' @param compute_roots whether or not to find the roots of the estimating equations.
 #' Defaults to \code{TRUE}.
 #' @param roots a numeric vector containing either starting values for the roots when using
 #' the default \code{rootsolver} or roots that have been estimated elsewhere
-#' @param ... additional arguments passed to the \code{eeFUN}.
+#' @param ... additional arguments passed to the \code{eeFUN}. See details.
+#'
 #' @return a list with the following
 #' \itemize{
 #' \item \code{parameters} - a vector of estimated parameters
 #' \item \code{vcov} - the variance-covariance matrix for the parameters
+#' \item \code{corrections} - a list of corrected variance-covariance matrices
 #' }
+#'
+#' @details
+#'
+#' @section eeFUN arguments:
+#'
+#' Additional arguments may be passed to both the inner and outer function of the `eeFUN`.
+#' Any arguments in `...` are passed to the outer function; any elements of the `ee_args` list
+#' are passed to the inner function. For example, a practical example might be computing a
+#' counterfactual mean using an IPW estimator:
+#'
+#' \preformatted{
+#' myeeFUN <- function(data, model){
+#'   X <- model.matrix(model, data = data) #covariates
+#'   A <- data$A #treatment
+#'   Y <- data$Y #outcome
+#'   p <- ncol(X) #number of parameters in model
+#'   function(theta, a){
+#'     Y * (A == a) * 1/plogis(X \%*\% theta[p - 1]) - theta[p]
+#'     # Here theta[p] is the target parameter.
+#'   }
+#' }
+#' }
+#'
+#' Then to estimate the mean where `a == 1`:
+#'
+#' \preformatted{
+#' estimate_equations(
+#'   eeFUN = myeeFUN,
+#'   data  = mydata,
+#'   units = myunits,
+#'   ee_args = list(a = 1),
+#'   model = mymodel
+#' )
+#' }
+#'
 #' @export
 #------------------------------------------------------------------------------#
 
