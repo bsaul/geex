@@ -67,38 +67,34 @@ eeroot <- function(geex_list,
 compute_matrices <- function(geex_list,
                              theta,
                              numDeriv_options = list(method = 'Richardson'),
-                             silent = TRUE,
                              ...){
   if(is.null(geex_list$ee_args)){
     ee_args <- NULL
   }
 
-  with(geex_list, {
-
-    # Create list of estimating eqn functions per unit
-    psi_i <- lapply(splitdt, function(data_i){
-      eeFUN(data = data_i, ...)
-    })
-
-    # Compute the negative of the derivative matrix of estimating eqn functions
-    # (the information matrix)
-    A_i <- lapply(psi_i, function(ee){
-      args <- append(list(fun = ee, x = theta), numDeriv_options)
-      val  <- do.call(numDeriv::jacobian, args = append(args, ee_args))
-      -val
-    })
-    A_i_array <- check_array(simplify2array(A_i))
-    A   <- apply(A_i_array, 1:2, sum)
-
-    # Compute outer product of observed estimating eqns
-    B_i <- lapply(psi_i, function(ee) {
-      ee_val <- do.call(ee, args = append(list(theta = theta), ee_args))
-      ee_val %*% t(ee_val)
-    })
-    B   <- apply(check_array(simplify2array(B_i)), 1:2, sum)
-
-    list(A = A, A_i = A_i, B = B, B_i = B_i)
+  # Create list of estimating eqn functions per unit
+  psi_i <- lapply(geex_list$splitdt, function(data_i){
+    geex_list$eeFUN(data = data_i, ...)
   })
+
+  # Compute the negative of the derivative matrix of estimating eqn functions
+  # (the information matrix)
+  A_i <- lapply(psi_i, function(ee){
+    args <- append(list(fun = ee, x = theta), numDeriv_options)
+    val  <- do.call(numDeriv::jacobian, args = append(args, geex_list$e_args))
+    -val
+  })
+  A_i_array <- check_array(simplify2array(A_i))
+  A   <- apply(A_i_array, 1:2, sum)
+
+  # Compute outer product of observed estimating eqns
+  B_i <- lapply(psi_i, function(ee) {
+    ee_val <- do.call(ee, args = append(list(theta = theta), geex_list$ee_args))
+    ee_val %*% t(ee_val)
+  })
+  B   <- apply(check_array(simplify2array(B_i)), 1:2, sum)
+
+  list(A = A, A_i = A_i, B = B, B_i = B_i)
 }
 
 
@@ -106,9 +102,14 @@ compute_matrices <- function(geex_list,
 #------------------------------------------------------------------------------#
 #' Compute covariance matrix for set of estimating equations
 #'
-#' @param A the 'bread' matrix returned in the list of matrices from
+#' Computes \deqn{\Sigma = A_m^{-1} B_m  (A_m^{-1})^T / m } where
+#'
+#' \eqn{A_m = \sum_{i = 1}^m A_i}{A_m = sum_i A_i} and \eqn{B_m = \sum_{i = 1}^m B_i}{A_m = sum_i B_i}.
+#'
+#'
+#' @param A the `A` matrix returned in the list of matrices from
 #'   \code{\link{compute_matrices}}
-#' @param B the 'meat' matrix returned in the list of matrices from
+#' @param B the `B` matrix returned in the list of matrices from
 #'   \code{\link{compute_matrices}}
 #'
 #' @export
@@ -126,8 +127,8 @@ compute_sigma <- function(A, B){
 #' that takes parameters as its first argument
 #' @param data a data.frame
 #' @param units a string identifying the grouping variable in \code{data}
-#' @param corrections character vector of small sample corrections to apply
-#' @param correction_options a list of options for the small sample corrections
+#' @param corrections_list an optional list of small sample corrections where each
+#' list element is a list with two elements: `fun` and `options`. See details.
 #' @param numDeriv_options a list of options for \code{\link[numDeriv]{jacobian}}
 #' @param rootsolver the function that will find roots of the estimating equations
 #' when \code{findroots = TRUE}.
@@ -152,14 +153,14 @@ estimate_equations <- function(eeFUN,
                                numDeriv_options = list(method = 'Richardson'),
                                rootsolver = rootSolve::multiroot,
                                rootsolver_options = NULL,
-                               findroots  = TRUE,
                                roots = NULL,
                                ee_args = NULL,
+                               compute_roots  = TRUE,
                                compute_vcov = TRUE,
                                ...){
 
   ## Warnings ##
-  if(missing(roots) & findroots){
+  if(missing(roots) & compute_roots){
     stop('If findroots = TRUE, then starting values for the rootsolver must be specified in roots argument.')
   }
 
@@ -167,7 +168,7 @@ estimate_equations <- function(eeFUN,
   geex_list  <- list(eeFUN = eeFUN, splitdt = split_data, ee_args = ee_args)
 
   ## Compute estimating equation roots ##
-  if(findroots){
+  if(compute_roots == TRUE){
     eesolved <- eeroot(geex_list,
                        start        = roots,
                        rootsolver   = rootsolver,
@@ -197,6 +198,8 @@ estimate_equations <- function(eeFUN,
   ## Compute covariance estimate(s) ##
   Sigma_hat <- compute_sigma(A = mats$A, B = mats$B)
 
-  list(parameters = theta_hat, vcov = Sigma_hat, corrections = corrections)
+  list(parameters  = theta_hat,
+       vcov        = Sigma_hat,
+       corrections = corrections)
 }
 

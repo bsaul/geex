@@ -5,7 +5,7 @@
 \title{Compute component matrices for covariance matrix}
 \usage{
 compute_matrices(geex_list, theta, numDeriv_options = list(method =
-  "Richardson"), silent = TRUE, ...)
+  "Richardson"), ...)
 }
 \arguments{
 \item{geex_list}{a list containing \code{splitdt} (a \code{data.frame} that
@@ -31,4 +31,3 @@ a list with
 For a given set of estimating equations computes the 'meat' and 'bread' matrices
 necessary to compute the covariance matrix.
 }
-

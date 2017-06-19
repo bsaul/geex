@@ -7,13 +7,15 @@
 compute_sigma(A, B)
 }
 \arguments{
-\item{A}{the 'bread' matrix returned in the list of matrices from
+\item{A}{the `A` matrix returned in the list of matrices from
 \code{\link{compute_matrices}}}
 
-\item{B}{the 'meat' matrix returned in the list of matrices from
+\item{B}{the `B` matrix returned in the list of matrices from
 \code{\link{compute_matrices}}}
 }
 \description{
-Compute covariance matrix for set of estimating equations
+Computes \deqn{\Sigma = A_m^{-1} B_m  (A_m^{-1})^T / m } where
 }
-
+\details{
+\eqn{A_m = \sum_{i = 1}^m A_i}{A_m = sum_i A_i} and \eqn{B_m = \sum_{i = 1}^m B_i}{A_m = sum_i B_i}.
+}

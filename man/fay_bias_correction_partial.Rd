@@ -25,4 +25,3 @@ a list with
 \description{
 Compute the matrices necessary for Fay's bias correction
 }
-

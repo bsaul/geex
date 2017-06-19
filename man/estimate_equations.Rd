@@ -7,8 +7,8 @@
 estimate_equations(eeFUN, data, units, corrections_list = NULL,
   numDeriv_options = list(method = "Richardson"),
   rootsolver = rootSolve::multiroot, rootsolver_options = NULL,
-  findroots = TRUE, roots = NULL, ee_args = NULL, compute_vcov = TRUE,
-  ...)
+  roots = NULL, ee_args = NULL, compute_roots = TRUE,
+  compute_vcov = TRUE, ...)
 }
 \arguments{
 \item{eeFUN}{a function that takes in group-level data and returns a function
@@ -18,6 +18,9 @@ that takes parameters as its first argument}
 
 \item{units}{a string identifying the grouping variable in \code{data}}
 
+\item{corrections_list}{an optional list of small sample corrections where each
+list element is a list with two elements: `fun` and `options`. See details.}
+
 \item{numDeriv_options}{a list of options for \code{\link[numDeriv]{jacobian}}}
 
 \item{rootsolver}{the function that will find roots of the estimating equations
@@ -25,17 +28,13 @@ when \code{findroots = TRUE}.}
 
 \item{rootsolver_options}{a list of options for the \code{rootsolver} function}
 
-\item{findroots}{whether or not to find the roots of the estimating equations.
-Defaults to \code{TRUE}.}
-
 \item{roots}{a numeric vector containing either starting values for the roots when using
 the default \code{rootsolver} or roots that have been estimated elsewhere}
 
 \item{...}{additional arguments passed to the \code{eeFUN}.}
 
-\item{corrections}{character vector of small sample corrections to apply}
-
-\item{correction_options}{a list of options for the small sample corrections}
+\item{findroots}{whether or not to find the roots of the estimating equations.
+Defaults to \code{TRUE}.}
 }
 \value{
 a list with the following
@@ -47,4 +46,3 @@ a list with the following
 \description{
 Estimate parameters and their covariance from a set of estimating equations
 }
-
