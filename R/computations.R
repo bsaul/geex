@@ -187,7 +187,7 @@ compute_sigma <- function(A, B){
 
 estimate_equations <- function(eeFUN,
                                data,
-                               units,
+                               units = NULL,
                                corrections_list = NULL,
                                numDeriv_options = list(method = 'Richardson'),
                                rootsolver = rootSolve::multiroot,
@@ -203,7 +203,15 @@ estimate_equations <- function(eeFUN,
     stop('If findroots = TRUE, then starting values for the rootsolver must be specified in roots argument.')
   }
 
-  split_data <- split(x = data, f = data[[units]] )
+  # Split data frame into data frames for each independent unit
+  if(is.null(units)){
+    # if units are not specified, split into one per observation
+    split_data <- split(x = data, f = 1:nrow(data) )
+    message('When units are not specified, each observation is considered independent.')
+  } else {
+    split_data <- split(x = data, f = data[[units]] )
+  }
+
   geex_list  <- list(eeFUN = eeFUN, splitdt = split_data, ee_args = ee_args)
 
   ## Compute estimating equation roots ##

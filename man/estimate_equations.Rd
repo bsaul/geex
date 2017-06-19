@@ -4,7 +4,7 @@
 \alias{estimate_equations}
 \title{Estimate parameters and their covariance from a set of estimating equations}
 \usage{
-estimate_equations(eeFUN, data, units, corrections_list = NULL,
+estimate_equations(eeFUN, data, units = NULL, corrections_list = NULL,
   numDeriv_options = list(method = "Richardson"),
   rootsolver = rootSolve::multiroot, rootsolver_options = NULL,
   roots = NULL, ee_args = NULL, compute_roots = TRUE,
