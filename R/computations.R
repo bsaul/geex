@@ -7,7 +7,7 @@
 #'
 #------------------------------------------------------------------------------#
 
-create_psi <- function(splitdt, eeFUN){
+create_psi <- function(splitdt, eeFUN, ...){
   lapply(splitdt, function(data_i){
     eeFUN(data = data_i, ...)
   })
@@ -41,7 +41,7 @@ compute_eeroot <- function(geex_list,
   rootFUN <- match.fun(rootFUN)
 
   # Create estimating equation functions per group
-  psi_i <- create_psi(splitdt = geex_list$splitdt, eeFUN = geex_list$eeFUN)
+  psi_i <- create_psi(splitdt = geex_list$splitdt, eeFUN = geex_list$eeFUN, ...)
 
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
@@ -96,7 +96,7 @@ compute_matrices <- function(geex_list,
   }
 
   # Create list of estimating eqn functions per unit
-  psi_i <- create_psi(splitdt = geex_list$splitdt, eeFUN = geex_list$eeFUN)
+  psi_i <- create_psi(splitdt = geex_list$splitdt, eeFUN = geex_list$eeFUN, ...)
 
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
