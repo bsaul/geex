@@ -45,7 +45,8 @@ function}
 
 \item{rootFUN_object}{the name of the object within the output of \code{rootFUN} that contains
 the parameters estimates. For example, the 'root' object within the output of multiroot::rootSolve
-contains the parameter estimates. Defaults to 'root'.}
+contains the parameter estimates. Defaults to 'root'. Can also be a set of numeric positions within
+the object.}
 
 \item{...}{additional arguments passed to the \code{eeFUN}. See details.}
 }
