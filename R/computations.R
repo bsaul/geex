@@ -14,6 +14,25 @@ create_psi <- function(splitdt, eeFUN, ...){
 }
 
 #------------------------------------------------------------------------------#
+#' Creates a function that sums over psi functions
+#'
+#' @param psi_list list of psi functions
+#' @param ee_args list of arguments passed to psi
+#' @export
+#'
+#------------------------------------------------------------------------------#
+
+create_GFUN <- function(psi_list, ee_args){
+  function(theta){
+    psii <- lapply(psi_list, function(f) {
+      do.call(f, args = append(list(theta = theta), ee_args))
+    })
+    # sum over unit-wise contributions to the estimating equations
+    apply(check_array(simplify2array(psii)), 1, sum)
+  }
+}
+
+#------------------------------------------------------------------------------#
 #' Compute roots for a set of estimating equations
 #'
 #' @param geex_list a list containing \code{splitdt} (a \code{data.frame} that
@@ -45,12 +64,7 @@ compute_eeroot <- function(geex_list,
 
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
-  GmFUN <- function(theta){
-    psii <- lapply(psi_i, function(f) {
-      do.call(f, args = append(list(theta = theta), geex_list$ee_args))
-    })
-    apply(check_array(simplify2array(psii)), 1, sum)
-  }
+  GmFUN <- create_GFUN(psi_list = psi_i, ee_args = geex_list$ee_args)
 
   # Find roots of psi
   rargs <- append(rootFUN_control, list(f = GmFUN, start = start))
@@ -125,7 +139,6 @@ compute_matrices <- function(geex_list,
 #'
 #' \eqn{A_m = \sum_{i = 1}^m A_i}{A_m = sum_i A_i} and \eqn{B_m = \sum_{i = 1}^m B_i}{A_m = sum_i B_i}.
 #'
-#'
 #' @param A the `A` matrix returned in the list of matrices from
 #'   \code{\link{compute_matrices}}
 #' @param B the `B` matrix returned in the list of matrices from
@@ -154,6 +167,10 @@ compute_sigma <- function(A, B){
 #' Defaults to \code{TRUE}.
 #' @param roots a numeric vector containing either starting values for the roots when using
 #' the default \code{rootsolver} or roots that have been estimated elsewhere
+#' @param rootFUN_object the name of the object within the output of \code{rootFUN} that contains
+#' the parameters estimates. For example, the 'root' object within the output of multiroot::rootSolve
+#' contains the parameter estimates. Defaults to 'root'. Can also be a set of numeric positions within
+#' the object.
 #' @param ... additional arguments passed to the \code{eeFUN}. See details.
 #' @inheritParams compute_eeroot
 #' @inheritParams compute_matrices
@@ -213,12 +230,15 @@ estimate_equations <- function(eeFUN,
                                derivFUN_control = list(method = 'Richardson'),
                                rootFUN          = rootSolve::multiroot,
                                rootFUN_control  = NULL,
+                               rootFUN_object   = 'root',
                                ...){
 
   ## Warnings ##
   if(missing(roots) & compute_roots){
     stop('If findroots = TRUE, then starting values for the rootsolver must be specified in roots argument.')
   }
+
+  out <- list()
 
   # Split data frame into data frames for each independent unit
   if(is.null(units)){
@@ -239,9 +259,10 @@ estimate_equations <- function(eeFUN,
       rootFUN         = rootFUN,
       rootFUN_control = rootFUN_control,
       ...)
-    theta_hat <- eesolved$root
+    out$rootFUN_results <- eesolved
+    out$parameters <- eesolved[[rootFUN_object]]
   } else {
-    theta_hat <- roots
+    out$parameters <- roots
   }
   if (compute_vcov == FALSE){
     return(list(parameters = theta_hat))
@@ -257,16 +278,16 @@ estimate_equations <- function(eeFUN,
 
   ## Compute corrections ##
   if(!is.null(corrections_list)){
-    corrections <- make_corrections(mats, corrections_list)
-  } else {
-    corrections <- NULL
+    out$corrections <- make_corrections(mats, corrections_list)
   }
 
   ## Compute covariance estimate(s) ##
-  Sigma_hat <- compute_sigma(A = mats$A, B = mats$B)
+  out$vcov <- compute_sigma(A = mats$A, B = mats$B)
+  out$component_matrices <- mats
 
-  list(parameters  = theta_hat,
-       vcov        = Sigma_hat,
-       corrections = corrections)
+  ## Additional components of output ##
+  out$split_data <- split_data
+
+  out
 }
 

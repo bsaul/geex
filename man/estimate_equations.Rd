@@ -8,7 +8,8 @@ estimate_equations(eeFUN, data, units = NULL, corrections_list = NULL,
   roots = NULL, ee_args = NULL, compute_roots = TRUE,
   compute_vcov = TRUE, derivFUN = numDeriv::jacobian,
   derivFUN_control = list(method = "Richardson"),
-  rootFUN = rootSolve::multiroot, rootFUN_control = NULL, ...)
+  rootFUN = rootSolve::multiroot, rootFUN_control = NULL,
+  rootFUN_object = "root", ...)
 }
 \arguments{
 \item{eeFUN}{a function that takes in group-level data and returns a function
@@ -41,6 +42,10 @@ Defaults to \code{\link[rootSolve]{multiroot}}.}
 
 \item{rootFUN_control}{a list of options to be passed to the \code{rootsolver}
 function}
+
+\item{rootFUN_object}{the name of the object within the output of \code{rootFUN} that contains
+the parameters estimates. For example, the 'root' object within the output of multiroot::rootSolve
+contains the parameter estimates. Defaults to 'root'.}
 
 \item{...}{additional arguments passed to the \code{eeFUN}. See details.}
 }
