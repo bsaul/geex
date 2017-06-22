@@ -260,9 +260,9 @@ estimate_equations <- function(eeFUN,
       rootFUN_control = rootFUN_control,
       ...)
     out$rootFUN_results <- eesolved
-    out$parameters <- eesolved[[rootFUN_object]]
+    out$parameters <- theta_hat <- eesolved[[rootFUN_object]]
   } else {
-    out$parameters <- roots
+    out$parameters <- theta_hat <- roots
   }
   if (compute_vcov == FALSE){
     return(list(parameters = theta_hat))
