@@ -97,7 +97,8 @@ Sigma_cls <- matrix(
 
 
 ```{r SB3_results, echo = FALSE, results = 'asis'}
-results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+results <- list(geex = estimates[c('parameters', 'vcov')], 
+                cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 # print_results(results, 'ex3_results', 'Example 3')
 ```

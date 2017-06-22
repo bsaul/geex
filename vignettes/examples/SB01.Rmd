@@ -84,7 +84,7 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```
 
 ```{r SB1_results, echo = FALSE, results = 'asis'}
-results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+results <- list(geex = estimates[c('parameters', 'vcov')], cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 # print_results(results, 'ex1', 'Comparing estimates from closed form versus geex')
 ```
