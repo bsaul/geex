@@ -1,4 +1,19 @@
 #------------------------------------------------------------------------------#
+#' Creates list of psi functions
+#'
+#' @param splitdt list of dataframes with data per unit
+#' @param eeFUN the estimating equation function
+#' @export
+#'
+#------------------------------------------------------------------------------#
+
+create_psi <- function(splitdt, eeFUN){
+  lapply(splitdt, function(data_i){
+    eeFUN(data = data_i, ...)
+  })
+}
+
+#------------------------------------------------------------------------------#
 #' Compute roots for a set of estimating equations
 #'
 #' @param geex_list a list containing \code{splitdt} (a \code{data.frame} that
@@ -26,9 +41,7 @@ compute_eeroot <- function(geex_list,
   rootFUN <- match.fun(rootFUN)
 
   # Create estimating equation functions per group
-  psi_i <- lapply(geex_list$splitdt, function(data_i){
-    geex_list$eeFUN(data = data_i, ...)
-  })
+  psi_i <- create_psi(splitdt = geex_list$splitdt, eeFUN = geex_list$eeFUN)
 
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
@@ -83,9 +96,7 @@ compute_matrices <- function(geex_list,
   }
 
   # Create list of estimating eqn functions per unit
-  psi_i <- lapply(geex_list$splitdt, function(data_i){
-    geex_list$eeFUN(data = data_i, ...)
-  })
+  psi_i <- create_psi(splitdt = geex_list$splitdt, eeFUN = geex_list$eeFUN)
 
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
