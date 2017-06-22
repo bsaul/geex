@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------#
 # Create the example data set for geex: geexex
 #------------------------------------------------------------------------------#
-
+set.seed(100)
 n <- 100
 # Oracle parms
 alpha <- 2
@@ -18,7 +18,7 @@ tau <- c(0.5, 2)
 
 geexex <- dplyr::data_frame(
   # Used in Examples 1-3, 5, 6, 7
-  Y1 = rnorm(n, mean = 5, sd = 2),
+  Y1 = rnorm(n, mean = 5, sd = 4),
   Y2 = rnorm(n, mean = 2, sd = 1),
 
   # Used in Example 4
