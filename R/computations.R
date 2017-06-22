@@ -8,9 +8,9 @@
 #' \code{theta} represents the parameters.
 #' @param start vector with length of the number of parameters to find. Passed to
 #' \code{\link[rootSolve]{multiroot}} if not NULL. Defaults to NULL.
-#' @param rootsolver the function used to find roots of the estimating equations.
+#' @param rootFUN the function used to find roots of the estimating equations.
 #' Defaults to \code{\link[rootSolve]{multiroot}}.
-#' @param root_options a list of options to be passed to the \code{rootsolver}
+#' @param rootFUN_control a list of options to be passed to the \code{rootsolver}
 #' function
 #' @param ... additional arguments passed to \code{geex_list$eeFUN}
 #' @return the output of the \code{rootsolver} function
@@ -18,10 +18,12 @@
 #------------------------------------------------------------------------------#
 
 eeroot <- function(geex_list,
-                   start        = NULL,
-                   rootsolver   = rootSolve::multiroot,
-                   root_options = NULL,
+                   start           = NULL,
+                   rootFUN         = rootSolve::multiroot,
+                   rootFUN_control = NULL,
                    ...){
+
+  rootFUN <- match.fun(rootFUN)
 
   # Create estimating equation functions per group
   psi_i <- lapply(geex_list$splitdt, function(data_i){
@@ -29,7 +31,8 @@ eeroot <- function(geex_list,
   })
 
   # Create psi function that sums over all ee funs
-  psi <- function(theta){
+  # G_m = sum_i psi(O_i, theta) in SB notation]
+  GmFUN <- function(theta){
     psii <- lapply(psi_i, function(f) {
       do.call(f, args = append(list(theta = theta), geex_list$ee_args))
     })
@@ -37,8 +40,8 @@ eeroot <- function(geex_list,
   }
 
   # Find roots of psi
-  rargs <- append(root_options, list(f = psi, start = start))
-  do.call(rootsolver, args = rargs)
+  rargs <- append(rootFUN_control, list(f = GmFUN, start = start))
+  do.call(rootFUN, args = rargs)
 }
 
 #------------------------------------------------------------------------------#
