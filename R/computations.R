@@ -17,7 +17,7 @@
 #' @export
 #------------------------------------------------------------------------------#
 
-eeroot <- function(geex_list,
+compute_eeroot <- function(geex_list,
                    start           = NULL,
                    rootFUN         = rootSolve::multiroot,
                    rootFUN_control = NULL,
@@ -54,7 +54,10 @@ eeroot <- function(geex_list,
 #' has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
 #' (see \code{\link{estimate_equations}})
 #' @param theta vector of parameters passed to \code{geex_list$eeFUN}.
-#' @param numDeriv_options a list of options passed to \code{\link[numDeriv]{jacobian}}.
+#' @param derivFUN the function used to take derivatives of the estimating equation functions.
+#' Defaults to \code{numDeriv::jacobian}
+#' @param derivFUN_control a list of options passed to \code{\link[numDeriv]{jacobian}}
+#' (or the \code{derivFUN} function).
 #' @param ... additional arguments passed to \code{geex_list$eeFUN}.
 #' @return a list with
 #' \itemize{
@@ -69,8 +72,12 @@ eeroot <- function(geex_list,
 
 compute_matrices <- function(geex_list,
                              theta,
-                             numDeriv_options = list(method = 'Richardson'),
+                             derivFUN         = numDeriv::jacobian,
+                             derivFUN_control = list(method = 'Richardson'),
                              ...){
+
+  derivFUN <- match.fun(derivFUN)
+
   if(is.null(geex_list$ee_args)){
     ee_args <- NULL
   }
@@ -83,8 +90,8 @@ compute_matrices <- function(geex_list,
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
   A_i <- lapply(psi_i, function(ee){
-    args <- append(list(fun = ee, x = theta), numDeriv_options)
-    val  <- do.call(numDeriv::jacobian, args = append(args, geex_list$e_args))
+    args <- append(list(fun = ee, x = theta), derivFUN_control)
+    val  <- do.call(derivFUN, args = append(args, geex_list$e_args))
     -val
   })
   A_i_array <- check_array(simplify2array(A_i))
@@ -99,8 +106,6 @@ compute_matrices <- function(geex_list,
 
   list(A = A, A_i = A_i, B = B, B_i = B_i)
 }
-
-
 
 #------------------------------------------------------------------------------#
 #' Compute covariance matrix for set of estimating equations
@@ -134,16 +139,12 @@ compute_sigma <- function(A, B){
 #' See details for an example.
 #' @param corrections_list an optional list of small sample corrections where each
 #' list element is a list with two elements: `fun` and `options`. See details.
-#' @param numDeriv_options a list of options for \code{\link[numDeriv]{jacobian}}
-#' @param rootsolver the function that will find roots of the estimating equations
-#' when \code{compute_roots = TRUE}.
-#' @param rootsolver_options a list of options for the \code{rootsolver} function
 #' @param compute_roots whether or not to find the roots of the estimating equations.
 #' Defaults to \code{TRUE}.
 #' @param roots a numeric vector containing either starting values for the roots when using
 #' the default \code{rootsolver} or roots that have been estimated elsewhere
 #' @param ... additional arguments passed to the \code{eeFUN}. See details.
-#'
+#' @importFrom eeroot compute_matrices
 #' @return a list with the following
 #' \itemize{
 #' \item \code{parameters} - a vector of estimated parameters
@@ -192,13 +193,14 @@ estimate_equations <- function(eeFUN,
                                data,
                                units = NULL,
                                corrections_list = NULL,
-                               numDeriv_options = list(method = 'Richardson'),
-                               rootsolver = rootSolve::multiroot,
-                               rootsolver_options = NULL,
                                roots = NULL,
                                ee_args = NULL,
                                compute_roots  = TRUE,
                                compute_vcov = TRUE,
+                               derivFUN         = numDeriv::jacobian,
+                               derivFUN_control = list(method = 'Richardson'),
+                               rootFUN          = rootSolve::multiroot,
+                               rootFUN_control  = NULL,
                                ...){
 
   ## Warnings ##
@@ -219,11 +221,12 @@ estimate_equations <- function(eeFUN,
 
   ## Compute estimating equation roots ##
   if(compute_roots == TRUE){
-    eesolved <- eeroot(geex_list,
-                       start        = roots,
-                       rootsolver   = rootsolver,
-                       root_options = rootsolver_options,
-                       ...)
+    eesolved <- compute_eeroot(
+      geex_list       = geex_list,
+      start           = roots,
+      rootFUN         = rootFUN,
+      rootFUN_control = rootFUN_control,
+      ...)
     theta_hat <- eesolved$root
   } else {
     theta_hat <- roots
@@ -233,10 +236,12 @@ estimate_equations <- function(eeFUN,
   }
 
   ## Compute core matrices ##
-  mats <- compute_matrices(geex_list   = geex_list,
-                           theta       = theta_hat,
-                           numDeriv_options = numDeriv_options,
-                           ...)
+  mats <- compute_matrices(
+    geex_list   = geex_list,
+    theta       = theta_hat,
+    derivFUN    = derivFUN,
+    derivFUN_control = derivFUN_control,
+    ...)
 
   ## Compute corrections ##
   if(!is.null(corrections_list)){
