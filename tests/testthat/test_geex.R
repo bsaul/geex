@@ -30,7 +30,7 @@ test_that("Basic computations are working", {
   theta_hat <- c(mean(dt$Y), var(dt$Y) * (n - 1) / n)
   mats      <- compute_matrices(glist,
                                 theta = theta_hat)
-  roots     <- eeroot(glist, start = c(1, 1))
+  roots     <- compute_eeroot(glist, start = c(1, 1))
 
   estimates_1 <- estimate_equations(eeFUN = test_eefun1,
                                   data  = dt, units = 'id',
@@ -45,7 +45,7 @@ test_that("Basic computations are working", {
                                     units = 'id2',
                                     roots = c(1,1))
   # Check running eeroot without start gives error
-  expect_error(eeroot(glist))
+  expect_error(compute_eeroot(glist))
 
   # Check mats is list
   expect_is(mats, 'list')
