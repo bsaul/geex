@@ -14,3 +14,4 @@ get_response(formula, data)
 \description{
 Get a vector of responses from a model object
 }
+

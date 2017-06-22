@@ -23,3 +23,4 @@ The data used to illustrate examples 1-9 of Stefanski and Boos (2002).
 Stefanski, L. A., & Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.
 }
 \keyword{datasets}
+

@@ -155,7 +155,8 @@ compute_sigma <- function(A, B){
 #' @param roots a numeric vector containing either starting values for the roots when using
 #' the default \code{rootsolver} or roots that have been estimated elsewhere
 #' @param ... additional arguments passed to the \code{eeFUN}. See details.
-#' @importFrom eeroot compute_matrices
+#' @inheritParams compute_eeroot
+#' @inheritParams compute_matrices
 #' @return a list with the following
 #' \itemize{
 #' \item \code{parameters} - a vector of estimated parameters

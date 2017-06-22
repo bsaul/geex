@@ -5,10 +5,10 @@
 \title{Estimate parameters and their covariance from a set of estimating equations}
 \usage{
 estimate_equations(eeFUN, data, units = NULL, corrections_list = NULL,
-  numDeriv_options = list(method = "Richardson"),
-  rootsolver = rootSolve::multiroot, rootsolver_options = NULL,
   roots = NULL, ee_args = NULL, compute_roots = TRUE,
-  compute_vcov = TRUE, ...)
+  compute_vcov = TRUE, derivFUN = numDeriv::jacobian,
+  derivFUN_control = list(method = "Richardson"),
+  rootFUN = rootSolve::multiroot, rootFUN_control = NULL, ...)
 }
 \arguments{
 \item{eeFUN}{a function that takes in group-level data and returns a function
@@ -21,13 +21,6 @@ that takes parameters as its first argument}
 \item{corrections_list}{an optional list of small sample corrections where each
 list element is a list with two elements: `fun` and `options`. See details.}
 
-\item{numDeriv_options}{a list of options for \code{\link[numDeriv]{jacobian}}}
-
-\item{rootsolver}{the function that will find roots of the estimating equations
-when \code{compute_roots = TRUE}.}
-
-\item{rootsolver_options}{a list of options for the \code{rootsolver} function}
-
 \item{roots}{a numeric vector containing either starting values for the roots when using
 the default \code{rootsolver} or roots that have been estimated elsewhere}
 
@@ -36,6 +29,18 @@ See details for an example.}
 
 \item{compute_roots}{whether or not to find the roots of the estimating equations.
 Defaults to \code{TRUE}.}
+
+\item{derivFUN}{the function used to take derivatives of the estimating equation functions.
+Defaults to \code{numDeriv::jacobian}}
+
+\item{derivFUN_control}{a list of options passed to \code{\link[numDeriv]{jacobian}}
+(or the \code{derivFUN} function).}
+
+\item{rootFUN}{the function used to find roots of the estimating equations.
+Defaults to \code{\link[rootSolve]{multiroot}}.}
+
+\item{rootFUN_control}{a list of options to be passed to the \code{rootsolver}
+function}
 
 \item{...}{additional arguments passed to the \code{eeFUN}. See details.}
 }

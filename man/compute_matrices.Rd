@@ -4,8 +4,8 @@
 \alias{compute_matrices}
 \title{Compute component matrices for covariance matrix}
 \usage{
-compute_matrices(geex_list, theta, numDeriv_options = list(method =
-  "Richardson"), ...)
+compute_matrices(geex_list, theta, derivFUN = numDeriv::jacobian,
+  derivFUN_control = list(method = "Richardson"), ...)
 }
 \arguments{
 \item{geex_list}{a list containing \code{splitdt} (a \code{data.frame} that
@@ -14,7 +14,11 @@ has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
 
 \item{theta}{vector of parameters passed to \code{geex_list$eeFUN}.}
 
-\item{numDeriv_options}{a list of options passed to \code{\link[numDeriv]{jacobian}}.}
+\item{derivFUN}{the function used to take derivatives of the estimating equation functions.
+Defaults to \code{numDeriv::jacobian}}
+
+\item{derivFUN_control}{a list of options passed to \code{\link[numDeriv]{jacobian}}
+(or the \code{derivFUN} function).}
 
 \item{...}{additional arguments passed to \code{geex_list$eeFUN}.}
 }
@@ -31,3 +35,4 @@ a list with
 For a given set of estimating equations computes the 'meat' and 'bread' matrices
 necessary to compute the covariance matrix.
 }
+

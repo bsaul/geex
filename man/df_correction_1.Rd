@@ -14,3 +14,4 @@ df_correction_1(A_d, C)
 \description{
 Estimate Fay's degrees of freedom corrections 1
 }
+

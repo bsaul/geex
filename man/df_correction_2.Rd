@@ -9,3 +9,4 @@ df_correction_2(A, A_i, C, L, Bbc)
 \description{
 Estimate Fay's degrees of freedom correction 2
 }
+

@@ -16,3 +16,4 @@
 \description{
 Create estimating equation function from a \code{geeglm} object
 }
+

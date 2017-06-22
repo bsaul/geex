@@ -19,3 +19,4 @@ Computes \deqn{\Sigma = A_m^{-1} B_m  (A_m^{-1})^T / m } where
 \details{
 \eqn{A_m = \sum_{i = 1}^m A_i}{A_m = sum_i A_i} and \eqn{B_m = \sum_{i = 1}^m B_i}{A_m = sum_i B_i}.
 }
+

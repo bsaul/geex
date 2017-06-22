@@ -18,3 +18,4 @@ objFun_glmerMod_binomial(parms, response, xmatrix, linkinv)
 \description{
 glmer Objective Function for Logistic-Normal Likelihood
 }
+
