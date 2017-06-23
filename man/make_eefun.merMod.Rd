@@ -16,4 +16,3 @@
 \description{
 Create estimating equation function from a \code{merMod} object
 }
-

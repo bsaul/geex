@@ -9,4 +9,3 @@ estimate_df(A, C)
 \description{
 Estimate Fay's degrees of freedom corrections
 }
-

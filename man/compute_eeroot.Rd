@@ -31,4 +31,3 @@ the output of the \code{rootsolver} function
 \description{
 Compute roots for a set of estimating equations
 }
-

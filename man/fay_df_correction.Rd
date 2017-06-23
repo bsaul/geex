@@ -9,4 +9,3 @@ fay_df_correction(A_i, A, B_i, B, b = 0.75, L, version)
 \description{
 Fay's degrees of freedom corrections
 }
-

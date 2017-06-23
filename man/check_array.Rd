@@ -17,4 +17,3 @@ to an array
 Handles the case where there is a single estimating equation. This function
 assumes that the object
 }
-

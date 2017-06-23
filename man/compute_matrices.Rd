@@ -35,4 +35,3 @@ a list with
 For a given set of estimating equations computes the 'meat' and 'bread' matrices
 necessary to compute the covariance matrix.
 }
-

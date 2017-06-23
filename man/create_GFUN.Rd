@@ -14,4 +14,3 @@ create_GFUN(psi_list, ee_args)
 \description{
 Creates a function that sums over psi functions
 }
-

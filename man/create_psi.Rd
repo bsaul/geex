@@ -14,4 +14,3 @@ create_psi(splitdt, eeFUN, ...)
 \description{
 Creates list of psi functions
 }
-

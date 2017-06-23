@@ -18,4 +18,3 @@ binomial_integrand(b, response, xmatrix, parms, linkinv)
 \description{
 glmer Objective Function for Logistic-Normal Likelihood
 }
-
