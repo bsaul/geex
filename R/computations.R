@@ -110,13 +110,14 @@ compute_matrices <- function(geex_list,
   }
 
   # Create list of estimating eqn functions per unit
-  psi_i <- create_psi(splitdt = geex_list$splitdt, eeFUN = geex_list$eeFUN, ...)
+  psi_i <- create_psi(splitdt = geex_list$splitdt,
+                      eeFUN   = geex_list$eeFUN, ...)
 
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
   A_i <- lapply(psi_i, function(ee){
     args <- append(list(fun = ee, x = theta), derivFUN_control)
-    val  <- do.call(derivFUN, args = append(args, geex_list$e_args))
+    val  <- do.call(derivFUN, args = append(args, geex_list$ee_args))
     -val
   })
   A_i_array <- check_array(simplify2array(A_i))
