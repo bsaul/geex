@@ -3,29 +3,43 @@
 #'
 #' @param splitdt list of dataframes with data per unit
 #' @param eeFUN the estimating equation function
+#' @param approxFUN a function that approximates the inner function of \code{eeFUN}
+#' @param approxFUN_control arguments passed to \code{approxFUN}
 #' @export
 #'
 #------------------------------------------------------------------------------#
 
-create_psi <- function(splitdt, eeFUN, ...){
-  lapply(splitdt, function(data_i){
-    eeFUN(data = data_i, ...)
+create_psi <- function(splitdt, eeFUN,
+                       approxFUN = NULL, approxFUN_control = NULL,
+                       outer_eeargs = NULL){
+  out <- lapply(splitdt, function(data_i){
+    do.call(eeFUN, args = append(list(data = data_i), outer_eeargs))
   })
+
+  # if user specifies an approximation function, apply the function to each
+  # evaluation of psi
+  if(!is.null(approxFUN)){
+    lapply(x, function(f){
+      do.call(approxFUN, args = append(list(psi = f), approxFUN_control))
+    }) -> out
+  }
+
+  out
 }
 
 #------------------------------------------------------------------------------#
 #' Creates a function that sums over psi functions
 #'
 #' @param psi_list list of psi functions
-#' @param ee_args list of arguments passed to psi
+#' @param inner_eeargs list of arguments passed to psi
 #' @export
 #'
 #------------------------------------------------------------------------------#
 
-create_GFUN <- function(psi_list, ee_args){
+create_GFUN <- function(psi_list, inner_eeargs = NULL){
   function(theta){
     psii <- lapply(psi_list, function(f) {
-      do.call(f, args = append(list(theta = theta), ee_args))
+      do.call(f, args = append(list(theta = theta), inner_eeargs))
     })
     # sum over unit-wise contributions to the estimating equations
     apply(check_array(simplify2array(psii)), 1, sum)
@@ -55,16 +69,20 @@ compute_eeroot <- function(geex_list,
                    start           = NULL,
                    rootFUN         = rootSolve::multiroot,
                    rootFUN_control = NULL,
-                   ...){
+                   approxFUN       = NULL,
+                   approxFUN_control = NULL){
 
   rootFUN <- match.fun(rootFUN)
 
   # Create estimating equation functions per group
-  psi_i <- create_psi(splitdt = geex_list$splitdt, eeFUN = geex_list$eeFUN, ...)
+  psi_i <- create_psi(splitdt      = geex_list$splitdt,
+                      eeFUN        = geex_list$eeFUN,
+                      outer_eeargs = geex_list$outer_eeargs)
 
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
-  GmFUN <- create_GFUN(psi_list = psi_i, ee_args = geex_list$ee_args)
+  GmFUN <- create_GFUN(psi_list     = psi_i,
+                       inner_eeargs = geex_list$inner_eeargs)
 
   # Find roots of psi
   rargs <- append(rootFUN_control, list(f = GmFUN, start = start))
@@ -101,7 +119,8 @@ compute_matrices <- function(geex_list,
                              theta,
                              derivFUN         = numDeriv::jacobian,
                              derivFUN_control = list(method = 'Richardson'),
-                             ...){
+                             approxFUN        = NULL,
+                             approxFUN_control = NULL){
 
   derivFUN <- match.fun(derivFUN)
 
@@ -111,13 +130,16 @@ compute_matrices <- function(geex_list,
 
   # Create list of estimating eqn functions per unit
   psi_i <- create_psi(splitdt = geex_list$splitdt,
-                      eeFUN   = geex_list$eeFUN, ...)
+                      eeFUN   = geex_list$eeFUN,
+                      outer_eeargs = geex_list$outer_eeargs,
+                      approxFUN = approxFUN,
+                      approxFUN_control = approxFUN_control)
 
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
   A_i <- lapply(psi_i, function(ee){
     args <- append(list(fun = ee, x = theta), derivFUN_control)
-    val  <- do.call(derivFUN, args = append(args, geex_list$ee_args))
+    val  <- do.call(derivFUN, args = append(args, geex_list$inner_eeargs))
     -val
   })
   A_i_array <- check_array(simplify2array(A_i))
@@ -125,7 +147,7 @@ compute_matrices <- function(geex_list,
 
   # Compute outer product of observed estimating eqns
   B_i <- lapply(psi_i, function(ee) {
-    ee_val <- do.call(ee, args = append(list(theta = theta), geex_list$ee_args))
+    ee_val <- do.call(ee, args = append(list(theta = theta), geex_list$inner_eeargs))
     ee_val %*% t(ee_val)
   })
   B   <- apply(check_array(simplify2array(B_i)), 1:2, sum)
@@ -221,18 +243,20 @@ compute_sigma <- function(A, B){
 
 estimate_equations <- function(eeFUN,
                                data,
-                               units = NULL,
-                               corrections_list = NULL,
-                               roots = NULL,
-                               ee_args = NULL,
-                               compute_roots  = TRUE,
-                               compute_vcov = TRUE,
-                               derivFUN         = numDeriv::jacobian,
-                               derivFUN_control = list(method = 'Richardson'),
-                               rootFUN          = rootSolve::multiroot,
-                               rootFUN_control  = NULL,
-                               rootFUN_object   = 'root',
-                               ...){
+                               units             = NULL,
+                               roots             = NULL,
+                               outer_eeargs      = NULL,
+                               inner_eeargs      = NULL,
+                               compute_roots     = TRUE,
+                               compute_vcov      = TRUE,
+                               corrections_list  = NULL,
+                               derivFUN          = numDeriv::jacobian,
+                               derivFUN_control  = list(method = 'Richardson'),
+                               rootFUN           = rootSolve::multiroot,
+                               rootFUN_control   = NULL,
+                               rootFUN_object    = 'root',
+                               approxFUN         = NULL,
+                               approxFUN_control = NULL){
 
   ## Warnings ##
   if(missing(roots) & compute_roots){
@@ -250,7 +274,10 @@ estimate_equations <- function(eeFUN,
     split_data <- split(x = data, f = data[[units]] )
   }
 
-  geex_list  <- list(eeFUN = eeFUN, splitdt = split_data, ee_args = ee_args)
+  geex_list  <- list(eeFUN        = eeFUN,
+                     splitdt      = split_data,
+                     inner_eeargs = inner_eeargs,
+                     outer_eeargs = outer_eeargs)
 
   ## Compute estimating equation roots ##
   if(compute_roots == TRUE){
@@ -259,7 +286,7 @@ estimate_equations <- function(eeFUN,
       start           = roots,
       rootFUN         = rootFUN,
       rootFUN_control = rootFUN_control,
-      ...)
+      approxFUN       = approxFUN_control)
     out$rootFUN_results <- eesolved
     out$parameters <- theta_hat <- eesolved[[rootFUN_object]]
   } else {
@@ -271,11 +298,12 @@ estimate_equations <- function(eeFUN,
 
   ## Compute core matrices ##
   mats <- compute_matrices(
-    geex_list   = geex_list,
-    theta       = theta_hat,
-    derivFUN    = derivFUN,
-    derivFUN_control = derivFUN_control,
-    ...)
+    geex_list         = geex_list,
+    theta             = theta_hat,
+    derivFUN          = derivFUN,
+    derivFUN_control  = derivFUN_control,
+    approxFUN         = approxFUN,
+    approxFUN_control = approxFUN_control)
 
   ## Compute corrections ##
   if(!is.null(corrections_list)){
