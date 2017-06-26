@@ -19,7 +19,7 @@ create_psi <- function(splitdt, eeFUN,
   # if user specifies an approximation function, apply the function to each
   # evaluation of psi
   if(!is.null(approxFUN)){
-    lapply(x, function(f){
+    lapply(out, function(f){
       do.call(approxFUN, args = append(list(psi = f), approxFUN_control))
     }) -> out
   }
