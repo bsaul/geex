@@ -4,12 +4,12 @@
 \alias{create_GFUN}
 \title{Creates a function that sums over psi functions}
 \usage{
-create_GFUN(psi_list, ee_args)
+create_GFUN(psi_list, inner_eeargs = NULL)
 }
 \arguments{
 \item{psi_list}{list of psi functions}
 
-\item{ee_args}{list of arguments passed to psi}
+\item{inner_eeargs}{list of arguments passed to psi}
 }
 \description{
 Creates a function that sums over psi functions

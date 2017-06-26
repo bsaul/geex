@@ -4,12 +4,17 @@
 \alias{create_psi}
 \title{Creates list of psi functions}
 \usage{
-create_psi(splitdt, eeFUN, ...)
+create_psi(splitdt, eeFUN, approxFUN = NULL, approxFUN_control = NULL,
+  outer_eeargs = NULL)
 }
 \arguments{
 \item{splitdt}{list of dataframes with data per unit}
 
 \item{eeFUN}{the estimating equation function}
+
+\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}}
+
+\item{approxFUN_control}{arguments passed to \code{approxFUN}}
 }
 \description{
 Creates list of psi functions

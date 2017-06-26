@@ -5,7 +5,7 @@
 \title{Compute roots for a set of estimating equations}
 \usage{
 compute_eeroot(geex_list, start = NULL, rootFUN = rootSolve::multiroot,
-  rootFUN_control = NULL, ...)
+  rootFUN_control = NULL, approxFUN = NULL, approxFUN_control = NULL)
 }
 \arguments{
 \item{geex_list}{a list containing \code{splitdt} (a \code{data.frame} that

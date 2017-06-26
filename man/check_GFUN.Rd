@@ -4,7 +4,7 @@
 \alias{check_GFUN}
 \title{Check value of estimating eqations}
 \usage{
-check_GFUN(geex_list, theta, ...)
+check_GFUN(geex_list, theta)
 }
 \description{
 Checks that the value of Gm = sum_i psi(O_i, theta) is close to zero when

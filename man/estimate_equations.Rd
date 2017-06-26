@@ -4,12 +4,12 @@
 \alias{estimate_equations}
 \title{Estimate parameters and their covariance from a set of estimating equations}
 \usage{
-estimate_equations(eeFUN, data, units = NULL, corrections_list = NULL,
-  roots = NULL, ee_args = NULL, compute_roots = TRUE,
-  compute_vcov = TRUE, derivFUN = numDeriv::jacobian,
-  derivFUN_control = list(method = "Richardson"),
-  rootFUN = rootSolve::multiroot, rootFUN_control = NULL,
-  rootFUN_object = "root", ...)
+estimate_equations(eeFUN, data, units = NULL, roots = NULL,
+  outer_eeargs = NULL, inner_eeargs = NULL, compute_roots = TRUE,
+  compute_vcov = TRUE, corrections_list = NULL,
+  derivFUN = numDeriv::jacobian, derivFUN_control = list(method =
+  "Richardson"), rootFUN = rootSolve::multiroot, rootFUN_control = NULL,
+  rootFUN_object = "root", approxFUN = NULL, approxFUN_control = NULL)
 }
 \arguments{
 \item{eeFUN}{a function that takes in group-level data and returns a function
@@ -19,17 +19,14 @@ that takes parameters as its first argument}
 
 \item{units}{a string identifying the grouping variable in \code{data}}
 
-\item{corrections_list}{an optional list of small sample corrections where each
-list element is a list with two elements: `fun` and `options`. See details.}
-
 \item{roots}{a numeric vector containing either starting values for the roots when using
 the default \code{rootsolver} or roots that have been estimated elsewhere}
 
-\item{ee_args}{an optional list of arguments passed to the inner function of the `eeFUN`.
-See details for an example.}
-
 \item{compute_roots}{whether or not to find the roots of the estimating equations.
 Defaults to \code{TRUE}.}
+
+\item{corrections_list}{an optional list of small sample corrections where each
+list element is a list with two elements: `fun` and `options`. See details.}
 
 \item{derivFUN}{the function used to take derivatives of the estimating equation functions.
 Defaults to \code{numDeriv::jacobian}}
@@ -47,6 +44,9 @@ function}
 the parameters estimates. For example, the 'root' object within the output of multiroot::rootSolve
 contains the parameter estimates. Defaults to 'root'. Can also be a set of numeric positions within
 the object.}
+
+\item{ee_args}{an optional list of arguments passed to the inner function of the `eeFUN`.
+See details for an example.}
 
 \item{...}{additional arguments passed to the \code{eeFUN}. See details.}
 }

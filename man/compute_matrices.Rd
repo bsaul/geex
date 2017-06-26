@@ -5,7 +5,8 @@
 \title{Compute component matrices for covariance matrix}
 \usage{
 compute_matrices(geex_list, theta, derivFUN = numDeriv::jacobian,
-  derivFUN_control = list(method = "Richardson"), ...)
+  derivFUN_control = list(method = "Richardson"), approxFUN = NULL,
+  approxFUN_control = NULL)
 }
 \arguments{
 \item{geex_list}{a list containing \code{splitdt} (a \code{data.frame} that
