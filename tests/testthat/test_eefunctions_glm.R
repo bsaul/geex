@@ -25,7 +25,7 @@ test_that("estimate equations obtains correct values for parameters and standard
                           data = ohio,
                           units = 'id',
                           roots = c(-1.7, -.11),
-                          model = test_binomial)
+                          outer_eeargs = list(model = test_binomial))
   expect_equivalent(x$parameters, coef(test_binomial))
 
   # Form sandwich estimator "by hand" with the help of sandwich

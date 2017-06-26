@@ -19,7 +19,7 @@ test_that("estimate equations obtains correct values for parameters and standard
                           data = ohio,
                           units = 'id',
                           roots = coef(test_binomial),
-                          model = test_binomial)
+                          outer_eeargs  = list(model = test_binomial))
   expect_equal(x$parameters, coef(test_binomial))
   expect_equal(sqrt(diag(x$vcov)), summary(test_binomial)$coefficients[, 2])
 })
