@@ -6,15 +6,15 @@
 #' @docType data
 #' @format a dataset with 9 variables and 100 observations
 #' \itemize{
-#'    \item{Y1}{ rnorm(mean = 5, sd = 2)}
+#'    \item{Y1}{ rnorm(mean = 5, sd = 4)}
 #'    \item{Y2}{ rnorm(mean = 2, sd = 1)}
 #'    \item{X1}{ rgamma(shape =5)}
 #'    \item{Y3}{ 2 + 3*X1 + 1*rnorm(0, 1)}
 #'    \item{W1}{ X1 + 0.25 * rnorm(0, 1)}
 #'    \item{Z1}{ 2 + 1.5*X1 + 1*rnorm(0, 1)}
 #'    \item{X2}{ 0 for first 50 observation, 1 for rest}
-#'    \item{Y4}{ 0.5 + 2 * X2 + rnorm(0, 1)}
-#'    \item{Y5}{ rbinom(prob = plogis(0.5 + 2*X2))}
+#'    \item{Y4}{ 0.1 + 0.1*X1 + 0.5*X2 + rnorm(0, 1)}
+#'    \item{Y5}{ rbinom(prob = plogis(0.1 + 0.1*X1 + 0.5*X2))}
 #'  }
 #' @references Stefanski, L. A., & Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.
 #' @name geexex
