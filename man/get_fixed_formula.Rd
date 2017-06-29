@@ -12,3 +12,4 @@ get_fixed_formula(model)
 \description{
 Get the RHS formula from a model object
 }
+

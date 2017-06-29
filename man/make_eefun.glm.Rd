@@ -18,3 +18,4 @@
 \description{
 Create estimating equation function from a \code{glm} object
 }
+

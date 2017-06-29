@@ -12,3 +12,4 @@ get_response_formula(model)
 \description{
 Get the LHS formula from a model object
 }
+

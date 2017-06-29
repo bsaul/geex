@@ -10,3 +10,4 @@ check_GFUN(geex_list, theta)
 Checks that the value of Gm = sum_i psi(O_i, theta) is close to zero when
 evaluated at estimated parameters
 }
+

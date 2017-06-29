@@ -14,3 +14,4 @@ get_design_matrix(rhs_formula, data)
 \description{
 Get a matrix of fixed effects from a model object
 }
+

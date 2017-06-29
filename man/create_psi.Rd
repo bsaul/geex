@@ -19,3 +19,4 @@ create_psi(splitdt, eeFUN, approxFUN = NULL, approxFUN_control = NULL,
 \description{
 Creates list of psi functions
 }
+

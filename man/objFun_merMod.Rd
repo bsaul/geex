@@ -14,3 +14,4 @@ objFun_merMod(family, ...)
 \description{
 glmer Objective Fundtion
 }
+
