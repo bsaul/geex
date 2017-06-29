@@ -2,7 +2,9 @@
 #' Check value of estimating eqations
 #'
 #' Checks that the value of Gm = sum_i psi(O_i, theta) is close to zero when
-#' evaluated at estimated parameters
+#' evaluated at estimated parameters.
+#' @param geex_list a list with at least \code{splitdt}, \code{eeFUN}, and \code{outer_eeargs} (which can be \code{NULL})
+#' @param theta parameter estimates to use in evaluating the estimating equations.
 #' @export
 #'
 #------------------------------------------------------------------------------#
