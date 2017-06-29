@@ -5,12 +5,15 @@
 #' @param eeFUN the estimating equation function
 #' @param approxFUN a function that approximates the inner function of \code{eeFUN}
 #' @param approxFUN_control arguments passed to \code{approxFUN}
+#' @param outer_eeargs a list of arguments passed to \code{eeFUN}
 #' @export
 #'
 #------------------------------------------------------------------------------#
 
-create_psi <- function(splitdt, eeFUN,
-                       approxFUN = NULL, approxFUN_control = NULL,
+create_psi <- function(splitdt,
+                       eeFUN,
+                       approxFUN = NULL,
+                       approxFUN_control = NULL,
                        outer_eeargs = NULL){
   out <- lapply(splitdt, function(data_i){
     do.call(eeFUN, args = append(list(data = data_i), outer_eeargs))
@@ -60,16 +63,16 @@ create_GFUN <- function(psi_list, inner_eeargs = NULL){
 #' Defaults to \code{\link[rootSolve]{multiroot}}.
 #' @param rootFUN_control a list of options to be passed to the \code{rootsolver}
 #' function
-#' @param ... additional arguments passed to \code{geex_list$eeFUN}
+#' @inheritParams create_psi
 #' @return the output of the \code{rootsolver} function
 #' @export
 #------------------------------------------------------------------------------#
 
 compute_eeroot <- function(geex_list,
-                   start           = NULL,
-                   rootFUN         = rootSolve::multiroot,
-                   rootFUN_control = NULL,
-                   approxFUN       = NULL,
+                   start             = NULL,
+                   rootFUN           = rootSolve::multiroot,
+                   rootFUN_control   = NULL,
+                   approxFUN         = NULL,
                    approxFUN_control = NULL){
 
   rootFUN <- match.fun(rootFUN)
@@ -103,7 +106,7 @@ compute_eeroot <- function(geex_list,
 #' Defaults to \code{numDeriv::jacobian}
 #' @param derivFUN_control a list of options passed to \code{\link[numDeriv]{jacobian}}
 #' (or the \code{derivFUN} function).
-#' @param ... additional arguments passed to \code{geex_list$eeFUN}.
+#' @inheritParams create_psi
 #' @return a list with
 #' \itemize{
 #' \item A - the 'bread' matrix
@@ -182,8 +185,8 @@ compute_sigma <- function(A, B){
 #' that takes parameters as its first argument
 #' @param data a data.frame
 #' @param units a string identifying the grouping variable in \code{data}
-#' @param ee_args an optional list of arguments passed to the inner function of the `eeFUN`.
-#' See details for an example.
+#'  @param inner_eeargs a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)
+#' @param inner_eeargs a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)
 #' @param corrections_list an optional list of small sample corrections where each
 #' list element is a list with two elements: `fun` and `options`. See details.
 #' @param compute_roots whether or not to find the roots of the estimating equations.
@@ -194,7 +197,6 @@ compute_sigma <- function(A, B){
 #' the parameters estimates. For example, the 'root' object within the output of multiroot::rootSolve
 #' contains the parameter estimates. Defaults to 'root'. Can also be a set of numeric positions within
 #' the object.
-#' @param ... additional arguments passed to the \code{eeFUN}. See details.
 #' @inheritParams compute_eeroot
 #' @inheritParams compute_matrices
 #' @return a list with the following
