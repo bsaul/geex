@@ -7,6 +7,8 @@
 binomial_integrand(b, response, xmatrix, parms, linkinv)
 }
 \arguments{
+\item{b}{the random effect to integrate over}
+
 \item{response}{vector of response values}
 
 \item{xmatrix}{the matrix of covariates}
