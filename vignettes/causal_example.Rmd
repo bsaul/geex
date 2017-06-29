@@ -45,7 +45,7 @@ estimates <- estimate_equations(eeFUN = eefun,
                    data = vaccinesim,
                    units = 'ID',
                    roots = c(-.35, 0),
-                   model = mglm)
+                   outer_eeargs = list(model = mglm))
 
 # Compare point estimates
 estimates$parameters # from GEEX
@@ -109,8 +109,7 @@ ce_estimates <- estimate_equations(
   data  = vaccinesim,
   units = 'group',
   roots = c(coef(mglm), .4,  .13),
-  alpha = .35,
-  model = mglm
+  outer_eeargs = list(alpha = .35, model = mglm)
 )
 
 ce_estimates$parameters

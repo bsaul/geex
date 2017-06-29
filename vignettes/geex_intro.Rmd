@@ -867,7 +867,7 @@ SB10_eefun <- function(data){
 estimates <- estimate_equations(eeFUN = SB10_eefun, 
                                 data  = shaq, 
                                 units = 'game', 
-                                numDeriv_options = list(method.args = list(eps = 1e-7, r = 10, zero.tol = .Machine$double.eps)), 
+                                derivFUN_control = list(method.args = list(eps = 1e-7, r = 10, zero.tol = .Machine$double.eps)), 
                                 roots = c(.5, .5))
 ```
 
