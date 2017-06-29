@@ -185,11 +185,13 @@ compute_sigma <- function(A, B){
 #' that takes parameters as its first argument
 #' @param data a data.frame
 #' @param units a string identifying the grouping variable in \code{data}
-#'  @param inner_eeargs a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)
+#' @param outer_eeargs a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)
 #' @param inner_eeargs a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)
 #' @param corrections_list an optional list of small sample corrections where each
 #' list element is a list with two elements: `fun` and `options`. See details.
 #' @param compute_roots whether or not to find the roots of the estimating equations.
+#' Defaults to \code{TRUE}.
+#' @param compute_vcov whether or not to compute the variance-covariance matrix.
 #' Defaults to \code{TRUE}.
 #' @param roots a numeric vector containing either starting values for the roots when using
 #' the default \code{rootsolver} or roots that have been estimated elsewhere

@@ -17,15 +17,19 @@ that takes parameters as its first argument}
 
 \item{data}{a data.frame}
 
-\item{units}{a string identifying the grouping variable in \code{data}
-@param inner_eeargs a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)}
+\item{units}{a string identifying the grouping variable in \code{data}}
 
 \item{roots}{a numeric vector containing either starting values for the roots when using
 the default \code{rootsolver} or roots that have been estimated elsewhere}
 
+\item{outer_eeargs}{a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)}
+
 \item{inner_eeargs}{a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)}
 
 \item{compute_roots}{whether or not to find the roots of the estimating equations.
+Defaults to \code{TRUE}.}
+
+\item{compute_vcov}{whether or not to compute the variance-covariance matrix.
 Defaults to \code{TRUE}.}
 
 \item{corrections_list}{an optional list of small sample corrections where each
