@@ -111,7 +111,7 @@ make_eefun.geeglm <- function(model, data, ...)
 #'
 #' Create estimating equation function from a \code{merMod} object
 #'
-#' @param numderiv_opts a list of argument passed to \link{\code{numDeriv::grad}}
+#' @param numderiv_opts a list of argument passed to \code{numDeriv::grad}
 #' @inheritParams make_eefun
 #' @export
 #------------------------------------------------------------------------------#

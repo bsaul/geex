@@ -6,6 +6,11 @@
 \usage{
 estimate_df(A, C)
 }
+\arguments{
+\item{A}{the outer "bread" matrix}
+
+\item{C}{same as the C matrix in the Fay (2001) notation Section 2.3}
+}
 \description{
 Estimate Fay's degrees of freedom corrections
 }

@@ -107,6 +107,10 @@ df_correction_1 <- function(A_d, C){
 #------------------------------------------------------------------------------#
 #' Estimate Fay's degrees of freedom correction 2
 #'
+#' @inheritParams fay_df_correction
+#' @param C same as the C matrix in the Fay (2001) notation Section 2.3
+#' @param Bbc the bias corrected "B" matrix
+#'
 # @export
 #------------------------------------------------------------------------------#
 df_correction_2 <- function(A, A_i, C, L, Bbc){
@@ -128,6 +132,8 @@ df_correction_2 <- function(A, A_i, C, L, Bbc){
 #------------------------------------------------------------------------------#
 #' Estimate Fay's degrees of freedom corrections
 #'
+#' @inheritParams df_correction_2
+#' @inheritParams fay_df_correction
 # @export
 #------------------------------------------------------------------------------#
 

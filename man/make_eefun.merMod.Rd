@@ -11,7 +11,7 @@
 
 \item{data}{data with which to create the estimating equation function}
 
-\item{numderiv_opts}{a list of argument passed to \link{\code{numDeriv::grad}}}
+\item{numderiv_opts}{a list of argument passed to \code{numDeriv::grad}}
 
 \item{...}{passed to methods}
 }

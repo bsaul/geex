@@ -6,6 +6,15 @@
 \usage{
 df_correction_2(A, A_i, C, L, Bbc)
 }
+\arguments{
+\item{A}{the outer "bread" matrix}
+
+\item{C}{same as the C matrix in the Fay (2001) notation Section 2.3}
+
+\item{L}{a k x p matrix where p is the dimension of theta}
+
+\item{Bbc}{the bias corrected "B" matrix}
+}
 \description{
 Estimate Fay's degrees of freedom correction 2
 }
