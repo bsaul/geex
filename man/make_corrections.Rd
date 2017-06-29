@@ -18,4 +18,3 @@ a list with corrected values
 \description{
 Make corrections to basic sandwich estimators
 }
-

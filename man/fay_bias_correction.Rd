@@ -21,4 +21,3 @@ a corrected covariance matrix
 \description{
 Estimate Fay's bias correction
 }
-

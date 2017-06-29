@@ -16,4 +16,3 @@ make_eefun(model, data, ...)
 \description{
 Converts a model object into
 }
-
