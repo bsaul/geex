@@ -6,6 +6,23 @@
 \usage{
 fay_df_correction(A_i, A, B_i, B, b = 0.75, L, version)
 }
+\arguments{
+\item{A}{the outer "bread" matrix}
+
+\item{B}{the inner "meat" matrix}
+
+\item{b}{a numeric value < 1. Defaults to 0.75 as in Fay}
+
+\item{L}{a k x p matrix where p is the dimension of theta}
+
+\item{version}{either 1 or 2, corresponding to hat(d) or tilde(d), respectively}
+}
+\value{
+a scalar corresponding to the estimated degrees of freedom
+}
 \description{
 Fay's degrees of freedom corrections
+}
+\references{
+Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
 }

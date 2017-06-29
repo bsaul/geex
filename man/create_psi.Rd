@@ -15,6 +15,8 @@ create_psi(splitdt, eeFUN, approxFUN = NULL, approxFUN_control = NULL,
 \item{approxFUN}{a function that approximates the inner function of \code{eeFUN}}
 
 \item{approxFUN_control}{arguments passed to \code{approxFUN}}
+
+\item{outer_eeargs}{a list of arguments passed to \code{eeFUN}}
 }
 \description{
 Creates list of psi functions

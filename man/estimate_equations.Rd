@@ -17,10 +17,13 @@ that takes parameters as its first argument}
 
 \item{data}{a data.frame}
 
-\item{units}{a string identifying the grouping variable in \code{data}}
+\item{units}{a string identifying the grouping variable in \code{data}
+@param inner_eeargs a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)}
 
 \item{roots}{a numeric vector containing either starting values for the roots when using
 the default \code{rootsolver} or roots that have been estimated elsewhere}
+
+\item{inner_eeargs}{a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)}
 
 \item{compute_roots}{whether or not to find the roots of the estimating equations.
 Defaults to \code{TRUE}.}
@@ -45,10 +48,9 @@ the parameters estimates. For example, the 'root' object within the output of mu
 contains the parameter estimates. Defaults to 'root'. Can also be a set of numeric positions within
 the object.}
 
-\item{ee_args}{an optional list of arguments passed to the inner function of the `eeFUN`.
-See details for an example.}
+\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}}
 
-\item{...}{additional arguments passed to the \code{eeFUN}. See details.}
+\item{approxFUN_control}{arguments passed to \code{approxFUN}}
 }
 \value{
 a list with the following

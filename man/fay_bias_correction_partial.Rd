@@ -7,13 +7,11 @@
 fay_bias_correction_partial(A, A_i, B, B_i, b)
 }
 \arguments{
-\item{A}{the bread matrix}
+\item{A}{the outer "bread" matrix}
+
+\item{B}{the inner "meat" matrix}
 
 \item{b}{a numeric value < 1. Defaults to 0.75 as in Fay}
-
-\item{Ai}{a list of bread matrices per group}
-
-\item{Bi}{a list of meat matrices per group}
 }
 \value{
 a list with

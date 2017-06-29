@@ -7,7 +7,9 @@
 fay_bias_correction(A_i, A, B_i, B, b = 0.75)
 }
 \arguments{
-\item{A}{the bread matrix}
+\item{A}{the outer "bread" matrix}
+
+\item{B}{the inner "meat" matrix}
 
 \item{b}{a numeric value < 1. Defaults to 0.75 as in Fay}
 
@@ -20,4 +22,7 @@ a corrected covariance matrix
 }
 \description{
 Estimate Fay's bias correction
+}
+\references{
+Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
 }

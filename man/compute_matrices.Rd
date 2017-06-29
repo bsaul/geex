@@ -21,7 +21,9 @@ Defaults to \code{numDeriv::jacobian}}
 \item{derivFUN_control}{a list of options passed to \code{\link[numDeriv]{jacobian}}
 (or the \code{derivFUN} function).}
 
-\item{...}{additional arguments passed to \code{geex_list$eeFUN}.}
+\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}}
+
+\item{approxFUN_control}{arguments passed to \code{approxFUN}}
 }
 \value{
 a list with

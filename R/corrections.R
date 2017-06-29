@@ -18,11 +18,13 @@ make_corrections <- function(mats, corrections){
 #------------------------------------------------------------------------------#
 #' Estimate Fay's bias correction
 #'
-#' @param A the bread matrix
+#' @param A the outer "bread" matrix
 #' @param Ai a list of bread matrices per group
+#' @param B the inner "meat" matrix
 #' @param Bi a list of meat matrices per group
 #' @param b a numeric value < 1. Defaults to 0.75 as in Fay
 #' @return a corrected covariance matrix
+#' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
 #' @export
 #------------------------------------------------------------------------------#
 fay_bias_correction <- function(A_i, A, B_i, B, b  =0.75){
@@ -34,10 +36,7 @@ fay_bias_correction <- function(A_i, A, B_i, B, b  =0.75){
 #------------------------------------------------------------------------------#
 #' Compute the matrices necessary for Fay's bias correction
 #'
-#' @param A the bread matrix
-#' @param Ai a list of bread matrices per group
-#' @param Bi a list of meat matrices per group
-#' @param b a numeric value < 1. Defaults to 0.75 as in Fay
+#' @inheritParams fay_bias_correction
 #' @return a list with
 #' \itemize{
 #' \item H_i - the H_i matrix
@@ -66,6 +65,9 @@ fay_bias_correction_partial <- function(A, A_i, B, B_i, b){
 #------------------------------------------------------------------------------#
 #' Preparations for Fay's degrees of freedom corrections
 #'
+#' @param H_i a list of bias adjusted matrices
+#' @inheritParams fay_bias_correction
+#' @inheritParams fay_df_correction
 # @export
 #------------------------------------------------------------------------------#
 df_correction_prep <- function(L, A, A_i, H_i){
@@ -137,6 +139,11 @@ estimate_df <- function(A, C){
 #------------------------------------------------------------------------------#
 #' Fay's degrees of freedom corrections
 #'
+#' @inheritParams fay_bias_correction
+#' @param L a k x p matrix where p is the dimension of theta
+#' @param version either 1 or 2, corresponding to hat(d) or tilde(d), respectively
+#' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
+#' @return a scalar corresponding to the estimated degrees of freedom
 #' @export
 #------------------------------------------------------------------------------#
 

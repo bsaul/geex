@@ -6,6 +6,13 @@
 \usage{
 df_correction_prep(L, A, A_i, H_i)
 }
+\arguments{
+\item{L}{a k x p matrix where p is the dimension of theta}
+
+\item{A}{the outer "bread" matrix}
+
+\item{H_i}{a list of bias adjusted matrices}
+}
 \description{
 Preparations for Fay's degrees of freedom corrections
 }

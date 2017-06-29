@@ -23,7 +23,9 @@ Defaults to \code{\link[rootSolve]{multiroot}}.}
 \item{rootFUN_control}{a list of options to be passed to the \code{rootsolver}
 function}
 
-\item{...}{additional arguments passed to \code{geex_list$eeFUN}}
+\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}}
+
+\item{approxFUN_control}{arguments passed to \code{approxFUN}}
 }
 \value{
 the output of the \code{rootsolver} function
