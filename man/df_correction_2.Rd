@@ -9,6 +9,8 @@ df_correction_2(A, A_i, C, L, Bbc)
 \arguments{
 \item{A}{the outer "bread" matrix}
 
+\item{A_i}{a list of bread matrices per group}
+
 \item{C}{same as the C matrix in the Fay (2001) notation Section 2.3}
 
 \item{L}{a k x p matrix where p is the dimension of theta}

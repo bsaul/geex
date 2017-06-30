@@ -7,7 +7,11 @@
 fay_df_correction(A_i, A, B_i, B, b = 0.75, L, version)
 }
 \arguments{
+\item{A_i}{a list of bread matrices per group}
+
 \item{A}{the outer "bread" matrix}
+
+\item{B_i}{a list of meat matrices per group}
 
 \item{B}{the inner "meat" matrix}
 

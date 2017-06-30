@@ -19,9 +19,9 @@ make_corrections <- function(mats, corrections){
 #' Estimate Fay's bias correction
 #'
 #' @param A the outer "bread" matrix
-#' @param Ai a list of bread matrices per group
+#' @param A_i a list of bread matrices per group
 #' @param B the inner "meat" matrix
-#' @param Bi a list of meat matrices per group
+#' @param B_i a list of meat matrices per group
 #' @param b a numeric value < 1. Defaults to 0.75 as in Fay
 #' @return a corrected covariance matrix
 #' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
@@ -107,6 +107,7 @@ df_correction_1 <- function(A_d, C){
 #------------------------------------------------------------------------------#
 #' Estimate Fay's degrees of freedom correction 2
 #'
+#' @inheritParams fay_bias_correction
 #' @inheritParams fay_df_correction
 #' @param C same as the C matrix in the Fay (2001) notation Section 2.3
 #' @param Bbc the bias corrected "B" matrix
@@ -161,7 +162,7 @@ fay_df_correction <- function(A_i, A, B_i, B, b = .75, L, version){
 
   ## Compute DF corrections ##
   if(version == 1){
-    out <- df_correction_1(A = df_prep$A_d, C = df_prep$C)
+    out <- df_correction_1(df_prep$A_d, df_prep$C)
   } else if(version == 2){
     out <- df_correction_2(A = A, A_i = A_i, C = df_prep$C, L = L, Bbc = bias_mats$Bbc)
   }

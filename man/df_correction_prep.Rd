@@ -11,6 +11,8 @@ df_correction_prep(L, A, A_i, H_i)
 
 \item{A}{the outer "bread" matrix}
 
+\item{A_i}{a list of bread matrices per group}
+
 \item{H_i}{a list of bias adjusted matrices}
 }
 \description{
