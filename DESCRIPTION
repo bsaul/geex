@@ -21,7 +21,12 @@ Imports:
     lme4 (>= 1.1-12)
 Suggests:
     testthat,
-    knitr
+    knitr,
+    dplyr,
+    moments,
+    sandwich,
+    inferference,
+    xtable
 License: GPL (>= 2)
 LazyData: TRUE
 VignetteBuilder: knitr
