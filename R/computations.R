@@ -208,12 +208,10 @@ compute_sigma <- function(A, B){
 #' \item \code{corrections} - a list of corrected variance-covariance matrices
 #' }
 #'
-#' @details
-#'
 #' @section eeFUN arguments:
 #'
 #' Additional arguments may be passed to both the inner and outer function of the `eeFUN`.
-#' Any arguments in `...` are passed to the outer function; any elements of the `ee_args` list
+#' Elements in an \code{outer_eeargs} listare passed to the outer function; any elements of the \code{inner_eeargs} list
 #' are passed to the inner function. For example, a practical example might be computing a
 #' counterfactual mean using an IPW estimator:
 #'
@@ -237,8 +235,8 @@ compute_sigma <- function(A, B){
 #'   eeFUN = myeeFUN,
 #'   data  = mydata,
 #'   units = myunits,
-#'   ee_args = list(a = 1),
-#'   model = mymodel
+#'   inner_eeargs = list(a = 1),
+#'   outer_eeargs = list(model = mymodel)
 #' )
 #' }
 #'
