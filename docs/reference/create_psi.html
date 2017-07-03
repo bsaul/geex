@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compute component matrices for covariance matrix — compute_matrices • geex</title>
+<title>Creates list of psi functions — create_psi • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -72,40 +72,26 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compute component matrices for covariance matrix</h1>
+    <h1>Creates list of psi functions</h1>
     </div>
 
     
-    <p>For a given set of estimating equations computes the 'meat' and 'bread' matrices
-necessary to compute the covariance matrix.</p>
+    <p>Creates list of psi functions</p>
     
 
-    <pre class="usage"><span class='fu'>compute_matrices</span>(<span class='no'>geex_list</span>, <span class='no'>theta</span>, <span class='kw'>derivFUN</span> <span class='kw'>=</span> <span class='kw'>numDeriv</span><span class='kw'>::</span><span class='no'>jacobian</span>,
-  <span class='kw'>derivFUN_control</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"Richardson"</span>), <span class='kw'>approxFUN</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>approxFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>create_psi</span>(<span class='no'>splitdt</span>, <span class='no'>eeFUN</span>, <span class='kw'>approxFUN</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>approxFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>outer_eeargs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>geex_list</th>
-      <td><p>a list containing <code>splitdt</code> (a <code>data.frame</code> that
-has been <code><a href='http://www.rdocumentation.org/packages/base/topics/split'>split</a></code> by the grouping variable) and <code>eeFUN</code>
-(see <code><a href='estimate_equations.html'>estimate_equations</a></code>)</p></td>
+      <th>splitdt</th>
+      <td><p>list of dataframes with data per unit</p></td>
     </tr>
     <tr>
-      <th>theta</th>
-      <td><p>vector of parameters passed to <code>geex_list$eeFUN</code>.</p></td>
-    </tr>
-    <tr>
-      <th>derivFUN</th>
-      <td><p>the function used to take derivatives of the estimating equation functions.
-Defaults to <code>numDeriv::jacobian</code></p></td>
-    </tr>
-    <tr>
-      <th>derivFUN_control</th>
-      <td><p>a list of options passed to <code><a href='http://www.rdocumentation.org/packages/numDeriv/topics/jacobian'>jacobian</a></code>
-(or the <code>derivFUN</code> function).</p></td>
+      <th>eeFUN</th>
+      <td><p>the estimating equation function</p></td>
     </tr>
     <tr>
       <th>approxFUN</th>
@@ -115,17 +101,11 @@ Defaults to <code>numDeriv::jacobian</code></p></td>
       <th>approxFUN_control</th>
       <td><p>arguments passed to <code>approxFUN</code></p></td>
     </tr>
+    <tr>
+      <th>outer_eeargs</th>
+      <td><p>a list of arguments passed to <code>eeFUN</code></p></td>
+    </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>a list with</p><ul>
-<li><p>A - the 'bread' matrix</p></li>
-<li><p>B - the 'meat' matrix</p></li>
-<li><p>A_i - the 'bread' matrix for each group</p></li>
-<li><p>B_i - the 'meat' matrix for each group</p></li>
-</ul>
-
     
 
   </div>
@@ -133,9 +113,7 @@ Defaults to <code>numDeriv::jacobian</code></p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-          </ul>
+                </ul>
 
   </div>
 </div>

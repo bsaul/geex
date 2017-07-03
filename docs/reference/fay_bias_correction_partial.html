@@ -79,30 +79,30 @@
     <p>Compute the matrices necessary for Fay's bias correction</p>
     
 
-    <pre class="usage"><span class='fu'>fay_bias_correction_partial</span>(<span class='no'>m</span>, <span class='no'>A</span>, <span class='no'>A_i</span>, <span class='no'>B</span>, <span class='no'>B_i</span>, <span class='no'>b</span>)</pre>
+    <pre class="usage"><span class='fu'>fay_bias_correction_partial</span>(<span class='no'>A</span>, <span class='no'>A_i</span>, <span class='no'>B</span>, <span class='no'>B_i</span>, <span class='no'>b</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>m</th>
-      <td><p>the number of groups</p></td>
+      <th>A</th>
+      <td><p>the outer "bread" matrix</p></td>
     </tr>
     <tr>
-      <th>A</th>
-      <td><p>the bread matrix</p></td>
+      <th>A_i</th>
+      <td><p>a list of bread matrices per group</p></td>
+    </tr>
+    <tr>
+      <th>B</th>
+      <td><p>the inner "meat" matrix</p></td>
+    </tr>
+    <tr>
+      <th>B_i</th>
+      <td><p>a list of meat matrices per group</p></td>
     </tr>
     <tr>
       <th>b</th>
       <td><p>a numeric value &lt; 1. Defaults to 0.75 as in Fay</p></td>
-    </tr>
-    <tr>
-      <th>Ai</th>
-      <td><p>a list of bread matrices per group</p></td>
-    </tr>
-    <tr>
-      <th>Bi</th>
-      <td><p>a list of meat matrices per group</p></td>
     </tr>
     </table>
     

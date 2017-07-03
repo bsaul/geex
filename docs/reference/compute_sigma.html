@@ -76,7 +76,7 @@
     </div>
 
     
-    <p>Compute covariance matrix for set of estimating equations</p>
+    <p>Computes $$\Sigma = A_m^{-1} B_m  (A_m^{-1})^T / m $$ where</p>
     
 
     <pre class="usage"><span class='fu'>compute_sigma</span>(<span class='no'>A</span>, <span class='no'>B</span>)</pre>
@@ -86,15 +86,19 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>A</th>
-      <td><p>the 'bread' matrix returned in the list of matrices from
+      <td><p>the `A` matrix returned in the list of matrices from
 <code><a href='compute_matrices.html'>compute_matrices</a></code></p></td>
     </tr>
     <tr>
       <th>B</th>
-      <td><p>the 'meat' matrix returned in the list of matrices from
+      <td><p>the `B` matrix returned in the list of matrices from
 <code><a href='compute_matrices.html'>compute_matrices</a></code></p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>\(A_m = \sum_{i = 1}^m A_i\) and \(B_m = \sum_{i = 1}^m B_i\).</p>
     
 
   </div>
@@ -102,7 +106,9 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#details">Details</a></li>
+          </ul>
 
   </div>
 </div>

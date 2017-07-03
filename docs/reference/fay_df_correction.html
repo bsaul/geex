@@ -79,14 +79,60 @@
     <p>Fay's degrees of freedom corrections</p>
     
 
-    <pre class="usage"><span class='fu'>fay_df_correction</span>(<span class='no'>m</span>, <span class='no'>A_i</span>, <span class='no'>A</span>, <span class='no'>B_i</span>, <span class='no'>B</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='fl'>0.75</span>, <span class='no'>L</span>, <span class='no'>version</span>)</pre>
-        
+    <pre class="usage"><span class='fu'>fay_df_correction</span>(<span class='no'>A_i</span>, <span class='no'>A</span>, <span class='no'>B_i</span>, <span class='no'>B</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='fl'>0.75</span>, <span class='no'>L</span>, <span class='no'>version</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>A_i</th>
+      <td><p>a list of bread matrices per group</p></td>
+    </tr>
+    <tr>
+      <th>A</th>
+      <td><p>the outer "bread" matrix</p></td>
+    </tr>
+    <tr>
+      <th>B_i</th>
+      <td><p>a list of meat matrices per group</p></td>
+    </tr>
+    <tr>
+      <th>B</th>
+      <td><p>the inner "meat" matrix</p></td>
+    </tr>
+    <tr>
+      <th>b</th>
+      <td><p>a numeric value &lt; 1. Defaults to 0.75 as in Fay</p></td>
+    </tr>
+    <tr>
+      <th>L</th>
+      <td><p>a k x p matrix where p is the dimension of theta</p></td>
+    </tr>
+    <tr>
+      <th>version</th>
+      <td><p>either 1 or 2, corresponding to hat(d) or tilde(d), respectively</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a scalar corresponding to the estimated degrees of freedom</p>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Fay, M. P., &amp; Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206</p>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-                </ul>
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#references">References</a></li>
+          </ul>
 
   </div>
 </div>

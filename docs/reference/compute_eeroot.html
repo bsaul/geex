@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compute component matrices for covariance matrix — compute_matrices • geex</title>
+<title>Compute roots for a set of estimating equations — compute_eeroot • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -72,17 +72,15 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compute component matrices for covariance matrix</h1>
+    <h1>Compute roots for a set of estimating equations</h1>
     </div>
 
     
-    <p>For a given set of estimating equations computes the 'meat' and 'bread' matrices
-necessary to compute the covariance matrix.</p>
+    <p>Compute roots for a set of estimating equations</p>
     
 
-    <pre class="usage"><span class='fu'>compute_matrices</span>(<span class='no'>geex_list</span>, <span class='no'>theta</span>, <span class='kw'>derivFUN</span> <span class='kw'>=</span> <span class='kw'>numDeriv</span><span class='kw'>::</span><span class='no'>jacobian</span>,
-  <span class='kw'>derivFUN_control</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"Richardson"</span>), <span class='kw'>approxFUN</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>approxFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>compute_eeroot</span>(<span class='no'>geex_list</span>, <span class='kw'>start</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rootFUN</span> <span class='kw'>=</span> <span class='kw'>rootSolve</span><span class='kw'>::</span><span class='no'>multiroot</span>,
+  <span class='kw'>rootFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>approxFUN</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>approxFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -91,21 +89,24 @@ necessary to compute the covariance matrix.</p>
       <th>geex_list</th>
       <td><p>a list containing <code>splitdt</code> (a <code>data.frame</code> that
 has been <code><a href='http://www.rdocumentation.org/packages/base/topics/split'>split</a></code> by the grouping variable) and <code>eeFUN</code>
-(see <code><a href='estimate_equations.html'>estimate_equations</a></code>)</p></td>
+(see <code><a href='estimate_equations.html'>estimate_equations</a></code>). Note that the function that is
+returned by <code>eeFUN</code> must take <code>theta</code> as its first argument, where
+<code>theta</code> represents the parameters.</p></td>
     </tr>
     <tr>
-      <th>theta</th>
-      <td><p>vector of parameters passed to <code>geex_list$eeFUN</code>.</p></td>
+      <th>start</th>
+      <td><p>vector with length of the number of parameters to find. Passed to
+<code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code> if not NULL. Defaults to NULL.</p></td>
     </tr>
     <tr>
-      <th>derivFUN</th>
-      <td><p>the function used to take derivatives of the estimating equation functions.
-Defaults to <code>numDeriv::jacobian</code></p></td>
+      <th>rootFUN</th>
+      <td><p>the function used to find roots of the estimating equations.
+Defaults to <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code>.</p></td>
     </tr>
     <tr>
-      <th>derivFUN_control</th>
-      <td><p>a list of options passed to <code><a href='http://www.rdocumentation.org/packages/numDeriv/topics/jacobian'>jacobian</a></code>
-(or the <code>derivFUN</code> function).</p></td>
+      <th>rootFUN_control</th>
+      <td><p>a list of options to be passed to the <code>rootsolver</code>
+function</p></td>
     </tr>
     <tr>
       <th>approxFUN</th>
@@ -119,13 +120,7 @@ Defaults to <code>numDeriv::jacobian</code></p></td>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a list with</p><ul>
-<li><p>A - the 'bread' matrix</p></li>
-<li><p>B - the 'meat' matrix</p></li>
-<li><p>A_i - the 'bread' matrix for each group</p></li>
-<li><p>B_i - the 'meat' matrix for each group</p></li>
-</ul>
-
+    <p>the output of the <code>rootsolver</code> function</p>
     
 
   </div>

@@ -79,11 +79,12 @@
     <p>Estimate parameters and their covariance from a set of estimating equations</p>
     
 
-    <pre class="usage"><span class='fu'>estimate_equations</span>(<span class='no'>eeFUN</span>, <span class='no'>data</span>, <span class='no'>units</span>, <span class='kw'>corrections_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>numDeriv_options</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"Richardson"</span>),
-  <span class='kw'>rootsolver</span> <span class='kw'>=</span> <span class='kw'>rootSolve</span><span class='kw'>::</span><span class='no'>multiroot</span>, <span class='kw'>rootsolver_options</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>findroots</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>roots</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ee_args</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>compute_vcov</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>estimate_equations</span>(<span class='no'>eeFUN</span>, <span class='no'>data</span>, <span class='kw'>units</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>roots</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>outer_eeargs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>inner_eeargs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>compute_roots</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>compute_vcov</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>corrections_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>derivFUN</span> <span class='kw'>=</span> <span class='kw'>numDeriv</span><span class='kw'>::</span><span class='no'>jacobian</span>, <span class='kw'>derivFUN_control</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>method</span> <span class='kw'>=</span>
+  <span class='st'>"Richardson"</span>), <span class='kw'>rootFUN</span> <span class='kw'>=</span> <span class='kw'>rootSolve</span><span class='kw'>::</span><span class='no'>multiroot</span>, <span class='kw'>rootFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>rootFUN_object</span> <span class='kw'>=</span> <span class='st'>"root"</span>, <span class='kw'>approxFUN</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>approxFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -102,39 +103,67 @@ that takes parameters as its first argument</p></td>
       <td><p>a string identifying the grouping variable in <code>data</code></p></td>
     </tr>
     <tr>
-      <th>numDeriv_options</th>
-      <td><p>a list of options for <code><a href='http://www.rdocumentation.org/packages/numDeriv/topics/jacobian'>jacobian</a></code></p></td>
-    </tr>
-    <tr>
-      <th>rootsolver</th>
-      <td><p>the function that will find roots of the estimating equations
-when <code>findroots = TRUE</code>.</p></td>
-    </tr>
-    <tr>
-      <th>rootsolver_options</th>
-      <td><p>a list of options for the <code>rootsolver</code> function</p></td>
-    </tr>
-    <tr>
-      <th>findroots</th>
-      <td><p>whether or not to find the roots of the estimating equations.
-Defaults to <code>TRUE</code>.</p></td>
-    </tr>
-    <tr>
       <th>roots</th>
       <td><p>a numeric vector containing either starting values for the roots when using
 the default <code>rootsolver</code> or roots that have been estimated elsewhere</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>additional arguments passed to the <code>eeFUN</code>.</p></td>
+      <th>outer_eeargs</th>
+      <td><p>a list of arguments passed to the outer (data) function of <code>eeFUN</code>. (optional)</p></td>
     </tr>
     <tr>
-      <th>corrections</th>
-      <td><p>character vector of small sample corrections to apply</p></td>
+      <th>inner_eeargs</th>
+      <td><p>a list of arguments passed to the inner (theta) function of <code>eeFUN</code>. (optional)</p></td>
     </tr>
     <tr>
-      <th>correction_options</th>
-      <td><p>a list of options for the small sample corrections</p></td>
+      <th>compute_roots</th>
+      <td><p>whether or not to find the roots of the estimating equations.
+Defaults to <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>compute_vcov</th>
+      <td><p>whether or not to compute the variance-covariance matrix.
+Defaults to <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>corrections_list</th>
+      <td><p>an optional list of small sample corrections where each
+list element is a list with two elements: `fun` and `options`. See details.</p></td>
+    </tr>
+    <tr>
+      <th>derivFUN</th>
+      <td><p>the function used to take derivatives of the estimating equation functions.
+Defaults to <code>numDeriv::jacobian</code></p></td>
+    </tr>
+    <tr>
+      <th>derivFUN_control</th>
+      <td><p>a list of options passed to <code><a href='http://www.rdocumentation.org/packages/numDeriv/topics/jacobian'>jacobian</a></code>
+(or the <code>derivFUN</code> function).</p></td>
+    </tr>
+    <tr>
+      <th>rootFUN</th>
+      <td><p>the function used to find roots of the estimating equations.
+Defaults to <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>rootFUN_control</th>
+      <td><p>a list of options to be passed to the <code>rootsolver</code>
+function</p></td>
+    </tr>
+    <tr>
+      <th>rootFUN_object</th>
+      <td><p>the name of the object within the output of <code>rootFUN</code> that contains
+the parameters estimates. For example, the 'root' object within the output of multiroot::rootSolve
+contains the parameter estimates. Defaults to 'root'. Can also be a set of numeric positions within
+the object.</p></td>
+    </tr>
+    <tr>
+      <th>approxFUN</th>
+      <td><p>a function that approximates the inner function of <code>eeFUN</code></p></td>
+    </tr>
+    <tr>
+      <th>approxFUN_control</th>
+      <td><p>arguments passed to <code>approxFUN</code></p></td>
     </tr>
     </table>
     
@@ -143,8 +172,37 @@ the default <code>rootsolver</code> or roots that have been estimated elsewhere<
     <p>a list with the following</p><ul>
 <li><p><code>parameters</code> - a vector of estimated parameters</p></li>
 <li><p><code>vcov</code> - the variance-covariance matrix for the parameters</p></li>
+<li><p><code>corrections</code> - a list of corrected variance-covariance matrices</p></li>
 </ul>
 
+    
+    <h2 class="hasAnchor" id="eefun-arguments"><a class="anchor" href="#eefun-arguments"></a>eeFUN arguments</h2>
+
+    
+    <p>Additional arguments may be passed to both the inner and outer function of the `eeFUN`.
+Elements in an <code>outer_eeargs</code> listare passed to the outer function; any elements of the <code>inner_eeargs</code> list
+are passed to the inner function. For example, a practical example might be computing a
+counterfactual mean using an IPW estimator:</p><pre>
+myeeFUN &lt;- function(data, model){
+  X &lt;- model.matrix(model, data = data) #covariates
+  A &lt;- data$A #treatment
+  Y &lt;- data$Y #outcome
+  p &lt;- ncol(X) #number of parameters in model
+  function(theta, a){
+    Y * (A == a) * 1/plogis(X %*% theta[p - 1]) - theta[p]
+    # Here theta[p] is the target parameter.
+  }
+}
+</pre>
+    <p>Then to estimate the mean where `a == 1`:</p><pre>
+estimate_equations(
+  eeFUN = myeeFUN,
+  data  = mydata,
+  units = myunits,
+  inner_eeargs = list(a = 1),
+  outer_eeargs = list(model = mymodel)
+)
+</pre>
     
 
   </div>
@@ -154,6 +212,8 @@ the default <code>rootsolver</code> or roots that have been estimated elsewhere<
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#eefun-arguments">eeFUN arguments</a></li>
           </ul>
 
   </div>
