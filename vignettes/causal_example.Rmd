@@ -4,7 +4,7 @@ author: "Bradley Saul"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{geex causal}
+  %\VignetteIndexEntry{geex_causal}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

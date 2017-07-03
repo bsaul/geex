@@ -109,7 +109,7 @@ attempt <- estimate_equations(
   units = 'id',
   roots = theta_hat, # start root finding at lme4's beta hat.
   compute_vcov = FALSE,
-  lme4model = fit
+  outer_eeargs = list(lme4model = fit)
 )
 
 ## parameter estimates obtained from geex
