@@ -1,0 +1,49 @@
+---
+title: "Comparison of geex to sandwich"
+author: "Bradley Saul"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geex sandwich}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This examples uses the `vaccinesim` dataset from the `inferference` package to compare the estimated covariance matrix obtained from `geex` and `sandwich`.
+An example $\psi$ function written in `R`. 
+
+This function computes the score functions for a GLM.
+```{r eefun, echo=TRUE}
+eefun <- function(data, model){
+  X <- model.matrix(model, data = data)
+  Y <- model.response(model.frame(model, data = data))
+  function(theta){
+    lp  <- X %*% theta
+    rho <- plogis(lp)
+
+    score_eqns <- apply(X, 2, function(x) sum((Y - rho) * x))
+    score_eqns
+  }
+}
+```
+
+Compare sandwich variance estimators to `sandwich` treating individuals as units:
+```{r example1}
+library(geex)
+library(inferference)
+mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
+estimates <- estimate_equations(eeFUN = eefun,
+                   data = vaccinesim,
+                   roots = c(-.35, 0),
+                   outer_eeargs = list(model = mglm))
+
+# Compare point estimates
+estimates$parameters # from GEEX
+coef(mglm) # from the GLM function
+
+# Compare variance estimates
+estimates$vcov
+sandwich::sandwich(mglm)
+```
+
+Pretty darn good! Note that the `geex` method is much slower than `sandwich` (especially using `method = 'Richardson'` for `numDeriv`), but this is because `sandwich` uses the closed form of the score equations, while `geex` compute them numerically. However, `geex`'s real utility comes when you have more complicated estimating equations. Also, the analyst has the ability to code faster $\psi$ functions by optimizing their code or using `Rccp`, for example. 

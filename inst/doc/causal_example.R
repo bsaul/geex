@@ -1,41 +1,5 @@
 ## ----eefun, echo=TRUE----------------------------------------------------
-eefun <- function(data, model){
-  X <- model.matrix(model, data = data)
-  Y <- model.response(model.frame(model, data = data))
-  function(theta){
-    lp  <- X %*% theta
-    rho <- plogis(lp)
-
-    score_eqns <- apply(X, 2, function(x) sum((Y - rho) * x))
-    score_eqns
-  }
-}
-
-## ----example1------------------------------------------------------------
-library(geex)
-library(inferference)
-vaccinesim$ID <- 1:nrow(vaccinesim)
-mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
-split_data  <- split(vaccinesim, vaccinesim$ID)
-# The list needed for the compute_matrices
-# For now, theta needs to be passed since geex does not do point estimates yet
-example <- list(eeFUN = eefun, splitdt = split_data)
-estimates <- estimate_equations(eeFUN = eefun,
-                   data = vaccinesim,
-                   units = 'ID',
-                   roots = c(-.35, 0),
-                   outer_eeargs = list(model = mglm))
-
-# Compare point estimates
-estimates$parameters # from GEEX
-coef(mglm) # from the GLM function
-
-# Compare variance estimates
-estimates$vcov
-sandwich::sandwich(mglm)
-
-## ----eefun2, echo=TRUE---------------------------------------------------
-eefun2 <- function(data, model, alpha){
+eefun <- function(data, model, alpha){
   X <- model.matrix(model, data = data)
   A <- model.response(model.frame(model, data = data))
   
@@ -61,20 +25,18 @@ eefun2 <- function(data, model, alpha){
 }
 
 ## ----example2, echo =TRUE------------------------------------------------
+library(geex)
+library(inferference)
+
 test <- interference(Y | A ~ X1 | group, 
                      data = vaccinesim,
                      model_method = 'glm',
                      allocations = c(.35, .4))
 
 mglm        <- glm(A ~ X1, data = vaccinesim, family = binomial)
-split_data  <- split(vaccinesim, vaccinesim$group)
-
-# The list needed for the compute_matrices
-example <- list(eeFUN   = eefun2, 
-                splitdt = split_data)
 
 ce_estimates <- estimate_equations(
-  eeFUN = eefun2,
+  eeFUN = eefun,
   data  = vaccinesim,
   units = 'group',
   roots = c(coef(mglm), .4,  .13),
