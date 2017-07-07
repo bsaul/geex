@@ -57,8 +57,6 @@ create_GFUN <- function(psi_list, inner_eeargs = NULL){
 #' (see \code{\link{estimate_equations}}). Note that the function that is
 #' returned by \code{eeFUN} must take \code{theta} as its first argument, where
 #' \code{theta} represents the parameters.
-#' @param start vector with length of the number of parameters to find. Passed to
-#' \code{\link[rootSolve]{multiroot}} if not NULL. Defaults to NULL.
 #' @param rootFUN the function used to find roots of the estimating equations.
 #' Defaults to \code{\link[rootSolve]{multiroot}}.
 #' @param rootFUN_control a list of options to be passed to the \code{rootsolver}
@@ -69,7 +67,6 @@ create_GFUN <- function(psi_list, inner_eeargs = NULL){
 #------------------------------------------------------------------------------#
 
 compute_eeroot <- function(geex_list,
-                   start             = NULL,
                    rootFUN           = rootSolve::multiroot,
                    rootFUN_control   = NULL,
                    approxFUN         = NULL,
@@ -88,7 +85,7 @@ compute_eeroot <- function(geex_list,
                        inner_eeargs = geex_list$inner_eeargs)
 
   # Find roots of psi
-  rargs <- append(rootFUN_control, list(f = GmFUN, start = start))
+  rargs <- append(rootFUN_control, list(f = GmFUN))
   do.call(rootFUN, args = rargs)
 }
 
