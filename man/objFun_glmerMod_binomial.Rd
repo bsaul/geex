@@ -2,7 +2,7 @@
 % Please edit documentation in R/ee_functions.R
 \name{objFun_glmerMod_binomial}
 \alias{objFun_glmerMod_binomial}
-\title{glmer Objective Function for Logistic-Normal Likelihood}
+\title{Objective Function for Logistic-Normal Likelihood}
 \usage{
 objFun_glmerMod_binomial(parms, response, xmatrix, linkinv)
 }
@@ -16,5 +16,5 @@ objFun_glmerMod_binomial(parms, response, xmatrix, linkinv)
 \item{linkinv}{inverse link function}
 }
 \description{
-glmer Objective Function for Logistic-Normal Likelihood
+Objective Function for Logistic-Normal Likelihood
 }

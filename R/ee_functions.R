@@ -137,7 +137,7 @@ make_eefun.merMod <- function(model, data, numderiv_opts = NULL, ...)
 }
 
 #------------------------------------------------------------------------------#
-#' glmer Objective Fundtion
+#' Objective Function for merMod object
 #'
 #'@param family distribution family of objective function
 #'@param ... additional arguments pass to objective function
@@ -151,7 +151,7 @@ objFun_merMod <- function(family, ...){
 }
 
 #------------------------------------------------------------------------------#
-#' glmer Objective Function for Logistic-Normal Likelihood
+#' Objective Function for Logistic-Normal Likelihood
 #'
 #' @param parms vector of parameters
 #' @param response vector of response values

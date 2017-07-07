@@ -2,7 +2,7 @@
 % Please edit documentation in R/ee_functions.R
 \name{objFun_merMod}
 \alias{objFun_merMod}
-\title{glmer Objective Fundtion}
+\title{Objective Function for merMod object}
 \usage{
 objFun_merMod(family, ...)
 }
@@ -12,5 +12,5 @@ objFun_merMod(family, ...)
 \item{...}{additional arguments pass to objective function}
 }
 \description{
-glmer Objective Fundtion
+Objective Function for merMod object
 }
