@@ -15,10 +15,10 @@ test_that("check_GFUN function works", {
   temp <- estimate_equations(
     test_eefun1,
     data = geexex,
-    roots = c(2,2)
+    rootFUN_control = list(start = c(2,2))
   )
 
-  test <- check_GFUN(myList, temp$parameters)
+  test <- check_GFUN(myList, temp$estimates)
 
   expect_equal(length(test), 2)
 

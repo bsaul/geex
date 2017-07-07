@@ -18,8 +18,8 @@ test_that("estimate equations obtains correct values for parameters and standard
   x <- estimate_equations(gee_eefun,
                           data = ohio,
                           units = 'id',
-                          roots = coef(test_binomial),
+                          rootFUN_control = list(start = coef(test_binomial)),
                           outer_eeargs  = list(model = test_binomial))
-  expect_equal(x$parameters, coef(test_binomial))
+  expect_equal(x$estimates, coef(test_binomial))
   expect_equal(sqrt(diag(x$vcov)), summary(test_binomial)$coefficients[, 2])
 })

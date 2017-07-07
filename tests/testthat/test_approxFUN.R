@@ -16,11 +16,11 @@ test_that("approxFUN works", {
   x <- estimate_equations(
     eeFUN = quantile_eefun,
     data  = geexex,
-    roots = 4.7,
+    rootFUN_control = list(start = 4.7),
     approxFUN = spline_approx,
     approxFUN_control = list(eval_theta = seq(3, 6, by = .4))
   )
-  expect(!is.null(x$parameters), 'Estimate_equations did not return parameters using approxFUN')
+  expect(!is.null(x$estimates), 'Estimate_equations did not return parameters using approxFUN')
   expect(!is.null(x$vcov), 'Estimate_equations did not return vcov using approxFUN')
 })
 

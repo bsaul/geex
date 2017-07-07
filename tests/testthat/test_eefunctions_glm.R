@@ -24,9 +24,9 @@ test_that("estimate equations obtains correct values for parameters and standard
   x <- estimate_equations(glm_eefun,
                           data = ohio,
                           units = 'id',
-                          roots = c(-1.7, -.11),
+                          rootFUN_control  = list(start = c(-1.7, -.11)),
                           outer_eeargs = list(model = test_binomial))
-  expect_equivalent(x$parameters, coef(test_binomial))
+  expect_equivalent(x$estimates, coef(test_binomial))
 
   # Form sandwich estimator "by hand" with the help of sandwich
   psi <- apply(estfun(test_binomial), 2, function(x) tapply(x, test_binomial$data[['id']], sum))
