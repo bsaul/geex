@@ -80,7 +80,7 @@ y &lt;-<span class="st"> </span><span class="kw">rbinom</span>(m*n, <span class=
 d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(y,x,id) </code></pre></div>
 <p><span class="math inline">\(\theta\)</span> can be estimated from the <code>lme4::glmer</code> function.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#fit logistic-normal random effects model</span>
-fit &lt;-<span class="st"> </span><span class="kw">glmer</span>(y~x+(<span class="dv">1</span>|id), <span class="dt">family=</span>binomial, <span class="dt">data=</span>d)
+fit &lt;-<span class="st"> </span>lme4::<span class="kw">glmer</span>(y~x+(<span class="dv">1</span>|id), <span class="dt">family=</span>binomial, <span class="dt">data=</span>d)
 <span class="kw">print</span>(<span class="kw">summary</span>(fit))</code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
@@ -121,7 +121,7 @@ fit &lt;-<span class="st"> </span><span class="kw">glmer</span>(y~x+(<span class
 
 splitdt &lt;-<span class="st"> </span><span class="kw">split</span>(d, <span class="dt">f =</span> d$id)
 
-theta_hat &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">getME</span>(fit, <span class="kw">c</span>(<span class="st">'beta'</span>, <span class="st">'theta'</span>)))
+theta_hat &lt;-<span class="st"> </span><span class="kw">unlist</span>(lme4::<span class="kw">getME</span>(fit, <span class="kw">c</span>(<span class="st">'beta'</span>, <span class="st">'theta'</span>)))
 
 psi &lt;-<span class="st"> </span><span class="kw">lapply</span>(splitdt, function(dt){
   <span class="kw">eefun</span>(dt, fit)
@@ -154,18 +154,18 @@ objFun &lt;-<span class="st"> </span><span class="kw">lapply</span>(splitdt, fun
   <span class="dt">eeFUN =</span> eefun,
   <span class="dt">data  =</span> d,
   <span class="dt">units =</span> <span class="st">'id'</span>,
-  <span class="dt">roots =</span> theta_hat, <span class="co"># start root finding at lme4's beta hat.</span>
+  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> theta_hat), <span class="co"># start root finding at lme4's beta hat.</span>
   <span class="dt">compute_vcov =</span> <span class="ot">FALSE</span>,
   <span class="dt">outer_eeargs =</span> <span class="kw">list</span>(<span class="dt">lme4model =</span> fit)
 )
 
 ## parameter estimates obtained from geex
 attempt</code></pre></div>
-<pre><code>## $parameters
+<pre><code>## $estimates
 ##                beta1                beta2 theta.id.(Intercept) 
 ##            1.9214803            1.8311554            0.8405534</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">psi_eval2 &lt;-<span class="st"> </span><span class="kw">lapply</span>(psi, function(f){
-  <span class="kw">f</span>(attempt$parameters)
+  <span class="kw">f</span>(attempt$estimates)
 })
 
 <span class="kw">colSums</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(psi_eval2), <span class="dt">ncol =</span> <span class="dv">3</span>, <span class="dt">byrow  =</span> <span class="ot">TRUE</span>))</code></pre></div>

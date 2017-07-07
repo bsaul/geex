@@ -79,7 +79,7 @@
     <p>Compute roots for a set of estimating equations</p>
     
 
-    <pre class="usage"><span class='fu'>compute_eeroot</span>(<span class='no'>geex_list</span>, <span class='kw'>start</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rootFUN</span> <span class='kw'>=</span> <span class='kw'>rootSolve</span><span class='kw'>::</span><span class='no'>multiroot</span>,
+    <pre class="usage"><span class='fu'>compute_eeroot</span>(<span class='no'>geex_list</span>, <span class='kw'>rootFUN</span> <span class='kw'>=</span> <span class='kw'>rootSolve</span><span class='kw'>::</span><span class='no'>multiroot</span>,
   <span class='kw'>rootFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>approxFUN</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>approxFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
@@ -92,11 +92,6 @@ has been <code><a href='http://www.rdocumentation.org/packages/base/topics/split
 (see <code><a href='estimate_equations.html'>estimate_equations</a></code>). Note that the function that is
 returned by <code>eeFUN</code> must take <code>theta</code> as its first argument, where
 <code>theta</code> represents the parameters.</p></td>
-    </tr>
-    <tr>
-      <th>start</th>
-      <td><p>vector with length of the number of parameters to find. Passed to
-<code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code> if not NULL. Defaults to NULL.</p></td>
     </tr>
     <tr>
       <th>rootFUN</th>
