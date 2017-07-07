@@ -4,7 +4,7 @@
 \alias{compute_eeroot}
 \title{Compute roots for a set of estimating equations}
 \usage{
-compute_eeroot(geex_list, start = NULL, rootFUN = rootSolve::multiroot,
+compute_eeroot(geex_list, rootFUN = rootSolve::multiroot,
   rootFUN_control = NULL, approxFUN = NULL, approxFUN_control = NULL)
 }
 \arguments{
@@ -13,9 +13,6 @@ has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
 (see \code{\link{estimate_equations}}). Note that the function that is
 returned by \code{eeFUN} must take \code{theta} as its first argument, where
 \code{theta} represents the parameters.}
-
-\item{start}{vector with length of the number of parameters to find. Passed to
-\code{\link[rootSolve]{multiroot}} if not NULL. Defaults to NULL.}
 
 \item{rootFUN}{the function used to find roots of the estimating equations.
 Defaults to \code{\link[rootSolve]{multiroot}}.}
