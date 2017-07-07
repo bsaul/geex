@@ -80,6 +80,36 @@
     </div>
 
     <div class="contents">
+    <div id="geex-0-2-1" class="section level1">
+<h1 class="hasAnchor">
+<a href="#geex-0-2-1" class="anchor"></a>geex 0.2.1</h1>
+<ul>
+<li>adds a vignette explaining how to use a different root finding algorithm via <code>rootFUN</code> argument in <code>estimate_equations</code>
+</li>
+<li>fixes issues where different <code>rootFUN</code>s would not work:
+<ul>
+<li>
+<code>roots</code> argument no longer needs to be set if <code>compute_roots = TRUE</code>. Instead, starting values are passed via the <code>rootFUN_control</code> list.</li>
+<li>Removes the <code>start</code> argument from <code>compute_eeroots</code>; set this option in <code>rootFUN_control</code>.</li>
+</ul>
+</li>
+</ul>
+</div>
+    <div id="geex-0-2-0" class="section level1">
+<h1 class="hasAnchor">
+<a href="#geex-0-2-0" class="anchor"></a>geex 0.2.0</h1>
+<ul>
+<li>overhauls which arguments are passed to <code>estimate_equations</code> and how these arguments are parsed internally. See this function’s documentation for details</li>
+<li>adds <code>geexex</code> dataset for use in examples</li>
+</ul>
+</div>
+    <div id="geex-0-1-0" class="section level1">
+<h1 class="hasAnchor">
+<a href="#geex-0-1-0" class="anchor"></a>geex 0.1.0</h1>
+<ul>
+<li>the inital <code>geex</code> release</li>
+</ul>
+</div>
     </div>
   </div>
 
@@ -87,6 +117,9 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#geex-0-2-1">0.2.1</a></li>
+        <li><a href="#geex-0-2-0">0.2.0</a></li>
+        <li><a href="#geex-0-1-0">0.1.0</a></li>
       </ul>
     </div>
   </div>
