@@ -258,8 +258,8 @@ estimate_equations <- function(eeFUN,
                                approxFUN_control = NULL){
 
   ## Warnings ##
-  if(missing(roots) & compute_roots){
-    stop('If findroots = TRUE, then starting values for the rootsolver must be specified in roots argument.')
+  if(is.null(roots) & !compute_roots){
+    stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
   }
 
   out <- list()
@@ -282,17 +282,16 @@ estimate_equations <- function(eeFUN,
   if(compute_roots == TRUE){
     eesolved <- compute_eeroot(
       geex_list       = geex_list,
-      start           = roots,
       rootFUN         = rootFUN,
       rootFUN_control = rootFUN_control,
       approxFUN       = approxFUN_control)
     out$rootFUN_results <- eesolved
-    out$parameters <- theta_hat <- eesolved[[rootFUN_object]]
+    out$estimates <- theta_hat <- eesolved[[rootFUN_object]]
   } else {
-    out$parameters <- theta_hat <- roots
+    out$estimates <- theta_hat <- roots
   }
   if (compute_vcov == FALSE){
-    return(list(parameters = theta_hat))
+    return(list(estimates = theta_hat))
   }
 
   ## Compute core matrices ##
