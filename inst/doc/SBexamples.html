@@ -205,7 +205,7 @@ k * sgn(Y^1_i - \theta) &amp;  \text{when } |(Y^1_i - \theta)| &gt; k\\
     if(<span class="kw">abs</span>(x) &lt;=<span class="st"> </span>k) x else <span class="kw">sign</span>(x) *<span class="st"> </span>k
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates1 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
   <span class="dt">eeFUN =</span> SB6_eefun, 
   <span class="dt">data  =</span> geexex,
   <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="dv">3</span>))</code></pre></div>
@@ -233,11 +233,11 @@ Sigma_cls &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span cla
 results</code></pre></div>
 <pre><code>## $geex
 ## $geex$estimates
-## [1] 2.026376
+## [1] 4.82061
 ## 
 ## $geex$vcov
 ##            [,1]
-## [1,] 0.01040586
+## [1,] 0.08356179
 ## 
 ## 
 ## $cls

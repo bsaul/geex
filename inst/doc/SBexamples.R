@@ -76,7 +76,7 @@ SB6_eefun <- function(data, k = 1.5){
 }
 
 ## ----SB6_run, echo = TRUE, message=FALSE---------------------------------
-estimates1 <- estimate_equations(
+estimates <- estimate_equations(
   eeFUN = SB6_eefun, 
   data  = geexex,
   rootFUN_control = list(start = 3))
