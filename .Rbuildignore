@@ -3,3 +3,5 @@
 ^.*scratch.*$
 ^.*manuscript.*$
 ^docs$
+^README.md$
+^NEWS.md$
