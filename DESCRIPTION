@@ -1,7 +1,7 @@
 Package: geex
 Type: Package
 Title: A Framework for Estimating Equations
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(person("Bradley", "Saul", role = c("aut", "cre"),
                     email = "bradleysaul@gmail.com"),
              person("Brian", "Barkley", role = c("ctb")))
