@@ -17,7 +17,7 @@ SB4_eefun <- function(data){
 estimates <- estimate_equations(
   eeFUN = SB4_eefun, 
   data  = geexex, 
-  roots = c(1, 1, 1, 1))
+  rootFUN_control = list(start = c(1, 1, 1, 1)))
 
 ## ----SB4_clsform, echo = TRUE, message = FALSE, results = 'hide'---------
 ivfit <- AER::ivreg(Y3 ~ W1 | Z1, data = geexex)
@@ -56,14 +56,14 @@ SB5_eefun <- function(data){
 estimates <- estimate_equations(
   eeFUN = SB5_eefun, 
   data  = geexex,
-  roots = c(2))
+  rootFUN_control = list(start = 2))
 
 ## ----SB5_clsform, echo = TRUE--------------------------------------------
 theta_cls <- ICSNP::hl.loc(geexex$Y2)
 Sigma_cls <- 1/(12 * IC_denom^2) / nrow(geexex)
 
 ## ----SB5_results, echo = FALSE-------------------------------------------
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
@@ -76,10 +76,10 @@ SB6_eefun <- function(data, k = 1.5){
 }
 
 ## ----SB6_run, echo = TRUE, message=FALSE---------------------------------
-estimates <- estimate_equations(
+estimates1 <- estimate_equations(
   eeFUN = SB6_eefun, 
-  data  = geexex, 
-  roots = 3)
+  data  = geexex,
+  rootFUN_control = list(start = 3))
 
 ## ----SB6_clsform, echo = TRUE--------------------------------------------
 theta_cls <- MASS::huber(geexex$Y1, k = 1.5, tol = 1e-10)$mu
@@ -102,7 +102,7 @@ B <- mean(unlist(lapply(geexex$Y1, function(y){
 Sigma_cls <- matrix(1/A * B * 1/A / nrow(geexex))
 
 ## ----SB6_results, echo = TRUE--------------------------------------------
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
@@ -124,12 +124,12 @@ spline_approx <- function(psi, eval_theta){
 estimates <- estimate_equations(
   eeFUN = SB7_eefun, 
   data  = geexex, 
-  roots = 4.7,
+  rootFUN_control = list(start = 4.7),
   approxFUN = spline_approx,
   approxFUN_control = list(eval_theta = seq(3, 6, by = .05)))
 
 ## ----SB7_results, echo = FALSE-------------------------------------------
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = median(geexex$Y1), vcov = NA))
 results
 
@@ -151,7 +151,7 @@ SB8_eefun <- function(data){
 estimates <- estimate_equations(
   eeFUN = SB8_eefun, 
   data  = geexex,
-  roots = c(0, 0, 0))
+  rootFUN_control = list(start = c(0, 0, 0)))
 
 ## ----SB8_clsform, echo = TRUE--------------------------------------------
 m <- MASS::rlm(Y4 ~ X1 + X2, data = geexex, method = 'M')
@@ -159,7 +159,7 @@ theta_cls <- coef(m)
 Sigma_cls <- vcov(m)
 
 ## ----SB8_results, echo = TRUE--------------------------------------------
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
@@ -180,7 +180,7 @@ SB9_eefun <- function(data){
 estimates <- estimate_equations(
   eeFUN = SB9_eefun, 
   data  = geexex, 
-  roots = c(.1, .1, .5))
+  rootFUN_control = list(start = c(.1, .1, .5)))
 
 ## ----SB9_clsform, echo = TRUE--------------------------------------------
 m9 <- glm(Y5 ~ X1 + X2, data = geexex, family = binomial(link = 'logit'))
@@ -188,7 +188,7 @@ theta_cls <- coef(m9)
 Sigma_cls <- sandwich::sandwich(m9)
 
 ## ----SB9_results, echo = TRUE--------------------------------------------
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
@@ -214,7 +214,7 @@ estimates <- estimate_equations(
   eeFUN = SB10_eefun, 
   data  = shaq, 
   units = 'game', 
-  roots = c(.5, .5))
+  rootFUN_control = list(start = c(.5, .5)))
 
 ## ----SB10_clsform, echo = TRUE-------------------------------------------
 V11 <- function(p) {
@@ -238,7 +238,7 @@ estimates$vcov[1, 1]
 # Note the differences in the p-values
 pnorm(35.51/23, mean  = 1, sd = sqrt(V11_hat), lower.tail = FALSE)
 
-pnorm(estimates$parameters[1], 
+pnorm(estimates$estimates[1], 
       mean = 1, 
       sd = sqrt(estimates$vcov[1, 1]),
       lower.tail = FALSE)

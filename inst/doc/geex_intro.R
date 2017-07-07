@@ -51,10 +51,10 @@ SB1_eefun <- function(data){
 }
 
 ## ----SB1_run, echo=TRUE--------------------------------------------------
-estimates <- estimate_equations(eeFUN = SB1_eefun, 
-                                data  = dt,
-                                units = 'id', 
-                                roots = c(1,1))
+estimates <- estimate_equations(
+  eeFUN = SB1_eefun, 
+  data  = dt,
+  rootFUN_control = list(start = c(1,1)))
 
 ## ----SB1_clsform, echo=FALSE---------------------------------------------
 ## Compare to closed form ##
@@ -80,9 +80,9 @@ theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = var(Y) * (n() - 1)/ n() )
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
 ## ----SB1_results, echo = FALSE, results = 'asis'-------------------------
-results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-
-print_results(results, 'ex1', 'Comparing estimates from closed form versus geex')
+results <- list(geex = estimates[c('estimates', 'vcov')], 
+                cls = list(parameters = theta_cls, vcov = Sigma_cls))
+results
 
 ## ----SB2_setup, echo=FALSE-----------------------------------------------
 n  <- 100
@@ -106,9 +106,10 @@ SB2_eefun <- function(data){
 }
 
 ## ----SB2_run, echo = TRUE------------------------------------------------
-estimates <- estimate_equations(eeFUN = SB2_eefun, 
-                                data  = dt, units = 'id', 
-                                roots = c(1, 1, 1))
+estimates <- estimate_equations(
+  eeFUN = SB2_eefun, 
+  data  = dt, 
+  rootFUN_control = list(start = c(1, 1, 1)))
 
 ## ----SB2_clsform, echo = FALSE-------------------------------------------
 ## Compare to closed form ##
@@ -136,8 +137,9 @@ theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = mean(X), p3 = p1/p2)
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
 ## ----SB2_results, echo = FALSE, results = 'asis'-------------------------
-results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'test', 'test')
+results <- list(geex = estimates[c('estimates', 'vcov')], 
+                cls = list(parameters = theta_cls, vcov = Sigma_cls))
+results
 
 ## ----SB3_setup, echo=FALSE-----------------------------------------------
 n  <- 100
@@ -160,9 +162,10 @@ SB3_eefun <- function(data){
 }
 
 ## ----SB3_run, echo = TRUE------------------------------------------------
-estimates <- estimate_equations(eeFUN= SB3_eefun, 
-                                data  = dt, units = 'id', 
-                                roots = c(1, 1, 1, 1))
+estimates <- estimate_equations(
+  eeFUN= SB3_eefun, 
+  data  = dt,
+  rootFUN_control = list(start = c(1, 1, 1, 1)))
 
 ## ----SB3_clsform, echo = FALSE-------------------------------------------
 ## closed form roots
@@ -194,6 +197,7 @@ Sigma_cls <- matrix(
 # Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
 ## ----SB3_results, echo = FALSE, results = 'asis'-------------------------
-results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'ex3_results', 'Example 3')
+results <- list(geex = estimates[c('estimates', 'vcov')], 
+                cls = list(parameters = theta_cls, vcov = Sigma_cls))
+results
 

@@ -15,13 +15,14 @@ eefun <- function(data, model){
 library(geex)
 library(inferference)
 mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
-estimates <- estimate_equations(eeFUN = eefun,
-                   data = vaccinesim,
-                   roots = c(-.35, 0),
-                   outer_eeargs = list(model = mglm))
+estimates <- estimate_equations(
+  eeFUN = eefun,
+  data = vaccinesim,
+  rootFUN_control = list(start = c(-.35, 0)),
+  outer_eeargs = list(model = mglm))
 
 # Compare point estimates
-estimates$parameters # from GEEX
+estimates$estimates # from GEEX
 coef(mglm) # from the GLM function
 
 # Compare variance estimates

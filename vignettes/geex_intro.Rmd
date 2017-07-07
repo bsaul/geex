@@ -176,8 +176,7 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```{r SB1_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
-
-print_results(results, 'ex1', 'Comparing estimates from closed form versus geex')
+results
 ```
 
 
@@ -275,7 +274,7 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```{r SB2_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'test', 'test')
+results
 ```
 
 
@@ -377,6 +376,6 @@ Sigma_cls <- matrix(
 ```{r SB3_results, echo = FALSE, results = 'asis'}
 results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'test', 'test')
+results
 ```
 
