@@ -96,7 +96,7 @@ SB4_eefun <- function(data){
 estimates <- estimate_equations(
   eeFUN = SB4_eefun, 
   data  = geexex, 
-  roots = c(1, 1, 1, 1))
+  rootFUN_control = list(start = c(1, 1, 1, 1)))
 ```
 
 The R packages [`AER`](https://cran.r-project.org/web/packages/AER/index.html) and [`ivpack`](https://cran.r-project.org/web/packages/ivpack/index.html) can compute the IV estimator and sandwich variance estimators respectively, which is done below for comparison.  
@@ -157,7 +157,7 @@ SB5_eefun <- function(data){
 estimates <- estimate_equations(
   eeFUN = SB5_eefun, 
   data  = geexex,
-  roots = c(2))
+  rootFUN_control = list(start = 2))
 ```
 
 The `hc.loc` of the [`ICSNP`](https://cran.r-project.org/web/packages/ICSNP/index.html) package computes the Hodges-Lehman estimator and SB gave closed form estimators for the variance.
@@ -168,7 +168,7 @@ Sigma_cls <- 1/(12 * IC_denom^2) / nrow(geexex)
 ```
 
 ```{r SB5_results, echo = FALSE}
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -197,10 +197,10 @@ SB6_eefun <- function(data, k = 1.5){
 ```
 
 ```{r SB6_run, echo = TRUE, message=FALSE}
-estimates <- estimate_equations(
+estimates1 <- estimate_equations(
   eeFUN = SB6_eefun, 
-  data  = geexex, 
-  roots = 3)
+  data  = geexex,
+  rootFUN_control = list(start = 3))
 ```
 
 The point estimate from `geex` is compared to the estimate obtained from the `huber` function in the [`MASS`](https://cran.r-project.org/web/packages/MASS/index.html) package. The variance estimate is compared to an estimator suggested by SB: $A_m = \sum_i [-\psi'(Y_i - \hat{\theta})]/m$ and $B_m = \sum_i \psi_k^2(Y_i - \hat{\theta})/m$, where $\psi_k'$ is the derivative of $\psi$ where is exists.
@@ -227,7 +227,7 @@ Sigma_cls <- matrix(1/A * B * 1/A / nrow(geexex))
 ```
 
 ```{r SB6_results, echo = TRUE}
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -266,7 +266,7 @@ spline_approx <- function(psi, eval_theta){
 estimates <- estimate_equations(
   eeFUN = SB7_eefun, 
   data  = geexex, 
-  roots = 4.7,
+  rootFUN_control = list(start = 4.7),
   approxFUN = spline_approx,
   approxFUN_control = list(eval_theta = seq(3, 6, by = .05)))
 ```
@@ -274,7 +274,7 @@ estimates <- estimate_equations(
 A comparison of the variance is not obvious, so no comparison is made.
 
 ```{r SB7_results, echo = FALSE}
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = median(geexex$Y1), vcov = NA))
 results
 ```
@@ -311,7 +311,7 @@ SB8_eefun <- function(data){
 estimates <- estimate_equations(
   eeFUN = SB8_eefun, 
   data  = geexex,
-  roots = c(0, 0, 0))
+  rootFUN_control = list(start = c(0, 0, 0)))
 ```
 
 ```{r SB8_clsform, echo = TRUE}
@@ -321,7 +321,7 @@ Sigma_cls <- vcov(m)
 ```
 
 ```{r SB8_results, echo = TRUE}
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -355,7 +355,7 @@ SB9_eefun <- function(data){
 estimates <- estimate_equations(
   eeFUN = SB9_eefun, 
   data  = geexex, 
-  roots = c(.1, .1, .5))
+  rootFUN_control = list(start = c(.1, .1, .5)))
 ```
 
 Compare point estimates to `glm` coefficients and covariance matrix to `sandwich`.
@@ -367,7 +367,7 @@ Sigma_cls <- sandwich::sandwich(m9)
 ```
 
 ```{r SB9_results, echo = TRUE}
-results <- list(geex = estimates[c('parameters', 'vcov')], 
+results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -410,7 +410,7 @@ estimates <- estimate_equations(
   eeFUN = SB10_eefun, 
   data  = shaq, 
   units = 'game', 
-  roots = c(.5, .5))
+  rootFUN_control = list(start = c(.5, .5)))
 ```
 
 ```{r SB10_clsform, echo = TRUE}
@@ -435,7 +435,7 @@ estimates$vcov[1, 1]
 # Note the differences in the p-values
 pnorm(35.51/23, mean  = 1, sd = sqrt(V11_hat), lower.tail = FALSE)
 
-pnorm(estimates$parameters[1], 
+pnorm(estimates$estimates[1], 
       mean = 1, 
       sd = sqrt(estimates$vcov[1, 1]),
       lower.tail = FALSE)
