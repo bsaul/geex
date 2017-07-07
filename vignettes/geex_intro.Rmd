@@ -6,7 +6,7 @@ output: pdf_document
 header-includes:
 - \usepackage{float}
 vignette: >
-  %\VignetteIndexEntry{geex intro}
+  %\VignetteIndexEntry{An introduction to M-estimation with geex}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
@@ -143,10 +143,10 @@ SB1_eefun <- function(data){
 With the `eeFUN` function prepared, it is passed to `estimate_equations` along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.
 
 ```{r SB1_run, echo=TRUE}
-estimates <- estimate_equations(eeFUN = SB1_eefun, 
-                                data  = dt,
-                                units = 'id', 
-                                roots = c(1,1))
+estimates <- estimate_equations(
+  eeFUN = SB1_eefun, 
+  data  = dt,
+  rootFUN_control = list(start = c(1,1)))
 ```
 
 ```{r SB1_clsform, echo=FALSE}
@@ -174,7 +174,8 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```
 
 ```{r SB1_results, echo = FALSE, results = 'asis'}
-results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+results <- list(geex = estimates[c('estimates', 'vcov')], 
+                cls = list(parameters = theta_cls, vcov = Sigma_cls))
 
 print_results(results, 'ex1', 'Comparing estimates from closed form versus geex')
 ```
@@ -239,9 +240,10 @@ SB2_eefun <- function(data){
 ```
 
 ```{r SB2_run, echo = TRUE}
-estimates <- estimate_equations(eeFUN = SB2_eefun, 
-                                data  = dt, units = 'id', 
-                                roots = c(1, 1, 1))
+estimates <- estimate_equations(
+  eeFUN = SB2_eefun, 
+  data  = dt, 
+  rootFUN_control = list(start = c(1, 1, 1)))
 ```
 
 ```{r SB2_clsform, echo = FALSE}
@@ -271,7 +273,8 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```
 
 ```{r SB2_results, echo = FALSE, results = 'asis'}
-results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
+results <- list(geex = estimates[c('estimates', 'vcov')], 
+                cls = list(parameters = theta_cls, vcov = Sigma_cls))
 print_results(results, 'test', 'test')
 ```
 
@@ -334,9 +337,10 @@ SB3_eefun <- function(data){
 ```
 
 ```{r SB3_run, echo = TRUE}
-estimates <- estimate_equations(eeFUN= SB3_eefun, 
-                                data  = dt, units = 'id', 
-                                roots = c(1, 1, 1, 1))
+estimates <- estimate_equations(
+  eeFUN= SB3_eefun, 
+  data  = dt,
+  rootFUN_control = list(start = c(1, 1, 1, 1)))
 ```
 
 ```{r SB3_clsform, echo = FALSE}
@@ -371,7 +375,8 @@ Sigma_cls <- matrix(
 
 
 ```{r SB3_results, echo = FALSE, results = 'asis'}
-results <- list(geex = estimates, cls = list(parameters = theta_cls, vcov = Sigma_cls))
-print_results(results, 'ex3_results', 'Example 3')
+results <- list(geex = estimates[c('estimates', 'vcov')], 
+                cls = list(parameters = theta_cls, vcov = Sigma_cls))
+print_results(results, 'test', 'test')
 ```
 

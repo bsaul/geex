@@ -4,7 +4,7 @@ author: "Bradley Saul"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{geex sandwich}
+  %\VignetteIndexEntry{A comparison of geex and sandwich for robust covariance estimation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -32,13 +32,14 @@ Compare sandwich variance estimators to `sandwich` treating individuals as units
 library(geex)
 library(inferference)
 mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
-estimates <- estimate_equations(eeFUN = eefun,
-                   data = vaccinesim,
-                   roots = c(-.35, 0),
-                   outer_eeargs = list(model = mglm))
+estimates <- estimate_equations(
+  eeFUN = eefun,
+  data = vaccinesim,
+  rootFUN_control = list(start = c(-.35, 0)),
+  outer_eeargs = list(model = mglm))
 
 # Compare point estimates
-estimates$parameters # from GEEX
+estimates$estimates # from GEEX
 coef(mglm) # from the GLM function
 
 # Compare variance estimates
