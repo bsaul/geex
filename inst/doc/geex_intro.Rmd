@@ -1,8 +1,8 @@
 ---
-title: "Estimating Equations in R: `geex`"
+title: "Estimating Equations in R using `geex`"
 author: "B. Saul"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: rmarkdown::html_vignette
 header-includes:
 - \usepackage{float}
 vignette: >
@@ -58,39 +58,6 @@ B = \sum_{i = 1}^m B_i
 \]
 
 
-```{r functions_results, echo = FALSE}
-print_pmatrix <- function(object, digits = 4){
-  if(!is.matrix(object)){
-    object <- matrix(object, nrow = 1)
-  }
-  
-  paste0('$', print(xtable::xtable(object, align=rep("",ncol(object)+1), digits =digits), comment = FALSE,
-        floating=FALSE, tabular.environment="pmatrix", hline.after=NULL, 
-        include.rownames=FALSE, include.colnames=FALSE, print.results = FALSE), '$')
-}
-
-first_diff_dec <- function(x){
-  -floor(log10(abs(x)))
-}
-
-print_results <- function(results, label, caption){
-  r <- results
-  cat('\\begin{table}[H] \n',
-      '\\centering \n',
-      '\\label{', label, '} \n',
-      '\\caption{"', caption, '"} \n',
-      '\\begin{tabular}{lcc} \n',
-      ' & $\\hat{\\theta}$ & $\\hat{\\Sigma}$  \\\\ \n',
-      'Closed form &', print_pmatrix(r$cls$parameters),  '&', print_pmatrix(r$cls$vcov), '\\\\ \n',
-      'geex &',  print_pmatrix(r$geex$parameters),  '&', print_pmatrix(r$geex$vcov), '\\\\ \n',
-      'Decimal of difference &',  print_pmatrix(first_diff_dec(r$cls$parameters - r$geex$parameters), d = 0),  '&',
-                                  print_pmatrix(first_diff_dec(r$cls$vcov - r$geex$vcov), d = 0), '\\\\ \n',
-      '\\end{tabular} \n', 
-      '\\end{table}')
-}
-```
-
-
 ## Stefanski \& Boos example 1
 
 
@@ -101,35 +68,21 @@ sigma <- 2
 dt <- data.frame(Y = rnorm(n, mean = mu, sd = sigma), id = 1:n)
 ```
 
-Example 1 illustrates calculation of sample mean and variance using estimating equations. I generate a data set with `r n` observations drawn from a Normal(`r mu`, `r sigma`) distribution. Table \ref{ex1} translates the estimating equations into the `R` function needed for `geex`:
+Example 1 illustrates calculation of sample mean and variance using estimating equations. I generate a data set with `r n` observations drawn from a Normal(`r mu`, `r sigma`) distribution. 
 
+We translate the estimating equations for the mean and variance:
 
-\begin{table}[H]
-\centering
-\label{ex1}
-\caption{Translating math to code}
-\begin{tabular}{cc}
-$\psi(Y_i, \theta) = 
+\[
+\psi(Y_i, \theta) = 
 \begin{pmatrix}
 Y_i - \theta_1 \\
 (Y_i - \theta_1)^2 - \theta_2
-\end{pmatrix}$ &
-\begin{minipage}{3in}
-\begin{verbatim}
-SB1_eefun <- function(data){
-  function(theta){
-    with(data,
-      c(Y - theta[1],
-       (Y - theta[1])^2 - theta[2] )
-    )
-  }
-}
-\end{verbatim}
-\end{minipage}
-\end{tabular}
-\end{table}
+\end{pmatrix}
+\]
 
-```{r SB1_eefun, echo=FALSE, results='hide'}
+into an `eeFUN`:
+
+```{r SB1_eefun, echo=TRUE, results='hide'}
 SB1_eefun <- function(data){
   function(theta){
     with(data,
@@ -173,7 +126,7 @@ theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = var(Y) * (n() - 1)/ n() )
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```
 
-```{r SB1_results, echo = FALSE, results = 'asis'}
+```{r SB1_results, echo = FALSE}
 results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
@@ -182,8 +135,6 @@ results
 
 
 ## Stefanski \& Boos example 2
-
-
 
 ```{r SB2_setup, echo=FALSE}
 n  <- 100
@@ -196,37 +147,20 @@ dt <- data.frame(Y  = rnorm(n, mean = muY, sd = sigmaY),
                  id = 1:n)
 ```
 
-Example 2 illustrates calculation of a ratio estimator. I generate a data set with `r n` observations where $Y \sim N$(`r muY`, `r sigmaY`) and $X \sim N$(`r muX`, `r sigmaX`). Table \ref{ex2} translates the estimating equations into the `R` function needed for `geex`:
+Example 2 illustrates calculation of a ratio estimator. I generate a data set with `r n` observations where $Y \sim N$(`r muY`, `r sigmaY`) and $X \sim N$(`r muX`, `r sigmaX`).
 
-
-\begin{table}[H]
-\centering
-\label{ex2}
-\caption{Translating math to code}
-\begin{tabular}{cc}
-$\psi(Y_i, \theta) = 
+Estimating equations:
+\[
+psi(Y_i, \theta) = 
 \begin{pmatrix}
 Y_i - \theta_1 \\
 X_i - \theta_2 \\
 \theta_1 - \theta_3\theta_2
-\end{pmatrix}$ &
-\begin{minipage}{3in}
-\begin{verbatim}
-SB2_eefun <- function(data){
-  function(theta){
-    with(data,
-      c(Y - theta[1],
-        X - theta[2],
-        theta[1] - (theta[3] * theta[2]) )
-    )
-  }
-}
-\end{verbatim}
-\end{minipage}
-\end{tabular}
-\end{table}
+\end{pmatrix}
+\]
 
-```{r SB2_eefun, echo = FALSE}
+Corresponding `eeFUN`:
+```{r SB2_eefun, echo = TRUE}
 SB2_eefun <- function(data){
   function(theta){
     with(data,
@@ -271,13 +205,11 @@ theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = mean(X), p3 = p1/p2)
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```
 
-```{r SB2_results, echo = FALSE, results = 'asis'}
+```{r SB2_results, echo = FALSE}
 results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
-
-
 
 ## Stefanski \& Boos example 3
 
@@ -290,39 +222,21 @@ dt <- data.frame(Y  = rnorm(n, mean = mu, sd = sigma),
                  id = 1:n)
 ```
 
-Example 3 illustrates calculation of a ratio estimator. I generate a data set with `r n` observations where $Y \sim N$(`r mu`, `r sigma`). Table \ref{ex3} translates the estimating equations into the `R` function needed for `geex`:
+Example 3 illustrates calculation of a ratio estimator. I generate a data set with `r n` observations where $Y \sim N$(`r mu`, `r sigma`). 
 
-
-\begin{table}[H]
-\centering
-\label{ex3}
-\caption{Translating math to code}
-\begin{tabular}{cc}
-$\psi(Y_i, \theta) = 
+Estimating equations:
+\[
+\psi(Y_i, \theta) = 
 \begin{pmatrix}
 Y_i - \theta_1 \\
 X_i - \theta_2 \\
 \sqrt{\theta_2} - \theta_3 \\
 log(\theta_2) - \theta_4
-\end{pmatrix}$ &
-\begin{minipage}{3in}
-\begin{verbatim}
-SB3_eefun <- function(data){
-  function(theta){
-    with(data,
-      c(Y - theta[1],
-       (Y - theta[1])^2 - theta[2],
-       sqrt(theta[2]) - theta[3],
-       log(theta[2]) - theta[4])
-    )
-  }
-}
-\end{verbatim}
-\end{minipage}
-\end{tabular}
-\end{table}
+\end{pmatrix}
+\]
 
-```{r SB3_eefun, echo = FALSE}
+Corresponding `eeFUN`:
+```{r SB3_eefun, echo = TRUE}
 SB3_eefun <- function(data){
   function(theta){
     with(data,
@@ -373,7 +287,7 @@ Sigma_cls <- matrix(
 ```
 
 
-```{r SB3_results, echo = FALSE, results = 'asis'}
+```{r SB3_results, echo = FALSE}
 results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results

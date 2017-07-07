@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="B. Saul" />
+
+<meta name="date" content="2017-07-07" />
+
+<title>Estimating Equations in R using geex</title>
+
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Estimating Equations in R using <code>geex</code></h1>
+<h4 class="author"><em>B. Saul</em></h4>
+<h4 class="date"><em>2017-07-07</em></h4>
+
+
+
+<p>M-estimation theory provides a framework for asympotic properties of estimators that are solutions to estimating equations. Regression methods such as Generalized Linear Models (GLM) and Generalized Estimating Equations (GEE) fit in this framework. Countless R packages implement specific applications of estimating equations. A common reason to use M-estimation is to compute the empirical sandwich variance estimator - an asymptotically Normal and “robust” covariance. Many packages compute this variance estimator automatically, and packages such as <code>sandwich</code> take the output of other modeling methods to compute this variance estimate.</p>
+<p><code>geex</code> aims to be provide a more general framework that any modelling method can use to compute point and variance estimates for parameters that are solutions to estimating equations. The basic idea:</p>
+<ul>
+<li>Analyst provides three things: (1) data, (2) instructions on how to split the data into independent units and (3) a function that takes unit-level data and returns a function in terms of parameters.</li>
+<li><code>geex</code> computes point estimates and variance estimates for the parameters.</li>
+</ul>
+<div id="basic-setup" class="section level2">
+<h2>Basic Setup</h2>
+<p>I mostly follow the notation of Stefanski and Boos. I tried to keep notation in the code similar to mathematical notation.</p>
+<p>Suppose we have <span class="math inline">\(m\)</span> independent or nearly independent units of observations.</p>
+<p><span class="math display">\[
+\sum_{i = 1}^m \psi(O_i, \theta) = 0
+\]</span></p>
+<p>Where <span class="math inline">\(\psi\)</span> is vector of length <span class="math inline">\(p\)</span> corresponding to the number of parameters in <span class="math inline">\(\theta\)</span>.</p>
+<p>For notational ease, let <span class="math inline">\(\psi(O_i, \theta) = \psi_i\)</span> Let: <span class="math display">\[
+A_i = - \frac{\partial \psi(O_i, \theta)}{\partial \theta}
+\]</span></p>
+<p><span class="math display">\[
+A = \sum_{i = 1}^m A_i
+\]</span></p>
+<p><span class="math display">\[
+B_i = \psi_i \psi_i^T
+\]</span></p>
+<p><span class="math display">\[
+B = \sum_{i = 1}^m B_i
+\]</span></p>
+<p><span class="math display">\[
+\Sigma = A^{-1} B \{A^{-1}\}^T
+\]</span></p>
+</div>
+<div id="stefanski-boos-example-1" class="section level2">
+<h2>Stefanski &amp; Boos example 1</h2>
+<p>Example 1 illustrates calculation of sample mean and variance using estimating equations. I generate a data set with 100 observations drawn from a Normal(5, 2) distribution.</p>
+<p>We translate the estimating equations for the mean and variance:</p>
+<p><span class="math display">\[
+\psi(Y_i, \theta) = 
+\begin{pmatrix}
+Y_i - \theta_1 \\
+(Y_i - \theta_1)^2 - \theta_2
+\end{pmatrix}
+\]</span></p>
+<p>into an <code>eeFUN</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB1_eefun &lt;-<span class="st"> </span>function(data){
+  function(theta){
+    <span class="kw">with</span>(data,
+      <span class="kw">c</span>(Y -<span class="st"> </span>theta[<span class="dv">1</span>],
+       (Y -<span class="st"> </span>theta[<span class="dv">1</span>])^<span class="dv">2</span> -<span class="st"> </span>theta[<span class="dv">2</span>] )
+    )
+  }
+}</code></pre></div>
+<p>With the <code>eeFUN</code> function prepared, it is passed to <code>estimate_equations</code> along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
+  <span class="dt">eeFUN =</span> SB1_eefun, 
+  <span class="dt">data  =</span> dt,
+  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)))</code></pre></div>
+<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+<pre><code>## $geex
+## $geex$estimates
+## [1] 5.236349 3.756999
+## 
+## $geex$vcov
+##            [,1]       [,2]
+## [1,] 0.03756999 0.01328476
+## [2,] 0.01328476 0.24757999
+## 
+## 
+## $cls
+## $cls$parameters
+##         p1       p2
+## 1 5.236349 3.756999
+## 
+## $cls$vcov
+##            [,1]       [,2]
+## [1,] 0.03756999 0.01328476
+## [2,] 0.01328476 0.24757999</code></pre>
+</div>
+<div id="stefanski-boos-example-2" class="section level2">
+<h2>Stefanski &amp; Boos example 2</h2>
+<p>Example 2 illustrates calculation of a ratio estimator. I generate a data set with 100 observations where <span class="math inline">\(Y \sim N\)</span>(5, 2) and <span class="math inline">\(X \sim N\)</span>(2, 0.2).</p>
+<p>Estimating equations: <span class="math display">\[
+psi(Y_i, \theta) = 
+\begin{pmatrix}
+Y_i - \theta_1 \\
+X_i - \theta_2 \\
+\theta_1 - \theta_3\theta_2
+\end{pmatrix}
+\]</span></p>
+<p>Corresponding <code>eeFUN</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB2_eefun &lt;-<span class="st"> </span>function(data){
+  function(theta){
+    <span class="kw">with</span>(data,
+      <span class="kw">c</span>(Y -<span class="st"> </span>theta[<span class="dv">1</span>],
+        X -<span class="st"> </span>theta[<span class="dv">2</span>],
+        theta[<span class="dv">1</span>] -<span class="st"> </span>(theta[<span class="dv">3</span>] *<span class="st"> </span>theta[<span class="dv">2</span>]) )
+    )
+  }
+}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
+  <span class="dt">eeFUN =</span> SB2_eefun, 
+  <span class="dt">data  =</span> dt, 
+  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
+<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+<pre><code>## $geex
+## $geex$estimates
+## [1] 5.498627 2.003077 2.745090
+## 
+## $geex$vcov
+##              [,1]          [,2]          [,3]
+## [1,] 0.0433016513  0.0002362692  0.0212937744
+## [2,] 0.0002362692  0.0004183525 -0.0004553724
+## [3,] 0.0212937744 -0.0004553724  0.0112545908
+## 
+## 
+## $cls
+## $cls$parameters
+##         p1       p2      p3
+## 1 5.498627 2.003077 2.74509
+## 
+## $cls$vcov
+##              [,1]          [,2]          [,3]
+## [1,] 0.0437390417  0.0002386558  0.0215088630
+## [2,] 0.0002386558  0.0004225782 -0.0004599721
+## [3,] 0.0215088630 -0.0004599721  0.0113682735</code></pre>
+</div>
+<div id="stefanski-boos-example-3" class="section level2">
+<h2>Stefanski &amp; Boos example 3</h2>
+<p>Example 3 illustrates calculation of a ratio estimator. I generate a data set with 100 observations where <span class="math inline">\(Y \sim N\)</span>(5, 4).</p>
+<p>Estimating equations: <span class="math display">\[
+\psi(Y_i, \theta) = 
+\begin{pmatrix}
+Y_i - \theta_1 \\
+X_i - \theta_2 \\
+\sqrt{\theta_2} - \theta_3 \\
+log(\theta_2) - \theta_4
+\end{pmatrix}
+\]</span></p>
+<p>Corresponding <code>eeFUN</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB3_eefun &lt;-<span class="st"> </span>function(data){
+  function(theta){
+    <span class="kw">with</span>(data,
+      <span class="kw">c</span>(Y -<span class="st"> </span>theta[<span class="dv">1</span>],
+       (Y -<span class="st"> </span>theta[<span class="dv">1</span>])^<span class="dv">2</span> -<span class="st"> </span>theta[<span class="dv">2</span>],
+       <span class="kw">sqrt</span>(theta[<span class="dv">2</span>]) -<span class="st"> </span>theta[<span class="dv">3</span>],
+       <span class="kw">log</span>(theta[<span class="dv">2</span>]) -<span class="st"> </span>theta[<span class="dv">4</span>])
+    )
+  }
+}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
+  <span class="dt">eeFUN=</span> SB3_eefun, 
+  <span class="dt">data  =</span> dt,
+  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
+<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+<pre><code>## $geex
+## $geex$estimates
+## [1]  5.011650 16.502899  4.062376  2.803536
+## 
+## $geex$vcov
+##             [,1]      [,2]       [,3]        [,4]
+## [1,] 0.165028986 0.1115516 0.01372985 0.006759517
+## [2,] 0.111551626 5.3752170 0.66158537 0.325713512
+## [3,] 0.013729850 0.6615854 0.08142838 0.040089041
+## [4,] 0.006759517 0.3257135 0.04008904 0.019736746
+## 
+## 
+## $cls
+## $cls$parameters
+##        p1      p2       p3       p4
+## 1 5.01165 16.5029 4.062376 2.803536
+## 
+## $cls$vcov
+##             [,1]      [,2]       [,3]        [,4]
+## [1,] 0.165028986 0.1115516 0.01372985 0.006759517
+## [2,] 0.111551626 5.3752170 0.66158537 0.325713512
+## [3,] 0.013729850 0.6615854 0.08142838 0.040089041
+## [4,] 0.006759517 0.3257135 0.04008904 0.019736746</code></pre>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

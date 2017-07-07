@@ -3,44 +3,13 @@ library(geex)
 library(knitr)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 
-## ----functions_results, echo = FALSE-------------------------------------
-print_pmatrix <- function(object, digits = 4){
-  if(!is.matrix(object)){
-    object <- matrix(object, nrow = 1)
-  }
-  
-  paste0('$', print(xtable::xtable(object, align=rep("",ncol(object)+1), digits =digits), comment = FALSE,
-        floating=FALSE, tabular.environment="pmatrix", hline.after=NULL, 
-        include.rownames=FALSE, include.colnames=FALSE, print.results = FALSE), '$')
-}
-
-first_diff_dec <- function(x){
-  -floor(log10(abs(x)))
-}
-
-print_results <- function(results, label, caption){
-  r <- results
-  cat('\\begin{table}[H] \n',
-      '\\centering \n',
-      '\\label{', label, '} \n',
-      '\\caption{"', caption, '"} \n',
-      '\\begin{tabular}{lcc} \n',
-      ' & $\\hat{\\theta}$ & $\\hat{\\Sigma}$  \\\\ \n',
-      'Closed form &', print_pmatrix(r$cls$parameters),  '&', print_pmatrix(r$cls$vcov), '\\\\ \n',
-      'geex &',  print_pmatrix(r$geex$parameters),  '&', print_pmatrix(r$geex$vcov), '\\\\ \n',
-      'Decimal of difference &',  print_pmatrix(first_diff_dec(r$cls$parameters - r$geex$parameters), d = 0),  '&',
-                                  print_pmatrix(first_diff_dec(r$cls$vcov - r$geex$vcov), d = 0), '\\\\ \n',
-      '\\end{tabular} \n', 
-      '\\end{table}')
-}
-
 ## ----SB1_setup, echo=FALSE-----------------------------------------------
 n  <- 100
 mu <- 5
 sigma <- 2
 dt <- data.frame(Y = rnorm(n, mean = mu, sd = sigma), id = 1:n)
 
-## ----SB1_eefun, echo=FALSE, results='hide'-------------------------------
+## ----SB1_eefun, echo=TRUE, results='hide'--------------------------------
 SB1_eefun <- function(data){
   function(theta){
     with(data,
@@ -79,7 +48,7 @@ theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = var(Y) * (n() - 1)/ n() )
 # closed form
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
-## ----SB1_results, echo = FALSE, results = 'asis'-------------------------
+## ----SB1_results, echo = FALSE-------------------------------------------
 results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
@@ -94,7 +63,7 @@ dt <- data.frame(Y  = rnorm(n, mean = muY, sd = sigmaY),
                  X  = rnorm(n, mean = muX, sd = sigmaX),
                  id = 1:n)
 
-## ----SB2_eefun, echo = FALSE---------------------------------------------
+## ----SB2_eefun, echo = TRUE----------------------------------------------
 SB2_eefun <- function(data){
   function(theta){
     with(data,
@@ -136,7 +105,7 @@ theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = mean(X), p3 = p1/p2)
 ## closed form covariance
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
-## ----SB2_results, echo = FALSE, results = 'asis'-------------------------
+## ----SB2_results, echo = FALSE-------------------------------------------
 results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
@@ -149,7 +118,7 @@ set.seed(100) # running into issue where sqrt(theta2) and log(theta2) return NaN
 dt <- data.frame(Y  = rnorm(n, mean = mu, sd = sigma), 
                  id = 1:n)
 
-## ----SB3_eefun, echo = FALSE---------------------------------------------
+## ----SB3_eefun, echo = TRUE----------------------------------------------
 SB3_eefun <- function(data){
   function(theta){
     with(data,
@@ -196,7 +165,7 @@ Sigma_cls <- matrix(
 ## closed form covariance
 # Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
-## ----SB3_results, echo = FALSE, results = 'asis'-------------------------
+## ----SB3_results, echo = FALSE-------------------------------------------
 results <- list(geex = estimates[c('estimates', 'vcov')], 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
