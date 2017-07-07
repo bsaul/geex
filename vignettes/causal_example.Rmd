@@ -46,26 +46,27 @@ Compare to what `inferference` gets.
 library(geex)
 library(inferference)
 
-test <- interference(Y | A ~ X1 | group, 
-                     data = vaccinesim,
-                     model_method = 'glm',
-                     allocations = c(.35, .4))
+test <- interference(
+  formula = Y | A ~ X1 | group, 
+  data   = vaccinesim,
+  model_method = 'glm',
+  allocations = c(.35, .4))
 
-mglm        <- glm(A ~ X1, data = vaccinesim, family = binomial)
+mglm <- glm(A ~ X1, data = vaccinesim, family = binomial)
 
 ce_estimates <- estimate_equations(
   eeFUN = eefun,
   data  = vaccinesim,
   units = 'group',
-  roots = c(coef(mglm), .4,  .13),
+  rootFUN_control = list(start = c(coef(mglm), .4,  .13)),
   outer_eeargs = list(alpha = .35, model = mglm)
 )
 
-ce_estimates$parameters
+ce_estimates$estimates
 
 # Compare parameter estimates
 direct_effect(test, allocation = .35)$estimate
-ce_estimates$parameters[3] - ce_estimates$parameters[4]
+ce_estimates$estimates[3] - ce_estimates$estimates[4]
 
 # conpare SE estimates
 L <- c(0, 0, 1, -1)
