@@ -46,7 +46,7 @@ $\theta$ can be estimated from the `lme4::glmer` function.
 
 ```{r model, echo = TRUE}
 #fit logistic-normal random effects model
-fit <- glmer(y~x+(1|id), family=binomial, data=d)
+fit <- lme4::glmer(y~x+(1|id), family=binomial, data=d)
 print(summary(fit))
 ```
 
@@ -62,7 +62,7 @@ eefun <- function(data, lme4model){
 
 splitdt <- split(d, f = d$id)
 
-theta_hat <- unlist(getME(fit, c('beta', 'theta')))
+theta_hat <- unlist(lme4::getME(fit, c('beta', 'theta')))
 
 psi <- lapply(splitdt, function(dt){
   eefun(dt, fit)
@@ -107,7 +107,7 @@ attempt <- estimate_equations(
   eeFUN = eefun,
   data  = d,
   units = 'id',
-  roots = theta_hat, # start root finding at lme4's beta hat.
+  rootFUN_control = list(start = theta_hat), # start root finding at lme4's beta hat.
   compute_vcov = FALSE,
   outer_eeargs = list(lme4model = fit)
 )
@@ -116,7 +116,7 @@ attempt <- estimate_equations(
 attempt
 
 psi_eval2 <- lapply(psi, function(f){
-  f(attempt$parameters)
+  f(attempt$estimates)
 })
 
 colSums(matrix(unlist(psi_eval2), ncol = 3, byrow  = TRUE))
