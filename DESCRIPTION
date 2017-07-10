@@ -1,13 +1,13 @@
 Package: geex
 Type: Package
 Title: A Framework for Estimating Equations
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: c(person("Bradley", "Saul", role = c("aut", "cre"),
                     email = "bradleysaul@gmail.com"),
              person("Brian", "Barkley", role = c("ctb")))
 Author: Bradley Saul [aut, cre], Brian Barkley [ctb]
 Maintainer: Bradley Saul <bradleysaul@gmail.com>
-Description: Provides a framework for estimating parameters from a set of
+Description: Provides a framework for estimating parameters from a set of unbiased
     estimating equations. Computes large sample variance using M-estimation
     theory as detailed by L.A. Stefanski and D.D. Boos in "The Calculus of M-
     estimation" (The American Statistician (2002), 56(1), 29-38). Also provides an 
@@ -27,7 +27,7 @@ Suggests:
     sandwich,
     inferference,
     xtable
-License: GPL (>= 2)
+License: MIT + file LICENSE
 LazyData: TRUE
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1

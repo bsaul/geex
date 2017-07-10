@@ -15,7 +15,7 @@ fay_bias_correction_partial(A, A_i, B, B_i, b)
 
 \item{B_i}{a list of meat matrices per group}
 
-\item{b}{a numeric value < 1. Defaults to 0.75 as in Fay}
+\item{b}{a numeric value < 1. Defaults to 0.75 as in Fay.}
 }
 \value{
 a list with

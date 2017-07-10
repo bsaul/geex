@@ -257,9 +257,13 @@ estimate_equations <- function(eeFUN,
                                approxFUN         = NULL,
                                approxFUN_control = NULL){
 
-  ## Warnings ##
+  ## Checks/Warnings ##
   if(is.null(roots) & !compute_roots){
     stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
+  }
+
+  if(!is.null(corrections_list)){
+    check_corrections(corrections_list)
   }
 
   out <- list()

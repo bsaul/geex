@@ -15,7 +15,7 @@ fay_df_correction(A_i, A, B_i, B, b = 0.75, L, version)
 
 \item{B}{the inner "meat" matrix}
 
-\item{b}{a numeric value < 1. Defaults to 0.75 as in Fay}
+\item{b}{a numeric value < 1. Defaults to 0.75 as in Fay.}
 
 \item{L}{a k x p matrix where p is the dimension of theta}
 

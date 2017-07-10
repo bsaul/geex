@@ -2,32 +2,59 @@
 #' Make corrections to basic sandwich estimators
 #'
 #' @param mats list of matrices resulting from \code{\link{compute_matrices}}
-#' @param corrections a list with one sublist  for each correction to make. The
-#' sublist must contain `fun` and `options` arguments
-#' @return a list with corrected values
+#' @param corrections a list with one sublist for each correction to make. The
+#' sublist must contain at least \code{correctFUN} and optionally additional
+#' arguments in \code{correctFUN_control}.
+#' @return a list with corrected values. The list retains the names of the input
+#'  \code{corrections}
 #' @export
 #------------------------------------------------------------------------------#
 make_corrections <- function(mats, corrections){
   input_args <- mats
 
   lapply(corrections, function(correction){
-    do.call(correction$fun, args = append(input_args, correction$options))
+    do.call(correction$correctFUN,
+            args = append(input_args, correction$correctFUN_control))
   })
 }
 
 #------------------------------------------------------------------------------#
+#' Check that a list of corrections conforms to geex standards
+#'
+#' @inheritParams make_corrections
+#' @export
+#------------------------------------------------------------------------------#
+check_corrections <- function(corrections){
+  corrs <- names(corrections)
+
+  out <- lapply(seq_along(corrs), function(i){
+    items <- names(corrections[[i]])
+    if(!('correctFUN' %in% items)){
+      stop(paste0('correctFUN is not specified in ', corrs[i]))
+    }
+    if(any(!(items %in% c('correctFUN', 'correctFUN_control')))){
+      warning(paste0('Additional list items in the ', corrs[i], ' correction will be ignored. Pass all additional arguments to correctFUN using the correctFUN_control item.'))
+    }
+  })
+  invisible(out)
+}
+
+
+#------------------------------------------------------------------------------#
 #' Estimate Fay's bias correction
+#'
+#' Computes the bias corrected sandwich covariance matrix described in Fay and Graubard (2001).
 #'
 #' @param A the outer "bread" matrix
 #' @param A_i a list of bread matrices per group
 #' @param B the inner "meat" matrix
 #' @param B_i a list of meat matrices per group
-#' @param b a numeric value < 1. Defaults to 0.75 as in Fay
+#' @param b a numeric value < 1. Defaults to 0.75 as in Fay.
 #' @return a corrected covariance matrix
 #' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
 #' @export
 #------------------------------------------------------------------------------#
-fay_bias_correction <- function(A_i, A, B_i, B, b  =0.75){
+fay_bias_correction <- function(A_i, A, B_i, B, b = 0.75){
   fay_bias_correction_partial(
     A_i = A_i, A  = A, B_i = B_i, B = B, b = b) ->  corrected_matrices
 

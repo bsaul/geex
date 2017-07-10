@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make Estimating Equation functions — make_eefun • geex</title>
+<title>All news • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -37,7 +37,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-topic">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -73,43 +73,65 @@
       </header>
 
       <div class="row">
-  <div class="col-md-9 contents">
+
+  <div class="col-md-9">
     <div class="page-header">
-    <h1>Make Estimating Equation functions</h1>
+      <h1>Change log <small>All releases</small></h1>
     </div>
 
-    
-    <p>Converts a model object into</p>
-    
-
-    <pre class="usage"><span class='fu'>make_eefun</span>(<span class='no'>model</span>, <span class='no'>data</span>, <span class='no'>...</span>)</pre>
-    
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>model</th>
-      <td><p>a model object object</p></td>
-    </tr>
-    <tr>
-      <th>data</th>
-      <td><p>data with which to create the estimating equation function</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>passed to methods</p></td>
-    </tr>
-    </table>
-    
-
+    <div class="contents">
+    <div id="geex-0-2-2" class="section level1">
+<h1 class="hasAnchor">
+<a href="#geex-0-2-2" class="anchor"></a>geex 0.2.2</h1>
+<ul>
+<li>changes names of list items used in a <code>corrections_list</code> in <code>estimate_equations</code>. Each item of the <code>correction_list</code> must itself be a list at least one item: <code>correctFUN</code>. Additional arguments to <code>correctFUN</code> may be passed via <code>correctFUN_control</code>.</li>
+</ul>
+</div>
+    <div id="geex-0-2-1" class="section level1">
+<h1 class="hasAnchor">
+<a href="#geex-0-2-1" class="anchor"></a>geex 0.2.1</h1>
+<ul>
+<li>adds a vignette explaining how to use a different root finding algorithm via <code>rootFUN</code> argument in <code>estimate_equations</code>
+</li>
+<li>fixes issues where different <code>rootFUN</code>s would not work:
+<ul>
+<li>
+<code>roots</code> argument no longer needs to be set if <code>compute_roots = TRUE</code>. Instead, starting values are passed via the <code>rootFUN_control</code> list.</li>
+<li>Removes the <code>start</code> argument from <code>compute_eeroots</code>; set this option in <code>rootFUN_control</code>.</li>
+</ul>
+</li>
+</ul>
+</div>
+    <div id="geex-0-2-0" class="section level1">
+<h1 class="hasAnchor">
+<a href="#geex-0-2-0" class="anchor"></a>geex 0.2.0</h1>
+<ul>
+<li>overhauls which arguments are passed to <code>estimate_equations</code> and how these arguments are parsed internally. See this function’s documentation for details</li>
+<li>adds <code>geexex</code> dataset for use in examples</li>
+</ul>
+</div>
+    <div id="geex-0-1-0" class="section level1">
+<h1 class="hasAnchor">
+<a href="#geex-0-1-0" class="anchor"></a>geex 0.1.0</h1>
+<ul>
+<li>the inital <code>geex</code> release</li>
+</ul>
+</div>
+    </div>
   </div>
+
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-                </ul>
-
+    <div id="tocnav">
+      <h2>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+        <li><a href="#geex-0-2-2">0.2.2</a></li>
+        <li><a href="#geex-0-2-1">0.2.1</a></li>
+        <li><a href="#geex-0-2-0">0.2.0</a></li>
+        <li><a href="#geex-0-1-0">0.1.0</a></li>
+      </ul>
+    </div>
   </div>
+
 </div>
 
       <footer>
