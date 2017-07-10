@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compute the matrices necessary for Fay's bias correction — fay_bias_correction_partial • geex</title>
+<title>Check that a list of corrections conforms to geex standards — check_corrections • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -75,47 +75,25 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compute the matrices necessary for Fay's bias correction</h1>
+    <h1>Check that a list of corrections conforms to geex standards</h1>
     </div>
 
     
-    <p>Compute the matrices necessary for Fay's bias correction</p>
+    <p>Check that a list of corrections conforms to geex standards</p>
     
 
-    <pre class="usage"><span class='fu'>fay_bias_correction_partial</span>(<span class='no'>A</span>, <span class='no'>A_i</span>, <span class='no'>B</span>, <span class='no'>B_i</span>, <span class='no'>b</span>)</pre>
+    <pre class="usage"><span class='fu'>check_corrections</span>(<span class='no'>corrections</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>A</th>
-      <td><p>the outer "bread" matrix</p></td>
-    </tr>
-    <tr>
-      <th>A_i</th>
-      <td><p>a list of bread matrices per group</p></td>
-    </tr>
-    <tr>
-      <th>B</th>
-      <td><p>the inner "meat" matrix</p></td>
-    </tr>
-    <tr>
-      <th>B_i</th>
-      <td><p>a list of meat matrices per group</p></td>
-    </tr>
-    <tr>
-      <th>b</th>
-      <td><p>a numeric value &lt; 1. Defaults to 0.75 as in Fay.</p></td>
+      <th>corrections</th>
+      <td><p>a list with one sublist for each correction to make. The
+sublist must contain at least <code>correctFUN</code> and optionally additional
+arguments in <code>correctFUN_control</code>.</p></td>
     </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>a list with</p><ul>
-<li><p>H_i - the H_i matrix</p></li>
-<li><p>Bbc - the 'bias corrected' meat matrix</p></li>
-</ul>
-
     
 
   </div>
@@ -123,9 +101,7 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-          </ul>
+                </ul>
 
   </div>
 </div>
