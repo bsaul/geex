@@ -9,11 +9,13 @@ make_corrections(mats, corrections)
 \arguments{
 \item{mats}{list of matrices resulting from \code{\link{compute_matrices}}}
 
-\item{corrections}{a list with one sublist  for each correction to make. The
-sublist must contain `fun` and `options` arguments}
+\item{corrections}{a list with one sublist for each correction to make. The
+sublist must contain at least \code{correctFUN} and optionally additional
+arguments in \code{correctFUN_control}.}
 }
 \value{
-a list with corrected values
+a list with corrected values. The list retains the names of the input
+ \code{corrections}
 }
 \description{
 Make corrections to basic sandwich estimators
