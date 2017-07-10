@@ -1,3 +1,7 @@
+# geex 0.2.2
+
+* changes names of list items used in a `corrections_list` in `estimate_equations`. Each item of the `correction_list` must itself be a list at least one item: `correctFUN`. Additional arguments to `correctFUN` may be passed via `correctFUN_control`.
+
 # geex 0.2.1
 
 * adds a vignette explaining how to use a different root finding algorithm via `rootFUN` argument in `estimate_equations`
