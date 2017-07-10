@@ -257,17 +257,6 @@ estimate_equations <- function(eeFUN,
                                approxFUN         = NULL,
                                approxFUN_control = NULL){
 
-  ## Checks/Warnings ##
-  if(is.null(roots) & !compute_roots){
-    stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
-  }
-
-  if(!is.null(corrections_list)){
-    check_corrections(corrections_list)
-  }
-
-  out <- list()
-
   # Split data frame into data frames for each independent unit
   if(is.null(units)){
     # if units are not specified, split into one per observation
@@ -277,11 +266,24 @@ estimate_equations <- function(eeFUN,
     split_data <- split(x = data, f = data[[units]] )
   }
 
-  geex_list  <- list(eeFUN        = eeFUN,
-                     splitdt      = split_data,
-                     inner_eeargs = inner_eeargs,
-                     outer_eeargs = outer_eeargs)
+  geex_list  <- list(
+    eeFUN        = eeFUN,
+    splitdt      = split_data,
+    inner_eeargs = inner_eeargs,
+    outer_eeargs = outer_eeargs)
 
+  ## Checks/Warnings ##
+  if(is.null(roots) & !compute_roots){
+    stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
+  }
+
+  if(!is.null(corrections_list)){
+    check_corrections(corrections_list)
+  }
+
+  check_eeFUN(geex_list)
+
+  out <- list()
   ## Compute estimating equation roots ##
   if(compute_roots == TRUE){
     eesolved <- compute_eeroot(

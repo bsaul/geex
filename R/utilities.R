@@ -22,6 +22,25 @@ check_array <- function(object){
 }
 
 #------------------------------------------------------------------------------#
+#' Check an eeFUN object
+#'
+#' Checks that eeFUN returns a function
+#'
+#' @param geex_list a list of \code{eeFUN}, \code{splitdt}, \code{inner_eeargs}, and
+#' \code{outer_eeargs}
+#' @export
+#------------------------------------------------------------------------------#
+
+check_eeFUN <- function(geex_list){
+  # Check: eeFUN returns a function
+  f <- do.call(geex_list$eeFUN, args = append(list(data = geex_list$splitdt[[1]]),
+                                              geex_list$outer_eeargs))
+  if(!is.function(f)){
+    stop('eeFUN does not return a function')
+  }
+}
+
+#------------------------------------------------------------------------------#
 #' Get the RHS formula from a model object
 #'
 #' @param model a model object such as \code{lm}, \code{glm}, \code{merMod}
