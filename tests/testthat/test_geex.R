@@ -66,3 +66,35 @@ test_that("Basic computations are working", {
   expect_false(isTRUE(all.equal(estimates_1, estimates_3)))
 
 })
+
+test_that('eeFUN checks are working', {
+  good_eefun <- function(data){
+    function(theta){
+      with(data,
+           c(Y1 - theta[1],
+             (Y1 - theta[1])^2 - theta[2] )
+      )
+    }
+  }
+
+  bad_eefun <- function(data){
+    data$Y1
+  }
+
+  splitdt <-split(geexex, f = 1:nrow(geexex))
+
+  good_glist <- list(
+    eeFUN   = good_eefun,
+    splitdt = splitdt
+  )
+
+
+  bad_glist <- list(
+    eeFUN   = bad_eefun,
+    splitdt = splitdt
+  )
+
+  expect_silent(check_eeFUN(good_glist))
+  expect_error(check_eeFUN(bad_glist))
+
+})
