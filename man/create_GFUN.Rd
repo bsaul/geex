@@ -4,7 +4,7 @@
 \alias{create_GFUN}
 \title{Creates a function that sums over psi functions}
 \usage{
-create_GFUN(psi_list, inner_eeargs = NULL)
+create_GFUN(psi_list, inner_eeargs = NULL, weights = NULL)
 }
 \arguments{
 \item{psi_list}{list of psi functions}

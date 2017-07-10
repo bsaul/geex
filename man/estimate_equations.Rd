@@ -4,9 +4,9 @@
 \alias{estimate_equations}
 \title{Estimate parameters and their covariance from a set of estimating equations}
 \usage{
-estimate_equations(eeFUN, data, units = NULL, roots = NULL,
-  outer_eeargs = NULL, inner_eeargs = NULL, compute_roots = TRUE,
-  compute_vcov = TRUE, corrections_list = NULL,
+estimate_equations(eeFUN, data, units = NULL, weights = NULL,
+  roots = NULL, outer_eeargs = NULL, inner_eeargs = NULL,
+  compute_roots = TRUE, compute_vcov = TRUE, corrections_list = NULL,
   derivFUN = numDeriv::jacobian, derivFUN_control = list(method =
   "Richardson"), rootFUN = rootSolve::multiroot, rootFUN_control = NULL,
   rootFUN_object = "root", approxFUN = NULL, approxFUN_control = NULL)

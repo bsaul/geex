@@ -39,13 +39,21 @@ create_psi <- function(splitdt,
 #'
 #------------------------------------------------------------------------------#
 
-create_GFUN <- function(psi_list, inner_eeargs = NULL){
+create_GFUN <- function(psi_list, inner_eeargs = NULL, weights = NULL){
   function(theta){
     psii <- lapply(psi_list, function(f) {
       do.call(f, args = append(list(theta = theta), inner_eeargs))
     })
+
+    # If weights are provided, then multiply each psi function by its
+    # respective weight
+    if(is.null(weights)){
+      psii_array <- simplify2array(psii)
+    } else {
+      psii_array <- simplify2array(Map(`*`, psii, weights))
+    }
     # sum over unit-wise contributions to the estimating equations
-    apply(check_array(simplify2array(psii)), 1, sum)
+    apply(check_array(psii_array), 1, sum)
   }
 }
 
@@ -82,7 +90,8 @@ compute_eeroot <- function(geex_list,
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
   GmFUN <- create_GFUN(psi_list     = psi_i,
-                       inner_eeargs = geex_list$inner_eeargs)
+                       inner_eeargs = geex_list$inner_eeargs,
+                       weights      = geex_list$weights)
 
   # Find roots of psi
   rargs <- append(rootFUN_control, list(f = GmFUN))
@@ -142,7 +151,9 @@ compute_matrices <- function(geex_list,
     val  <- do.call(derivFUN, args = append(args, geex_list$inner_eeargs))
     -val
   })
-  A_i_array <- check_array(simplify2array(A_i))
+
+  A_i_pre   <- if(!is.null(geex_list$weights)){ Map(`*`, A_i, geex_list$weights) } else A_i
+  A_i_array <- check_array(simplify2array(A_i_pre))
   A   <- apply(A_i_array, 1:2, sum)
 
   # Compute outer product of observed estimating eqns
@@ -150,7 +161,9 @@ compute_matrices <- function(geex_list,
     ee_val <- do.call(ee, args = append(list(theta = theta), geex_list$inner_eeargs))
     ee_val %*% t(ee_val)
   })
-  B   <- apply(check_array(simplify2array(B_i)), 1:2, sum)
+  B_i_pre   <- if(!is.null(geex_list$weights)){ Map(`*`, B_i, geex_list$weights) } else B_i
+  B_i_array <- check_array(simplify2array(B_i_pre))
+  B   <- apply(B_i_array, 1:2, sum)
 
   list(A = A, A_i = A_i, B = B, B_i = B_i)
 }
@@ -243,6 +256,7 @@ compute_sigma <- function(A, B){
 estimate_equations <- function(eeFUN,
                                data,
                                units             = NULL,
+                               weights           = NULL,
                                roots             = NULL,
                                outer_eeargs      = NULL,
                                inner_eeargs      = NULL,
@@ -270,7 +284,8 @@ estimate_equations <- function(eeFUN,
     eeFUN        = eeFUN,
     splitdt      = split_data,
     inner_eeargs = inner_eeargs,
-    outer_eeargs = outer_eeargs)
+    outer_eeargs = outer_eeargs,
+    weights      = weights)
 
   ## Checks/Warnings ##
   if(is.null(roots) & !compute_roots){
@@ -279,6 +294,12 @@ estimate_equations <- function(eeFUN,
 
   if(!is.null(corrections_list)){
     check_corrections(corrections_list)
+  }
+
+  if(!is.null(weights)){
+    if(length(weights) != length(split_data)){
+      stop("Length of the weights vector is not equal to the number of units. Check the weights, data, and units arguments.")
+    }
   }
 
   check_eeFUN(geex_list)
