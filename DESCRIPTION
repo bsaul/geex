@@ -27,7 +27,7 @@ Suggests:
     sandwich,
     inferference,
     xtable
-License: GPL (>= 2)
+License: MIT + file LICENSE
 LazyData: TRUE
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
