@@ -151,7 +151,7 @@ Example 2 illustrates calculation of a ratio estimator. I generate a data set wi
 
 Estimating equations:
 \[
-psi(Y_i, \theta) = 
+\psi(Y_i, \theta) = 
 \begin{pmatrix}
 Y_i - \theta_1 \\
 X_i - \theta_2 \\
