@@ -1,3 +1,7 @@
+# geex 0.3.0
+
+* adds a `weights` argument to `estimate_equations` for faster computations with grouped data. See the [weights vignette](https://bsaul.github.io/geex/docs/articles/weights.html) for a demonstration.
+
 # geex 0.2.2
 
 * changes names of list items used in a `corrections_list` in `estimate_equations`. Each item of the `correction_list` must itself be a list at least one item: `correctFUN`. Additional arguments to `correctFUN` may be passed via `correctFUN_control`.
