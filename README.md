@@ -12,7 +12,16 @@ M-estimation encompasses a broad swath of statistical estimators and ideas inclu
 
 `geex` can implement all of these using a user-defined estimating function. 
 
-> If you can specify a set of unbiased estimating equations, `geex` can do the rest.
+## Goals
+
+> If you can specify a set of unbiased estimating equations, `geex` does the rest.
+
+The goals of `geex` are simply:
+
+* To minimize the translational distance between a set of estimating functions and R code;
+* To return numerically *accurate* point and covariance estimates from a set of unbiased estimating functions.
+
+`geex` does not necessarily aim to be fast nor precise. Such goals are left to the user to implement or confirm.
 
 # Installation
 
@@ -25,3 +34,7 @@ devtools::install_github("bsaul/geex")
 # Usage
 
 Start with the examples in the [package introduction](https://bsaul.github.io/geex/articles/00_geex_intro.html) (also accessible in R by `vignette('00_geex_intro')`). 
+
+# Contributing to geex
+
+Please review the [contributing guidelines](https://github.com/bsaul/geex/blob/master/CONTRIBUTING.md). If you have bug reports, feature requests, or other ideas for `geex`, please file an issue or contact @bsaul.
