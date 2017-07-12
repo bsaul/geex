@@ -1,0 +1,6 @@
+---
+title: "An M-estimation bibliography"
+output: html_document
+---
+
+...under development...
