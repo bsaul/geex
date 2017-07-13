@@ -3,4 +3,27 @@ title: "An M-estimation bibliography"
 output: html_document
 ---
 
-...under development...
+# Basics
+
+* Huber
+* White
+* Stefanski and Boos (2001 + textbook)
+* early development: Godambe's optimum estimating equations
+
+# Applications
+
+## Generalized Estimating Equations
+
+* Liang and Zeger 1986
+* Pepe and Anderson 1994
+* Lumley 1999
+
+## Small sample corrections
+
+* Fay 
+* Mancl
+* Preisser
+
+## Software
+
+...software...
