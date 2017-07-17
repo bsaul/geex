@@ -11,5 +11,6 @@ check_eeFUN(geex_list)
 \code{outer_eeargs}}
 }
 \description{
-Checks that eeFUN returns a function
+Checks that eeFUN returns a function. May be developed to perform additional
+checks in the future.
 }

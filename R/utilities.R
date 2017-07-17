@@ -46,7 +46,8 @@ check_corrections <- function(corrections){
 #------------------------------------------------------------------------------#
 #' Check an eeFUN object
 #'
-#' Checks that eeFUN returns a function.
+#' Checks that eeFUN returns a function. May be developed to perform additional
+#' checks in the future.
 #'
 #' @param geex_list a list of \code{eeFUN}, \code{splitdt}, \code{inner_eeargs}, and
 #' \code{outer_eeargs}
