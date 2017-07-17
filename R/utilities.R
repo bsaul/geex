@@ -23,9 +23,30 @@ check_array <- function(object){
 }
 
 #------------------------------------------------------------------------------#
+#' Check that a list of corrections conforms to geex standards
+#'
+#' @param corrections a list of small sample corrections to perform
+#' @export
+#------------------------------------------------------------------------------#
+check_corrections <- function(corrections){
+  corrs <- names(corrections)
+
+  out <- lapply(seq_along(corrs), function(i){
+    items <- names(corrections[[i]])
+    if(!('correctFUN' %in% items)){
+      stop(paste0('correctFUN is not specified in ', corrs[i]))
+    }
+    if(any(!(items %in% c('correctFUN', 'correctFUN_control')))){
+      warning(paste0('Additional list items in the ', corrs[i], ' correction will be ignored. Pass all additional arguments to correctFUN using the correctFUN_control item.'))
+    }
+  })
+  invisible(out)
+}
+
+#------------------------------------------------------------------------------#
 #' Check an eeFUN object
 #'
-#' Checks that eeFUN returns a function
+#' Checks that eeFUN returns a function.
 #'
 #' @param geex_list a list of \code{eeFUN}, \code{splitdt}, \code{inner_eeargs}, and
 #' \code{outer_eeargs}

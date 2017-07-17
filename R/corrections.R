@@ -19,28 +19,6 @@ make_corrections <- function(mats, corrections){
 }
 
 #------------------------------------------------------------------------------#
-#' Check that a list of corrections conforms to geex standards
-#'
-#' @inheritParams make_corrections
-#' @export
-#------------------------------------------------------------------------------#
-check_corrections <- function(corrections){
-  corrs <- names(corrections)
-
-  out <- lapply(seq_along(corrs), function(i){
-    items <- names(corrections[[i]])
-    if(!('correctFUN' %in% items)){
-      stop(paste0('correctFUN is not specified in ', corrs[i]))
-    }
-    if(any(!(items %in% c('correctFUN', 'correctFUN_control')))){
-      warning(paste0('Additional list items in the ', corrs[i], ' correction will be ignored. Pass all additional arguments to correctFUN using the correctFUN_control item.'))
-    }
-  })
-  invisible(out)
-}
-
-
-#------------------------------------------------------------------------------#
 #' Estimate Fay's bias correction
 #'
 #' Computes the bias corrected sandwich covariance matrix described in Fay and Graubard (2001).
