@@ -2,20 +2,18 @@
 % Please edit documentation in R/computations.R
 \name{compute_sigma}
 \alias{compute_sigma}
-\title{Compute covariance matrix for set of estimating equations}
+\title{Compute empirical sandwich covariate estimator}
 \usage{
 compute_sigma(A, B)
 }
 \arguments{
-\item{A}{the `A` matrix returned in the list of matrices from
+\item{A}{a matrix, generally the \eqn{A}{A} matrix returned in the list of matrices from
 \code{\link{compute_matrices}}}
 
-\item{B}{the `B` matrix returned in the list of matrices from
+\item{B}{a matrix, generally the \eqn{B}{B} matrix returned in the list of matrices from
 \code{\link{compute_matrices}}}
 }
 \description{
-Computes \deqn{\Sigma = A_m^{-1} B_m  (A_m^{-1})^T / m } where
-}
-\details{
-\eqn{A_m = \sum_{i = 1}^m A_i}{A_m = sum_i A_i} and \eqn{B_m = \sum_{i = 1}^m B_i}{A_m = sum_i B_i}.
+Computes \eqn{\Sigma = A^{-1} B (A^{-1})^T }{\Sigma = A^{-1} B (A^{-1})^T} with
+provided \eqn{A}{A} and \eqn{B}{B} matrices.
 }

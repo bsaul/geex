@@ -196,17 +196,15 @@ compute_matrices <- function(geex_list,
 }
 
 #------------------------------------------------------------------------------#
-#' Compute covariance matrix for set of estimating equations
+#' Compute empirical sandwich covariate estimator
 #'
-#' Computes \deqn{\Sigma = A_m^{-1} B_m  (A_m^{-1})^T / m } where
+#' Computes \eqn{\Sigma = A^{-1} B (A^{-1})^T }{\Sigma = A^{-1} B (A^{-1})^T} with
+#' provided \eqn{A}{A} and \eqn{B}{B} matrices.
 #'
-#' \eqn{A_m = \sum_{i = 1}^m A_i}{A_m = sum_i A_i} and \eqn{B_m = \sum_{i = 1}^m B_i}{A_m = sum_i B_i}.
-#'
-#' @param A the `A` matrix returned in the list of matrices from
+#' @param A a matrix, generally the \eqn{A}{A} matrix returned in the list of matrices from
 #'   \code{\link{compute_matrices}}
-#' @param B the `B` matrix returned in the list of matrices from
+#' @param B a matrix, generally the \eqn{B}{B} matrix returned in the list of matrices from
 #'   \code{\link{compute_matrices}}
-#'
 #' @export
 #------------------------------------------------------------------------------#
 
