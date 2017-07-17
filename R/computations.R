@@ -58,7 +58,16 @@ create_GFUN <- function(psi_list, inner_eeargs = NULL, weights = NULL){
 }
 
 #------------------------------------------------------------------------------#
-#' Compute roots for a set of estimating equations
+#' Estimate roots for a set of estimating equations
+#'
+#' Using the \code{rootFUN} specified by the user (defaults to \code{\link[rootSolve]{multiroot}}),
+#' this function estimates the roots of the equations: \deqn{G_m = sum_i psi(O_i, \hat{\theta}) = 0}{G_m = sum_i psi(O_i, theta) = 0}
+#'
+#' This is primilary an internal function used within \code{\link{estimate_equations}},
+#' but it is exported for use in debugging and development.
+#'
+#' For an example of how to use a different \code{rootFUN},
+#' see the root solver vignette, \code{vignette('geex_root_solvers', package = 'geex')}.
 #'
 #' @param geex_list a list containing \code{splitdt} (a \code{data.frame} that
 #' has been \code{\link[base]{split}} by the grouping variable) and \code{eeFUN}
@@ -70,8 +79,9 @@ create_GFUN <- function(psi_list, inner_eeargs = NULL, weights = NULL){
 #' @param rootFUN_control a list of options to be passed to the \code{rootsolver}
 #' function
 #' @inheritParams create_psi
-#' @return the output of the \code{rootsolver} function
+#' @return the output of the \code{rootFUN} function
 #' @export
+#'
 #------------------------------------------------------------------------------#
 
 compute_eeroot <- function(geex_list,

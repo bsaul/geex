@@ -2,7 +2,7 @@
 % Please edit documentation in R/computations.R
 \name{compute_eeroot}
 \alias{compute_eeroot}
-\title{Compute roots for a set of estimating equations}
+\title{Estimate roots for a set of estimating equations}
 \usage{
 compute_eeroot(geex_list, rootFUN = rootSolve::multiroot,
   rootFUN_control = NULL, approxFUN = NULL, approxFUN_control = NULL)
@@ -25,8 +25,16 @@ function}
 \item{approxFUN_control}{arguments passed to \code{approxFUN}}
 }
 \value{
-the output of the \code{rootsolver} function
+the output of the \code{rootFUN} function
 }
 \description{
-Compute roots for a set of estimating equations
+Using the \code{rootFUN} specified by the user (defaults to \code{\link[rootSolve]{multiroot}}),
+this function estimates the roots of the equations: \deqn{G_m = sum_i psi(O_i, \hat{\theta}) = 0}{G_m = sum_i psi(O_i, theta) = 0}
+}
+\details{
+This is primilary an internal function used within \code{\link{estimate_equations}},
+but it is exported for use in debugging and development.
+
+For an example of how to use a different \code{rootFUN},
+see the root solver vignette, \code{vignette('geex_root_solvers', package = 'geex')}.
 }
