@@ -64,6 +64,10 @@ check_eeFUN <- function(geex_list){
 }
 
 #------------------------------------------------------------------------------#
+# Model object helper functions ####
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
 #' Get the RHS formula from a model object
 #'
 #' @param model a model object such as \code{lm}, \code{glm}, \code{merMod}
