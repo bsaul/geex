@@ -1,12 +1,13 @@
 #------------------------------------------------------------------------------#
-#' Check an array object
-#'
-#' Handles the case where there is a single estimating equation. This function
-#' assumes that the object
-#'
-#' @param object the object to check whether it is an array
-#' @return an array - either the orginal object or the given object converted
-#' to an array
+# Check and convert object to an array
+#
+# Used in, e.g., \code{compute_matrices} to either (a) confirm that an object is an array
+# or (b) if the object is numeric or a matrix, then convert to an array, or (c) if
+# the object is not an array, numeric, or matrix, then return an error.
+#
+# @param object the object to check whether it is an array
+# @return an array - either the orginal object or the given object converted
+# to an array
 #------------------------------------------------------------------------------#
 
 check_array <- function(object){
