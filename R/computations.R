@@ -147,7 +147,7 @@ compute_matrices <- function(geex_list,
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
   A_i <- lapply(psi_i, function(ee){
-    args <- append(list(fun = ee, x = theta), derivFUN_control)
+    args <- append(list(func = ee, x = theta), derivFUN_control)
     val  <- do.call(derivFUN, args = append(args, geex_list$inner_eeargs))
     -val
   })
