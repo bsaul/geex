@@ -20,7 +20,8 @@ Defaults to \code{\link[rootSolve]{multiroot}}.}
 \item{rootFUN_control}{a list of options to be passed to the \code{rootsolver}
 function}
 
-\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}}
+\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}.
+(EXPERIMENTAL).}
 
 \item{approxFUN_control}{arguments passed to \code{approxFUN}}
 }

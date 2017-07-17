@@ -12,7 +12,8 @@ create_psi(splitdt, eeFUN, approxFUN = NULL, approxFUN_control = NULL,
 
 \item{eeFUN}{the estimating equation function}
 
-\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}}
+\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}.
+(EXPERIMENTAL).}
 
 \item{approxFUN_control}{arguments passed to \code{approxFUN}}
 

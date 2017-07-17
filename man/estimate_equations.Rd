@@ -36,7 +36,7 @@ Defaults to \code{TRUE}.}
 list element is a list with two elements: `fun` and `options`. See details.}
 
 \item{derivFUN}{the function used to take derivatives of the estimating equation functions.
-Defaults to \code{numDeriv::jacobian}}
+Defaults to \code{\link[numDeriv]{jacobian}}.}
 
 \item{derivFUN_control}{a list of options passed to \code{\link[numDeriv]{jacobian}}
 (or the \code{derivFUN} function).}
@@ -52,7 +52,8 @@ the parameters estimates. For example, the 'root' object within the output of mu
 contains the parameter estimates. Defaults to 'root'. Can also be a set of numeric positions within
 the object.}
 
-\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}}
+\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}.
+(EXPERIMENTAL).}
 
 \item{approxFUN_control}{arguments passed to \code{approxFUN}}
 }
