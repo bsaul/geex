@@ -1,12 +1,17 @@
 #------------------------------------------------------------------------------#
 #' Creates list of psi functions
 #'
+#' Creates the estimating function (\eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)})
+#' for each unit. That is, this function evaluates the outer function in \code{eeFUN}
+#' for each independent unit and a returns the inner function in \code{eeFUN}.
+#'
 #' @param splitdt list of dataframes with data per unit
 #' @param eeFUN the estimating equation function
 #' @param approxFUN a function that approximates the inner function of \code{eeFUN}.
 #' (EXPERIMENTAL).
 #' @param approxFUN_control arguments passed to \code{approxFUN}
 #' @param outer_eeargs a list of arguments passed to \code{eeFUN}
+#' @return a list of functions, each function corresponding to a single unit
 #' @export
 #'
 #------------------------------------------------------------------------------#

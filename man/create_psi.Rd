@@ -19,6 +19,11 @@ create_psi(splitdt, eeFUN, approxFUN = NULL, approxFUN_control = NULL,
 
 \item{outer_eeargs}{a list of arguments passed to \code{eeFUN}}
 }
+\value{
+a list of functions, each function corresponding to a single unit
+}
 \description{
-Creates list of psi functions
+Creates the estimating function (\eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)})
+for each unit. That is, this function evaluates the outer function in \code{eeFUN}
+for each independent unit and a returns the inner function in \code{eeFUN}.
 }
