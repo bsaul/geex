@@ -2,7 +2,7 @@
 % Please edit documentation in R/ee_functions.R
 \name{binomial_integrand}
 \alias{binomial_integrand}
-\title{glmer Objective Function for Logistic-Normal Likelihood}
+\title{Objective Function for Logistic-Normal Likelihood}
 \usage{
 binomial_integrand(b, response, xmatrix, parms, linkinv)
 }
@@ -18,5 +18,5 @@ binomial_integrand(b, response, xmatrix, parms, linkinv)
 \item{linkinv}{inverse link function}
 }
 \description{
-glmer Objective Function for Logistic-Normal Likelihood
+Objective Function for Logistic-Normal Likelihood
 }

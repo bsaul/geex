@@ -171,11 +171,10 @@ objFun_glmerMod_binomial <- function(parms, response, xmatrix, linkinv)
 }
 
 #------------------------------------------------------------------------------#
-#' glmer Objective Function for Logistic-Normal Likelihood
+#' Objective Function for Logistic-Normal Likelihood
 #'
 #' @inheritParams objFun_glmerMod_binomial
 #' @param b the random effect to integrate over
-#' @export
 #------------------------------------------------------------------------------#
 
 binomial_integrand <- function(b, response, xmatrix, parms, linkinv){

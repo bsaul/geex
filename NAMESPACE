@@ -3,7 +3,6 @@
 S3method(make_eefun,geeglm)
 S3method(make_eefun,glm)
 S3method(make_eefun,merMod)
-export(binomial_integrand)
 export(check_corrections)
 export(check_eeFUN)
 export(compute_eeroot)
