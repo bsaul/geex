@@ -34,6 +34,11 @@ create_psi <- function(splitdt,
 #------------------------------------------------------------------------------#
 #' Creates a function that sums over psi functions
 #'
+#' From a list of \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} for i = 1, ..., m,
+#' creates \eqn{G_m = \sum_i \psi(O_i, \theta)}{G_m = \sum_i \psi(O_i, \theta)}. Here,
+#' \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} is the *inner* part of an \code{eeFUN},
+#' in that the data is fixed and \eqn{G_m}{G_m} is a function of \eqn{\theta)}{\theta}.
+#'
 #' @param psi_list list of psi functions
 #' @param inner_eeargs list of arguments passed to psi
 #' @export
