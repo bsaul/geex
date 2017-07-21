@@ -8,6 +8,10 @@ output: html_document
 * Huber
 * White
 * Stefanski and Boos (2001 + textbook)
+
+
+Boos, D. D., & Stefanski, L. A. (2013). [Essential statistical inference theory and methods.](http://dx.doi.org/10.1007/978-1-4614-4818-1) New York, NY: Springer.  
+
 * early development: Godambe's optimum estimating equations
 
 # Applications
