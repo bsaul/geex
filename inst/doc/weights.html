@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bradley Saul" />
 
-<meta name="date" content="2017-07-11" />
+<meta name="date" content="2017-07-21" />
 
 <title>Using weights in geex</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Using weights in geex</h1>
 <h4 class="author"><em>Bradley Saul</em></h4>
-<h4 class="date"><em>2017-07-11</em></h4>
+<h4 class="date"><em>2017-07-21</em></h4>
 
 
 
@@ -82,8 +82,16 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1>Data</h1>
 <p>The following code generates two datasets: <code>data1</code> has one row per unit and <code>data2</code> has one row per unique combination of the categorical varibles.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
-<span class="kw">library</span>(dplyr)
-<span class="kw">set.seed</span>(<span class="dv">42</span>)
+<span class="kw">library</span>(dplyr)</code></pre></div>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">42</span>)
 n &lt;-<span class="st"> </span><span class="dv">16000</span>
 
 data1 &lt;-<span class="st"> </span><span class="kw">data_frame</span>(
@@ -118,7 +126,7 @@ results1 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span
 )})</code></pre></div>
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>##    user  system elapsed 
-##  19.606   0.232  19.881</code></pre>
+##  19.658   0.180  19.878</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>({
   results2 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
   <span class="dt">eeFUN =</span> example,
@@ -128,7 +136,7 @@ results1 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span
 )})</code></pre></div>
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.029   0.000   0.029</code></pre>
+##   0.026   0.001   0.026</code></pre>
 <p>The latter option is clearly preferred.</p>
 </div>
 <div id="results-comparison" class="section level1">

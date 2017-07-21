@@ -54,7 +54,7 @@
 </h1>
                         <h4 class="author">B. Saul</h4>
             
-            <h4 class="date">2017-07-11</h4>
+            <h4 class="date">2017-07-21</h4>
           </div>
 
     
@@ -121,30 +121,30 @@ Y_i - \theta_1 \\
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>## $geex
 ## $geex$estimates
-## [1] 5.152416 4.118515
+## [1] 5.032978 4.156575
 ## 
 ## $geex$vcov
-##              [,1]         [,2]
-## [1,]  0.041185150 -0.004013685
-## [2,] -0.004013685  0.241102563
+##             [,1]        [,2]
+## [1,] 0.041565750 0.002154544
+## [2,] 0.002154544 0.303812050
 ## 
 ## 
 ## $cls
 ## $cls$parameters
 ##         p1       p2
-## 1 5.152416 4.118515
+## 1 5.032978 4.156575
 ## 
 ## $cls$vcov
-##              [,1]         [,2]
-## [1,]  0.041185150 -0.004013685
-## [2,] -0.004013685  0.241102563</code></pre>
+##             [,1]        [,2]
+## [1,] 0.041565750 0.002154544
+## [2,] 0.002154544 0.303812050</code></pre>
 </div>
 <div id="stefanski-boos-example-2" class="section level2">
 <h2 class="hasAnchor">
 <a href="#stefanski-boos-example-2" class="anchor"></a>Stefanski &amp; Boos example 2</h2>
 <p>Example 2 illustrates calculation of a ratio estimator. I generate a data set with 100 observations where <span class="math inline">\(Y \sim N\)</span>(5, 2) and <span class="math inline">\(X \sim N\)</span>(2, 0.2).</p>
 <p>Estimating equations: <span class="math display">\[
-psi(Y_i, \theta) = 
+\psi(Y_i, \theta) = 
 \begin{pmatrix}
 Y_i - \theta_1 \\
 X_i - \theta_2 \\
@@ -168,25 +168,25 @@ X_i - \theta_2 \\
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>## $geex
 ## $geex$estimates
-## [1] 5.197828 1.969526 2.639127
+## [1] 4.923015 2.028746 2.426630
 ## 
 ## $geex$vcov
-##               [,1]          [,2]          [,3]
-## [1,]  3.880105e-02 -2.529863e-05  0.0197346068
-## [2,] -2.529863e-05  4.264695e-04 -0.0005843061
-## [3,]  1.973461e-02 -5.843061e-04  0.0108029386
+##              [,1]          [,2]          [,3]
+## [1,] 4.190724e-02  8.045129e-05  0.0205604920
+## [2,] 8.045129e-05  3.042740e-04 -0.0003242934
+## [3,] 2.056049e-02 -3.242934e-04  0.0105224770
 ## 
 ## 
 ## $cls
 ## $cls$parameters
-##         p1       p2       p3
-## 1 5.197828 1.969526 2.639127
+##         p1       p2      p3
+## 1 4.923015 2.028746 2.42663
 ## 
 ## $cls$vcov
-##               [,1]          [,2]          [,3]
-## [1,]  3.919298e-02 -2.555417e-05  0.0199339463
-## [2,] -2.555417e-05  4.307773e-04 -0.0005902081
-## [3,]  1.993395e-02 -5.902081e-04  0.0109120592</code></pre>
+##              [,1]          [,2]          [,3]
+## [1,] 4.233054e-02  8.126393e-05  0.0207681737
+## [2,] 8.126393e-05  3.073474e-04 -0.0003275691
+## [3,] 2.076817e-02 -3.275691e-04  0.0106287646</code></pre>
 </div>
 <div id="stefanski-boos-example-3" class="section level2">
 <h2 class="hasAnchor">
