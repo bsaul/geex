@@ -122,9 +122,9 @@ grab_eeFUN.merMod <- function(model, data, numderiv_opts = NULL, ...)
     stop('make_eefun.merMod currently does not handle >1 random effect')
   }
 
-  fm     <- grab_fixed_formula(model)
-  X      <- grab_design_matrix(fm, data)
-  Y      <- grab_response(stats::formula(model), data = data)
+  fm     <- grab_fixed_formula(model = model)
+  X      <- grab_design_matrix(data = data, rhs_formula = fm)
+  Y      <- grab_response(data = data, formula = stats::formula(model))
   family <- model@resp$family
   lnkinv <- family$linkinv
   objfun <- objFun_merMod(family$family)
