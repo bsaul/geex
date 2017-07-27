@@ -1,4 +1,10 @@
 #------------------------------------------------------------------------------#
+# check_** description:
+# Functions for use within geex computations that check that functions or other objects
+# conform to what downstream functions expect.
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
 # Check and convert object to an array
 #
 # Used in, e.g., \code{compute_matrices} to either (a) confirm that an object is an array
@@ -23,10 +29,10 @@ check_array <- function(object){
 }
 
 #------------------------------------------------------------------------------#
-#' Check that a list of corrections conforms to geex standards
-#'
-#' @param corrections a list of small sample corrections to perform
-#' @export
+# Check that a list of corrections conforms to geex standards
+#
+# @param corrections a list of small sample corrections to perform
+# @export
 #------------------------------------------------------------------------------#
 check_corrections <- function(corrections){
   corrs <- names(corrections)
@@ -44,14 +50,14 @@ check_corrections <- function(corrections){
 }
 
 #------------------------------------------------------------------------------#
-#' Check an eeFUN object
-#'
-#' Checks that eeFUN returns a function. May be developed to perform additional
-#' checks in the future.
-#'
-#' @param geex_list a list of \code{eeFUN}, \code{splitdt}, \code{inner_eeargs}, and
-#' \code{outer_eeargs}
-#' @export
+# Check an eeFUN object
+#
+# Checks that eeFUN returns a function. May be developed to perform additional
+# checks in the future.
+#
+# @param geex_list a list of \code{eeFUN}, \code{splitdt}, \code{inner_eeargs}, and
+# \code{outer_eeargs}
+# @export
 #------------------------------------------------------------------------------#
 
 check_eeFUN <- function(geex_list){

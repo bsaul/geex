@@ -2,8 +2,6 @@
 
 S3method(grab_eeFUN,glm)
 S3method(grab_eeFUN,merMod)
-export(check_corrections)
-export(check_eeFUN)
 export(compute_eeroot)
 export(compute_matrices)
 export(compute_sigma)
