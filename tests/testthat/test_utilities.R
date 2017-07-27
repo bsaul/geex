@@ -9,3 +9,4 @@ test_that("check_array function works for arrays and vectors", {
   expect_output(str(check_array(arr)), '[1:3, 1:3, 1:3]')
 
 })
+
