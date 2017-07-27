@@ -2,7 +2,8 @@
 #' Grab something from an object
 #'
 #' @param from an object
-#' @param what what to grab
+#' @param what what to grab one of 'response', 'design_matrix', 'response_formula',
+#' 'fixed_formula', 'eeFUN'
 #' @param ... additional arguments passed to \code{grab_**} function
 #' @export
 #------------------------------------------------------------------------------#
@@ -12,7 +13,9 @@ grab <- function(from, what, ...){
          "response"         = grab_response(data = from, ...),
          "design_matrix"    = grab_design_matrix(data = from, ...),
          "response_formula" = grab_response_formula(model = from),
-         "fixed_formula"    = grab_fixed_formula(model = from))
+         "fixed_formula"    = grab_fixed_formula(model = from),
+         'eeFUN'            = make_eefun(model = from, ...),
+         stop("'what' you want to grab() is not defined"))
 }
 
 #------------------------------------------------------------------------------#
