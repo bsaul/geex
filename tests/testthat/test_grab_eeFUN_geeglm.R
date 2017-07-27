@@ -6,11 +6,11 @@ test_binomial <- geeglm(resp ~ age, id = id, data = ohio,
                         family = binomial(link = 'logit'))
 
 gee_eefun <- function(data, model){
-  make_eefun(model, data)
+  grab_eeFUN(model, data)
 }
 
-test_that("make_eefun returns functions", {
-  expect_is(make_eefun(test_binomial, data = subset(ohio, id == 1)),
+test_that("grab_eeFUN returns functions", {
+  expect_is(grab_eeFUN(test_binomial, data = subset(ohio, id == 1)),
             'function')
 })
 
