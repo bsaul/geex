@@ -1,4 +1,9 @@
 #------------------------------------------------------------------------------#
+# diagnose_** description:
+# Functions that diagnose the output of geex, e.g. diagnose_roots(geex_object).
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
 #' Evaluate estimating eqations.
 #'
 #' Computes the value of \deqn{G_m = sum_i psi(O_i, \hat{\theta})}{G_m = sum_i psi(O_i, theta)}, i.e., the estimating

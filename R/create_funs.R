@@ -1,4 +1,9 @@
 #------------------------------------------------------------------------------#
+# create_** description:
+# Functions that take in stuff and create a function or list of functions.
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
 #' Creates list of psi functions
 #'
 #' Creates the estimating function (\eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)})

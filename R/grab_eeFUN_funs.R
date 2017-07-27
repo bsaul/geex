@@ -1,4 +1,10 @@
 #------------------------------------------------------------------------------#
+# grab_eeFUN description:
+# a generic function that takes a model object and "grabs" the estimating
+# functions from the object.
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
 #' Make Estimating Equation functions
 #'
 #' Converts a model object into
