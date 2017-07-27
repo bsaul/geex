@@ -20,7 +20,7 @@ bias_estimates <- estimate_equations(
   data  = dt,
   units = 'id',
   rootFUN_control = list(start = c(1,1)),
-  corrections_list = list(test = list(correctFUN = fay_bias_correction,
+  corrections_list = list(test = list(correctFUN = correct_by_fay_bias,
                                       correctFUN_control = list(b = 0.75))))
 
 df1_estimates <- estimate_equations(
@@ -28,7 +28,7 @@ df1_estimates <- estimate_equations(
   data  = dt,
   units = 'id',
   rootFUN_control = list(start = c(1,1)),
-  corrections_list = list(test = list(correctFUN = fay_df_correction,
+  corrections_list = list(test = list(correctFUN = correct_by_fay_df,
                                       correctFUN_control = list(b = 0.75, L = c(1, 1), version = 1))))
 
 df2_estimates <- estimate_equations(
@@ -36,7 +36,7 @@ df2_estimates <- estimate_equations(
   data  = dt,
   units = 'id',
   rootFUN_control = list(start = c(1,1)),
-  corrections_list = list(test = list(correctFUN = fay_df_correction,
+  corrections_list = list(test = list(correctFUN = correct_by_fay_df,
                                       correctFUN_control = list(b = 0.75, L = c(1, 1), version = 2))))
 
 
@@ -56,22 +56,22 @@ test_that("DF2 correction returns a scalar", {
 })
 
 test_that("check_corrections picks up missing correctFUN", {
-  correction_tester <- list(test1 = list(correctFUN = fay_df_correction),
-                            test2 = list(fun = fay_df_correction))
+  correction_tester <- list(test1 = list(correctFUN = correct_by_fay_df),
+                            test2 = list(fun = correct_by_fay_df))
   expect_error(check_corrections(correction_tester))
 })
 
 test_that("check_corrections picks up additional arguments", {
-  correction_tester <- list(test1 = list(correctFUN = fay_df_correction,
+  correction_tester <- list(test1 = list(correctFUN = correct_by_fay_df,
                                          correctFUN_control = list(x = 2),
                                          errormaker = 2))
   expect_warning(check_corrections(correction_tester))
 })
 
 test_that("check_corrections does not throw error when correction list is correct", {
-  correction_tester <- list(test1 = list(correctFUN = fay_df_correction,
+  correction_tester <- list(test1 = list(correctFUN = correct_by_fay_df,
                                          correctFUN_control = list(x = 1)),
-                            test2 = list(correctFUN = fay_bias_correction,
+                            test2 = list(correctFUN = correct_by_fay_bias,
                                          correctFUN_control = list(x = 1)))
   expect_silent(check_corrections(correction_tester))
 })
