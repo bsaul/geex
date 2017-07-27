@@ -8,16 +8,16 @@ test_binomial <- glm(resp ~ age, data = ohio,
                      family = binomial(link = 'logit'))
 
 glm_eefun <- function(data, model){
-  make_eefun(model, data, weights = 2)
+  grab_eeFUN(model, data, weights = 2)
 }
 
 test_that("make_eefun returns functions", {
-  expect_is(make_eefun(test_binomial, data = subset(ohio, id == 1), weights = 2),
+  expect_is(grab_eeFUN(test_binomial, data = subset(ohio, id == 1), weights = 2),
             'function')
 })
 
 test_that("make_eefun returns error when length of weight vector is not equal to 1 or # in cluster", {
-  expect_error(make_eefun(test_binomial, data = subset(ohio, id == 1), weights = c(2, 2)))
+  expect_error(grab_eeFUN(test_binomial, data = subset(ohio, id == 1), weights = c(2, 2)))
 })
 
 test_that("estimate equations obtains correct values for parameters and standard errors ", {
