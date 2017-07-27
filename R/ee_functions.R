@@ -8,9 +8,9 @@
 #' @param ... passed to methods
 #' @export
 #------------------------------------------------------------------------------#
-make_eefun <- function(model, data, ...)
+grab_eeFUN <- function(model, data, ...)
 {
-  UseMethod("make_eefun")
+  UseMethod("grab_eeFUN")
 }
 
 #------------------------------------------------------------------------------#
@@ -18,16 +18,16 @@ make_eefun <- function(model, data, ...)
 #'
 #' Create estimating equation function from a \code{glm} object
 #'
-#' @inheritParams make_eefun
+#' @inheritParams grab_eeFUN
 #' @param weights a scalar or vector of weight values
 #' @export
 #------------------------------------------------------------------------------#
 
-make_eefun.glm <- function(model, data, weights = 1, ...)
+grab_eeFUN.glm <- function(model, data, weights = 1, ...)
 {
 
   X  <- stats::model.matrix(model$formula, data = data)
-  Y  <- as.numeric(stats::model.frame(get_response_formula(model), data = data)[[1]])
+  Y  <- as.numeric(stats::model.frame(grab_response_formula(model), data = data)[[1]])
   n  <- length(Y)
   p  <- length(stats::coef(model))
   phi    <- as.numeric(summary(model)$dispersion[1])
@@ -65,11 +65,10 @@ make_eefun.glm <- function(model, data, weights = 1, ...)
 #'
 #' Create estimating equation function from a \code{geeglm} object
 #'
-#' @inheritParams make_eefun
-#' @export
+#' @inheritParams grab_eeFUN
 #------------------------------------------------------------------------------#
 
-make_eefun.geeglm <- function(model, data, ...)
+grab_eeFUN.geeglm <- function(model, data, ...)
 {
   if(model$corstr != 'independence'){
     stop("only independence working correlation is supported at this time")
@@ -112,20 +111,20 @@ make_eefun.geeglm <- function(model, data, ...)
 #' Create estimating equation function from a \code{merMod} object
 #'
 #' @param numderiv_opts a list of argument passed to \code{numDeriv::grad}
-#' @inheritParams make_eefun
+#' @inheritParams grab_eeFUN
 #' @export
 #------------------------------------------------------------------------------#
 
-make_eefun.merMod <- function(model, data, numderiv_opts = NULL, ...)
+grab_eeFUN.merMod <- function(model, data, numderiv_opts = NULL, ...)
 {
   ## Warnings ##
   if(length(lme4::getME(model, 'theta')) > 1){
     stop('make_eefun.merMod currently does not handle >1 random effect')
   }
 
-  fm     <- get_fixed_formula(model)
-  X      <- get_design_matrix(fm, data)
-  Y      <- get_response(stats::formula(model), data = data)
+  fm     <- grab_fixed_formula(model)
+  X      <- grab_design_matrix(fm, data)
+  Y      <- grab_response(stats::formula(model), data = data)
   family <- model@resp$family
   lnkinv <- family$linkinv
   objfun <- objFun_merMod(family$family)
@@ -141,13 +140,12 @@ make_eefun.merMod <- function(model, data, numderiv_opts = NULL, ...)
 #'
 #'@param family distribution family of objective function
 #'@param ... additional arguments pass to objective function
-#'@export
 #------------------------------------------------------------------------------#
 
 objFun_merMod <- function(family, ...){
   switch(family,
          binomial = objFun_glmerMod_binomial,
-         stop('Objective function not defined'))
+         stop('Objective function for this link/family not defined'))
 }
 
 #------------------------------------------------------------------------------#
@@ -157,7 +155,6 @@ objFun_merMod <- function(family, ...){
 #' @param response vector of response values
 #' @param xmatrix the matrix of covariates
 #' @param linkinv inverse link function
-#' @export
 #------------------------------------------------------------------------------#
 
 objFun_glmerMod_binomial <- function(parms, response, xmatrix, linkinv)
