@@ -11,9 +11,9 @@ testdt_id1 <- subset(testdt, id == 1)
 m <- lme4::glmer(y ~ Gender + (1|id), data = testdt, family = binomial(link = 'logit'))
 theta <- unlist(lme4::getME(m, c('beta', 'theta')))
 
-rf  <- get_fixed_formula(m)
-X   <- get_design_matrix(rf, testdt_id1)
-Y   <- get_response(formula(m), data = testdt_id1)
+rf  <- grab_fixed_formula(m)
+X   <- grab_design_matrix(data = testdt_id1, rhs_formula = rf)
+Y   <- grab_response(data = testdt_id1, formula = formula(m))
 lnk <- m@resp$family$linkinv
 
 test_that("model utilities worked", {
