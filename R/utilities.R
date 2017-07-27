@@ -63,50 +63,5 @@ check_eeFUN <- function(geex_list){
   }
 }
 
-#------------------------------------------------------------------------------#
-# Model object helper functions ####
-#------------------------------------------------------------------------------#
 
-#------------------------------------------------------------------------------#
-#' Get the RHS formula from a model object
-#'
-#' @param model a model object such as \code{lm}, \code{glm}, \code{merMod}
-#' @export
-#------------------------------------------------------------------------------#
-get_fixed_formula <- function(model){
-  stats::formula(model, fixed.only = TRUE)[-2]
-}
 
-#------------------------------------------------------------------------------#
-#' Get the LHS formula from a model object
-#'
-#' @param model a model object such as \code{lm}, \code{glm}, \code{merMod}
-#' @export
-#------------------------------------------------------------------------------#
-get_response_formula <- function(model){
-  stats::formula(model)[-3]
-}
-
-#------------------------------------------------------------------------------#
-#' Get a matrix of fixed effects from a model object
-#'
-#' @param rhs_formula the right hand side of a model formula
-#' @param data the data from which to extract the matrix
-#' @export
-#------------------------------------------------------------------------------#
-get_design_matrix <- function(rhs_formula, data){
-  stats::model.matrix(rhs_formula, data)
-}
-
-#------------------------------------------------------------------------------#
-#' Get a vector of responses from a model object
-#'
-#' @param formula model formula
-#' @param data data.frame from which to extract the vector of responses
-#' @export
-#------------------------------------------------------------------------------#
-
-get_response <- function(formula, data){
-  stopifnot(class(formula) == 'formula')
-  stats::model.response(stats::model.frame(formula, data = data))
-}
