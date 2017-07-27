@@ -1,13 +1,19 @@
 #------------------------------------------------------------------------------#
-#' Make corrections to basic sandwich estimators
-#'
-#' @param mats list of matrices resulting from \code{\link{compute_matrices}}
-#' @param corrections a list with one sublist for each correction to make. The
-#' sublist must contain at least \code{correctFUN} and optionally additional
-#' arguments in \code{correctFUN_control}.
-#' @return a list with corrected values. The list retains the names of the input
-#'  \code{corrections}
-#' @export
+# correct_by_** description:
+# Functions that correct the output of compute_matrices *by* some manipulation.
+# Also includes necessary (non-exported) internal functions.
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+# Make corrections to basic sandwich estimators
+#
+# @param mats list of matrices resulting from \code{\link{compute_matrices}}
+# @param corrections a list with one sublist for each correction to make. The
+# sublist must contain at least \code{correctFUN} and optionally additional
+# arguments in \code{correctFUN_control}.
+# @return a list with corrected values. The list retains the names of the input
+#  \code{corrections}
+# @export
 #------------------------------------------------------------------------------#
 make_corrections <- function(mats, corrections){
   input_args <- mats
@@ -18,10 +24,15 @@ make_corrections <- function(mats, corrections){
   })
 }
 
+###############################################################################
+# correct_by functions provided by geex ####
+###############################################################################
+
 #------------------------------------------------------------------------------#
 #' Estimate Fay's bias correction
 #'
-#' Computes the bias corrected sandwich covariance matrix described in Fay and Graubard (2001).
+#' Computes the bias corrected sandwich covariance matrix described in Fay and
+#' Graubard (2001).
 #'
 #' @param A the outer "bread" matrix
 #' @param A_i a list of bread matrices per group
@@ -29,24 +40,59 @@ make_corrections <- function(mats, corrections){
 #' @param B_i a list of meat matrices per group
 #' @param b a numeric value < 1. Defaults to 0.75 as in Fay.
 #' @return a corrected covariance matrix
-#' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
+#' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for
+#' Wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
 #' @export
 #------------------------------------------------------------------------------#
-fay_bias_correction <- function(A_i, A, B_i, B, b = 0.75){
+
+correct_by_fay_bias <- function(A_i, A, B_i, B, b = 0.75){
   fay_bias_correction_partial(
     A_i = A_i, A  = A, B_i = B_i, B = B, b = b) ->  corrected_matrices
 
   compute_sigma(A = A, B = corrected_matrices$Bbc)
 }
+
 #------------------------------------------------------------------------------#
-#' Compute the matrices necessary for Fay's bias correction
+#' Fay's degrees of freedom corrections
 #'
-#' @inheritParams fay_bias_correction
-#' @return a list with
-#' \itemize{
-#' \item H_i - the H_i matrix
-#' \item Bbc - the 'bias corrected' meat matrix
-#' }
+#' @inheritParams correct_by_fay_bias
+#' @param L a k x p matrix where p is the dimension of theta
+#' @param version either 1 or 2, corresponding to hat(d) or tilde(d), respectively
+#' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for
+#' Wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
+#' @return a scalar corresponding to the estimated degrees of freedom
+#' @export
+#------------------------------------------------------------------------------#
+
+correct_by_fay_df <- function(A_i, A, B_i, B, b = .75, L, version){
+
+  ## Prepare necessary matrices ##
+  bias_mats <- fay_bias_correction_partial(A_i = A_i, A = A, B_i = B_i, B = B, b = b)
+  df_prep   <- df_correction_prep(L = L, A = A, A_i = A_i, H_i = bias_mats$H_i)
+
+  ## Compute DF corrections ##
+  if(version == 1){
+    out <- df_correction_1(df_prep$A_d, df_prep$C)
+  } else if(version == 2){
+    out <- df_correction_2(A = A, A_i = A_i, C = df_prep$C, L = L, Bbc = bias_mats$Bbc)
+  }
+  out
+}
+
+###############################################################################
+# functions internal to provided correct_by ####
+###############################################################################
+
+
+#------------------------------------------------------------------------------#
+# Compute the matrices necessary for Fay's bias correction
+#
+# @inheritParams fay_bias_correction
+# @return a list with
+# \itemize{
+# \item H_i - the H_i matrix
+# \item Bbc - the 'bias corrected' meat matrix
+# }
 # @export
 #------------------------------------------------------------------------------#
 
@@ -68,11 +114,11 @@ fay_bias_correction_partial <- function(A, A_i, B, B_i, b){
 }
 
 #------------------------------------------------------------------------------#
-#' Preparations for Fay's degrees of freedom corrections
-#'
-#' @param H_i a list of bias adjusted matrices
-#' @inheritParams fay_bias_correction
-#' @inheritParams fay_df_correction
+# Preparations for Fay's degrees of freedom corrections
+#
+# @param H_i a list of bias adjusted matrices
+# @inheritParams fay_bias_correction
+# @inheritParams fay_df_correction
 # @export
 #------------------------------------------------------------------------------#
 df_correction_prep <- function(L, A, A_i, H_i){
@@ -98,11 +144,11 @@ df_correction_prep <- function(L, A, A_i, H_i){
 }
 
 #------------------------------------------------------------------------------#
-#' Estimate Fay's degrees of freedom corrections 1
-#'
-#' @param A_d see \code{\link{df_correction_prep}}
-#' @param C see \code{\link{df_correction_prep}}
-#'
+# Estimate Fay's degrees of freedom corrections 1
+#
+# @param A_d see \code{\link{df_correction_prep}}
+# @param C see \code{\link{df_correction_prep}}
+#
 # @export
 #------------------------------------------------------------------------------#
 df_correction_1 <- function(A_d, C){
@@ -110,13 +156,13 @@ df_correction_1 <- function(A_d, C){
 }
 
 #------------------------------------------------------------------------------#
-#' Estimate Fay's degrees of freedom correction 2
-#'
-#' @inheritParams fay_bias_correction
-#' @inheritParams fay_df_correction
-#' @param C same as the C matrix in the Fay (2001) notation Section 2.3
-#' @param Bbc the bias corrected "B" matrix
-#'
+# Estimate Fay's degrees of freedom correction 2
+#
+# @inheritParams fay_bias_correction
+# @inheritParams fay_df_correction
+# @param C same as the C matrix in the Fay (2001) notation Section 2.3
+# @param Bbc the bias corrected "B" matrix
+#
 # @export
 #------------------------------------------------------------------------------#
 df_correction_2 <- function(A, A_i, C, L, Bbc){
@@ -136,10 +182,10 @@ df_correction_2 <- function(A, A_i, C, L, Bbc){
 }
 
 #------------------------------------------------------------------------------#
-#' Estimate Fay's degrees of freedom corrections
-#'
-#' @inheritParams df_correction_2
-#' @inheritParams fay_df_correction
+# Estimate Fay's degrees of freedom corrections
+#
+# @inheritParams df_correction_2
+# @inheritParams fay_df_correction
 # @export
 #------------------------------------------------------------------------------#
 
@@ -148,28 +194,3 @@ estimate_df <- function(A, C){
   (sum(Matrix::diag(AC)))^2 / sum(Matrix::diag(AC %*% AC))
 }
 
-#------------------------------------------------------------------------------#
-#' Fay's degrees of freedom corrections
-#'
-#' @inheritParams fay_bias_correction
-#' @param L a k x p matrix where p is the dimension of theta
-#' @param version either 1 or 2, corresponding to hat(d) or tilde(d), respectively
-#' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
-#' @return a scalar corresponding to the estimated degrees of freedom
-#' @export
-#------------------------------------------------------------------------------#
-
-fay_df_correction <- function(A_i, A, B_i, B, b = .75, L, version){
-
-  ## Prepare necessary matrices ##
-  bias_mats <- fay_bias_correction_partial(A_i = A_i, A = A, B_i = B_i, B = B, b = b)
-  df_prep   <- df_correction_prep(L = L, A = A, A_i = A_i, H_i = bias_mats$H_i)
-
-  ## Compute DF corrections ##
-  if(version == 1){
-    out <- df_correction_1(df_prep$A_d, df_prep$C)
-  } else if(version == 2){
-    out <- df_correction_2(A = A, A_i = A_i, C = df_prep$C, L = L, Bbc = bias_mats$Bbc)
-  }
-  out
-}
