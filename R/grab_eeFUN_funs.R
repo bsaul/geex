@@ -142,10 +142,10 @@ grab_eeFUN.merMod <- function(model, data, numderiv_opts = NULL, ...)
 }
 
 #------------------------------------------------------------------------------#
-#' Objective Function for merMod object
-#'
-#'@param family distribution family of objective function
-#'@param ... additional arguments pass to objective function
+# Objective Function for merMod object
+#
+# @param family distribution family of objective function
+# @param ... additional arguments pass to objective function
 #------------------------------------------------------------------------------#
 
 objFun_merMod <- function(family, ...){
@@ -155,12 +155,12 @@ objFun_merMod <- function(family, ...){
 }
 
 #------------------------------------------------------------------------------#
-#' Objective Function for Logistic-Normal Likelihood
-#'
-#' @param parms vector of parameters
-#' @param response vector of response values
-#' @param xmatrix the matrix of covariates
-#' @param linkinv inverse link function
+# Objective Function for Logistic-Normal Likelihood
+#
+# @param parms vector of parameters
+# @param response vector of response values
+# @param xmatrix the matrix of covariates
+# @param linkinv inverse link function
 #------------------------------------------------------------------------------#
 
 objFun_glmerMod_binomial <- function(parms, response, xmatrix, linkinv)
@@ -174,10 +174,10 @@ objFun_glmerMod_binomial <- function(parms, response, xmatrix, linkinv)
 }
 
 #------------------------------------------------------------------------------#
-#' Objective Function for Logistic-Normal Likelihood
-#'
-#' @inheritParams objFun_glmerMod_binomial
-#' @param b the random effect to integrate over
+# Objective Function for Logistic-Normal Likelihood
+#
+# @inheritParams objFun_glmerMod_binomial
+# @param b the random effect to integrate over
 #------------------------------------------------------------------------------#
 
 binomial_integrand <- function(b, response, xmatrix, parms, linkinv){
