@@ -11,7 +11,7 @@
 #'
 #------------------------------------------------------------------------------#
 
-verify_roots <- function(geex_list, theta){
+diagnose_roots <- function(geex_list, theta){
   psi_i <- create_psi(splitdt      = geex_list$splitdt,
                       eeFUN        = geex_list$eeFUN,
                       outer_eeargs = geex_list$outer_eeargs)

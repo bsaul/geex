@@ -18,7 +18,7 @@ test_that("check_GFUN function works", {
     rootFUN_control = list(start = c(2,2))
   )
 
-  test <- check_GFUN(myList, temp$estimates)
+  test <- diagnose_roots(myList, temp$estimates)
 
   expect_equal(length(test), 2)
 
