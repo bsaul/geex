@@ -39,7 +39,7 @@ references:
 ---
 
 
-# Preliminaries
+## Preliminaries
 
 This vignette implements examples from @stefanski2002 (SB). Examples 4-9 use the `geexex` data set. For information on how the data are generated, run `help('geexex')`.
 
@@ -47,9 +47,9 @@ This vignette implements examples from @stefanski2002 (SB). Examples 4-9 use the
 library(geex)
 ```
 
-# The Basic Approach
+## The Basic Approach
 
-## Example 4: Instrumental variables
+### Example 4: Instrumental variables
 
 Example 4 calculates an instumental variable estimator. The variables ($Y^3, W^1, Z^1$) are observed according to:
 
@@ -113,9 +113,9 @@ iv_se[2, 'Std. Error']
 sqrt(estimates$vcov[4, 4])
 ```
 
-# Connections to the Influence Curve
+## Connections to the Influence Curve
 
-## Example 5: Hodges-Lehmann estimator
+### Example 5: Hodges-Lehmann estimator
 
 This example shows the link between the influence curves and the Hodges-Lehman estimator.
 
@@ -173,9 +173,9 @@ results <- list(geex = estimates[c('estimates', 'vcov')],
 results
 ```
 
-# Non-smooth $\psi$ functions
+## Non-smooth $\psi$ functions
 
-## Example 6: Huber center of symmetry estimator
+### Example 6: Huber center of symmetry estimator
 
 This example illustrates estimation with nonsmooth $\psi$ function for computing the @huber1964 estimator of the center of symmetric distributions. 
 
@@ -232,7 +232,7 @@ results <- list(geex = estimates[c('estimates', 'vcov')],
 results
 ```
 
-## Example 7: Sample quantiles (approximation of psi)
+### Example 7: Sample quantiles (approximation of psi)
 
 Example 7 illustrates calculation of sample quantiles using M-estimation and approximation of the $\psi$ function.
 
@@ -279,9 +279,9 @@ results <- list(geex = estimates[c('estimates', 'vcov')],
 results
 ```
 
-# Regression M-estimators
+## Regression M-estimators
 
-## Example 8: Robust regression
+### Example 8: Robust regression
 
 Example 8 demonstrates robust regression for estimating $\beta$ from 100 observations generated from $Y^4 = 0.1 + 0.1 X^1_i + 0.5 X^2_i + \epsilon_i$, where $\epsilon_i \sim N(0, 1)$, $X_1$ is defined as above, and the first half of the observation have $X^2_i = 1$ and the others have $X^2_i = 0$. 
 
@@ -326,7 +326,7 @@ results <- list(geex = estimates[c('estimates', 'vcov')],
 results
 ```
 
-## Example 9: Generalized linear models
+### Example 9: Generalized linear models
 
 Example 9 illustrates estimation of a generalized linear model. 
 
@@ -372,9 +372,9 @@ results <- list(geex = estimates[c('estimates', 'vcov')],
 results
 ```
 
-# Application to test statistics
+## Application to test statistics
 
-## Example 10: Testing equality of success probabilities
+### Example 10: Testing equality of success probabilities
 
 ```{r SB10_setup, echo=FALSE}
 shaq <- data.frame(
@@ -442,4 +442,4 @@ pnorm(estimates$estimates[1],
 ```
 
 
-# References
+## References

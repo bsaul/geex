@@ -9,11 +9,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-# Motivation
+## Motivation
 
 A user had a case of estimating parameters based on a dataset that contained only categorical predictors. The data can be represented either as one row per individual or one row per group defined by unique combinations of categories. In this example, I show how computations in `geex` can be massively sped up using the latter data representation and the `weights` option in `estimate_equation`.
 
-# Data
+## Data
 
 The following code generates two datasets: `data1` has one row per unit and `data2` has one row per unique combination of the categorical varibles.
 
@@ -33,7 +33,7 @@ data1 <- data_frame(
 data2 <- data1 %>% group_by(Y_tau, S_star, Y, Z) %>% count()
 ```
 
-# Estimating equations
+## Estimating equations
 
 This is the estimating equation that the user provided as an example. I have no idea what the target parameters represent, but it nicely illustrates the point.
 
@@ -48,7 +48,7 @@ example <- function(data) {
 }
 ```
 
-# Computation time
+## Computation time
 
 The timing to find point and variance estimates is compared:
 ```{r}
@@ -70,7 +70,7 @@ system.time({
 
 The latter option is clearly preferred.
 
-# Results comparison
+## Results comparison
 
 And the results are basically identical:
 ```{r}

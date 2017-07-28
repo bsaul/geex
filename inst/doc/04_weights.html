@@ -74,12 +74,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<div id="motivation" class="section level1">
-<h1>Motivation</h1>
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
 <p>A user had a case of estimating parameters based on a dataset that contained only categorical predictors. The data can be represented either as one row per individual or one row per group defined by unique combinations of categories. In this example, I show how computations in <code>geex</code> can be massively sped up using the latter data representation and the <code>weights</code> option in <code>estimate_equation</code>.</p>
 </div>
-<div id="data" class="section level1">
-<h1>Data</h1>
+<div id="data" class="section level2">
+<h2>Data</h2>
 <p>The following code generates two datasets: <code>data1</code> has one row per unit and <code>data2</code> has one row per unique combination of the categorical varibles.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
 <span class="kw">library</span>(dplyr)
@@ -95,8 +95,8 @@ data1 &lt;-<span class="st"> </span><span class="kw">data_frame</span>(
 
 data2 &lt;-<span class="st"> </span>data1 %&gt;%<span class="st"> </span><span class="kw">group_by</span>(Y_tau, S_star, Y, Z) %&gt;%<span class="st"> </span><span class="kw">count</span>()</code></pre></div>
 </div>
-<div id="estimating-equations" class="section level1">
-<h1>Estimating equations</h1>
+<div id="estimating-equations" class="section level2">
+<h2>Estimating equations</h2>
 <p>This is the estimating equation that the user provided as an example. I have no idea what the target parameters represent, but it nicely illustrates the point.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">example &lt;-<span class="st"> </span>function(data) {
   function(theta) {
@@ -107,8 +107,8 @@ data2 &lt;-<span class="st"> </span>data1 %&gt;%<span class="st"> </span><span c
   }
 }</code></pre></div>
 </div>
-<div id="computation-time" class="section level1">
-<h1>Computation time</h1>
+<div id="computation-time" class="section level2">
+<h2>Computation time</h2>
 <p>The timing to find point and variance estimates is compared:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>({
 results1 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
@@ -118,7 +118,7 @@ results1 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span
 )})</code></pre></div>
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>##    user  system elapsed 
-##  19.686   0.170  19.898</code></pre>
+##  20.801   0.176  21.024</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>({
   results2 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
   <span class="dt">eeFUN =</span> example,
@@ -128,11 +128,11 @@ results1 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span
 )})</code></pre></div>
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.027   0.000   0.027</code></pre>
+##   0.026   0.000   0.026</code></pre>
 <p>The latter option is clearly preferred.</p>
 </div>
-<div id="results-comparison" class="section level1">
-<h1>Results comparison</h1>
+<div id="results-comparison" class="section level2">
+<h2>Results comparison</h2>
 <p>And the results are basically identical:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results1$estimates</code></pre></div>
 <pre><code>## [1] 0.4020990 0.4009632 0.1612269</code></pre>

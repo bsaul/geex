@@ -40,7 +40,7 @@ references:
     year: 2001
 ---
 
-# Introduction
+## Introduction
 
 The empirical sandwich variance estimator is known to underestimate $V(\theta)$ in small samples [@fay2001]. Particularly in the context of GEE, [many authors](https://bsaul.github.io/geex/articles/articles/mestimation_bib.html) have proposed corrections that modify components of $\hat{\Sigma}$ and/or by assuming $\hat{\theta}$ follows a $t$ (or $F$), as opposed to Normal, distribution with some estimated degrees of freedom. Many of the proposed corrections somehow modify a combination of the $A_i$, $A_m$, $B_i$, or $B_m$ matrices. 
 
@@ -54,7 +54,7 @@ correct_by_nothing <- function(A, A_i, B, B_i){
 
 is a correctly formed function that does no corrections. Additional arguments may also be specified, as shown in the example. 
 
-# Corrections included with `geex`
+## Corrections included with `geex`
 
 The `geex` package includes the bias correction and degrees of freedom corrections proposed by @fay2001 in the `correct_by_fay_bias` and `correct_by_fay_df` functions respectively. The following demonstrates the construction and use of the bias correction. @fay2001 proposed the modified variance estimator $\hat{\Sigma}^{bc}(b) = A_m^{-1} B_m^{bc}(b) \{A_m^{-1}\}^{\intercal}/m$, where:
 
@@ -70,7 +70,7 @@ H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
 
 \noindent and $W_{jj}$ is the $(j, j)$ element of a matrix $W$. When $\{A_i A\}_{jj}$ is close to 1, the adjustment to $\hat{\Sigma}^{bc}(b)$ may be extreme, and the constant $b$ is chosen by the analyst to limit over adjustments. 
 
-# Bias correction example
+## Bias correction example
 
 The bias corrected estimator $\hat{\Sigma}^{bc}(b)$ can be implemented in `geex` by the following function:
 
@@ -93,7 +93,7 @@ correct_by_bias <- function(A, A_i, B, B_i, b){
 
 The `compute_sigma` function simply computes $A^{-1} B \{A^{-1}\}^{\intercal}$. Note that `geex` computes $A_m$ and $B_m$ as the sums of $A_i$ and $B_i$ rather than the means, hence the appropriate function in the `apply` call is `sum` and not `mean`. To use this bias correction, the `estimate_equations` function accepts a named list of corrections to perform. Each element of the list is also a list with two elements: `correctFUN`, the correction function; and `correctFUN_control`, a list of arguments passed to the `correctFUN` besides `A`, `A_i`, `B`, and `B_i`. 
 
-# Comparision to saws package
+## Comparision to saws package
 
 Here we compare the `geex` implementation of GEE with an exchangeable correlation matrix to Fay's `saws` package. 
 
@@ -162,4 +162,4 @@ saws::saws(guo, method = 'd4', bound  = 0.3)$V
 results$corrections$bias_correction_.3
 ```
 
-# References
+## References

@@ -138,7 +138,7 @@ Sigma &lt;-<span class="st"> </span>ce_estimates$vcov
 ## [1,] 0.03716025</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">direct_effect</span>(test, <span class="dt">allocation =</span> .<span class="dv">35</span>)$std.error <span class="co"># from inferference</span></code></pre></div>
 <pre><code>## [1] 0.02602316</code></pre>
-<p>I would expect them to be somewhat different, since <code>inferference</code> computes the variance with the block diagonal trick in the Perez appendix.</p>
+<p>I would expect them to be somewhat different, since <code>inferference</code> uses a slightly different variance estimator defined in the <a href="http://onlinelibrary.wiley.com/store/10.1111/biom.12184/asset/supinfo/biom12184-sm-0001-SuppData.pdf?v=1&amp;s=f54ecbc59e7600cd32e8f5c110d395f0a34b3fb8">web appendix of Perez-Heydrich et al (2014)</a>.</p>
 </div>
 
 

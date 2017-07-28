@@ -74,8 +74,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<div id="introduction" class="section level1">
-<h1>Introduction</h1>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
 <p>The empirical sandwich variance estimator is known to underestimate <span class="math inline">\(V(\theta)\)</span> in small samples <span class="citation">(Fay and Graubard 2001)</span>. Particularly in the context of GEE, <a href="https://bsaul.github.io/geex/articles/articles/mestimation_bib.html">many authors</a> have proposed corrections that modify components of <span class="math inline">\(\hat{\Sigma}\)</span> and/or by assuming <span class="math inline">\(\hat{\theta}\)</span> follows a <span class="math inline">\(t\)</span> (or <span class="math inline">\(F\)</span>), as opposed to Normal, distribution with some estimated degrees of freedom. Many of the proposed corrections somehow modify a combination of the <span class="math inline">\(A_i\)</span>, <span class="math inline">\(A_m\)</span>, <span class="math inline">\(B_i\)</span>, or <span class="math inline">\(B_m\)</span> matrices.</p>
 <p><code>geex</code> provides an API that allows users to specify functions that utilize these matrices to form corrections. A finite sample correction function at a minimum takes the arguments <code>A</code> (<span class="math inline">\(= \sum_i A_i\)</span>) matrix, <code>A_i</code> (a list of all <span class="math inline">\(m\)</span> <span class="math inline">\(A_i\)</span> matrices), <code>B</code> (<span class="math inline">\(= \sum_i B_i\)</span>) matrix, and <code>B_i</code> (a list of all <span class="math inline">\(m\)</span> <span class="math inline">\(B_i\)</span> matrices). For example,</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">correct_by_nothing &lt;-<span class="st"> </span>function(A, A_i, B, B_i){
@@ -83,8 +83,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 }</code></pre></div>
 <p>is a correctly formed function that does no corrections. Additional arguments may also be specified, as shown in the example.</p>
 </div>
-<div id="corrections-included-with-geex" class="section level1">
-<h1>Corrections included with <code>geex</code></h1>
+<div id="corrections-included-with-geex" class="section level2">
+<h2>Corrections included with <code>geex</code></h2>
 <p>The <code>geex</code> package includes the bias correction and degrees of freedom corrections proposed by <span class="citation">Fay and Graubard (2001)</span> in the <code>correct_by_fay_bias</code> and <code>correct_by_fay_df</code> functions respectively. The following demonstrates the construction and use of the bias correction. <span class="citation">Fay and Graubard (2001)</span> proposed the modified variance estimator <span class="math inline">\(\hat{\Sigma}^{bc}(b) = A_m^{-1} B_m^{bc}(b) \{A_m^{-1}\}^{\intercal}/m\)</span>, where:</p>
 <span class="math display">\[\begin{equation}
 \label{eq:bc}
@@ -96,8 +96,8 @@ H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
 \end{equation}\]</span>
 <p>and <span class="math inline">\(W_{jj}\)</span> is the <span class="math inline">\((j, j)\)</span> element of a matrix <span class="math inline">\(W\)</span>. When <span class="math inline">\(\{A_i A\}_{jj}\)</span> is close to 1, the adjustment to <span class="math inline">\(\hat{\Sigma}^{bc}(b)\)</span> may be extreme, and the constant <span class="math inline">\(b\)</span> is chosen by the analyst to limit over adjustments.</p>
 </div>
-<div id="bias-correction-example" class="section level1">
-<h1>Bias correction example</h1>
+<div id="bias-correction-example" class="section level2">
+<h2>Bias correction example</h2>
 <p>The bias corrected estimator <span class="math inline">\(\hat{\Sigma}^{bc}(b)\)</span> can be implemented in <code>geex</code> by the following function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">correct_by_bias &lt;-<span class="st"> </span>function(A, A_i, B, B_i, b){
   Ainv &lt;-<span class="st"> </span><span class="kw">solve</span>(A)
@@ -115,8 +115,8 @@ H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
 }</code></pre></div>
 <p>The <code>compute_sigma</code> function simply computes <span class="math inline">\(A^{-1} B \{A^{-1}\}^{\intercal}\)</span>. Note that <code>geex</code> computes <span class="math inline">\(A_m\)</span> and <span class="math inline">\(B_m\)</span> as the sums of <span class="math inline">\(A_i\)</span> and <span class="math inline">\(B_i\)</span> rather than the means, hence the appropriate function in the <code>apply</code> call is <code>sum</code> and not <code>mean</code>. To use this bias correction, the <code>estimate_equations</code> function accepts a named list of corrections to perform. Each element of the list is also a list with two elements: <code>correctFUN</code>, the correction function; and <code>correctFUN_control</code>, a list of arguments passed to the <code>correctFUN</code> besides <code>A</code>, <code>A_i</code>, <code>B</code>, and <code>B_i</code>.</p>
 </div>
-<div id="comparision-to-saws-package" class="section level1">
-<h1>Comparision to saws package</h1>
+<div id="comparision-to-saws-package" class="section level2">
+<h2>Comparision to saws package</h2>
 <p>Here we compare the <code>geex</code> implementation of GEE with an exchangeable correlation matrix to Fay’s <code>saws</code> package.</p>
 <p>The estimating functions are:</p>
 <span class="math display">\[\begin{equation}
@@ -157,8 +157,8 @@ results &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>
                              <span class="dt">correctFUN_control =</span> <span class="kw">list</span>(<span class="dt">b =</span> .<span class="dv">3</span>)))) </code></pre></div>
 <p>In the <code>geex</code> output, the item <code>corrections</code> contains a list of the results of computing each item in the <code>corrections_list</code>. Comparing the <code>geex</code> results to the results of the <code>saws::geeUOmega</code> function, the maximum difference in the results for any of corrected estimated covariance matrices is 1.1e-09.</p>
 </div>
-<div id="references" class="section level1 unnumbered">
-<h1>References</h1>
+<div id="references" class="section level2 unnumbered">
+<h2>References</h2>
 <div id="refs" class="references">
 <div id="ref-fay2001">
 <p>Fay, Michael P., and Barry I. Graubard. 2001. <em>Small-Sample Adjustments for Wald-Type Tests Using Sandwich Estimators</em> 57.</p>
