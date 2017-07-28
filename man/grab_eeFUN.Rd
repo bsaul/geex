@@ -2,7 +2,7 @@
 % Please edit documentation in R/grab_eeFUN_funs.R
 \name{grab_eeFUN}
 \alias{grab_eeFUN}
-\title{Make Estimating Equation functions}
+\title{Grab estimating functions from a model}
 \usage{
 grab_eeFUN(model, data, ...)
 }

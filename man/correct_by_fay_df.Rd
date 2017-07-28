@@ -2,7 +2,7 @@
 % Please edit documentation in R/correct_by_funs.R
 \name{correct_by_fay_df}
 \alias{correct_by_fay_df}
-\title{Fay's degrees of freedom corrections}
+\title{Correct sandwich variance inference by Fay's degrees of freedom correction}
 \usage{
 correct_by_fay_df(A_i, A, B_i, B, b = 0.75, L, version)
 }
@@ -25,7 +25,7 @@ correct_by_fay_df(A_i, A, B_i, B, b = 0.75, L, version)
 a scalar corresponding to the estimated degrees of freedom
 }
 \description{
-Fay's degrees of freedom corrections
+Correct sandwich variance inference by Fay's degrees of freedom correction
 }
 \references{
 Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for

@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-#' Make Estimating Equation functions
+#' Grab estimating functions from a model
 #'
 #' Converts a model object into
 #'
@@ -20,7 +20,7 @@ grab_eeFUN <- function(model, data, ...)
 }
 
 #------------------------------------------------------------------------------#
-#' glm Estimating Equations
+#' Grab estimating functions from a glm object
 #'
 #' Create estimating equation function from a \code{glm} object
 #'
@@ -67,7 +67,7 @@ grab_eeFUN.glm <- function(model, data, weights = 1, ...)
 }
 
 #------------------------------------------------------------------------------#
-#' geeglm Estimating Equations
+#' Grab estimating functions from a geeglm object
 #'
 #' Create estimating equation function from a \code{geeglm} object
 #'
@@ -112,7 +112,7 @@ grab_eeFUN.geeglm <- function(model, data, ...)
 }
 
 #------------------------------------------------------------------------------#
-#' glmer Estimating Equations
+#' Grab estimating functions from a merMod object
 #'
 #' Create estimating equation function from a \code{merMod} object
 #'

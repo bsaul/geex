@@ -2,7 +2,7 @@
 % Please edit documentation in R/grab_eeFUN_funs.R
 \name{grab_eeFUN.merMod}
 \alias{grab_eeFUN.merMod}
-\title{glmer Estimating Equations}
+\title{Grab estimating functions from a merMod object}
 \usage{
 \method{grab_eeFUN}{merMod}(model, data, numderiv_opts = NULL, ...)
 }

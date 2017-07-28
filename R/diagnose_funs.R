@@ -4,7 +4,7 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-#' Evaluate estimating eqations.
+#' Diagnose roots of estimating equations
 #'
 #' Computes the value of \deqn{G_m = sum_i psi(O_i, \hat{\theta})}{G_m = sum_i psi(O_i, theta)}, i.e., the estimating
 #' equations at \code{theta}. Used to verify that \eqn{G_m = 0}{G_m = 0} (or close to 0).

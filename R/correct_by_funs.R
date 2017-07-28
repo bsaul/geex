@@ -29,7 +29,7 @@ make_corrections <- function(mats, corrections){
 ###############################################################################
 
 #------------------------------------------------------------------------------#
-#' Estimate Fay's bias correction
+#' Correct sandwich variance estimator byFay's bias correction
 #'
 #' Computes the bias corrected sandwich covariance matrix described in Fay and
 #' Graubard (2001).
@@ -53,7 +53,7 @@ correct_by_fay_bias <- function(A_i, A, B_i, B, b = 0.75){
 }
 
 #------------------------------------------------------------------------------#
-#' Fay's degrees of freedom corrections
+#' Correct sandwich variance inference by Fay's degrees of freedom correction
 #'
 #' @inheritParams correct_by_fay_bias
 #' @param L a k x p matrix where p is the dimension of theta

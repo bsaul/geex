@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-#' Estimate roots for a set of estimating equations
+#' Compute roots for a set of estimating equations
 #'
 #' Using the \code{rootFUN} specified by the user (defaults to \code{\link[rootSolve]{multiroot}}),
 #' this function estimates the roots of the equations: \deqn{G_m = sum_i psi(O_i, \hat{\theta}) = 0}{G_m = sum_i psi(O_i, theta) = 0}

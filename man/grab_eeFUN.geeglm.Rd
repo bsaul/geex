@@ -2,7 +2,7 @@
 % Please edit documentation in R/grab_eeFUN_funs.R
 \name{grab_eeFUN.geeglm}
 \alias{grab_eeFUN.geeglm}
-\title{geeglm Estimating Equations}
+\title{Grab estimating functions from a geeglm object}
 \usage{
 \method{grab_eeFUN}{geeglm}(model, data, ...)
 }

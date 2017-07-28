@@ -2,7 +2,7 @@
 % Please edit documentation in R/diagnose_funs.R
 \name{diagnose_roots}
 \alias{diagnose_roots}
-\title{Evaluate estimating eqations.}
+\title{Diagnose roots of estimating equations}
 \usage{
 diagnose_roots(geex_list, theta)
 }

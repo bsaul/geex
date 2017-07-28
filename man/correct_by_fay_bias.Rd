@@ -2,7 +2,7 @@
 % Please edit documentation in R/correct_by_funs.R
 \name{correct_by_fay_bias}
 \alias{correct_by_fay_bias}
-\title{Estimate Fay's bias correction}
+\title{Correct sandwich variance estimator byFay's bias correction}
 \usage{
 correct_by_fay_bias(A_i, A, B_i, B, b = 0.75)
 }

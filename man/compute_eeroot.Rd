@@ -2,7 +2,7 @@
 % Please edit documentation in R/compute_funs.R
 \name{compute_eeroot}
 \alias{compute_eeroot}
-\title{Estimate roots for a set of estimating equations}
+\title{Compute roots for a set of estimating equations}
 \usage{
 compute_eeroot(geex_list, rootFUN = rootSolve::multiroot,
   rootFUN_control = NULL, approxFUN = NULL, approxFUN_control = NULL)

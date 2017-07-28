@@ -2,7 +2,7 @@
 % Please edit documentation in R/grab_eeFUN_funs.R
 \name{grab_eeFUN.glm}
 \alias{grab_eeFUN.glm}
-\title{glm Estimating Equations}
+\title{Grab estimating functions from a glm object}
 \usage{
 \method{grab_eeFUN}{glm}(model, data, weights = 1, ...)
 }
