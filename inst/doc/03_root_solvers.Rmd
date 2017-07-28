@@ -1,5 +1,5 @@
 ---
-title: "Using different rootFUN in `geex`"
+title: "Using different or custom root solvers in `geex`"
 author: "Bradley Saul"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

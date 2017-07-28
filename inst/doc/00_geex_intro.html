@@ -14,7 +14,7 @@
 
 <meta name="date" content="2017-07-28" />
 
-<title>Estimating Equations in R using geex</title>
+<title>An introduction to M-estimation with geex</title>
 
 
 
@@ -69,7 +69,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">Estimating Equations in R using <code>geex</code></h1>
+<h1 class="title toc-ignore">An introduction to M-estimation with <code>geex</code></h1>
 <h4 class="author"><em>B. Saul</em></h4>
 <h4 class="date"><em>2017-07-28</em></h4>
 
@@ -133,23 +133,23 @@ Y_i - \theta_1 \\
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>## $geex
 ## $geex$estimates
-## [1] 4.657761 3.169390
+## [1] 5.241179 3.262777
 ## 
 ## $geex$vcov
-##              [,1]         [,2]
-## [1,]  0.031693896 -0.007602235
-## [2,] -0.007602235  0.128311718
+##            [,1]       [,2]
+## [1,] 0.03262777 0.01067326
+## [2,] 0.01067326 0.19383836
 ## 
 ## 
 ## $cls
 ## $cls$parameters
-##         p1      p2
-## 1 4.657761 3.16939
+##         p1       p2
+## 1 5.241179 3.262777
 ## 
 ## $cls$vcov
-##              [,1]         [,2]
-## [1,]  0.031693896 -0.007602235
-## [2,] -0.007602235  0.128311718</code></pre>
+##            [,1]       [,2]
+## [1,] 0.03262777 0.01067326
+## [2,] 0.01067326 0.19383836</code></pre>
 </div>
 <div id="stefanski-boos-example-2" class="section level2">
 <h2>Stefanski &amp; Boos example 2</h2>
@@ -179,25 +179,25 @@ X_i - \theta_2 \\
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>## $geex
 ## $geex$estimates
-## [1] 4.889928 2.020428 2.420244
+## [1] 4.748385 1.985340 2.391723
 ## 
 ## $geex$vcov
-##              [,1]          [,2]          [,3]
-## [1,] 4.142454e-02  6.994802e-06  0.0204944804
-## [2,] 6.994802e-06  3.913644e-04 -0.0004653484
-## [3,] 2.049448e-02 -4.653484e-04  0.0107010704
+##               [,1]          [,2]          [,3]
+## [1,]  3.113317e-02 -7.614413e-05  0.0157732555
+## [2,] -7.614413e-05  3.668673e-04 -0.0004803152
+## [3,]  1.577326e-02 -4.803152e-04  0.0085234937
 ## 
 ## 
 ## $cls
 ## $cls$parameters
-##         p1       p2       p3
-## 1 4.889928 2.020428 2.420244
+##         p1      p2       p3
+## 1 4.748385 1.98534 2.391723
 ## 
 ## $cls$vcov
-##              [,1]          [,2]          [,3]
-## [1,] 4.184297e-02  7.065456e-06  0.0207014954
-## [2,] 7.065456e-06  3.953176e-04 -0.0004700489
-## [3,] 2.070150e-02 -4.700489e-04  0.0108091620</code></pre>
+##               [,1]          [,2]          [,3]
+## [1,]  3.144764e-02 -7.691326e-05  0.0159325813
+## [2,] -7.691326e-05  3.705730e-04 -0.0004851669
+## [3,]  1.593258e-02 -4.851669e-04  0.0086095896</code></pre>
 </div>
 <div id="stefanski-boos-example-3" class="section level2">
 <h2>Stefanski &amp; Boos example 3</h2>

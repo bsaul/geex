@@ -1,5 +1,5 @@
 ---
-title: "Finite sample correction API"
+title: "Finite sample correction API in `geex`"
 author: "Bradley Saul"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

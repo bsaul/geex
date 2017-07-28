@@ -1,5 +1,5 @@
 ---
-title: "Comparison of geex to sandwich"
+title: "A comparison of `geex` and sandwich for robust covariance estimationh"
 author: "Bradley Saul"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

@@ -1,5 +1,5 @@
 ---
-title: "Estimating causal parameters using geex"
+title: "Estimating causal parameters using `geex`"
 author: "Bradley Saul"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

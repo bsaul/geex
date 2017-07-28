@@ -1,5 +1,5 @@
 ---
-title: "Using weights in geex"
+title: "Speeding computations using weights in `geex`"
 author: "Bradley Saul"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

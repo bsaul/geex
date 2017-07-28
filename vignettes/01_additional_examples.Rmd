@@ -1,5 +1,5 @@
 ---
-title: "Stefanski and Boos examples 4-10"
+title: "Additional calculus of M-estimation examples using `geex`"
 author: "Bradley Saul"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
