@@ -3,31 +3,50 @@ title: "An M-estimation bibliography"
 output: html_document
 ---
 
-# Basics
-
-* Huber
-* White
-* Stefanski and Boos (2001 + textbook)
-
+## Overview
 
 Boos, D. D., & Stefanski, L. A. (2013). [Essential statistical inference theory and methods.](http://dx.doi.org/10.1007/978-1-4614-4818-1) New York, NY: Springer.  
 
-* early development: Godambe's optimum estimating equations
+Stefanski, L. A., & Boos, D. D. (2002). The calculus of M-estimation. The American Statistician, 56(1), 29-38.
 
-# Applications
+## Theoretical development
 
-## Generalized Estimating Equations
+Godambe, V. P. (1960). An optimum property of regular maximum likelihood estimation. The Annals of Mathematical Statistics, 1208-1211.
 
-* Liang and Zeger 1986
-* Pepe and Anderson 1994
-* Lumley 1999
+Huber, P. J., & Ronchetti, E. M. (2009). [Robust statistics (2nd ed.)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470129905.html). Hoboken: Wiley.
 
-## Small sample corrections
+White, H. (1980). A heteroskedasticity-consistent covariance matrix estimator and a direct test for heteroskedasticity. Econometrica: Journal of the Econometric Society, 817-838.
 
-* Fay 
-* Mancl
-* Preisser
+White, H. (1982). Maximum likelihood estimation of misspecified models. Econometrica: Journal of the Econometric Society, 1-25.
+
+## Applications
+
+### Generalized Estimating Equations
+
+Liang, K., & Zeger, L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1), 13-22.
+
+Sullivan Pepe, M., & Anderson, G. L. (1994). A cautionary note on inference for marginal regression models with longitudinal data and general correlated response data. Communications in Statistics - Simulation and Computation, 23(4), 939-951.
+
+Preisser, J. S., Lohman, K. K., & Rathouz, P. J. (2002). Performance of weighted estimating equations for longitudinal binary data with drop-outs missing at random. Statistics in Medicine, 21(20), 3035-3054.
+
+### Small sample corrections
+
+Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for Wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206.
+
+Kauermann, G., & Carroll, R. J. (2001). A note on the efficiency of sandwich covariance matrix estimation. Journal of the American Statistical Association, 96(456), 1387-1396.
+
+Lu, B., Preisser, J. S., Qaqish, B. F., Suchindran, C., Bangdiwala, S. I., & Wolfson, M. (2007). A comparison of two bias-corrected covariance estimators for generalized estimating equations. Biometrics, 63(3), 935-941.
+
+Mancl, L. A., & DeRouen, T. A. (2001). A covariance estimator for GEE with improved small-sample properties. Biometrics, 57(1), 126-134.
+
+Paul, S., & Zhang, X. (2014). [Small sample GEE estimation of regression parameters for longitudinal data](http://dx.doi.org/10.1002/sim.6198). Statistics in Medicine, 33(22), 3869-81.
+
+Teerenstra, S., Lu, B., Preisser, J. S., Van Achterberg, T., & Borm, G. F. (2010). Sample size considerations for GEE analyses of three-level cluster randomized trials. Biometrics, 66(4), 1230-1237.
 
 ## Software
 
-...software...
+Carey, V. J., Lumley, T., & Ripley, B. D. (2012). [gee: Generalized estimation equation solver](http://CRAN.R-project.org/package=gee). R Package Version, 4-13.
+
+Halekoh, U., Hojsgaard, S., & Yan, J. (2006). [The R package geepack for generalized estimating equations](https://www.jstatsoft.org/article/view/v015i02). Journal of Statistical Software, 15(2), 1-11.
+
+McDaniel, L. S., Henderson, N. C., and Rathouz, P. J. (2013). [Fast pure R implementation of GEE: application of the Matrix package](https://journal.r-project.org/archive/2013/RJ-2013-017/RJ-2013-017.pdf). The R Journal, 5/1:181--187
