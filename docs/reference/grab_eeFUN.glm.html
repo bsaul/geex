@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Creates list of psi functions — create_psi • geex</title>
+<title>Grab estimating functions from a glm object — grab_eeFUN.glm • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -80,47 +80,36 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Creates list of psi functions</h1>
+    <h1>Grab estimating functions from a glm object</h1>
     </div>
 
     
-    <p>Creates the estimating function (\(\psi(O_i, \theta)\))
-for each unit. That is, this function evaluates the outer function in <code>eeFUN</code>
-for each independent unit and a returns the inner function in <code>eeFUN</code>.</p>
+    <p>Create estimating equation function from a <code>glm</code> object</p>
     
 
-    <pre class="usage"><span class='fu'>create_psi</span>(<span class='no'>splitdt</span>, <span class='no'>eeFUN</span>, <span class='kw'>approxFUN</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>approxFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>outer_eeargs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='co'># S3 method for glm</span>
+<span class='fu'><a href='grab_eeFUN.html'>grab_eeFUN</a></span>(<span class='no'>model</span>, <span class='no'>data</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>splitdt</th>
-      <td><p>list of dataframes with data per unit</p></td>
+      <th>model</th>
+      <td><p>a model object object</p></td>
     </tr>
     <tr>
-      <th>eeFUN</th>
-      <td><p>the estimating equation function</p></td>
+      <th>data</th>
+      <td><p>data with which to create the estimating equation function</p></td>
     </tr>
     <tr>
-      <th>approxFUN</th>
-      <td><p>a function that approximates the inner function of <code>eeFUN</code>.
-(EXPERIMENTAL).</p></td>
+      <th>weights</th>
+      <td><p>a scalar or vector of weight values</p></td>
     </tr>
     <tr>
-      <th>approxFUN_control</th>
-      <td><p>arguments passed to <code>approxFUN</code></p></td>
-    </tr>
-    <tr>
-      <th>outer_eeargs</th>
-      <td><p>a list of arguments passed to <code>eeFUN</code></p></td>
+      <th>...</th>
+      <td><p>passed to methods</p></td>
     </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>a list of functions, each function corresponding to a single unit</p>
     
 
   </div>
@@ -128,9 +117,7 @@ for each independent unit and a returns the inner function in <code>eeFUN</code>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-          </ul>
+                </ul>
 
   </div>
 </div>

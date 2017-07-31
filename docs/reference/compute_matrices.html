@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compute component matrices for covariance matrix — compute_matrices • geex</title>
+<title>Compute component matrices of the empirical sandwich covariance estimator — compute_matrices • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -63,7 +63,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -75,12 +80,12 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compute component matrices for covariance matrix</h1>
+    <h1>Compute component matrices of the empirical sandwich covariance estimator</h1>
     </div>
 
     
-    <p>For a given set of estimating equations computes the 'meat' and 'bread' matrices
-necessary to compute the covariance matrix.</p>
+    <p>For a given set of estimating equations computes the 'meat' (\(B_m\) in Stefanski and Boos notation)
+and 'bread' (\(A_m\) in Stefanski and Boos notation) matrices necessary to compute the covariance matrix.</p>
     
 
     <pre class="usage"><span class='fu'>compute_matrices</span>(<span class='no'>geex_list</span>, <span class='no'>theta</span>, <span class='kw'>derivFUN</span> <span class='kw'>=</span> <span class='kw'>numDeriv</span><span class='kw'>::</span><span class='no'>jacobian</span>,
@@ -98,12 +103,12 @@ has been <code><a href='http://www.rdocumentation.org/packages/base/topics/split
     </tr>
     <tr>
       <th>theta</th>
-      <td><p>vector of parameters passed to <code>geex_list$eeFUN</code>.</p></td>
+      <td><p>vector of parameter estimates (i.e. estimated roots) passed to <code>geex_list$eeFUN</code>.</p></td>
     </tr>
     <tr>
       <th>derivFUN</th>
       <td><p>the function used to take derivatives of the estimating equation functions.
-Defaults to <code>numDeriv::jacobian</code></p></td>
+Defaults to <code><a href='http://www.rdocumentation.org/packages/numDeriv/topics/jacobian'>jacobian</a></code>.</p></td>
     </tr>
     <tr>
       <th>derivFUN_control</th>
@@ -112,7 +117,8 @@ Defaults to <code>numDeriv::jacobian</code></p></td>
     </tr>
     <tr>
       <th>approxFUN</th>
-      <td><p>a function that approximates the inner function of <code>eeFUN</code></p></td>
+      <td><p>a function that approximates the inner function of <code>eeFUN</code>.
+(EXPERIMENTAL).</p></td>
     </tr>
     <tr>
       <th>approxFUN_control</th>
@@ -125,10 +131,26 @@ Defaults to <code>numDeriv::jacobian</code></p></td>
     <p>a list with</p><ul>
 <li><p>A - the 'bread' matrix</p></li>
 <li><p>B - the 'meat' matrix</p></li>
-<li><p>A_i - the 'bread' matrix for each group</p></li>
-<li><p>B_i - the 'meat' matrix for each group</p></li>
+<li><p>A_i - a list of 'bread' matrices for each group</p></li>
+<li><p>B_i - a list of 'meat' matrices for each group</p></li>
 </ul>
 
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>For a set of estimating equations (\(\sum_i \psi(O_i, \theta) = 0\)),
+this function computes:
+    $$A_i =  \partial \psi(O_i, \theta)/\partial \theta$$
+    $$A =  \sum_i A_i$$
+    $$B_i =  \psi(O_i, \theta)\psi(O_i, \theta)^T$$
+    $$B =  \sum_i B_i$$</p>
+<p>where all of the above are evaluated at \(\hat{\theta}\). The partial derivatives in \(A_i\)
+numerically approximated by the <code>derivFUN</code>.</p>
+<p>Note that \(A =  \sum_i A_i\) and not \(\sum_i A_i/m\), and the same for \(B\).</p>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Stefanski, L. A., &amp; Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.</p>
     
 
   </div>
@@ -138,6 +160,10 @@ Defaults to <code>numDeriv::jacobian</code></p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+
+      <li><a href="#references">References</a></li>
           </ul>
 
   </div>

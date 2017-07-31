@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Creates list of psi functions — create_psi • geex</title>
+<title>Correct sandwich variance inference by Fay's degrees of freedom correction — correct_by_fay_df • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -80,47 +80,58 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Creates list of psi functions</h1>
+    <h1>Correct sandwich variance inference by Fay's degrees of freedom correction</h1>
     </div>
 
     
-    <p>Creates the estimating function (\(\psi(O_i, \theta)\))
-for each unit. That is, this function evaluates the outer function in <code>eeFUN</code>
-for each independent unit and a returns the inner function in <code>eeFUN</code>.</p>
+    <p>Computes the degrees of freedom correction described in Fay and
+Graubard (2001). See <code>NA</code>
+for further information.</p>
     
 
-    <pre class="usage"><span class='fu'>create_psi</span>(<span class='no'>splitdt</span>, <span class='no'>eeFUN</span>, <span class='kw'>approxFUN</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>approxFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>outer_eeargs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>correct_by_fay_df</span>(<span class='no'>A_i</span>, <span class='no'>A</span>, <span class='no'>B_i</span>, <span class='no'>B</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='fl'>0.75</span>, <span class='no'>L</span>, <span class='no'>version</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>splitdt</th>
-      <td><p>list of dataframes with data per unit</p></td>
+      <th>A_i</th>
+      <td><p>a list of bread matrices per group</p></td>
     </tr>
     <tr>
-      <th>eeFUN</th>
-      <td><p>the estimating equation function</p></td>
+      <th>A</th>
+      <td><p>the outer "bread" matrix</p></td>
     </tr>
     <tr>
-      <th>approxFUN</th>
-      <td><p>a function that approximates the inner function of <code>eeFUN</code>.
-(EXPERIMENTAL).</p></td>
+      <th>B_i</th>
+      <td><p>a list of meat matrices per group</p></td>
     </tr>
     <tr>
-      <th>approxFUN_control</th>
-      <td><p>arguments passed to <code>approxFUN</code></p></td>
+      <th>B</th>
+      <td><p>the inner "meat" matrix</p></td>
     </tr>
     <tr>
-      <th>outer_eeargs</th>
-      <td><p>a list of arguments passed to <code>eeFUN</code></p></td>
+      <th>b</th>
+      <td><p>a numeric value &lt; 1. Defaults to 0.75 as in Fay.</p></td>
+    </tr>
+    <tr>
+      <th>L</th>
+      <td><p>a k x p matrix where p is the dimension of theta</p></td>
+    </tr>
+    <tr>
+      <th>version</th>
+      <td><p>either 1 or 2, corresponding to hat(d) or tilde(d), respectively</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a list of functions, each function corresponding to a single unit</p>
+    <p>a scalar corresponding to the estimated degrees of freedom</p>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Fay, M. P., &amp; Graubard, B. I. (2001). Small-Sample adjustments for
+Wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206</p>
     
 
   </div>
@@ -130,6 +141,8 @@ for each independent unit and a returns the inner function in <code>eeFUN</code>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#references">References</a></li>
           </ul>
 
   </div>

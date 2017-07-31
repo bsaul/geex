@@ -63,7 +63,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -99,36 +104,6 @@
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="binomial_integrand.html">binomial_integrand</a></code> </p>
-          </td>
-          <td><p>glmer Objective Function for Logistic-Normal Likelihood</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="check_array.html">check_array</a></code> </p>
-          </td>
-          <td><p>Check an array object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="check_corrections.html">check_corrections</a></code> </p>
-          </td>
-          <td><p>Check that a list of corrections conforms to geex standards</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="check_eeFUN.html">check_eeFUN</a></code> </p>
-          </td>
-          <td><p>Check an eeFUN object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="check_GFUN.html">check_GFUN</a></code> </p>
-          </td>
-          <td><p>Check value of estimating eqations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
             <p><code><a href="compute_eeroot.html">compute_eeroot</a></code> </p>
           </td>
           <td><p>Compute roots for a set of estimating equations</p></td>
@@ -137,13 +112,25 @@
           <td>
             <p><code><a href="compute_matrices.html">compute_matrices</a></code> </p>
           </td>
-          <td><p>Compute component matrices for covariance matrix</p></td>
+          <td><p>Compute component matrices of the empirical sandwich covariance estimator</p></td>
         </tr><tr>
           <!--  -->
           <td>
             <p><code><a href="compute_sigma.html">compute_sigma</a></code> </p>
           </td>
-          <td><p>Compute covariance matrix for set of estimating equations</p></td>
+          <td><p>Compute empirical sandwich covariate estimator</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="correct_by_fay_bias.html">correct_by_fay_bias</a></code> </p>
+          </td>
+          <td><p>Correct sandwich variance estimator byFay's bias correction</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="correct_by_fay_df.html">correct_by_fay_df</a></code> </p>
+          </td>
+          <td><p>Correct sandwich variance inference by Fay's degrees of freedom correction</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -159,27 +146,9 @@
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="df_correction_1.html">df_correction_1</a></code> </p>
+            <p><code><a href="diagnose_roots.html">diagnose_roots</a></code> </p>
           </td>
-          <td><p>Estimate Fay's degrees of freedom corrections 1</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="df_correction_2.html">df_correction_2</a></code> </p>
-          </td>
-          <td><p>Estimate Fay's degrees of freedom correction 2</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="df_correction_prep.html">df_correction_prep</a></code> </p>
-          </td>
-          <td><p>Preparations for Fay's degrees of freedom corrections</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="estimate_df.html">estimate_df</a></code> </p>
-          </td>
-          <td><p>Estimate Fay's degrees of freedom corrections</p></td>
+          <td><p>Diagnose roots of estimating equations</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -189,21 +158,9 @@
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="fay_bias_correction_partial.html">fay_bias_correction_partial</a></code> </p>
+            <p><code><a href="geex-package.html">geex-package</a></code> </p>
           </td>
-          <td><p>Compute the matrices necessary for Fay's bias correction</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fay_bias_correction.html">fay_bias_correction</a></code> </p>
-          </td>
-          <td><p>Estimate Fay's bias correction</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fay_df_correction.html">fay_df_correction</a></code> </p>
-          </td>
-          <td><p>Fay's degrees of freedom corrections</p></td>
+          <td><p>geex: M-estimation API</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -213,69 +170,57 @@
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="get_design_matrix.html">get_design_matrix</a></code> </p>
+            <p><code><a href="grab_design_matrix.html">grab_design_matrix</a></code> </p>
           </td>
-          <td><p>Get a matrix of fixed effects from a model object</p></td>
+          <td><p>Grab a matrix of fixed effects from a model object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="get_fixed_formula.html">get_fixed_formula</a></code> </p>
+            <p><code><a href="grab_eeFUN.geeglm.html">grab_eeFUN</a></code> </p>
           </td>
-          <td><p>Get the RHS formula from a model object</p></td>
+          <td><p>Grab estimating functions from a geeglm object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="get_response_formula.html">get_response_formula</a></code> </p>
+            <p><code><a href="grab_eeFUN.glm.html">grab_eeFUN</a></code> </p>
           </td>
-          <td><p>Get the LHS formula from a model object</p></td>
+          <td><p>Grab estimating functions from a glm object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="get_response.html">get_response</a></code> </p>
+            <p><code><a href="grab_eeFUN.merMod.html">grab_eeFUN</a></code> </p>
           </td>
-          <td><p>Get a vector of responses from a model object</p></td>
+          <td><p>Grab estimating functions from a merMod object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="make_corrections.html">make_corrections</a></code> </p>
+            <p><code><a href="grab_eeFUN.html">grab_eeFUN</a></code> </p>
           </td>
-          <td><p>Make corrections to basic sandwich estimators</p></td>
+          <td><p>Grab estimating functions from a model</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="make_eefun.geeglm.html">make_eefun</a></code> </p>
+            <p><code><a href="grab_fixed_formula.html">grab_fixed_formula</a></code> </p>
           </td>
-          <td><p>geeglm Estimating Equations</p></td>
+          <td><p>Grab the RHS formula from a model object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="make_eefun.glm.html">make_eefun</a></code> </p>
+            <p><code><a href="grab_response_formula.html">grab_response_formula</a></code> </p>
           </td>
-          <td><p>glm Estimating Equations</p></td>
+          <td><p>Grab the LHS formula from a model object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="make_eefun.merMod.html">make_eefun</a></code> </p>
+            <p><code><a href="grab_response.html">grab_response</a></code> </p>
           </td>
-          <td><p>glmer Estimating Equations</p></td>
+          <td><p>Grab a vector of responses from a model object</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="make_eefun.html">make_eefun</a></code> </p>
+            <p><code><a href="grab.html">grab</a></code> </p>
           </td>
-          <td><p>Make Estimating Equation functions</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="objFun_glmerMod_binomial.html">objFun_glmerMod_binomial</a></code> </p>
-          </td>
-          <td><p>Objective Function for Logistic-Normal Likelihood</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="objFun_merMod.html">objFun_merMod</a></code> </p>
-          </td>
-          <td><p>Objective Function for merMod object</p></td>
+          <td><p>Grab something from an object</p></td>
         </tr>
       </tbody>
       </table>

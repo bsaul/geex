@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compute covariance matrix for set of estimating equations — compute_sigma • geex</title>
+<title>Compute empirical sandwich covariate estimator — compute_sigma • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -63,7 +63,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -75,11 +80,12 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compute covariance matrix for set of estimating equations</h1>
+    <h1>Compute empirical sandwich covariate estimator</h1>
     </div>
 
     
-    <p>Computes $$\Sigma = A_m^{-1} B_m  (A_m^{-1})^T / m $$ where</p>
+    <p>Computes \(\Sigma = A^{-1} B (A^{-1})^T \) with
+provided \(A\) and \(B\) matrices.</p>
     
 
     <pre class="usage"><span class='fu'>compute_sigma</span>(<span class='no'>A</span>, <span class='no'>B</span>)</pre>
@@ -89,19 +95,15 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>A</th>
-      <td><p>the `A` matrix returned in the list of matrices from
+      <td><p>a matrix, generally the \(A\) matrix returned in the list of matrices from
 <code><a href='compute_matrices.html'>compute_matrices</a></code></p></td>
     </tr>
     <tr>
       <th>B</th>
-      <td><p>the `B` matrix returned in the list of matrices from
+      <td><p>a matrix, generally the \(B\) matrix returned in the list of matrices from
 <code><a href='compute_matrices.html'>compute_matrices</a></code></p></td>
     </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>\(A_m = \sum_{i = 1}^m A_i\) and \(B_m = \sum_{i = 1}^m B_i\).</p>
     
 
   </div>
@@ -109,9 +111,7 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#details">Details</a></li>
-          </ul>
+                </ul>
 
   </div>
 </div>

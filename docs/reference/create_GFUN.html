@@ -63,7 +63,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -79,7 +84,10 @@
     </div>
 
     
-    <p>Creates a function that sums over psi functions</p>
+    <p>From a list of \(\psi(O_i, \theta)\) for i = 1, ..., m,
+creates \(G_m = \sum_i \psi(O_i, \theta)\). Here,
+\(\psi(O_i, \theta)\) is the *inner* part of an <code>eeFUN</code>,
+in that the data is fixed and \(G_m\) is a function of \(\theta)\).</p>
     
 
     <pre class="usage"><span class='fu'>create_GFUN</span>(<span class='no'>psi_list</span>, <span class='kw'>inner_eeargs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
