@@ -25,7 +25,9 @@ correct_by_fay_df(A_i, A, B_i, B, b = 0.75, L, version)
 a scalar corresponding to the estimated degrees of freedom
 }
 \description{
-Correct sandwich variance inference by Fay's degrees of freedom correction
+Computes the degrees of freedom correction described in Fay and
+Graubard (2001). See \code{vignette("05_finite_sample_corrections", package = "geex")}
+for further information.
 }
 \references{
 Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for

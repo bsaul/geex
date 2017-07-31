@@ -32,7 +32,8 @@ make_corrections <- function(mats, corrections){
 #' Correct sandwich variance estimator byFay's bias correction
 #'
 #' Computes the bias corrected sandwich covariance matrix described in Fay and
-#' Graubard (2001).
+#' Graubard (2001). See \code{vignette("05_finite_sample_corrections", package = "geex")}
+#' for further information.
 #'
 #' @param A the outer "bread" matrix
 #' @param A_i a list of bread matrices per group
@@ -54,6 +55,10 @@ correct_by_fay_bias <- function(A_i, A, B_i, B, b = 0.75){
 
 #------------------------------------------------------------------------------#
 #' Correct sandwich variance inference by Fay's degrees of freedom correction
+#'
+#' Computes the degrees of freedom correction described in Fay and
+#' Graubard (2001). See \code{vignette("05_finite_sample_corrections", package = "geex")}
+#' for further information.
 #'
 #' @inheritParams correct_by_fay_bias
 #' @param L a k x p matrix where p is the dimension of theta
