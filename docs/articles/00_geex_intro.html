@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estimating Equations in R using <code>geex</code> • geex</title>
+<title>An introduction to M-estimation with <code>geex</code> • geex</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -38,7 +38,14 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -50,11 +57,11 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>Estimating Equations in R using <code>geex</code>
+      <h1>An introduction to M-estimation with <code>geex</code>
 </h1>
                         <h4 class="author">B. Saul</h4>
             
-            <h4 class="date">2017-07-21</h4>
+            <h4 class="date">2017-07-31</h4>
           </div>
 
     
@@ -119,25 +126,26 @@ Y_i - \theta_1 \\
   <span class="dt">data  =</span> dt,
   <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)))</code></pre></div>
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+<pre><code>## Warning: package 'bindrcpp' was built under R version 3.3.2</code></pre>
 <pre><code>## $geex
 ## $geex$estimates
-## [1] 5.032978 4.156575
+## [1] 5.186784 3.750874
 ## 
 ## $geex$vcov
 ##             [,1]        [,2]
-## [1,] 0.041565750 0.002154544
-## [2,] 0.002154544 0.303812050
+## [1,]  0.03750874 -0.01308154
+## [2,] -0.01308154  0.24209276
 ## 
 ## 
 ## $cls
 ## $cls$parameters
 ##         p1       p2
-## 1 5.032978 4.156575
+## 1 5.186784 3.750874
 ## 
 ## $cls$vcov
 ##             [,1]        [,2]
-## [1,] 0.041565750 0.002154544
-## [2,] 0.002154544 0.303812050</code></pre>
+## [1,]  0.03750874 -0.01308154
+## [2,] -0.01308154  0.24209276</code></pre>
 </div>
 <div id="stefanski-boos-example-2" class="section level2">
 <h2 class="hasAnchor">
@@ -168,25 +176,25 @@ X_i - \theta_2 \\
 <pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>## $geex
 ## $geex$estimates
-## [1] 4.923015 2.028746 2.426630
+## [1] 5.286595 2.035566 2.597114
 ## 
 ## $geex$vcov
-##              [,1]          [,2]          [,3]
-## [1,] 4.190724e-02  8.045129e-05  0.0205604920
-## [2,] 8.045129e-05  3.042740e-04 -0.0003242934
-## [3,] 2.056049e-02 -3.242934e-04  0.0105224770
+##              [,1]          [,2]         [,3]
+## [1,] 0.0387235098  0.0003068019  0.018632026
+## [2,] 0.0003068019  0.0003925090 -0.000350069
+## [3,] 0.0186320256 -0.0003500690  0.009599884
 ## 
 ## 
 ## $cls
 ## $cls$parameters
-##         p1       p2      p3
-## 1 4.923015 2.028746 2.42663
+##         p1       p2       p3
+## 1 5.286595 2.035566 2.597114
 ## 
 ## $cls$vcov
 ##              [,1]          [,2]          [,3]
-## [1,] 4.233054e-02  8.126393e-05  0.0207681737
-## [2,] 8.126393e-05  3.073474e-04 -0.0003275691
-## [3,] 2.076817e-02 -3.275691e-04  0.0106287646</code></pre>
+## [1,] 0.0391146564  0.0003099009  0.0188202279
+## [2,] 0.0003099009  0.0003964737 -0.0003536051
+## [3,] 0.0188202279 -0.0003536051  0.0096968530</code></pre>
 </div>
 <div id="stefanski-boos-example-3" class="section level2">
 <h2 class="hasAnchor">
