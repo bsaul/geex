@@ -26,7 +26,7 @@ M-estimation encompasses a broad swath of statistical estimators and ideas inclu
 
 geex can implement all of these using a user-defined estimating function.
 
-To learn more about geex, see the package vignettes: \code{browseVignettes(package = 'geex')}
+To learn more about geex, see the package vignettes: \code{browseVignettes(package = 'geex')}.
 }
 \section{Goals}{
 
