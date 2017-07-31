@@ -7,64 +7,112 @@
 #------------------------------------------------------------------------------#
 #' Estimate parameters and their covariance from a set of estimating equations
 #'
+#' @description
+#' M-estimation theory provides a framework for asympotic properties of estimators
+#' that are solutions to estimating equations. Many R packages implement specific
+#' applications of estimating equations. \pkg{geex} aims to be provide a more general
+#' framework that any modelling method can use to compute point and variance estimates
+#' for parameters that are solutions to estimating equations of the form:
+#' \deqn{\sum_i \psi(O_i, \hat{\theta}) = 0}{\sum_i \psi(O_i, \theta) = 0}
+#'
 #' @param eeFUN a function that takes in group-level data and returns a function
 #' that takes parameters as its first argument
 #' @param data a data.frame
-#' @param units a string identifying the grouping variable in \code{data}
+#' @param units an optional character string identifying the grouping variable in \code{data}
 #' @param outer_eeargs a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)
 #' @param inner_eeargs a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)
 #' @param corrections_list an optional list of small sample corrections where each
-#' list element is a list with two elements: `fun` and `options`. See details.
+#' list element is a list with two elements: \code{correctFUN} and \code{correctFUN_options}.
+#' See details.
 #' @param compute_roots whether or not to find the roots of the estimating equations.
 #' Defaults to \code{TRUE}.
 #' @param compute_vcov whether or not to compute the variance-covariance matrix.
 #' Defaults to \code{TRUE}.
-#' @param roots a numeric vector containing either starting values for the roots when using
-#' the default \code{rootsolver} or roots that have been estimated elsewhere
-#' @param rootFUN_object the name of the object within the output of \code{rootFUN} that contains
-#' the parameters estimates. For example, the 'root' object within the output of multiroot::rootSolve
-#' contains the parameter estimates. Defaults to 'root'. Can also be a set of numeric positions within
-#' the object.
+#' @param roots a vector of parameter estimates must be provided if \code{compute_roots = FALSE}
 #' @inheritParams compute_eeroot
 #' @inheritParams compute_matrices
-#' @return a list with the following
+#'
+#' @details The basic idea of \pkg{geex} is for the analyst to provide at least
+#' two items:
+#' \itemize{
+#' \item data
+#' \item \code{eeFUN}: (the \eqn{\psi} function), a function that takes unit-level
+#' data and returns a function in terms of parameters (\eqn{\theta})
+#' }
+#'
+#' With the \code{eeFUN}, \pkg{geex} computes the roots of the estimating equations
+#' and/or the empirical sandwich variance estimator.
+#'
+#' The root finding algorithm defaults to \code{\link[rootSolve]{multiroot}} to
+#' estimate roots though the solver algorithm can be specified in the \code{rootFUN}
+#' argument. Starting values for \code{\link[rootSolve]{multiroot}} are passed via the
+#' \code{rootFUN_control} argument. See \code{vignette("03_root_solvers", package = "geex")}
+#' for information on customizing the root solver function.
+#'
+#' To compute only the covariance matrix, set \code{compute_roots = FALSE} and pass
+#' estimates of \eqn{\theta} via the \code{roots} argument.
+#'
+#' M-estimation is often used for clustered data, and a variable by which to split
+#' the data.frame  into independent units is specified by the \code{units} argument.
+#' This argument defaults to \code{NULL}, in which case the number of units equals
+#' the number of rows in the data.frame.
+#'
+#' For information on the finite-sample corrections, refer to the finite sample
+#' correction API vignette: \code{vignette("05_finite_sample_corrections", package = "geex")}
+#'
+#' @section Writing an eeFUN:
+#'
+#' \subsection{Description}{
+#' An \code{eeFUN} is a function that takes in *unit* level data plus possible
+#' "outer" arguments (see section on eefUN argument) and returns a function
+#' whose first argument is \code{theta}. See the examples below or the package
+#' vignettes for more information.
+#' }
+#'
+#' \subsection{Additional arguments}{
+#' Additional arguments may be passed to both the inner and outer function of the
+#' \code{eeFUN}. Elements in an \code{outer_eeargs} list are passed to the outer
+#' function; any elements of the \code{inner_eeargs} list are passed to the inner
+#' function. For an example, see the finite sample correction vignette [\code{
+#' vignette("05_finite_sample_corrections", package = "geex")}].
+#' }
+#'
+#'@return a list with the following
 #' \itemize{
 #' \item \code{parameters} - a vector of estimated parameters
 #' \item \code{vcov} - the variance-covariance matrix for the parameters
 #' \item \code{corrections} - a list of corrected variance-covariance matrices
 #' }
+#' @references Stefanski, L. A., & Boos, D. D. (2002). The calculus of M-estimation.
+#' The American Statistician, 56(1), 29-38.
 #'
-#' @section eeFUN arguments:
+#' @examples
+#' # Estimate the mean and variance of Y1 in the geexex dataset
+#' ex_eeFUN <- function(data){
+#'  function(theta){
+#'    with(data,
+#'     c(Y1 - theta[1],
+#'      (Y1 - theta[1])^2 - theta[2] ))
+#' }}
 #'
-#' Additional arguments may be passed to both the inner and outer function of the `eeFUN`.
-#' Elements in an \code{outer_eeargs} listare passed to the outer function; any elements of the \code{inner_eeargs} list
-#' are passed to the inner function. For example, a practical example might be computing a
-#' counterfactual mean using an IPW estimator:
-#'
-#' \preformatted{
-#' myeeFUN <- function(data, model){
-#'   X <- model.matrix(model, data = data) #covariates
-#'   A <- data$A #treatment
-#'   Y <- data$Y #outcome
-#'   p <- ncol(X) #number of parameters in model
-#'   function(theta, a){
-#'     Y * (A == a) * 1/plogis(X \%*\% theta[p - 1]) - theta[p]
-#'     # Here theta[p] is the target parameter.
-#'   }
-#' }
-#' }
-#'
-#' Then to estimate the mean where `a == 1`:
-#'
-#' \preformatted{
 #' estimate_equations(
-#'   eeFUN = myeeFUN,
-#'   data  = mydata,
-#'   units = myunits,
-#'   inner_eeargs = list(a = 1),
-#'   outer_eeargs = list(model = mymodel)
-#' )
-#' }
+#'  eeFUN = ex_eeFUN,
+#'  data  = geexex,
+#'  rootFUN_control = list(start = c(1,1)))
+#'
+#' # A simple linear model for regressing X1 and X2 on Y4
+#' lm_eefun <- function(data){
+#'  X <- cbind(1, data$X1, data$X2)
+#'  Y <- data$Y4
+#'   function(theta){
+#'     t(X) %*% (Y - X %*% theta)
+#'    }
+#'  }
+#'
+#' estimate_equations(
+#'  eeFUN = lm_eefun,
+#'  data  = geexex,
+#'  rootFUN_control = list(start = c(0, 0, 0)))
 #'
 #' @export
 #------------------------------------------------------------------------------#
