@@ -12,8 +12,9 @@ m_estimation_basis S4 class
 \describe{
 \item{\code{.data}}{the analysis data.frame}
 
-\item{\code{.units}}{an (optional) character string identifying the variable in
-\code{data} which
+\item{\code{.units}}{an (optional) character string identifying the variable in}
+
+\item{\code{.split_data}}{\code{data} which
 splits the data into indepedent units}
 }}
 

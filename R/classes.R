@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-#' estimation_function S4 class
+#' estimating_function S4 class
 #' @slot .estFUN the estimating function.
 #' @slot .outer_args a named \code{list} of arguments passed to the outer
 #' function of \code{estFUN}. Should *not* include the \code{data} argument.

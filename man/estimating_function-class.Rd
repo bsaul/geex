@@ -3,9 +3,9 @@
 \docType{class}
 \name{estimating_function-class}
 \alias{estimating_function-class}
-\title{estimation_function S4 class}
+\title{estimating_function S4 class}
 \description{
-estimation_function S4 class
+estimating_function S4 class
 }
 \section{Slots}{
 

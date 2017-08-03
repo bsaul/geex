@@ -162,7 +162,7 @@ estimate_sandwich_matrices <- function(basis,
 #' Defaults to \code{TRUE}.
 #' @param roots a vector of parameter estimates must be provided if \code{compute_roots = FALSE}
 #' @inheritParams estimate_GFUN_roots
-#' @inheritParams compute_matrices
+#' @inheritParams estimate_sandwich_matrices
 #'
 #' @details The basic idea of \pkg{geex} is for the analyst to provide at least
 #' two items:

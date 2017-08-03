@@ -2,10 +2,10 @@
 % Please edit documentation in R/classes.R
 \name{grab_estFUN}
 \alias{grab_estFUN}
-\title{grab estFUN generic}
+\title{grab_estFUN generic}
 \usage{
 grab_estFUN(object, ...)
 }
 \description{
-grab estFUN generic
+grab_estFUN generic
 }
