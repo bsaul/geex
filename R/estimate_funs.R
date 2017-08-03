@@ -27,24 +27,24 @@
 #'
 #------------------------------------------------------------------------------#
 
-estimate_Gm_roots <- function(basis,
-                             rootFUN           = rootSolve::multiroot,
-                             rootFUN_control   = NULL,
-                             approxFUN         = NULL,
-                             approxFUN_control = NULL){
+estimate_GFUN_roots <- function(basis,
+                              rootFUN           = rootSolve::multiroot,
+                              rootFUN_control   = NULL,
+                              approxFUN         = NULL,
+                              approxFUN_control = NULL){
 
   rootFUN <- match.fun(rootFUN)
 
   # Create estimating equation functions per group
-  psi_i <- create_psi(.splitdt      = geex_list$splitdt,
+  psi_i <- create_psi(.split_data   = basis@.split_data,
                       .estFUN       = grab_estFUN(basis),
-                      .outer_eeargs = geex_list$outer_eeargs)
+                      .outer_estFUN_args = basis@.outer_args)
 
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
-  GmFUN <- create_GFUN(psi_list     = psi_i,
-                       inner_eeargs = geex_list$inner_eeargs,
-                       weights      = geex_list$weights)
+  GmFUN <- create_GFUN(.psi_list     = psi_i,
+                       .inner_estFUN_args = basis@.inner_args,
+                       .weights      = basis@.weights)
 
   # Find roots of psi
   rargs <- append(rootFUN_control, list(f = GmFUN))
