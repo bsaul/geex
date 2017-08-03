@@ -137,7 +137,7 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
-#' grab estFUN generic
+#' grab_estFUN generic
 #'
 #' @export
 #------------------------------------------------------------------------------#
@@ -157,10 +157,10 @@ setMethod(
   definition = function(object) {
     cat("An object of class ", class(object), "\n", sep = "")
     cat("psi: \n")
-    print(body(object@estFUN))
+    print(body(object@.estFUN))
     cat("Data:\n")
-    print(head(object@data))
-    cat("Units: ", object@units)
+    print(head(object@.data))
+    cat("Units: ", object@.units)
 
     invisible(NULL)
   })
