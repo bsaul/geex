@@ -27,7 +27,7 @@
 #'
 #------------------------------------------------------------------------------#
 
-estimate_Gm_root <- function(basis,
+estimate_Gm_roots <- function(basis,
                              rootFUN           = rootSolve::multiroot,
                              rootFUN_control   = NULL,
                              approxFUN         = NULL,
