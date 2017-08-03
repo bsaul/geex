@@ -85,7 +85,8 @@ setClass(
   Class = "m_estimation_basis",
   slots = c(.data  = "data.frame",
             .units = "character",
-            .split_data = "list"),
+            .split_data = "list",
+            .weights = "numeric"),
   contains = "estimating_function",
   validity = function(object){
 
