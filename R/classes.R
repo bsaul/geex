@@ -75,30 +75,58 @@ setClass(
 #'
 #' @slot .data the analysis data.frame
 #' @slot .units an (optional) character string identifying the variable in
+#' @slot .split_data
 #' \code{data} which
 #' splits the data into indepedent units
 #' @export
 #------------------------------------------------------------------------------#
 
-
 setClass(
   Class = "m_estimation_basis",
   slots = c(.data  = "data.frame",
-            .units = "character"),
-  contains = 'estimating_function',
+            .units = "character",
+            .split_data = "list"),
+  contains = "estimating_function",
   validity = function(object){
 
     if(length(object@.units) > 1){
-      "units should be a character string identifying the name of the variable in object@data"
+      "units should be a character string identifying the name of the variable in object@.data"
     }
 
     else if(length(names(object@.data)) > 0 & length(object@.units) > 0){
-      if(length(object@.units) == 1 & !(object@units %in% names(object@.data))){
+      if(length(object@.units) == 1 & !(object@.units %in% names(object@.data))){
         paste(object@.units, " is not a variable in the data")
       }
     }
 
     else TRUE
+})
+
+#------------------------------------------------------------------------------#
+#' Initialize a m_estimation_basis object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setMethod("initialize", "m_estimation_basis", function(.Object, ...){
+  .Object <- callNextMethod()
+
+  # TODO: This set up allows for the case where the split_data could be set to
+  # a different split than that defined by .units. This shouldn't be the case
+
+  # TODO: an m_estimation_basis object will carry around both the .data
+  # and the .split_data, but this seems redundant
+
+  if(length(.Object@.split_data) == 0){
+    dt <- grab_basis_data(.Object)
+    ut <- if(length(.Object@.units) == 0) 1:nrow(dt) else dt[[.Object@.units]]
+    # Split data frame into data frames for each independent unit
+    split(x = dt,
+          # if units are not specified, split into one per observation
+          f = ut) ->
+      .Object@.split_data
+  }
+  .Object
 })
 
 #------------------------------------------------------------------------------#
@@ -144,6 +172,17 @@ setClass(
 
 setGeneric("grab_estFUN", function(object, ...) standardGeneric("grab_estFUN"))
 setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
+
+#------------------------------------------------------------------------------#
+#' grab_basis_data generic
+#'
+#' A function that grabs the data from an m_estimation_basis object
+#'
+#------------------------------------------------------------------------------#
+
+setGeneric("grab_basis_data", function(object, ...) standardGeneric("grab_basis_data"))
+setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data)
+
 
 #------------------------------------------------------------------------------#
 #' Show the m_estimation_basis
