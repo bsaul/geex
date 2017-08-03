@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimate_funs.R
 \name{estimate_GFUN_roots}
 \alias{estimate_GFUN_roots}
-\title{Estimates roots for a set of estimating equations}
+\title{Estimate roots for a set of estimating equations}
 \usage{
 estimate_GFUN_roots(basis, rootFUN = rootSolve::multiroot,
   rootFUN_control = NULL, approxFUN = NULL, approxFUN_control = NULL)

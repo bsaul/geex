@@ -1,11 +1,12 @@
 #------------------------------------------------------------------------------#
 # estimate_** description:
 # Functions that estimate quantities from an m_estimation_basis *or* are higher
-# level wrappers for estimate_** functions (e.g. m_estimate())
+# level wrappers for estimate_** functions (e.g. m_estimate()). The workhorses
+# of performing M-estimation
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-#' Estimates roots for a set of estimating equations
+#' Estimate roots for a set of estimating equations
 #'
 #' Using the \code{rootFUN} specified by the user (defaults to \code{\link[rootSolve]{multiroot}}),
 #' this function estimates the roots of the equations:

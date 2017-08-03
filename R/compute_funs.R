@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------#
 # compute_** description:
-# Functions that take in stuff and compute numeric values. The workhorses of
-# performing M-estimation
+# Functions that take in numeric values (e.g. numeric(), matrices, arrays)
+# and compute numeric values.
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
