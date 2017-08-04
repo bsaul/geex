@@ -9,18 +9,18 @@ test_binomial <- glm(resp ~ age, data = ohio,
 
 glm_eefun <- function(data, model){
   function(theta){
-    f <- grab_eeFUN(model, data, weights = 2)
+    f <- grab_estFUN(model, data, weights = 2)
     f(theta)
   }
 }
 
 test_that("make_eefun returns functions", {
-  expect_is(grab_eeFUN(test_binomial, data = subset(ohio, id == 1), weights = 2),
+  expect_is(grab_estFUN(test_binomial, data = subset(ohio, id == 1), weights = 2),
             'function')
 })
 
 test_that("make_eefun returns error when length of weight vector is not equal to 1 or # in cluster", {
-  expect_error(grab_eeFUN(test_binomial, data = subset(ohio, id == 1), weights = c(2, 2)))
+  expect_error(grab_estFUN(test_binomial, data = subset(ohio, id == 1), weights = c(2, 2)))
 })
 
 test_that("estimate equations obtains correct values for parameters and standard errors ", {

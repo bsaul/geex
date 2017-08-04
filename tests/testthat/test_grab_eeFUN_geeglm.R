@@ -7,13 +7,13 @@ test_binomial <- geeglm(resp ~ age, id = id, data = ohio,
 
 gee_eefun <- function(data, model){
   function(theta){
-    f <- grab_eeFUN(model, data)
+    f <- grab_estFUN(model, data)
     f(theta)
   }
 }
 
-test_that("grab_eeFUN returns functions", {
-  expect_is(grab_eeFUN(test_binomial, data = subset(ohio, id == 1)),
+test_that("grab_estFUN returns functions", {
+  expect_is(grab_estFUN(test_binomial, data = subset(ohio, id == 1)),
             'function')
 })
 
