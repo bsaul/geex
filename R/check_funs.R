@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------------#
 # Check and convert object to an array
 #
-# Used in, e.g., \code{compute_matrices} to either (a) confirm that an object is
+# Used in, e.g., \code{process_matrix_list} to either (a) confirm that an object is
 # an array or (b) if the object is numeric or a matrix, then convert to an array,
 # or (c) if the object is not an array, numeric, or matrix, then return an error.
 #
