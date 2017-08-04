@@ -4,6 +4,7 @@
 
 #------------------------------------------------------------------------------#
 #' estimating_function S4 class
+#'
 #' @slot .estFUN the estimating function.
 #' @slot .outer_args a named \code{list} of arguments passed to the outer
 #' function of \code{estFUN}. Should *not* include the \code{data} argument.
@@ -130,6 +131,23 @@ setMethod("initialize", "m_estimation_basis", function(.Object, ...){
   .Object
 })
 
+
+
+
+#------------------------------------------------------------------------------#
+#' control S4 class
+#'
+#' @slot .FUN a function
+#' @slot .options a list of options passed to \code{.FUN}
+#'
+#' @export
+#------------------------------------------------------------------------------#
+setClass(
+  Class = "control",
+  slots = c(.FUN = 'function',
+            .options = 'list')
+)
+
 #------------------------------------------------------------------------------#
 #' root_control S4 class
 #'
@@ -142,9 +160,8 @@ setMethod("initialize", "m_estimation_basis", function(.Object, ...){
 #------------------------------------------------------------------------------#
 setClass(
   Class = "root_control",
-  slots = c(.FUN = 'function',
-            .options = 'list',
-            .object_name = 'character'),
+  slots = c(.object_name = 'character'),
+  contains = "control",
   validity = function(object){
 
     FUN_arg_names <- formalArgs(object@.FUN)
@@ -166,7 +183,46 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
+#' deriv_control S4 class
+#'
+#' @slot .FUN a function which computes a numerical derivation. This functions
+#' first argument must the function on which the derivative is being compute.
+#' Defaults to \code{\link[numDeriv]{jacobian}}.
+#' @slot .options a list of options passed to \code{.FUN}. Defaults to
+#' \code{list(method = 'Richardson')}
+#'
+#' @export
+#------------------------------------------------------------------------------#
+setClass(
+  Class = "deriv_control",
+  contains = "control",
+  prototype = prototype(
+    .FUN = numDeriv::jacobian,
+    .options = list(method = 'Richardson')
+  )
+)
+
+#------------------------------------------------------------------------------#
+#' approx_control S4 class
+#'
+#' EXPERIMENTAL. See example 7 in \code{vignette("01_additional_examples", package = "geex")}
+#' for usage.
+#'
+#' @slot .FUN a function which approximates \code{estFUN}.
+#' @slot .options a list of options passed to \code{.FUN}.
+#'
+#' @export
+#------------------------------------------------------------------------------#
+setClass(
+  Class = "approx_control",
+  contains = "control"
+)
+
+
+#------------------------------------------------------------------------------#
 #' grab_estFUN generic
+#'
+#' Grabs the \code{.estFUN} from an \code{\linkS4class{m_estimation_basis}} object
 #'
 #' @export
 #------------------------------------------------------------------------------#
@@ -177,14 +233,52 @@ setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
 #------------------------------------------------------------------------------#
 #' grab_basis_data generic
 #'
-#' A function that grabs the data from an m_estimation_basis object
+#' Grabs the \code{.data} from an \code{\linkS4class{m_estimation_basis}} object
 #'
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_basis_data", function(object, ...) standardGeneric("grab_basis_data"))
 setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data)
 
+#------------------------------------------------------------------------------#
+#' options generic
+#'
+#' Extracts the \code{.options} slot from a \code{\linkS4class{control}} object
+#'
+#' @export
+#------------------------------------------------------------------------------#
 
+setGeneric("options", function(object, ...) standardGeneric("options"))
+setMethod("options", "control", function(object) object@.options)
+
+#------------------------------------------------------------------------------#
+#' FUN generic
+#'
+#' Extracts the \code{.FUN} slot from a \code{\linkS4class{control}} object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("FUN", function(object, ...) standardGeneric("FUN"))
+setMethod("FUN", "control", function(object) object@.FUN)
+
+#------------------------------------------------------------------------------#
+#' geex S4 class
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setClass(
+  Class = "geex",
+  slots = c(basis           = "m_estimation_basis",
+            root_control    = "root_control",
+            approx_control  = "approx_control",
+            deriv_control   = "deriv_control",
+            rootFUN_results = "ANY",
+            sandwich_components = "list",
+            corrections     = "list",
+            estimates       = "numeric",
+            vcov            = "matrix"))
 #------------------------------------------------------------------------------#
 #' Show the m_estimation_basis
 #'
@@ -204,3 +298,29 @@ setMethod(
 
     invisible(NULL)
   })
+
+
+#------------------------------------------------------------------------------#
+#' Show the geex object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setMethod(
+  "show",
+  signature = "geex",
+  definition = function(object) {
+    cat("M-estimation results based on the estimating function:\n", sep = "")
+    print(body(object@basis@.estFUN))
+    cat("\nEstimates:\n")
+    print(object@estimates)
+    cat("\nCovariance:\n")
+    print(object@vcov)
+    if(length(object@corrections) > 0){
+      cat("The results include ", length(object@corrections), " covariance corrections")
+    }
+
+
+    invisible(NULL)
+  })
+
