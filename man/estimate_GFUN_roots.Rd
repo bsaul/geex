@@ -4,9 +4,12 @@
 \alias{estimate_GFUN_roots}
 \title{Estimate roots for a set of estimating equations}
 \usage{
-estimate_GFUN_roots(basis, root_control, approx_control)
+estimate_GFUN_roots(.GFUN, .root_control, .approx_control)
 }
 \arguments{
+\item{.approx_control}{an object of class \code{\linkS4class{approx_control}}
+or \code{NULL}}
+
 \item{basis}{an object of class \code{\linkS4class{m_estimation_basis}}}
 
 \item{root_control}{an object of class \code{\linkS4class{root_control}}}
