@@ -19,10 +19,7 @@
 #' see the root solver vignette, \code{vignette('geex_root_solvers', package = 'geex')}.
 #'
 #' @param basis an object of class \code{\linkS4class{m_estimation_basis}}
-#' @param rootFUN the function used to find roots of the estimating equations.
-#' Defaults to \code{\link[rootSolve]{multiroot}}.
-#' @param rootFUN_control a list of options to be passed to the \code{rootsolver}
-#' function
+#' @param root_control an object of class \code{\linkS4class{root_control}}
 #' @inheritParams create_psi
 #' @return the output of the \code{rootFUN} function
 #' @export
@@ -30,17 +27,25 @@
 #------------------------------------------------------------------------------#
 
 estimate_GFUN_roots <- function(basis,
-                              rootFUN           = rootSolve::multiroot,
-                              rootFUN_control   = NULL,
-                              approxFUN         = NULL,
-                              approxFUN_control = NULL){
+                                root_control,
+                                approx_control){
 
-  rootFUN <- match.fun(rootFUN)
+  # Use root_control defaults if no options passed
+  if(missing(root_control)){
+    root_control <- new('root_control')
+  }
+
+  # Use approx_control defaults if no options passed
+  # TODO: this code is in create_psi() as well, can it be in 1 place instead?
+  if(missing(approx_control)){
+    approx_control <- new('approx_control')
+  }
+
+  rootFUN <- match.fun(FUN(root_control))
 
   # Create estimating equation functions per group
-  psi_i <- create_psi(.split_data   = basis@.split_data,
-                      .estFUN       = grab_estFUN(basis),
-                      .outer_estFUN_args = basis@.outer_args)
+  psi_i <- create_psi(.basis          = basis,
+                      .approx_control = approx_control)
 
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
@@ -49,7 +54,7 @@ estimate_GFUN_roots <- function(basis,
                        .weights      = basis@.weights)
 
   # Find roots of psi
-  rargs <- append(rootFUN_control, list(f = GmFUN))
+  rargs <- append(options(root_control), list(f = GmFUN))
   do.call(rootFUN, args = rargs)
 }
 
@@ -97,24 +102,28 @@ estimate_GFUN_roots <- function(basis,
 
 estimate_sandwich_matrices <- function(basis,
                                        theta,
-                                       derivFUN         = numDeriv::jacobian,
-                                       derivFUN_control = list(method = 'Richardson'),
-                                       approxFUN        = NULL,
-                                       approxFUN_control = NULL){
+                                       deriv_control,
+                                       approx_control){
+  # Use deriv_control defaults if no options passed
+  if(missing(deriv_control)){
+    deriv_control <- new('deriv_control')
+  }
+  # Use approx_control defaults if no options passed
+  # TODO: this code is in create_psi() as well, can it be in 1 place instead?
+  if(missing(approx_control)){
+    approx_control <- new('approx_control')
+  }
 
-  derivFUN <- match.fun(derivFUN)
+  derivFUN <- match.fun(FUN(deriv_control))
 
   # Create list of estimating eqn functions per unit
-  psi_i <- create_psi(.split_data = basis@.split_data,
-                      .estFUN     = grab_estFUN(basis),
-                      .outer_estFUN_args = basis@.outer_args,
-                      approxFUN = approxFUN,
-                      approxFUN_control = approxFUN_control)
+  psi_i <- create_psi(.basis = basis,
+                      .approx_control = approx_control)
 
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
   A_i <- lapply(psi_i, function(ee){
-    args <- append(list(fun = ee, x = theta), derivFUN_control)
+    args <- append(list(fun = ee, x = theta), options(deriv_control))
     val  <- do.call(derivFUN, args = append(args, basis@.inner_args))
     -val
   })
@@ -252,37 +261,49 @@ estimate_sandwich_matrices <- function(basis,
 
 m_estimate <- function(estFUN,
                        data,
-                       units             = NULL,
-                       weights           = NULL,
+                       units             = character(0),
+                       weights           = numeric(0),
+                       outer_args        = list(),
+                       inner_args        = list(),
                        roots             = NULL,
-                       outer_eeargs      = NULL,
-                       inner_eeargs      = NULL,
                        compute_roots     = TRUE,
                        compute_vcov      = TRUE,
                        corrections_list  = NULL,
-                       derivFUN          = numDeriv::jacobian,
-                       derivFUN_control  = list(method = 'Richardson'),
-                       rootFUN           = rootSolve::multiroot,
-                       rootFUN_control   = NULL,
-                       rootFUN_object    = 'root',
-                       approxFUN         = NULL,
-                       approxFUN_control = NULL){
+                       deriv_control,
+                       root_control,
+                       approx_control){
 
-  # Split data frame into data frames for each independent unit
-  if(is.null(units)){
-    # if units are not specified, split into one per observation
-    split_data <- split(x = data, f = 1:nrow(data) )
-    message('When units are not specified, each observation is considered independent.')
-  } else {
-    split_data <- split(x = data, f = data[[units]] )
+  # # Split data frame into data frames for each independent unit
+  # if(is.null(units)){
+  #   # if units are not specified, split into one per observation
+  #   split_data <- split(x = data, f = 1:nrow(data) )
+  #   message('When units are not specified, each observation is considered independent.')
+  # } else {
+  #   split_data <- split(x = data, f = data[[units]] )
+  # }
+
+  # Use deriv_control defaults if no options passed
+  if(missing(deriv_control)){
+    deriv_control <- new('deriv_control')
+  }
+  # Use root_control defaults if no options passed
+  if(missing(root_control)){
+    root_control <- new('root_control')
+  }
+  # Use approx_control defaults if no options passed
+  # TODO: this code is in create_psi() as well, can it be in 1 place instead?
+  if(missing(approx_control)){
+    approx_control <- new('approx_control')
   }
 
-  geex_list  <- list(
-    eeFUN        = eeFUN,
-    splitdt      = split_data,
-    inner_eeargs = inner_eeargs,
-    outer_eeargs = outer_eeargs,
-    weights      = weights)
+  basis <- new("m_estimation_basis",
+               .estFUN     = estFUN,
+               .data       = data,
+               .units      = units,
+               .weights    = weights,
+               .outer_args = outer_args,
+               .inner_args = inner_args)
+
 
   ## Checks/Warnings ##
   if(is.null(roots) & !compute_roots){
@@ -293,51 +314,54 @@ m_estimate <- function(estFUN,
     check_corrections(corrections_list)
   }
 
-  if(!is.null(weights)){
-    if(length(weights) != length(split_data)){
+  if(length(basis@.weights) > 0){
+    if(length(basis@.weights) != length(basis@.split_data)){
       stop("Length of the weights vector is not equal to the number of units. Check the weights, data, and units arguments.")
     }
   }
 
-  check_eeFUN(geex_list)
-
-  out <- list()
   ## Compute estimating equation roots ##
   if(compute_roots == TRUE){
-    eesolved <- compute_eeroot(
-      geex_list       = geex_list,
-      rootFUN         = rootFUN,
-      rootFUN_control = rootFUN_control,
-      approxFUN       = approxFUN_control)
-    out$rootFUN_results <- eesolved
-    out$estimates <- theta_hat <- eesolved[[rootFUN_object]]
+    eesolved <- estimate_GFUN_roots(
+      basis          = basis,
+      root_control   = root_control,
+      approx_control = approx_control)
+    rootFUN_results <- eesolved
+    theta_hat <- eesolved[[root_control@.object_name]]
   } else {
-    out$estimates <- theta_hat <- roots
-  }
-  if (compute_vcov == FALSE){
-    return(list(estimates = theta_hat))
+    theta_hat <- roots
   }
 
-  ## Compute core matrices ##
-  mats <- compute_matrices(
-    geex_list         = geex_list,
-    theta             = theta_hat,
-    derivFUN          = derivFUN,
-    derivFUN_control  = derivFUN_control,
-    approxFUN         = approxFUN,
-    approxFUN_control = approxFUN_control)
+  ## Compute component matrices ##
+  if(compute_vcov == TRUE){
+    mats <- estimate_sandwich_matrices(
+      basis             = basis,
+      theta             = theta_hat,
+      deriv_control     = deriv_control,
+      approx_control    = approx_control)
 
-  ## Compute corrections ##
-  if(!is.null(corrections_list)){
-    out$corrections <- make_corrections(mats, corrections_list)
+    ## Compute corrections ##
+    if(!is.null(corrections_list)){
+      corrections <- make_corrections(mats, corrections_list)
+    } else {
+      corrections <- list()
+    }
+
+    ## Compute covariance estimate(s) ##
+    vcov <- compute_sigma(A = mats$A, B = mats$B)
   }
 
-  ## Compute covariance estimate(s) ##
-  out$vcov <- compute_sigma(A = mats$A, B = mats$B)
-  out$component_matrices <- mats
 
-  ## Additional components of output ##
-  out$split_data <- split_data
+  out <- new('geex',
+             basis           = basis,
+             root_control    = root_control,
+             approx_control  = approx_control,
+             deriv_control   = deriv_control,
+             rootFUN_results = eesolved,
+             sandwich_components = mats,
+             corrections     = corrections,
+             estimates       = theta_hat,
+             vcov            = vcov)
 
   out
 }
