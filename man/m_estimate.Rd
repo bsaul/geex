@@ -4,12 +4,10 @@
 \alias{m_estimate}
 \title{Estimate parameters and their covariance from a set of estimating equations}
 \usage{
-m_estimate(estFUN, data, units = NULL, weights = NULL, roots = NULL,
-  outer_eeargs = NULL, inner_eeargs = NULL, compute_roots = TRUE,
-  compute_vcov = TRUE, corrections_list = NULL,
-  derivFUN = numDeriv::jacobian, derivFUN_control = list(method =
-  "Richardson"), rootFUN = rootSolve::multiroot, rootFUN_control = NULL,
-  rootFUN_object = "root", approxFUN = NULL, approxFUN_control = NULL)
+m_estimate(estFUN, data, units = character(0), weights = numeric(0),
+  outer_args = list(), inner_args = list(), roots = NULL,
+  compute_roots = TRUE, compute_vcov = TRUE, corrections_list = NULL,
+  deriv_control, root_control, approx_control)
 }
 \arguments{
 \item{data}{a data.frame}
@@ -17,10 +15,6 @@ m_estimate(estFUN, data, units = NULL, weights = NULL, roots = NULL,
 \item{units}{an optional character string identifying the grouping variable in \code{data}}
 
 \item{roots}{a vector of parameter estimates must be provided if \code{compute_roots = FALSE}}
-
-\item{outer_eeargs}{a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)}
-
-\item{inner_eeargs}{a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)}
 
 \item{compute_roots}{whether or not to find the roots of the estimating equations.
 Defaults to \code{TRUE}.}
@@ -32,25 +26,14 @@ Defaults to \code{TRUE}.}
 list element is a list with two elements: \code{correctFUN} and \code{correctFUN_options}.
 See details.}
 
-\item{derivFUN}{the function used to take derivatives of the estimating equation functions.
-Defaults to \code{\link[numDeriv]{jacobian}}.}
-
-\item{derivFUN_control}{a list of options passed to \code{\link[numDeriv]{jacobian}}
-(or the \code{derivFUN} function).}
-
-\item{rootFUN}{the function used to find roots of the estimating equations.
-Defaults to \code{\link[rootSolve]{multiroot}}.}
-
-\item{rootFUN_control}{a list of options to be passed to the \code{rootsolver}
-function}
-
-\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}.
-(EXPERIMENTAL).}
-
-\item{approxFUN_control}{arguments passed to \code{approxFUN}}
+\item{root_control}{an object of class \code{\linkS4class{root_control}}}
 
 \item{eeFUN}{a function that takes in group-level data and returns a function
 that takes parameters as its first argument}
+
+\item{outer_eeargs}{a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)}
+
+\item{inner_eeargs}{a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)}
 }
 \value{
 a list with the following

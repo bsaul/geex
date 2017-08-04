@@ -4,9 +4,7 @@
 \alias{estimate_sandwich_matrices}
 \title{Estimate component matrices of the empirical sandwich covariance estimator}
 \usage{
-estimate_sandwich_matrices(basis, theta, derivFUN = numDeriv::jacobian,
-  derivFUN_control = list(method = "Richardson"), approxFUN = NULL,
-  approxFUN_control = NULL)
+estimate_sandwich_matrices(basis, theta, deriv_control, approx_control)
 }
 \arguments{
 \item{basis}{basis an object of class \code{\linkS4class{m_estimation_basis}}}
@@ -18,11 +16,6 @@ Defaults to \code{\link[numDeriv]{jacobian}}.}
 
 \item{derivFUN_control}{a list of options passed to \code{\link[numDeriv]{jacobian}}
 (or the \code{derivFUN} function).}
-
-\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}.
-(EXPERIMENTAL).}
-
-\item{approxFUN_control}{arguments passed to \code{approxFUN}}
 }
 \value{
 a list with

@@ -4,22 +4,12 @@
 \alias{estimate_GFUN_roots}
 \title{Estimate roots for a set of estimating equations}
 \usage{
-estimate_GFUN_roots(basis, rootFUN = rootSolve::multiroot,
-  rootFUN_control = NULL, approxFUN = NULL, approxFUN_control = NULL)
+estimate_GFUN_roots(basis, root_control, approx_control)
 }
 \arguments{
 \item{basis}{an object of class \code{\linkS4class{m_estimation_basis}}}
 
-\item{rootFUN}{the function used to find roots of the estimating equations.
-Defaults to \code{\link[rootSolve]{multiroot}}.}
-
-\item{rootFUN_control}{a list of options to be passed to the \code{rootsolver}
-function}
-
-\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}.
-(EXPERIMENTAL).}
-
-\item{approxFUN_control}{arguments passed to \code{approxFUN}}
+\item{root_control}{an object of class \code{\linkS4class{root_control}}}
 }
 \value{
 the output of the \code{rootFUN} function

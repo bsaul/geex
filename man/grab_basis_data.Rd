@@ -7,5 +7,5 @@
 grab_basis_data(object, ...)
 }
 \description{
-A function that grabs the data from an m_estimation_basis object
+Grabs the \code{.data} from an \code{\linkS4class{m_estimation_basis}} object
 }

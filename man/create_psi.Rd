@@ -4,26 +4,20 @@
 \alias{create_psi}
 \title{Creates list of psi functions}
 \usage{
-create_psi(.split_data, .estFUN, approxFUN = NULL, approxFUN_control = NULL,
-  .outer_estFUN_args = NULL)
+create_psi(.basis, .approx_control)
 }
 \arguments{
-\item{.split_data}{list of dataframes with data per unit}
+\item{.basis}{an object of class \code{\linkS4class{m_estimation_basis}}}
 
-\item{.estFUN}{the estimating equation function}
-
-\item{approxFUN}{a function that approximates the inner function of \code{eeFUN}.
-(EXPERIMENTAL).}
-
-\item{approxFUN_control}{arguments passed to \code{approxFUN}}
-
-\item{.outer_estFUN_args}{a list of arguments passed to \code{eeFUN}}
+\item{.approx_control}{an object of class \code{\linkS4class{approx_control}}
+or \code{NULL}}
 }
 \value{
 a list of functions, each function corresponding to a single unit
 }
 \description{
 Creates the estimating function (\eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)})
-for each unit. That is, this function evaluates the outer function in \code{eeFUN}
-for each independent unit and a returns the inner function in \code{eeFUN}.
+for each unit. That is, this function evaluates the outer function in
+\code{estFUN} for each independent unit and a returns the inner function in
+\code{estFUN}.
 }

@@ -7,5 +7,5 @@
 grab_estFUN(object, ...)
 }
 \description{
-grab_estFUN generic
+Grabs the \code{.estFUN} from an \code{\linkS4class{m_estimation_basis}} object
 }
