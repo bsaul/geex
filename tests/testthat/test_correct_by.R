@@ -15,44 +15,46 @@ test_eefun <- function(data){
   }
 }
 
-bias_estimates <- estimate_equations(
-  eeFUN = test_eefun,
+rooter <- new('root_control', .options = list(start = c(1, 1)))
+
+bias_estimates <- m_estimate(
+  estFUN = test_eefun,
   data  = dt,
   units = 'id',
-  rootFUN_control = list(start = c(1,1)),
+  root_control = rooter,
   corrections_list = list(test = list(correctFUN = correct_by_fay_bias,
                                       correctFUN_control = list(b = 0.75))))
 
-df1_estimates <- estimate_equations(
-  eeFUN = test_eefun,
+df1_estimates <- m_estimate(
+  estFUN = test_eefun,
   data  = dt,
   units = 'id',
-  rootFUN_control = list(start = c(1,1)),
+  root_control = rooter,
   corrections_list = list(test = list(correctFUN = correct_by_fay_df,
                                       correctFUN_control = list(b = 0.75, L = c(1, 1), version = 1))))
 
-df2_estimates <- estimate_equations(
-  eeFUN = test_eefun,
+df2_estimates <- m_estimate(
+  estFUN = test_eefun,
   data  = dt,
   units = 'id',
-  rootFUN_control = list(start = c(1,1)),
+  root_control = rooter,
   corrections_list = list(test = list(correctFUN = correct_by_fay_df,
                                       correctFUN_control = list(b = 0.75, L = c(1, 1), version = 2))))
 
 
 
 test_that("Bias correction returns matrix", {
-  expect_is(bias_estimates$corrections$test, 'matrix')
+  expect_is(bias_estimates@corrections$test, 'matrix')
 })
 
 test_that("DF1 correction returns a scalar", {
-  expect_is(df1_estimates$corrections$test, 'numeric')
-  expect_equal(length(df1_estimates$corrections$test), 1)
+  expect_is(df1_estimates@corrections$test, 'numeric')
+  expect_equal(length(df1_estimates@corrections$test), 1)
 })
 
 test_that("DF2 correction returns a scalar", {
-  expect_is(df2_estimates$corrections$test, 'numeric')
-  expect_equal(length(df2_estimates$corrections$test), 1)
+  expect_is(df2_estimates@corrections$test, 'numeric')
+  expect_equal(length(df2_estimates@corrections$test), 1)
 })
 
 test_that("check_corrections picks up missing correctFUN", {
