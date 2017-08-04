@@ -298,7 +298,6 @@ m_estimate <- function(estFUN,
                .outer_args = outer_args,
                .inner_args = inner_args)
 
-
   ## Checks/Warnings ##
   if(is.null(roots) & !compute_roots){
     stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
@@ -328,9 +327,9 @@ m_estimate <- function(estFUN,
   ## Compute estimating equation roots ##
   if(compute_roots == TRUE){
     eesolved <- estimate_GFUN_roots(
-      basis          = basis,
-      root_control   = root_control,
-      approx_control = approx_control)
+      .GFUN           = GmFUN,
+      .root_control   = root_control,
+      .approx_control = approx_control)
     rootFUN_results <- eesolved
     theta_hat <- eesolved[[root_control@.object_name]]
   } else {
@@ -340,10 +339,11 @@ m_estimate <- function(estFUN,
   ## Compute component matrices ##
   if(compute_vcov == TRUE){
     mats <- estimate_sandwich_matrices(
-      basis             = basis,
-      theta             = theta_hat,
-      deriv_control     = deriv_control,
-      approx_control    = approx_control)
+      .psi_list          = psi_i,
+      .basis             = basis,
+      .theta             = theta_hat,
+      .deriv_control     = deriv_control,
+      .approx_control    = approx_control)
 
     ## Compute corrections ##
     if(!is.null(corrections_list)){
@@ -363,6 +363,7 @@ m_estimate <- function(estFUN,
              approx_control  = approx_control,
              deriv_control   = deriv_control,
              rootFUN_results = eesolved,
+             GFUN            = GmFUN,
              sandwich_components = mats,
              corrections     = corrections,
              estimates       = theta_hat,
