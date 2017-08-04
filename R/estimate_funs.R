@@ -26,36 +26,39 @@
 #'
 #------------------------------------------------------------------------------#
 
-estimate_GFUN_roots <- function(basis,
-                                root_control,
-                                approx_control){
+estimate_GFUN_roots <- function(.GFUN,
+                                .root_control,
+                                .approx_control){
 
   # Use root_control defaults if no options passed
-  if(missing(root_control)){
-    root_control <- new('root_control')
+  if(missing(.root_control)){
+    .root_control <- new('root_control')
   }
 
   # Use approx_control defaults if no options passed
   # TODO: this code is in create_psi() as well, can it be in 1 place instead?
-  if(missing(approx_control)){
-    approx_control <- new('approx_control')
+  if(missing(.approx_control)){
+    .approx_control <- new('approx_control')
   }
 
-  rootFUN <- match.fun(FUN(root_control))
-
-  # Create estimating equation functions per group
-  psi_i <- create_psi(.basis          = basis,
-                      .approx_control = approx_control)
-
-  # Create psi function that sums over all ee funs
-  # G_m = sum_i psi(O_i, theta) in SB notation]
-  GmFUN <- create_GFUN(.psi_list     = psi_i,
-                       .inner_estFUN_args = basis@.inner_args,
-                       .weights      = basis@.weights)
+  rootFUN <- match.fun(FUN(.root_control))
 
   # Find roots of psi
-  rargs <- append(options(root_control), list(f = GmFUN))
+  rargs <- append(options(.root_control), list(f = .GFUN))
   do.call(rootFUN, args = rargs)
+}
+
+#------------------------------------------------------------------------------#
+# Process a list of matrices to sum across them
+#
+# @param l a list of matrices
+# @param w a numeric vector of weights
+#------------------------------------------------------------------------------#
+
+process_matrix_list <- function(l, w){
+  M_i_pre   <- if(length(w) > 0){ Map(`*`, l, w) } else l
+  M_i_array <- check_array(simplify2array(M_i_pre))
+  apply(M_i_array, 1:2, sum)
 }
 
 #------------------------------------------------------------------------------#
@@ -65,13 +68,11 @@ estimate_GFUN_roots <- function(basis,
 #' in Stefanski and Boos notation) and 'bread' (\eqn{A_m}{A_m} in Stefanski and
 #'  Boos notation) matrices necessary to compute the covariance matrix.
 #'
-#' @param basis basis an object of class \code{\linkS4class{m_estimation_basis}}
-#' @param theta vector of parameter estimates (i.e. estimated roots) passed to \code{geex_list$eeFUN}.
-#' @param derivFUN the function used to take derivatives of the estimating equation functions.
-#' Defaults to \code{\link[numDeriv]{jacobian}}.
-#' @param derivFUN_control a list of options passed to \code{\link[numDeriv]{jacobian}}
-#' (or the \code{derivFUN} function).
+#' @param .basis basis an object of class \code{\linkS4class{m_estimation_basis}}
+#' @param .theta vector of parameter estimates (i.e. estimated roots)
+#' @param .deriv_control an object of class \code{\linkS4class{deriv_control}}
 #' @inheritParams create_psi
+#' @inheritParams create_GFUN
 #'
 #' @return a list with
 #' \itemize{
@@ -100,51 +101,44 @@ estimate_GFUN_roots <- function(basis,
 #' @references Stefanski, L. A., & Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.
 #------------------------------------------------------------------------------#
 
-estimate_sandwich_matrices <- function(basis,
-                                       theta,
-                                       deriv_control,
-                                       approx_control){
+estimate_sandwich_matrices <- function(.psi_list,
+                                       .basis,
+                                       .theta,
+                                       .deriv_control,
+                                       .approx_control){
   # Use deriv_control defaults if no options passed
-  if(missing(deriv_control)){
-    deriv_control <- new('deriv_control')
+  if(missing(.deriv_control)){
+    .deriv_control <- new('deriv_control')
   }
   # Use approx_control defaults if no options passed
   # TODO: this code is in create_psi() as well, can it be in 1 place instead?
-  if(missing(approx_control)){
-    approx_control <- new('approx_control')
+  if(missing(.approx_control)){
+    .approx_control <- new('approx_control')
   }
 
-  derivFUN <- match.fun(FUN(deriv_control))
-
-  # Create list of estimating eqn functions per unit
-  psi_i <- create_psi(.basis = basis,
-                      .approx_control = approx_control)
+  derivFUN <- match.fun(FUN(.deriv_control))
+  w <- .basis@.weights
 
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
-  A_i <- lapply(psi_i, function(ee){
-    args <- append(list(fun = ee, x = theta), options(deriv_control))
-    val  <- do.call(derivFUN, args = append(args, basis@.inner_args))
+  A_i <- lapply(.psi_list, function(ee){
+    args <- append(list(func = ee, x = .theta), options(.deriv_control))
+    val  <- do.call(derivFUN, args = append(args, .basis@.inner_args))
     -val
   })
 
-  w <- basis@.weights
-  A_i_pre   <- if(length(w) > 0){ Map(`*`, A_i, w) } else A_i
-  A_i_array <- check_array(simplify2array(A_i_pre))
-  A   <- apply(A_i_array, 1:2, sum)
+  A <- process_matrix_list(A_i, w)
 
   # Compute outer product of observed estimating eqns
-  B_i <- lapply(psi_i, function(ee) {
-    ee_val <- do.call(ee, args = append(list(theta = theta), basis@.inner_args))
+  B_i <- lapply(.psi_list, function(ee) {
+    ee_val <- do.call(ee, args = append(list(theta = .theta), .basis@.inner_args))
     ee_val %*% t(ee_val)
   })
-  B_i_pre   <- if(length(w) > 0){ Map(`*`, B_i, w) } else B_i
-  B_i_array <- check_array(simplify2array(B_i_pre))
-  B   <- apply(B_i_array, 1:2, sum)
+
+  B <- process_matrix_list(B_i, w)
 
   list(A = A, A_i = A_i, B = B, B_i = B_i)
 }
-
 
 #------------------------------------------------------------------------------#
 #' Estimate parameters and their covariance from a set of estimating equations
@@ -319,6 +313,17 @@ m_estimate <- function(estFUN,
       stop("Length of the weights vector is not equal to the number of units. Check the weights, data, and units arguments.")
     }
   }
+
+
+  # Create estimating equation functions per group
+  psi_i <- create_psi(.basis          = basis,
+                      .approx_control = approx_control)
+
+  # Create psi function that sums over all ee funs
+  # G_m = sum_i psi(O_i, theta) in SB notation]
+  GmFUN <- create_GFUN(.psi_list     = psi_i,
+                       .basis        = basis)
+
 
   ## Compute estimating equation roots ##
   if(compute_roots == TRUE){
