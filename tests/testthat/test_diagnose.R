@@ -10,15 +10,15 @@ test_eefun1 <- function(data){
 }
 
 test_that("check_GFUN function works", {
-  myList <- list(eeFUN = test_eefun1, splitdt = split(geexex, 1:nrow(geexex)))
 
-  temp <- estimate_equations(
-    test_eefun1,
+  temp <- m_estimate(
+    estFUN = test_eefun1,
     data = geexex,
-    rootFUN_control = list(start = c(2,2))
+    root_control = new('root_control', .options = list(start = c(2,2)))
   )
 
-  test <- diagnose_roots(myList, temp$estimates)
+
+  test <- diagnose_roots(temp@GFUN, temp@estimates)
 
   expect_equal(length(test), 2)
 
