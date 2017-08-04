@@ -219,16 +219,7 @@ setClass(
 )
 
 
-#------------------------------------------------------------------------------#
-#' grab_estFUN generic
-#'
-#' Grabs the \code{.estFUN} from an \code{\linkS4class{m_estimation_basis}} object
-#'
-#' @export
-#------------------------------------------------------------------------------#
 
-setGeneric("grab_estFUN", function(object, ...) standardGeneric("grab_estFUN"))
-setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
 
 #------------------------------------------------------------------------------#
 #' grab_basis_data generic
