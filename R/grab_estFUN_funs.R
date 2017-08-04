@@ -14,9 +14,9 @@
 #' @param ... passed to methods
 #' @export
 #------------------------------------------------------------------------------#
-grab_eeFUN <- function(model, data, ...)
+grab_estFUN <- function(model, data, ...)
 {
-  UseMethod("grab_eeFUN")
+  UseMethod("grab_estFUN")
 }
 
 #------------------------------------------------------------------------------#
@@ -24,12 +24,12 @@ grab_eeFUN <- function(model, data, ...)
 #'
 #' Create estimating equation function from a \code{glm} object
 #'
-#' @inheritParams grab_eeFUN
+#' @inheritParams grab_estFUN
 #' @param weights a scalar or vector of weight values
 #' @export
 #------------------------------------------------------------------------------#
 
-grab_eeFUN.glm <- function(model, data, weights = 1, ...)
+grab_estFUN.glm <- function(model, data, weights = 1, ...)
 {
 
   X  <- stats::model.matrix(model$formula, data = data)
@@ -71,10 +71,10 @@ grab_eeFUN.glm <- function(model, data, weights = 1, ...)
 #'
 #' Create estimating equation function from a \code{geeglm} object
 #'
-#' @inheritParams grab_eeFUN
+#' @inheritParams grab_estFUN
 #------------------------------------------------------------------------------#
 
-grab_eeFUN.geeglm <- function(model, data, ...)
+grab_estFUN.geeglm <- function(model, data, ...)
 {
   if(model$corstr != 'independence'){
     stop("only independence working correlation is supported at this time")
@@ -117,11 +117,11 @@ grab_eeFUN.geeglm <- function(model, data, ...)
 #' Create estimating equation function from a \code{merMod} object
 #'
 #' @param numderiv_opts a list of argument passed to \code{numDeriv::grad}
-#' @inheritParams grab_eeFUN
+#' @inheritParams grab_estFUN
 #' @export
 #------------------------------------------------------------------------------#
 
-grab_eeFUN.merMod <- function(model, data, numderiv_opts = NULL, ...)
+grab_estFUN.merMod <- function(model, data, numderiv_opts = NULL, ...)
 {
   ## Warnings ##
   if(length(lme4::getME(model, 'theta')) > 1){
