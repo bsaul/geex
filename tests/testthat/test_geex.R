@@ -1,100 +1,84 @@
 context("Geex computations")
 
-test_that("Basic computations are working", {
-  set.seed(1)
-  n  <- 30
-  mu <- 5
-  sigma <- 2
-  dt <- data.frame(Y = rnorm(n, mean = mu, sd = sigma), id = 1:n, id2 = rep(1:(n/2), each = 2))
 
-  test_eefun1 <- function(data){
-    function(theta){
-      with(data,
-           c(Y - theta[1],
-             (Y - theta[1])^2 - theta[2] )
-      )
-    }
+test_eefun1 <- function(data){
+  function(theta){
+    with(data,
+         c(Y1 - theta[1],
+           (Y1 - theta[1])^2 - theta[2] )
+    )
   }
+}
 
-  #This is nonsensical used for testing the units= option
-  test_eefun2 <- function(data){
-    function(theta){
-      with(data,
-           c(sum(Y)- theta[1],
-             (sum(Y) - theta[1])^2 - theta[2] )
-      )
-    }
+#This is nonsensical used for testing the units= option
+test_eefun2 <- function(data){
+  function(theta){
+    with(data,
+         c(sum(Y1)- theta[1],
+           (sum(Y1) - theta[1])^2 - theta[2] )
+    )
   }
+}
+n <- nrow(geexex)
+theta_hat <- c(mean(geexex$Y1), var(geexex$Y1) * (n - 1) / n)
 
-  glist <- list(eeFUN = test_eefun1, splitdt = split(dt, dt$id))
-  theta_hat <- c(mean(dt$Y), var(dt$Y) * (n - 1) / n)
-  mats      <- compute_matrices(glist,
-                                theta = theta_hat)
-  roots     <- compute_eeroot(glist, rootFUN_control = list(start = c(1, 1)))
+gbasis_good <- new('m_estimation_basis',
+               .estFUN = test_eefun1,
+               .data   = geexex)
 
-  estimates_1 <- estimate_equations(eeFUN = test_eefun1,
-                                  data  = dt, units = 'id',
-                                  rootFUN_control = list(start = c(1, 1)))
+gbasis_bad <- new('m_estimation_basis',
+                   .estFUN = test_eefun2,
+                   .data   = geexex)
 
-  estimates_2 <- estimate_equations(eeFUN = test_eefun1,
-                                  data  = dt,
-                                  rootFUN_control = list(start = c(1, 1)))
+test_that("estimate_GFUN_roots is working", {
+  expect_silent({psii <- create_psi(.basis = gbasis_good)})
+  expect_is(psii, 'list')
+  expect_silent({gtest <- create_GFUN(.psi_list  = psii, .basis = gbasis_good)})
+  expect_is(gtest, 'function')
 
-  estimates_3 <- estimate_equations(eeFUN = test_eefun2,
-                                    data  = dt,
-                                    units = 'id2',
-                                    rootFUN_control = list(start = c(1, 1)))
-  # Check running eeroot without start gives error
-  expect_error(compute_eeroot(glist))
+  # Check running estimate_GFUN_roots without root_control gives error
+  expect_error(estimate_GFUN_roots(.GFUN = gtest))
 
-  # Check mats is list
-  expect_is(mats, 'list')
+  rooter_test <- new("root_control", .options = list(start = c(3, 3)))
+  # Check running estimate_GFUN_roots with proper root_control does not give error
+  expect_silent({root_test <- estimate_GFUN_roots(.GFUN = gtest,
+                                                 .root_control = rooter_test )})
 
-  # Check length of mats
-  expect_length(mats, 4)
-
-  # Check accuracy of roots
-  expect_equal(theta_hat, roots$root)
-
-  # Check the estimates
-  expect_equal(estimates_1$estimates, c(theta_hat))
-
-  # Check that estimate_equations gives the same answer when units left NULL
-  expect_equal(estimates_1, estimates_2)
-
-  # This should be obvious but just checking
-  expect_false(isTRUE(all.equal(estimates_1, estimates_3)))
-
+  # Check that the first elements of the root is at least close to the
+  # closed form
+  expect_equal(root_test$root[1], theta_hat[1], tolerance = 1e-4)
 })
 
-test_that('eeFUN checks are working', {
-  good_eefun <- function(data){
-    function(theta){
-      with(data,
-           c(Y1 - theta[1],
-             (Y1 - theta[1])^2 - theta[2] )
-      )
-    }
-  }
+test_that("estimate_sandwich_matrices working", {
+  expect_silent({psii <- create_psi(.basis = gbasis_good)})
+  expect_is(psii, 'list')
 
-  bad_eefun <- function(data){
-    data$Y1
-  }
+  # Check running estimate_sandwich_matrices without necessary arguments gives error
+  expect_error(estimate_sandwich_matrices(.psi_list = psii))
 
-  splitdt <-split(geexex, f = 1:nrow(geexex))
+  # Check running estimate_GFUN_roots with proper root_control does not give error
+  expect_silent({mat_test <- estimate_sandwich_matrices(.psi_list = psii,
+                                                        .basis    = gbasis_good,
+                                                        .theta    = theta_hat)})
 
-  good_glist <- list(
-    eeFUN   = good_eefun,
-    splitdt = splitdt
-  )
+  expect_is(mat_test, 'list')
+})
 
 
-  bad_glist <- list(
-    eeFUN   = bad_eefun,
-    splitdt = splitdt
-  )
+test_that("m_estimation computations are working", {
 
-  expect_silent(check_eeFUN(good_glist))
-  expect_error(check_eeFUN(bad_glist))
+
+  rooter_test <- new("root_control", .options = list(start = c(3, 3)))
+
+  # should give error if units is not in the data.frame
+  expect_error(m_estimate(estFUN  = test_eefun1,
+                            data  = geexex, units = 'id',
+                            root_control = rooter_test))
+
+  estimates_2 <- m_estimate(estFUN = test_eefun1,
+                            data  = geexex,
+                            root_control = rooter_test)
+
+  expect_is(estimates_2, 'geex')
 
 })
