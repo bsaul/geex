@@ -47,7 +47,7 @@ setClass(
       }
 
       # check that outer estFUN uses outer_args
-      else if(any(!(names(object@outer_args) %in% outer_estFUN_args))){
+      else if(any(!(outer_args_names %in% outer_estFUN_args))){
         "outer_args contains elements not used in the outer estFUN"
       }
     }
@@ -62,7 +62,7 @@ setClass(
       }
 
       # check that inner estFUN uses inner_args,
-      else if(any(!(names(object@inner_args) %in% inner_estFUN_args))){
+      else if(any(!(inner_args_names %in% inner_estFUN_args))){
         "inner_args contains elements not used in the inner estFUN"
       }
     }
@@ -276,6 +276,7 @@ setClass(
             deriv_control   = "deriv_control",
             rootFUN_results = "ANY",
             sandwich_components = "list",
+            GFUN            = "function",
             corrections     = "list",
             estimates       = "numeric",
             vcov            = "matrix"))
