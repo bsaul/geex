@@ -49,25 +49,6 @@ check_corrections <- function(corrections){
   invisible(out)
 }
 
-#------------------------------------------------------------------------------#
-# Check an eeFUN object
-#
-# Checks that eeFUN returns a function. May be developed to perform additional
-# checks in the future.
-#
-# @param geex_list a list of \code{eeFUN}, \code{splitdt}, \code{inner_eeargs}, and
-# \code{outer_eeargs}
-# @export
-#------------------------------------------------------------------------------#
-
-check_eeFUN <- function(geex_list){
-  # Check: eeFUN returns a function
-  f <- do.call(geex_list$eeFUN, args = append(list(data = geex_list$splitdt[[1]]),
-                                              geex_list$outer_eeargs))
-  if(!is.function(f)){
-    stop('eeFUN does not return a function')
-  }
-}
 
 
 
