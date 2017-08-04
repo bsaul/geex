@@ -7,34 +7,38 @@
 #' Creates list of psi functions
 #'
 #' Creates the estimating function (\eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)})
-#' for each unit. That is, this function evaluates the outer function in \code{eeFUN}
-#' for each independent unit and a returns the inner function in \code{eeFUN}.
+#' for each unit. That is, this function evaluates the outer function in
+#' \code{estFUN} for each independent unit and a returns the inner function in
+#' \code{estFUN}.
 #'
-#' @param .split_data list of dataframes with data per unit
-#' @param .estFUN the estimating equation function
-#' @param approxFUN a function that approximates the inner function of \code{eeFUN}.
-#' (EXPERIMENTAL).
-#' @param approxFUN_control arguments passed to \code{approxFUN}
-#' @param .outer_estFUN_args a list of arguments passed to \code{eeFUN}
+#' @param .basis an object of class \code{\linkS4class{m_estimation_basis}}
+#' @param .approx_control an object of class \code{\linkS4class{approx_control}}
+#' or \code{NULL}
 #' @return a list of functions, each function corresponding to a single unit
 #' @export
 #'
 #------------------------------------------------------------------------------#
 
-create_psi <- function(.split_data,
-                       .estFUN,
-                       approxFUN = NULL,
-                       approxFUN_control = NULL,
-                       .outer_estFUN_args = NULL){
-  out <- lapply(.split_data, function(data_i){
-    do.call(.estFUN, args = append(list(data = data_i), .outer_estFUN_args))
+create_psi <- function(.basis,
+                       .approx_control){
+
+  out <- lapply(.basis@.split_data, function(data_i){
+    do.call(grab_estFUN(.basis),
+            args = append(list(data = data_i), .basis@.outer_args))
   })
 
   # if user specifies an approximation function, apply the function to each
   # evaluation of psi
-  if(!is.null(approxFUN)){
+
+  # Use approx_control defaults if no options passed
+  if(missing(.approx_control)){
+    .approx_control <- new('approx_control')
+  }
+
+  if(!(is.null(body(FUN(.approx_control))))){
+    approxFUN <- match.call(FUN(.approx_control))
     lapply(out, function(f){
-      do.call(approxFUN, args = append(list(psi = f), approxFUN_control))
+      do.call(approxFUN, args = append(list(psi = f), options(.approx_control)))
     }) -> out
   }
 
