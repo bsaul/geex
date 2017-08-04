@@ -34,9 +34,8 @@ create_psi <- function(.basis,
   if(missing(.approx_control)){
     .approx_control <- new('approx_control')
   }
-
-  if(!(is.null(body(FUN(.approx_control))))){
-    approxFUN <- match.call(FUN(.approx_control))
+  approxFUN <- FUN(.approx_control)
+  if(!(is.null(body(approxFUN)))){
     lapply(out, function(f){
       do.call(approxFUN, args = append(list(psi = f), options(.approx_control)))
     }) -> out
