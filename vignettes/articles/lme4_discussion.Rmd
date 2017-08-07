@@ -57,7 +57,8 @@ Note that `geex` does most of this work internally.
 
 ```{r}
 eefun <- function(data, lme4model){
-  grab_eeFUN(model = lme4model, data = data)
+  f <- grab_estFUN(lme4model, data = data)
+  function(theta) f(theta)
 }
 
 splitdt <- split(d, f = d$id)
@@ -126,13 +127,13 @@ NOTE: the evaluation of `estimate_equations` is slow!
 
 ```{r, echo = TRUE, eval=FALSE}
 # NOT run to speed creation of documentation
-attempt <- estimate_equations(
-  eeFUN = eefun,
+attempt <- m_estimate(
+  estFUN = eefun,
   data  = d,
   units = 'id',
-  rootFUN_control = list(start = theta_hat), # start root finding at lme4's beta hat.
+  root_control = setup_rootFUN(start = theta_hat), # start root finding at lme4's beta hat.
   compute_vcov = FALSE,
-  outer_eeargs = list(lme4model = fit)
+  outer_args = list(lme4model = fit)
 )
 
 ## parameter estimates obtained from geex
