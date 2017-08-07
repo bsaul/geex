@@ -8,5 +8,5 @@
 \S4method{initialize}{m_estimation_basis}(.Object, ...)
 }
 \description{
-Initialize a m_estimation_basis object
+# @export
 }

@@ -6,8 +6,8 @@
 \usage{
 m_estimate(estFUN, data, units = character(0), weights = numeric(0),
   outer_args = list(), inner_args = list(), roots = NULL,
-  compute_roots = TRUE, compute_vcov = TRUE, corrections_list = NULL,
-  deriv_control, root_control, approx_control)
+  compute_roots = TRUE, compute_vcov = TRUE, corrections, deriv_control,
+  root_control, approx_control)
 }
 \arguments{
 \item{data}{a data.frame}
@@ -22,9 +22,11 @@ Defaults to \code{TRUE}.}
 \item{compute_vcov}{whether or not to compute the variance-covariance matrix.
 Defaults to \code{TRUE}.}
 
-\item{corrections_list}{an optional list of small sample corrections where each
-list element is a list with two elements: \code{correctFUN} and \code{correctFUN_options}.
-See details.}
+\item{corrections}{an optional list of small sample corrections where each
+list element is a \code{\linkS4class{correct_control}} object which contains
+two elements: \code{correctFUN} and \code{correctFUN_options}. The function
+\code{\link{correction}} constructs \code{\linkS4class{correct_control}} objects.
+See details for more information.}
 
 \item{root_control}{an object of class \code{\linkS4class{root_control}}}
 
