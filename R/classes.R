@@ -2,6 +2,10 @@
 # define S4 Classes and methods used within geex #
 #------------------------------------------------------------------------------#
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+## estimating_function class ####
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+
 #------------------------------------------------------------------------------#
 #' estimating_function S4 class
 #'
@@ -72,6 +76,11 @@ setClass(
     else TRUE
   }
 )
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+## m_estimation class and methods ####
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+
 
 #------------------------------------------------------------------------------#
 #' m_estimation_basis S4 class
@@ -163,13 +172,47 @@ setReplaceMethod(
 #' @export
 #------------------------------------------------------------------------------#
 
-setGeneric("get_psiFUN_list",function(object){standardGeneric ("get_psiFUN_list")})
+setGeneric("grab_psiFUN_list",function(object){standardGeneric ("grab_psiFUN_list")})
 setMethod(
-  f = "get_psiFUN_list",
+  f = "grab_psiFUN_list",
   signature = "m_estimation_basis",
   function(object){
     return(object@.psiFUN_list)
 })
+
+#------------------------------------------------------------------------------#
+#' Shows the m_estimation_basis
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setMethod(
+  "show",
+  signature = "m_estimation_basis",
+  definition = function(object) {
+    cat("An object of class ", class(object), "\n", sep = "")
+    cat("psi: \n")
+    print(body(object@.estFUN))
+    cat("Data:\n")
+    print(head(object@.data))
+    cat("Units: ", object@.units)
+
+    invisible(NULL)
+  })
+
+#------------------------------------------------------------------------------#
+#' grab_basis_data generic
+#'
+#' Grabs the \code{.data} from an \code{\linkS4class{m_estimation_basis}} object
+#'
+#------------------------------------------------------------------------------#
+
+setGeneric("grab_basis_data", function(object, ...) standardGeneric("grab_basis_data"))
+setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data)
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+## sandwich_components class and methods ####
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
 #------------------------------------------------------------------------------#
 #' sandwich_components S4 class
@@ -228,7 +271,6 @@ setMethod(
     return(object@.A_i)
   })
 
-
 #------------------------------------------------------------------------------#
 #' Gets the .B (meat matrix) slot
 #'
@@ -256,6 +298,10 @@ setMethod(
   function(object){
     return(object@.B_i)
   })
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+## control classes ####
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
 #------------------------------------------------------------------------------#
 #' geex_control S4 class
@@ -398,16 +444,6 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
-#' grab_basis_data generic
-#'
-#' Grabs the \code{.data} from an \code{\linkS4class{m_estimation_basis}} object
-#'
-#------------------------------------------------------------------------------#
-
-setGeneric("grab_basis_data", function(object, ...) standardGeneric("grab_basis_data"))
-setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data)
-
-#------------------------------------------------------------------------------#
 #' options generic
 #'
 #' Extracts the \code{.options} slot from a \code{\linkS4class{control}} object
@@ -429,6 +465,11 @@ setMethod("options", "geex_control", function(object) object@.options)
 setGeneric("FUN", function(object, ...) standardGeneric("FUN"))
 setMethod("FUN", "geex_control", function(object) object@.FUN)
 
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+## geex class and methods ####
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+
 #------------------------------------------------------------------------------#
 #' geex S4 class
 #'
@@ -448,25 +489,6 @@ setClass(
             estimates       = "numeric",
             vcov            = "matrix"))
 
-#------------------------------------------------------------------------------#
-#' Shows the m_estimation_basis
-#'
-#' @export
-#------------------------------------------------------------------------------#
-
-setMethod(
-  "show",
-  signature = "m_estimation_basis",
-  definition = function(object) {
-    cat("An object of class ", class(object), "\n", sep = "")
-    cat("psi: \n")
-    print(body(object@.estFUN))
-    cat("Data:\n")
-    print(head(object@.data))
-    cat("Units: ", object@.units)
-
-    invisible(NULL)
-  })
 
 #------------------------------------------------------------------------------#
 #' Shows the geex object
@@ -485,8 +507,68 @@ setMethod(
     cat("\nCovariance:\n")
     print(object@vcov)
     if(length(object@corrections) > 0){
-      cat("The results include ", length(object@corrections), " covariance corrections")
+      cat("The results include", length(object@corrections),
+          "covariance corrections")
     }
 
     invisible(NULL)
+  })
+
+
+#------------------------------------------------------------------------------#
+#' Gets the variance-covariance matrix from a geex object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setMethod(
+  "vcov",
+  signature = "geex",
+  definition = function(object) {
+    object@vcov
+  })
+
+#------------------------------------------------------------------------------#
+#' Gets the parameter estimates matrix from a geex object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setMethod(
+  "coef",
+  signature = "geex",
+  definition = function(object) {
+    object@estimates
+  })
+
+#------------------------------------------------------------------------------#
+#' Gets the parameter estimates matrix from a geex object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("roots", function(object, ...) standardGeneric("roots"))
+setMethod(
+  "roots",
+  signature = "geex",
+  definition = function(object) {
+    object@estimates
+  })
+
+#------------------------------------------------------------------------------#
+#' Gets the corrections from a geex object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("get_corrections", function(object, ...) standardGeneric("get_corrections"))
+setMethod(
+  "get_corrections",
+  signature = "geex",
+  definition = function(object) {
+    if(length(object@corrections) == 0){
+      "No corrections were performed on this object"
+    } else {
+      object@corrections
+    }
   })
