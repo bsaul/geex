@@ -80,10 +80,10 @@ Y_i - \theta_1 \\
 \end{pmatrix}
 \]
 
-into an `eeFUN`:
+into an `estFUN`:
 
-```{r SB1_eefun, echo=TRUE, results='hide'}
-SB1_eefun <- function(data){
+```{r SB1_estFUN, echo=TRUE, results='hide'}
+SB1_estFUN <- function(data){
   function(theta){
     with(data,
       c(Y - theta[1],
@@ -93,13 +93,13 @@ SB1_eefun <- function(data){
 }
 ```
 
-With the `eeFUN` function prepared, it is passed to `estimate_equations` along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.
+With the `estFUN` function prepared, it is passed to `m_estimate` along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.
 
 ```{r SB1_run, echo=TRUE}
-estimates <- estimate_equations(
-  eeFUN = SB1_eefun, 
+estimates <- m_estimate(
+  estFUN = SB1_estFUN, 
   data  = dt,
-  rootFUN_control = list(start = c(1,1)))
+  root_control = setup_rootFUN(start = c(1,1)))
 ```
 
 ```{r SB1_clsform, echo=FALSE}
@@ -127,7 +127,7 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```
 
 ```{r SB1_results, echo = FALSE}
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -159,9 +159,9 @@ X_i - \theta_2 \\
 \end{pmatrix}
 \]
 
-Corresponding `eeFUN`:
-```{r SB2_eefun, echo = TRUE}
-SB2_eefun <- function(data){
+Corresponding `estFUN`:
+```{r SB2_estFUN, echo = TRUE}
+SB2_estFUN <- function(data){
   function(theta){
     with(data,
       c(Y - theta[1],
@@ -173,10 +173,10 @@ SB2_eefun <- function(data){
 ```
 
 ```{r SB2_run, echo = TRUE}
-estimates <- estimate_equations(
-  eeFUN = SB2_eefun, 
+estimates <- m_estimate(
+  estFUN = SB2_estFUN, 
   data  = dt, 
-  rootFUN_control = list(start = c(1, 1, 1)))
+  root_control = setup_rootFUN(start = c(1, 1, 1)))
 ```
 
 ```{r SB2_clsform, echo = FALSE}
@@ -206,7 +206,7 @@ Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 ```
 
 ```{r SB2_results, echo = FALSE}
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -235,9 +235,9 @@ log(\theta_2) - \theta_4
 \end{pmatrix}
 \]
 
-Corresponding `eeFUN`:
-```{r SB3_eefun, echo = TRUE}
-SB3_eefun <- function(data){
+Corresponding `estFUN`:
+```{r SB3_estFUN, echo = TRUE}
+SB3_estFUN <- function(data){
   function(theta){
     with(data,
       c(Y - theta[1],
@@ -250,10 +250,10 @@ SB3_eefun <- function(data){
 ```
 
 ```{r SB3_run, echo = TRUE}
-estimates <- estimate_equations(
-  eeFUN= SB3_eefun, 
+estimates <- m_estimate(
+  estFUN= SB3_estFUN, 
   data  = dt,
-  rootFUN_control = list(start = c(1, 1, 1, 1)))
+  root_control = setup_rootFUN(start = c(1, 1, 1, 1)))
 ```
 
 ```{r SB3_clsform, echo = FALSE}
@@ -288,7 +288,7 @@ Sigma_cls <- matrix(
 
 
 ```{r SB3_results, echo = FALSE}
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
