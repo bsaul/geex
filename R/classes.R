@@ -7,9 +7,9 @@
 #'
 #' @slot .estFUN the estimating function.
 #' @slot .outer_args a named \code{list} of arguments passed to the outer
-#' function of \code{estFUN}. Should *not* include the \code{data} argument.
+#' function of \code{.estFUN}. Should *not* include the \code{data} argument.
 #' @slot .inner_args a named \code{list} of arguments passed to the inner
-#' function of \code{estFUN}. Should *not* include the \code{theta} argument.
+#' function of \code{.estFUN}. Should *not* include the \code{theta} argument.
 #'
 #' @export
 #------------------------------------------------------------------------------#
@@ -37,6 +37,7 @@ setClass(
       "First argument of the inner estFUN must be 'theta'"
     }
 
+    # Check outer_args
     else if(length(outer_args_names) > 0){
       if(is.null(outer_args_names)){
         "outer_args must be a *named* list with names matching arguments in the outer estFUN"
@@ -52,6 +53,7 @@ setClass(
       }
     }
 
+    # Check inner_args
     else if(length(inner_args_names) > 0){
       if(is.null(inner_args_names)){
         "inner_args must be a *named* list with names matching arguments in the inner estFUN"
@@ -76,18 +78,22 @@ setClass(
 #'
 #' @slot .data the analysis data.frame
 #' @slot .units an (optional) character string identifying the variable in
-#' @slot .split_data
-#' \code{data} which
-#' splits the data into indepedent units
+#' \code{.data} which splits the data into indepedent units
+#' @slot .split_data list formed by \code{split(.data, f = .data[[.units]])}
+#' (optional). This is automatically created if not provided.
+#' @slot .weights a numeric vector of weights used in weighting the estimating
+#' functions
+#' @slot .psiFUN_list a list of \code{psiFUN}s created by \code{\link{create_psiFUN_list}}
 #' @export
 #------------------------------------------------------------------------------#
 
 setClass(
   Class = "m_estimation_basis",
-  slots = c(.data  = "data.frame",
-            .units = "character",
-            .split_data = "list",
-            .weights = "numeric"),
+  slots = c(.data        = "data.frame",
+            .units       = "character",
+            .split_data  = "list",
+            .weights     = "numeric",
+            .psiFUN_list = "list"),
   contains = "estimating_function",
   validity = function(object){
 
@@ -114,10 +120,11 @@ setMethod("initialize", "m_estimation_basis", function(.Object, ...){
   .Object <- callNextMethod()
 
   # TODO: This set up allows for the case where the split_data could be set to
-  # a different split than that defined by .units. This shouldn't be the case
+  # a different split than that defined by .units. This shouldn't be the case.
 
   # TODO: an m_estimation_basis object will carry around both the .data
-  # and the .split_data, but this seems redundant
+  # and the .split_data, but this seems redundant. Is there a tighter, less
+  # memory greedy way?
 
   if(length(.Object@.split_data) == 0){
     dt <- grab_basis_data(.Object)
@@ -131,19 +138,74 @@ setMethod("initialize", "m_estimation_basis", function(.Object, ...){
   .Object
 })
 
+#------------------------------------------------------------------------------#
+#' Sets the .psi_list slot in a m_estimation_basis
+#'
+#' @export
+#------------------------------------------------------------------------------#
 
+setGeneric("set_psiFUN_list<-", function(object,value){
+  standardGeneric("set_psiFUN_list<-")})
 
+setReplaceMethod(
+  f = "set_psiFUN_list",
+  signature="m_estimation_basis",
+  definition = function(object,value){
+    object@.psiFUN_list <- value
+    validObject(object)
+    return (object)
+  }
+)
 
 #------------------------------------------------------------------------------#
-#' control S4 class
+#' Gets the .psi_list slot in a m_estimation_basis
 #'
-#' @slot .FUN a function
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("get_psiFUN_list",function(object){standardGeneric ("get_psiFUN_list")})
+setMethod(
+  f = "get_psiFUN_list",
+  signature = "m_estimation_basis",
+  function(object){
+    return(object@.psiFUN_list)
+})
+
+#------------------------------------------------------------------------------#
+#' sandwich_components S4 class
+#'
+#' A general class for defining a \code{function}, and the options passed to the
+#' function
+#'
+#' @slot .A
 #' @slot .options a list of options passed to \code{.FUN}
+#' @seealso root_control deriv_control approx_control
 #'
 #' @export
 #------------------------------------------------------------------------------#
 setClass(
-  Class = "control",
+  Class = "sandwich_compenents",
+  slots = c(.A   = 'matrix',
+            .A_i = 'list',
+            .B   = 'matrix',
+            .B_i = 'matrix')
+)
+
+
+#------------------------------------------------------------------------------#
+#' geex_control S4 class
+#'
+#' A general class for defining a \code{function}, and the options passed to the
+#' function
+#'
+#' @slot .FUN a function
+#' @slot .options a list of options passed to \code{.FUN}
+#' @seealso root_control deriv_control approx_control
+#'
+#' @export
+#------------------------------------------------------------------------------#
+setClass(
+  Class = "geex_control",
   slots = c(.FUN = 'function',
             .options = 'list')
 )
@@ -151,17 +213,17 @@ setClass(
 #------------------------------------------------------------------------------#
 #' root_control S4 class
 #'
-#' @slot .FUN a root finding function
-#' @slot .options a list of options passed to \code{.FUN}
+#' @slot .FUN a root finding function whose first argument must be named \code{f}.
+#' @slot .options a list of options passed to \code{.FUN}.
 #' @slot .object_name a character string identifying the object containing the
-#' roots in the output of \code{.FUN}
+#' roots in the output of \code{.FUN}.
 #'
 #' @export
 #------------------------------------------------------------------------------#
 setClass(
   Class = "root_control",
   slots = c(.object_name = 'character'),
-  contains = "control",
+  contains = "geex_control",
   validity = function(object){
 
     FUN_arg_names <- formalArgs(object@.FUN)
@@ -195,7 +257,7 @@ setClass(
 #------------------------------------------------------------------------------#
 setClass(
   Class = "deriv_control",
-  contains = "control",
+  contains = "geex_control",
   prototype = prototype(
     .FUN = numDeriv::jacobian,
     .options = list(method = 'Richardson')
@@ -208,18 +270,15 @@ setClass(
 #' EXPERIMENTAL. See example 7 in \code{vignette("01_additional_examples", package = "geex")}
 #' for usage.
 #'
-#' @slot .FUN a function which approximates \code{estFUN}.
+#' @slot .FUN a function which approximates an \code{estFUN}.
 #' @slot .options a list of options passed to \code{.FUN}.
 #'
 #' @export
 #------------------------------------------------------------------------------#
 setClass(
   Class = "approx_control",
-  contains = "control"
+  contains = "geex_control"
 )
-
-
-
 
 #------------------------------------------------------------------------------#
 #' grab_basis_data generic
@@ -240,7 +299,7 @@ setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data
 #------------------------------------------------------------------------------#
 
 setGeneric("options", function(object, ...) standardGeneric("options"))
-setMethod("options", "control", function(object) object@.options)
+setMethod("options", "geex_control", function(object) object@.options)
 
 #------------------------------------------------------------------------------#
 #' FUN generic
@@ -251,7 +310,7 @@ setMethod("options", "control", function(object) object@.options)
 #------------------------------------------------------------------------------#
 
 setGeneric("FUN", function(object, ...) standardGeneric("FUN"))
-setMethod("FUN", "control", function(object) object@.FUN)
+setMethod("FUN", "geex_control", function(object) object@.FUN)
 
 #------------------------------------------------------------------------------#
 #' geex S4 class
@@ -271,8 +330,9 @@ setClass(
             corrections     = "list",
             estimates       = "numeric",
             vcov            = "matrix"))
+
 #------------------------------------------------------------------------------#
-#' Show the m_estimation_basis
+#' Shows the m_estimation_basis
 #'
 #' @export
 #------------------------------------------------------------------------------#
@@ -293,7 +353,7 @@ setMethod(
 
 
 #------------------------------------------------------------------------------#
-#' Show the geex object
+#' Shows the geex object
 #'
 #' @export
 #------------------------------------------------------------------------------#
@@ -311,7 +371,6 @@ setMethod(
     if(length(object@corrections) > 0){
       cat("The results include ", length(object@corrections), " covariance corrections")
     }
-
 
     invisible(NULL)
   })
