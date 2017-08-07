@@ -17,8 +17,7 @@
 #------------------------------------------------------------------------------#
 make_corrections <- function(components, corrections){
   lapply(corrections, function(correction){
-    do.call(correction$correctFUN,
-            args = append(components, correction$correctFUN_control))
+     correct_by(.components = components, .correct_control = correction)
   })
 }
 
@@ -36,13 +35,28 @@ make_corrections <- function(components, corrections){
 #' @export
 #------------------------------------------------------------------------------#
 
-
 correct_by <- function(.components, .correct_control){
   f <- FUN(.correct_control)
   opts <- options(.correct_control)
   do.call(f, args = append(list(components = .components), opts))
 }
 
+
+#------------------------------------------------------------------------------#
+#' Creates a correct_control object
+#'
+#' @param correctFUN a correction to perform. \code{components} must be the
+#' first argument
+#' @param correctFUN_options a list of options passed to \code{correctFUN}
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+correction <- function(correctFUN, correctFUN_options){
+  new(Class="correct_control",
+      .FUN = correctFUN,
+      .options   = correctFUN_options)
+}
 
 #------------------------------------------------------------------------------#
 #' Correct sandwich variance estimator byFay's bias correction
@@ -59,7 +73,7 @@ correct_by <- function(.components, .correct_control){
 #' @export
 #------------------------------------------------------------------------------#
 
-correct_by_fay_bias <- function(components, b = 0.75){
+fay_bias_correction <- function(components, b = 0.75){
   fay_bias_correction_partial(components, b = b) ->  corrected_matrices
 
   compute_sigma(A = grab_bread(components), B = corrected_matrices$Bbc)
@@ -72,7 +86,7 @@ correct_by_fay_bias <- function(components, b = 0.75){
 #' Graubard (2001). See \code{vignette("05_finite_sample_corrections", package = "geex")}
 #' for further information.
 #'
-#' @inheritParams correct_by_fay_bias
+#' @inheritParams fay_bias_correction
 #' @param L a k x p matrix where p is the dimension of theta
 #' @param version either 1 or 2, corresponding to hat(d) or tilde(d), respectively
 #' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for
@@ -81,7 +95,7 @@ correct_by_fay_bias <- function(components, b = 0.75){
 #' @export
 #------------------------------------------------------------------------------#
 
-correct_by_fay_df <- function(components, b = .75, L, version){
+fay_df_correction <- function(components, b = .75, L, version){
 
   ## Prepare necessary matrices ##
   bias_mats <- fay_bias_correction_partial(components, b = b)
