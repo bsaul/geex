@@ -53,18 +53,18 @@ example <- function(data) {
 The timing to find point and variance estimates is compared:
 ```{r}
 system.time({
-results1 <- estimate_equations(
-  eeFUN = example,
+results1 <- m_estimate(
+  estFUN = example,
   data  = data1,
-  rootFUN_control = list(start = c(.5, .5, .5))
+  root_control = setup_rootFUN(start = c(.5, .5, .5))
 )})
 
 system.time({
-  results2 <- estimate_equations(
-  eeFUN = example,
+  results2 <- m_estimate(
+  estFUN = example,
   data  = data2,
   weights = data2$n,
-  rootFUN_control = list(start = c(.5, .5, .5))
+  root_control = setup_rootFUN(start = c(.5, .5, .5))
 )})
 ```
 
@@ -74,9 +74,9 @@ The latter option is clearly preferred.
 
 And the results are basically identical:
 ```{r}
-results1$estimates
-results2$estimates
+roots(results1)
+roots(results2)
 
-results1$vcov
-results2$vcov
+vcov(results1)
+vcov(results2)
 ```
