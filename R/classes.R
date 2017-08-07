@@ -174,23 +174,48 @@ setMethod(
 #------------------------------------------------------------------------------#
 #' sandwich_components S4 class
 #'
-#' A general class for defining a \code{function}, and the options passed to the
-#' function
-#'
-#' @slot .A
-#' @slot .options a list of options passed to \code{.FUN}
-#' @seealso root_control deriv_control approx_control
+#' @slot .A the "bread" matrix
+#' @slot .A_i a list of "bread" matrices per unit
+#' @slot .B the "meat" matrix
+#' @slot .B_i a list of "meat" matrices per unit
 #'
 #' @export
 #------------------------------------------------------------------------------#
 setClass(
-  Class = "sandwich_compenents",
+  Class = "sandwich_components",
   slots = c(.A   = 'matrix',
             .A_i = 'list',
             .B   = 'matrix',
-            .B_i = 'matrix')
+            .B_i = 'list')
 )
 
+#------------------------------------------------------------------------------#
+#' Gets the .A (bread matrix) slot
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("get_bread",function(object){standardGeneric ("get_bread")})
+setMethod(
+  f = "get_bread",
+  signature = "sandwich_components",
+  function(object){
+    return(object@.A)
+  })
+
+#------------------------------------------------------------------------------#
+#' Gets the .B (meat matrix) slot
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("get_meat",function(object){standardGeneric ("get_meat")})
+setMethod(
+  f = "get_meat",
+  signature = "sandwich_components",
+  function(object){
+    return(object@.B)
+  })
 
 #------------------------------------------------------------------------------#
 #' geex_control S4 class
@@ -325,7 +350,7 @@ setClass(
             approx_control  = "approx_control",
             deriv_control   = "deriv_control",
             rootFUN_results = "ANY",
-            sandwich_components = "list",
+            sandwich_components = "sandwich_components",
             GFUN            = "function",
             corrections     = "list",
             estimates       = "numeric",
