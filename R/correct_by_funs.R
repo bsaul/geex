@@ -15,12 +15,10 @@
 #  \code{corrections}
 # @export
 #------------------------------------------------------------------------------#
-make_corrections <- function(mats, corrections){
-  input_args <- mats
-
+make_corrections <- function(components, corrections){
   lapply(corrections, function(correction){
     do.call(correction$correctFUN,
-            args = append(input_args, correction$correctFUN_control))
+            args = append(components, correction$correctFUN_control))
   })
 }
 
@@ -35,10 +33,7 @@ make_corrections <- function(mats, corrections){
 #' Graubard (2001). See \code{vignette("05_finite_sample_corrections", package = "geex")}
 #' for further information.
 #'
-#' @param A the outer "bread" matrix
-#' @param A_i a list of bread matrices per group
-#' @param B the inner "meat" matrix
-#' @param B_i a list of meat matrices per group
+#' @param components an object of class \code{\linkS4class{sandwich_components}}
 #' @param b a numeric value < 1. Defaults to 0.75 as in Fay.
 #' @return a corrected covariance matrix
 #' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for
@@ -46,9 +41,8 @@ make_corrections <- function(mats, corrections){
 #' @export
 #------------------------------------------------------------------------------#
 
-correct_by_fay_bias <- function(A_i, A, B_i, B, b = 0.75){
-  fay_bias_correction_partial(
-    A_i = A_i, A  = A, B_i = B_i, B = B, b = b) ->  corrected_matrices
+correct_by_fay_bias <- function(components, b = 0.75){
+  fay_bias_correction_partial(components, b = b) ->  corrected_matrices
 
   compute_sigma(A = A, B = corrected_matrices$Bbc)
 }
@@ -69,10 +63,12 @@ correct_by_fay_bias <- function(A_i, A, B_i, B, b = 0.75){
 #' @export
 #------------------------------------------------------------------------------#
 
-correct_by_fay_df <- function(A_i, A, B_i, B, b = .75, L, version){
+correct_by_fay_df <- function(components, b = .75, L, version){
 
   ## Prepare necessary matrices ##
-  bias_mats <- fay_bias_correction_partial(A_i = A_i, A = A, B_i = B_i, B = B, b = b)
+  bias_mats <- fay_bias_correction_partial(components, b = b)
+  A <- grab_bread(components)
+  A_i <- grab_bread_list(components)
   df_prep   <- df_correction_prep(L = L, A = A, A_i = A_i, H_i = bias_mats$H_i)
 
   ## Compute DF corrections ##
@@ -101,7 +97,11 @@ correct_by_fay_df <- function(A_i, A, B_i, B, b = .75, L, version){
 # @export
 #------------------------------------------------------------------------------#
 
-fay_bias_correction_partial <- function(A, A_i, B, B_i, b){
+fay_bias_correction_partial <- function(components, b){
+
+  A   <- grab_bread(components)
+  A_i <- grab_bread_list(components)
+  B_i <- grab_meat_list(components)
 
   Ainv <- solve(A)
   H_i <- lapply(A_i, function(Ai){
