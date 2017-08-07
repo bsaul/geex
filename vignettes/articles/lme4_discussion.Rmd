@@ -140,7 +140,7 @@ attempt <- m_estimate(
 attempt
 
 psi_eval2 <- lapply(psi, function(f){
-  f(attempt$estimates)
+  f(roots(attempt))
 })
 
 colSums(matrix(unlist(psi_eval2), ncol = 3, byrow  = TRUE))
