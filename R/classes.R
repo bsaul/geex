@@ -26,7 +26,9 @@ setClass(
   validity = function(object){
 
     outer_estFUN_args <- formalArgs(grab_estFUN(object))
-    inner_estFUN_args <- formalArgs(eval(body(grab_estFUN(object))))
+    # TODO: Checking the inner_estFUN_args doesn't work because body() grabs
+    # more than just the  anynomous function returned by estFUN (duh).
+    # inner_estFUN_args <- formalArgs(eval(body(grab_estFUN(object))))
 
     outer_args_names <- names(object@.outer_args)
     inner_args_names <- names(object@.inner_args)
@@ -37,9 +39,10 @@ setClass(
     }
 
     # check that first argument of inner eeFUN is theta
-    else if(inner_estFUN_args[1] != 'theta'){
-      "First argument of the inner estFUN must be 'theta'"
-    }
+    # See TODO above
+    # else if(inner_estFUN_args[1] != 'theta'){
+    #   "First argument of the inner estFUN must be 'theta'"
+    # }
 
     # Check outer_args
     else if(length(outer_args_names) > 0){
@@ -68,9 +71,10 @@ setClass(
       }
 
       # check that inner estFUN uses inner_args,
-      else if(any(!(inner_args_names %in% inner_estFUN_args))){
-        "inner_args contains elements not used in the inner estFUN"
-      }
+      # See TODO above
+      # else if(any(!(inner_args_names %in% inner_estFUN_args))){
+      #   "inner_args contains elements not used in the inner estFUN"
+      # }
     }
 
     else TRUE
