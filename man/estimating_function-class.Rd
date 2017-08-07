@@ -13,9 +13,9 @@ estimating_function S4 class
 \item{\code{.estFUN}}{the estimating function.}
 
 \item{\code{.outer_args}}{a named \code{list} of arguments passed to the outer
-function of \code{estFUN}. Should *not* include the \code{data} argument.}
+function of \code{.estFUN}. Should *not* include the \code{data} argument.}
 
 \item{\code{.inner_args}}{a named \code{list} of arguments passed to the inner
-function of \code{estFUN}. Should *not* include the \code{theta} argument.}
+function of \code{.estFUN}. Should *not* include the \code{theta} argument.}
 }}
 

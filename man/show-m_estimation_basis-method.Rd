@@ -3,10 +3,10 @@
 \docType{methods}
 \name{show,m_estimation_basis-method}
 \alias{show,m_estimation_basis-method}
-\title{Show the m_estimation_basis}
+\title{Shows the m_estimation_basis}
 \usage{
 \S4method{show}{m_estimation_basis}(object)
 }
 \description{
-Show the m_estimation_basis
+Shows the m_estimation_basis
 }

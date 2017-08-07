@@ -11,7 +11,7 @@ for usage.
 \section{Slots}{
 
 \describe{
-\item{\code{.FUN}}{a function which approximates \code{estFUN}.}
+\item{\code{.FUN}}{a function which approximates an \code{estFUN}.}
 
 \item{\code{.options}}{a list of options passed to \code{.FUN}.}
 }}

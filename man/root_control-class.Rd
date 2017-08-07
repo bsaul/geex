@@ -10,11 +10,11 @@ root_control S4 class
 \section{Slots}{
 
 \describe{
-\item{\code{.FUN}}{a root finding function}
+\item{\code{.FUN}}{a root finding function whose first argument must be named \code{f}.}
 
-\item{\code{.options}}{a list of options passed to \code{.FUN}}
+\item{\code{.options}}{a list of options passed to \code{.FUN}.}
 
 \item{\code{.object_name}}{a character string identifying the object containing the
-roots in the output of \code{.FUN}}
+roots in the output of \code{.FUN}.}
 }}
 

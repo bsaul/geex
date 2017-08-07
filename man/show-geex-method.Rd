@@ -3,10 +3,10 @@
 \docType{methods}
 \name{show,geex-method}
 \alias{show,geex-method}
-\title{Show the geex object}
+\title{Shows the geex object}
 \usage{
 \S4method{show}{geex}(object)
 }
 \description{
-Show the geex object
+Shows the geex object
 }
