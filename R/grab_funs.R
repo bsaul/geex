@@ -19,7 +19,7 @@ grab <- function(from, what, ...){
          "design_matrix"    = grab_design_matrix(data = from, ...),
          "response_formula" = grab_response_formula(model = from),
          "fixed_formula"    = grab_fixed_formula(model = from),
-         'eeFUN'            = grab_eeFUN(model = from, ...),
+         'estFUN'            = grab_estFUN(object = from, ...),
          stop("'what' you want to grab() is not defined"))
 }
 

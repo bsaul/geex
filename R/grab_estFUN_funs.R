@@ -5,42 +5,48 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-#' Grab estimating functions from a model
+#' Grab estimating functions from a model object
 #'
-#' Converts a model object into
-#'
-#' @param model a model object object
-#' @param data data with which to create the estimating equation function
-#' @param ... passed to methods
 #' @export
 #------------------------------------------------------------------------------#
-grab_eeFUN <- function(model, data, ...)
-{
-  UseMethod("grab_eeFUN")
+
+grab_estFUN <- function(object, ...){
+  # S3 generic, for S3 dispatch
+  UseMethod("grab_estFUN")
 }
+
+#------------------------------------------------------------------------------#
+#' grab_estFUN generic
+#'
+#' Grabs the \code{.estFUN} from an \code{\linkS4class{m_estimation_basis}} object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("grab_estFUN")
+setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
 
 #------------------------------------------------------------------------------#
 #' Grab estimating functions from a glm object
 #'
 #' Create estimating equation function from a \code{glm} object
 #'
-#' @inheritParams grab_eeFUN
+#' @inheritParams grab_estFUN
 #' @param weights a scalar or vector of weight values
 #' @export
 #------------------------------------------------------------------------------#
 
-grab_eeFUN.glm <- function(model, data, weights = 1, ...)
-{
+grab_estFUN.glm <- function(object, data, weights = 1, ...){
 
-  X  <- stats::model.matrix(model$formula, data = data)
-  Y  <- as.numeric(stats::model.frame(grab_response_formula(model), data = data)[[1]])
+  X  <- stats::model.matrix(object$formula, data = data)
+  Y  <- as.numeric(stats::model.frame(grab_response_formula(object), data = data)[[1]])
   n  <- length(Y)
-  p  <- length(stats::coef(model))
-  phi    <- as.numeric(summary(model)$dispersion[1])
+  p  <- length(stats::coef(object))
+  phi    <- as.numeric(summary(object)$dispersion[1])
   W      <- weights
-  family <- model$family$family
-  link   <- model$family$link
-  invlnk <- model$family$linkinv
+  family <- object$family$family
+  link   <- object$family$link
+  invlnk <- object$family$linkinv
   family_link <- paste(family, link, sep = '_')
 
   stopifnot(length(W) == 1 | length(W) == n)
@@ -71,25 +77,24 @@ grab_eeFUN.glm <- function(model, data, weights = 1, ...)
 #'
 #' Create estimating equation function from a \code{geeglm} object
 #'
-#' @inheritParams grab_eeFUN
+#' @inheritParams grab_estFUN
 #------------------------------------------------------------------------------#
 
-grab_eeFUN.geeglm <- function(model, data, ...)
-{
-  if(model$corstr != 'independence'){
+grab_estFUN.geeglm <- function(object, data, ...){
+  if(object$corstr != 'independence'){
     stop("only independence working correlation is supported at this time")
   }
 
-  X <- stats::model.matrix(model$formula, data = data)
+  X <- stats::model.matrix(object$formula, data = data)
   # DO NOT use stats::model.matrix(geepack_obj, data = subdata)) -
   # returns entire model matrix, not just the subset
-  Y  <- stats::model.response(stats::model.frame(model, data = data))
+  Y  <- stats::model.response(stats::model.frame(object, data = data))
   n  <- length(Y)
-  p  <- length(stats::coef(model))
-  phi    <- as.numeric(summary(model)$dispersion[1])
-  family <- model$family$family
-  link   <- model$family$link
-  invlnk <- model$family$linkinv
+  p  <- length(stats::coef(object))
+  phi    <- as.numeric(summary(object)$dispersion[1])
+  family <- object$family$family
+  link   <- object$family$link
+  invlnk <- object$family$linkinv
   family_link <- paste(family, link, sep = '_')
 
 
@@ -117,21 +122,21 @@ grab_eeFUN.geeglm <- function(model, data, ...)
 #' Create estimating equation function from a \code{merMod} object
 #'
 #' @param numderiv_opts a list of argument passed to \code{numDeriv::grad}
-#' @inheritParams grab_eeFUN
+#' @inheritParams grab_estFUN
 #' @export
 #------------------------------------------------------------------------------#
 
-grab_eeFUN.merMod <- function(model, data, numderiv_opts = NULL, ...)
+setMethod("grab_estFUN", "merMod", function(object, data, numderiv_opts = NULL,...)
 {
   ## Warnings ##
-  if(length(lme4::getME(model, 'theta')) > 1){
+  if(length(lme4::getME(object, 'theta')) > 1){
     stop('make_eefun.merMod currently does not handle >1 random effect')
   }
 
-  fm     <- grab_fixed_formula(model = model)
+  fm     <- grab_fixed_formula(model = object)
   X      <- grab_design_matrix(data = data, rhs_formula = fm)
-  Y      <- grab_response(data = data, formula = stats::formula(model))
-  family <- model@resp$family
+  Y      <- grab_response(data = data, formula = stats::formula(object))
+  family <- object@resp$family
   lnkinv <- family$linkinv
   objfun <- objFun_merMod(family$family)
 
@@ -139,7 +144,7 @@ grab_eeFUN.merMod <- function(model, data, numderiv_opts = NULL, ...)
     args <- list(func = objfun, x = theta, response = Y, xmatrix = X, linkinv = lnkinv)
     do.call(numDeriv::grad, args = append(args, numderiv_opts))
   }
-}
+})
 
 #------------------------------------------------------------------------------#
 # Objective Function for merMod object

@@ -4,16 +4,15 @@
 \alias{create_GFUN}
 \title{Creates a function that sums over psi functions}
 \usage{
-create_GFUN(psi_list, inner_eeargs = NULL, weights = NULL)
+create_GFUN(.basis)
 }
 \arguments{
-\item{psi_list}{list of psi functions}
-
-\item{inner_eeargs}{list of arguments passed to psi}
+\item{.basis}{an object of class \code{\linkS4class{m_estimation_basis}}}
 }
 \description{
 From a list of \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} for i = 1, ..., m,
-creates \eqn{G_m = \sum_i \psi(O_i, \theta)}{G_m = \sum_i \psi(O_i, \theta)}. Here,
-\eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} is the *inner* part of an \code{eeFUN},
-in that the data is fixed and \eqn{G_m}{G_m} is a function of \eqn{\theta)}{\theta}.
+creates \eqn{G_m = \sum_i \psi(O_i, \theta)}{G_m = \sum_i \psi(O_i, \theta)},
+called \code{GFUN}. Here, \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} is the
+*inner* part of an \code{estFUN}, in that the data is fixed and \eqn{G_m}{G_m}
+is a function of \eqn{\theta)}{\theta}.
 }

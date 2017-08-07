@@ -15,12 +15,9 @@
 #  \code{corrections}
 # @export
 #------------------------------------------------------------------------------#
-make_corrections <- function(mats, corrections){
-  input_args <- mats
-
+make_corrections <- function(components, corrections){
   lapply(corrections, function(correction){
-    do.call(correction$correctFUN,
-            args = append(input_args, correction$correctFUN_control))
+     correct_by(.components = components, .correct_control = correction)
   })
 }
 
@@ -29,16 +26,46 @@ make_corrections <- function(mats, corrections){
 ###############################################################################
 
 #------------------------------------------------------------------------------#
+#' Correct sandwich components
+#'
+#' @param .components an object of class \code{\linkS4class{sandwich_components}}
+#' @param .correct_control an object of class \code{\linkS4class{correct_control}}
+#'
+#' @return the result of \code{.FUN} in \code{.correct_control}.
+#' @export
+#------------------------------------------------------------------------------#
+
+correct_by <- function(.components, .correct_control){
+  f <- FUN(.correct_control)
+  opts <- options(.correct_control)
+  do.call(f, args = append(list(components = .components), opts))
+}
+
+
+#------------------------------------------------------------------------------#
+#' Creates a correct_control object
+#'
+#' @param correctFUN a correction to perform. \code{components} must be the
+#' first argument
+#' @param correctFUN_options a list of options passed to \code{correctFUN}
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+correction <- function(correctFUN, correctFUN_options){
+  new(Class="correct_control",
+      .FUN = correctFUN,
+      .options   = correctFUN_options)
+}
+
+#------------------------------------------------------------------------------#
 #' Correct sandwich variance estimator byFay's bias correction
 #'
 #' Computes the bias corrected sandwich covariance matrix described in Fay and
 #' Graubard (2001). See \code{vignette("05_finite_sample_corrections", package = "geex")}
 #' for further information.
 #'
-#' @param A the outer "bread" matrix
-#' @param A_i a list of bread matrices per group
-#' @param B the inner "meat" matrix
-#' @param B_i a list of meat matrices per group
+#' @param components an object of class \code{\linkS4class{sandwich_components}}
 #' @param b a numeric value < 1. Defaults to 0.75 as in Fay.
 #' @return a corrected covariance matrix
 #' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for
@@ -46,11 +73,10 @@ make_corrections <- function(mats, corrections){
 #' @export
 #------------------------------------------------------------------------------#
 
-correct_by_fay_bias <- function(A_i, A, B_i, B, b = 0.75){
-  fay_bias_correction_partial(
-    A_i = A_i, A  = A, B_i = B_i, B = B, b = b) ->  corrected_matrices
+fay_bias_correction <- function(components, b = 0.75){
+  fay_bias_correction_partial(components, b = b) ->  corrected_matrices
 
-  compute_sigma(A = A, B = corrected_matrices$Bbc)
+  compute_sigma(A = grab_bread(components), B = corrected_matrices$Bbc)
 }
 
 #------------------------------------------------------------------------------#
@@ -60,7 +86,7 @@ correct_by_fay_bias <- function(A_i, A, B_i, B, b = 0.75){
 #' Graubard (2001). See \code{vignette("05_finite_sample_corrections", package = "geex")}
 #' for further information.
 #'
-#' @inheritParams correct_by_fay_bias
+#' @inheritParams fay_bias_correction
 #' @param L a k x p matrix where p is the dimension of theta
 #' @param version either 1 or 2, corresponding to hat(d) or tilde(d), respectively
 #' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for
@@ -69,10 +95,12 @@ correct_by_fay_bias <- function(A_i, A, B_i, B, b = 0.75){
 #' @export
 #------------------------------------------------------------------------------#
 
-correct_by_fay_df <- function(A_i, A, B_i, B, b = .75, L, version){
+fay_df_correction <- function(components, b = .75, L, version){
 
   ## Prepare necessary matrices ##
-  bias_mats <- fay_bias_correction_partial(A_i = A_i, A = A, B_i = B_i, B = B, b = b)
+  bias_mats <- fay_bias_correction_partial(components, b = b)
+  A   <- grab_bread(components)
+  A_i <- grab_bread_list(components)
   df_prep   <- df_correction_prep(L = L, A = A, A_i = A_i, H_i = bias_mats$H_i)
 
   ## Compute DF corrections ##
@@ -101,7 +129,11 @@ correct_by_fay_df <- function(A_i, A, B_i, B, b = .75, L, version){
 # @export
 #------------------------------------------------------------------------------#
 
-fay_bias_correction_partial <- function(A, A_i, B, B_i, b){
+fay_bias_correction_partial <- function(components, b){
+
+  A   <- grab_bread(components)
+  A_i <- grab_bread_list(components)
+  B_i <- grab_meat_list(components)
 
   Ainv <- solve(A)
   H_i <- lapply(A_i, function(Ai){
@@ -113,7 +145,7 @@ fay_bias_correction_partial <- function(A, A_i, B, B_i, b){
   Bbc_i <- lapply(seq_along(B_i), function(i){
     H_i[[i]] %*% B_i[[i]] %*% H_i[[i]]
   })
-  Bbc   <- apply(simplify2array(Bbc_i), 1:2, sum)
+  Bbc <-process_matrix_list(Bbc_i) #apply(simplify2array(Bbc_i), 1:2, sum)
 
   list(H_i = H_i, Bbc = Bbc)
 }

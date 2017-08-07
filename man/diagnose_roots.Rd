@@ -4,10 +4,10 @@
 \alias{diagnose_roots}
 \title{Diagnose roots of estimating equations}
 \usage{
-diagnose_roots(geex_list, theta)
+diagnose_roots(GFUN, theta)
 }
 \arguments{
-\item{geex_list}{a list with at least \code{splitdt}, \code{eeFUN}, and \code{outer_eeargs} (which can be \code{NULL})}
+\item{GFUN}{a function of theta}
 
 \item{theta}{parameter estimates to use in evaluating the estimating equations.}
 }

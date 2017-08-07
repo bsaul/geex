@@ -2,71 +2,100 @@
 # create_** description:
 # Functions that take in stuff and create a function or list of functions.
 #------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+#' Creates an m_estimation_basis object
+#'
+#' @param split_data a \code{split} data.frame
+#' @inheritParams m_estimate
+#' @export
+#------------------------------------------------------------------------------#
+
+create_basis <- function(estFUN, data, units, outer_args, inner_args, split_data = NULL){
+  if(is.null(split_data)){
+    new(Class="m_estimation_basis",
+        .estFUN = estFUN,
+        .data   = data,
+        .units  =  if(!missing(units)) units else character(),
+        .outer_args = if(!missing(outer_args)) outer_args else list(),
+        .inner_args = if(!missing(inner_args)) inner_args else list() )
+  } else {
+    new(Class="m_estimation_basis",
+        .estFUN = estFUN,
+        .split_data = split_data,
+        .outer_args = if(!missing(outer_args)) outer_args else list(),
+        .inner_args = if(!missing(inner_args)) inner_args else list() )
+  }
+}
 
 #------------------------------------------------------------------------------#
 #' Creates list of psi functions
 #'
 #' Creates the estimating function (\eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)})
-#' for each unit. That is, this function evaluates the outer function in \code{eeFUN}
-#' for each independent unit and a returns the inner function in \code{eeFUN}.
+#' for each unit. That is, this function evaluates the outer function in
+#' \code{estFUN} for each independent unit and a returns the inner function in
+#' \code{estFUN}.
 #'
-#' @param splitdt list of dataframes with data per unit
-#' @param eeFUN the estimating equation function
-#' @param approxFUN a function that approximates the inner function of \code{eeFUN}.
-#' (EXPERIMENTAL).
-#' @param approxFUN_control arguments passed to \code{approxFUN}
-#' @param outer_eeargs a list of arguments passed to \code{eeFUN}
-#' @return a list of functions, each function corresponding to a single unit
+#' @param .basis an object of class \code{\linkS4class{m_estimation_basis}}
+#' @param .approx_control an object of class \code{\linkS4class{approx_control}}
+#' or \code{NULL}
+#' @return the \code{.basis} with the \code{.psiFUN_list} slot populated.
 #' @export
 #'
 #------------------------------------------------------------------------------#
 
-create_psi <- function(splitdt,
-                       eeFUN,
-                       approxFUN = NULL,
-                       approxFUN_control = NULL,
-                       outer_eeargs = NULL){
-  out <- lapply(splitdt, function(data_i){
-    do.call(eeFUN, args = append(list(data = data_i), outer_eeargs))
+create_psiFUN_list <- function(.basis,
+                               .approx_control){
+
+  out <- lapply(.basis@.split_data, function(data_i){
+    do.call(grab_estFUN(.basis),
+            args = append(list(data = data_i), .basis@.outer_args))
   })
 
   # if user specifies an approximation function, apply the function to each
   # evaluation of psi
-  if(!is.null(approxFUN)){
+
+  # Use approx_control defaults if no options passed
+  if(missing(.approx_control)){
+    .approx_control <- new('approx_control')
+  }
+  approxFUN <- FUN(.approx_control)
+  if(!(is.null(body(approxFUN)))){
     lapply(out, function(f){
-      do.call(approxFUN, args = append(list(psi = f), approxFUN_control))
+      do.call(approxFUN, args = append(list(psi = f), options(.approx_control)))
     }) -> out
   }
 
-  out
+  set_psiFUN_list(.basis) <- out
+  .basis
 }
 
 #------------------------------------------------------------------------------#
 #' Creates a function that sums over psi functions
 #'
 #' From a list of \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} for i = 1, ..., m,
-#' creates \eqn{G_m = \sum_i \psi(O_i, \theta)}{G_m = \sum_i \psi(O_i, \theta)}. Here,
-#' \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} is the *inner* part of an \code{eeFUN},
-#' in that the data is fixed and \eqn{G_m}{G_m} is a function of \eqn{\theta)}{\theta}.
+#' creates \eqn{G_m = \sum_i \psi(O_i, \theta)}{G_m = \sum_i \psi(O_i, \theta)},
+#' called \code{GFUN}. Here, \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} is the
+#' *inner* part of an \code{estFUN}, in that the data is fixed and \eqn{G_m}{G_m}
+#' is a function of \eqn{\theta)}{\theta}.
 #'
-#' @param psi_list list of psi functions
-#' @param inner_eeargs list of arguments passed to psi
+#' @inheritParams create_psiFUN_list
 #' @export
 #'
 #------------------------------------------------------------------------------#
 
-create_GFUN <- function(psi_list, inner_eeargs = NULL, weights = NULL){
+create_GFUN <- function(.basis){
+  psi_list <- grab_psiFUN_list(.basis)
   function(theta){
-    psii <- lapply(psi_list, function(f) {
-      do.call(f, args = append(list(theta = theta), inner_eeargs))
+    psii <- lapply(psi_list, function(psi) {
+      do.call(psi, args = append(list(theta = theta), .basis@.inner_args))
     })
 
     # If weights are provided, then multiply each psi function by its
     # respective weight
-    if(is.null(weights)){
+    if(length(.basis@.weights) == 0){
       psii_array <- simplify2array(psii)
     } else {
-      psii_array <- simplify2array(Map(`*`, psii, weights))
+      psii_array <- simplify2array(Map(`*`, psii, .weights))
     }
     # sum over unit-wise contributions to the estimating equations
     apply(check_array(psii_array), 1, sum)

@@ -1,0 +1,48 @@
+---
+title: "The design and structure of geex"
+author: "Bradley Saul"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The software design of geex}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+*Under construction*
+
+```{r setup, include=FALSE}
+library(geex)
+library(dplyr)
+
+myee <- function(data){
+  function(theta){
+    c(data$Y1 - theta)
+  }
+}
+
+rooter1 <- new("root_control",
+               .options = list(start = c(1)))
+
+mybasis <- create_basis(
+               estFUN = myee,
+               data   = geexex)
+
+
+mybasis %>%
+  create_psiFUN_list() %>%
+  create_GFUN() %>%
+  estimate_GFUN_roots(.root_control = rooter1)
+
+test_control <- correction(fay_bias, list(b = .75))
+
+mybasis %>%
+  create_psiFUN_list() %>%
+  estimate_sandwich_matrices(.theta = 5.04) %>%
+  {compute_sigma(A = grab_bread(.), B = grab_meat(.))}
+
+mybasis %>%
+  create_psiFUN_list() %>%
+  estimate_sandwich_matrices(.theta = 5.04) %>%
+  correct_by(.correct_control =  correction(fay_bias_correction, list(b = .75)))
+```

@@ -1,6 +1,6 @@
 library(geepack, quietly = TRUE)
 data('ohio')
-
+context("Text generic grab() function")
 test_that("grab() function return expected objects and fail safely", {
   test_binomial <- glm(resp ~ age, data = ohio,
                        weights = rep(2, nrow(ohio)),
@@ -15,6 +15,6 @@ test_that("grab() function return expected objects and fail safely", {
   expect_is(dm, 'matrix')
   expect_error(  grab(from = ohio, what = "xxx"))
 
-  ee <- grab(from = test_binomial, what = 'eeFUN', data = ohio)
+  ee <- grab(from = test_binomial, what = 'estFUN', data = ohio)
   expect_is(ee, 'function')
 })

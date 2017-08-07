@@ -15,63 +15,50 @@ test_eefun <- function(data){
   }
 }
 
-bias_estimates <- estimate_equations(
-  eeFUN = test_eefun,
-  data  = dt,
-  units = 'id',
-  rootFUN_control = list(start = c(1,1)),
-  corrections_list = list(test = list(correctFUN = correct_by_fay_bias,
-                                      correctFUN_control = list(b = 0.75))))
+rooter <- new('root_control', .options = list(start = c(1, 1)))
 
-df1_estimates <- estimate_equations(
-  eeFUN = test_eefun,
+bias_estimates <- m_estimate(
+  estFUN = test_eefun,
   data  = dt,
   units = 'id',
-  rootFUN_control = list(start = c(1,1)),
-  corrections_list = list(test = list(correctFUN = correct_by_fay_df,
-                                      correctFUN_control = list(b = 0.75, L = c(1, 1), version = 1))))
+  root_control = rooter,
+  corrections = list(test = correction(fay_bias_correction,
+                                            list(b = 0.75))))
 
-df2_estimates <- estimate_equations(
-  eeFUN = test_eefun,
+df1_estimates <- m_estimate(
+  estFUN = test_eefun,
   data  = dt,
   units = 'id',
-  rootFUN_control = list(start = c(1,1)),
-  corrections_list = list(test = list(correctFUN = correct_by_fay_df,
-                                      correctFUN_control = list(b = 0.75, L = c(1, 1), version = 2))))
+  root_control = rooter,
+  corrections = list(test = correction(correctFUN = fay_df_correction,
+                            correctFUN_options = list(b = 0.75, L = c(1, 1), version = 1))))
+
+df2_estimates <- m_estimate(
+  estFUN = test_eefun,
+  data  = dt,
+  units = 'id',
+  root_control = rooter,
+  corrections = list(test = correction(correctFUN = fay_df_correction,
+                                      correctFUN_options = list(b = 0.75, L = c(1, 1), version = 2))))
 
 
 
 test_that("Bias correction returns matrix", {
-  expect_is(bias_estimates$corrections$test, 'matrix')
+  expect_is(bias_estimates@corrections$test, 'matrix')
 })
 
 test_that("DF1 correction returns a scalar", {
-  expect_is(df1_estimates$corrections$test, 'numeric')
-  expect_equal(length(df1_estimates$corrections$test), 1)
+  expect_is(df1_estimates@corrections$test, 'numeric')
+  expect_equal(length(df1_estimates@corrections$test), 1)
 })
 
 test_that("DF2 correction returns a scalar", {
-  expect_is(df2_estimates$corrections$test, 'numeric')
-  expect_equal(length(df2_estimates$corrections$test), 1)
+  expect_is(df2_estimates@corrections$test, 'numeric')
+  expect_equal(length(df2_estimates@corrections$test), 1)
 })
 
-test_that("check_corrections picks up missing correctFUN", {
-  correction_tester <- list(test1 = list(correctFUN = correct_by_fay_df),
-                            test2 = list(fun = correct_by_fay_df))
-  expect_error(check_corrections(correction_tester))
+test_that("get_corrections() accessor returns list", {
+  expect_is(get_corrections(bias_estimates), 'list')
 })
 
-test_that("check_corrections picks up additional arguments", {
-  correction_tester <- list(test1 = list(correctFUN = correct_by_fay_df,
-                                         correctFUN_control = list(x = 2),
-                                         errormaker = 2))
-  expect_warning(check_corrections(correction_tester))
-})
 
-test_that("check_corrections does not throw error when correction list is correct", {
-  correction_tester <- list(test1 = list(correctFUN = correct_by_fay_df,
-                                         correctFUN_control = list(x = 1)),
-                            test2 = list(correctFUN = correct_by_fay_bias,
-                                         correctFUN_control = list(x = 1)))
-  expect_silent(check_corrections(correction_tester))
-})

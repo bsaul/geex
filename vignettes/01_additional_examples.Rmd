@@ -93,10 +93,10 @@ SB4_eefun <- function(data){
 ```
 
 ```{r SB4_run, echo = TRUE, message=FALSE}
-estimates <- estimate_equations(
-  eeFUN = SB4_eefun, 
+estimates <- m_estimate(
+  estFUN = SB4_eefun, 
   data  = geexex, 
-  rootFUN_control = list(start = c(1, 1, 1, 1)))
+  root_control = setup_rootFUN(start = c(1, 1, 1, 1)))
 ```
 
 The R packages [`AER`](https://cran.r-project.org/web/packages/AER/index.html) and [`ivpack`](https://cran.r-project.org/web/packages/ivpack/index.html) can compute the IV estimator and sandwich variance estimators respectively, which is done below for comparison.  
