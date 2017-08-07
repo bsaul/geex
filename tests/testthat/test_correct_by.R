@@ -57,9 +57,8 @@ test_that("DF2 correction returns a scalar", {
   expect_equal(length(df2_estimates@corrections$test), 1)
 })
 
-test_that("check_corrections picks up missing correctFUN", {
-  correction_tester <- list(test1 = list(correctFUN = fay_df_correction),
-                            test2 = list(fun = fay_df_correction))
-  expect_error(check_corrections(correction_tester))
+test_that("get_corrections() accessor returns list", {
+  expect_is(get_corrections(bias_estimates), 'list')
 })
+
 
