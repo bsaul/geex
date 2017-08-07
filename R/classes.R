@@ -335,6 +335,30 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
+#' correct_control S4 class
+#'
+#' @slot .FUN a function which "corrects" a \code{\linkS4class{sandwich_components}}
+#' object. Usually a small-sample correction
+#' @slot .options a list of options passed to \code{.FUN}.
+#'
+#' @export
+#------------------------------------------------------------------------------#
+setClass(
+  Class = "correct_control",
+  contains = "geex_control",
+  validity = function(object){
+    args_names <- formalArgs(FUN(object))
+    option_names <- names(options(object))
+    if(!('components' == args_names[1])){
+      "'components' must be the argument of a correction function"
+    } else if(any(!(option_names %in% args_names[-1]))) {
+      "All correction options must be an argument for the correction function"
+    } else
+      TRUE
+  }
+)
+
+#------------------------------------------------------------------------------#
 #' grab_basis_data generic
 #'
 #' Grabs the \code{.data} from an \code{\linkS4class{m_estimation_basis}} object
