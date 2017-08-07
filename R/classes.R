@@ -310,6 +310,34 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
+#' Setup a root_control object
+#'
+#' @param rootFUN a root finding function whose first argument must be named \code{f}.
+#' @param roots_name a character string identifying the object containing the
+#' roots in the output of \code{.FUN}.
+#' @param ... arguments passed to \code{rootFUN}
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setup_rootFUN <- function(rootFUN, roots_name, ...){
+  dots <- list(...)
+  hold <- call('new')
+  hold[['Class']] <- "root_control"
+  if(!missing(rootFUN)){
+    hold[[".FUN"]] <- rootFUN
+  }
+  if(length(dots) > 0){
+    hold[[".options"]] <- dots
+  }
+  if(!missing(roots_name)){
+    hold[[".object_name"]] <- roots_name
+  }
+
+  eval(hold)
+}
+
+#------------------------------------------------------------------------------#
 #' deriv_control S4 class
 #'
 #' @slot .FUN a function which computes a numerical derivation. This functions
