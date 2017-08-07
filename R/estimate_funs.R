@@ -150,9 +150,11 @@ estimate_sandwich_matrices <- function(.basis,
 #' @param units an optional character string identifying the grouping variable in \code{data}
 #' @param outer_eeargs a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)
 #' @param inner_eeargs a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)
-#' @param corrections_list an optional list of small sample corrections where each
-#' list element is a list with two elements: \code{correctFUN} and \code{correctFUN_options}.
-#' See details.
+#' @param corrections an optional list of small sample corrections where each
+#' list element is a \code{\linkS4class{correct_control}} object which contains
+#' two elements: \code{correctFUN} and \code{correctFUN_options}. The function
+#' \code{\link{correction}} constructs \code{\linkS4class{correct_control}} objects.
+#' See details for more information.
 #' @param compute_roots whether or not to find the roots of the estimating equations.
 #' Defaults to \code{TRUE}.
 #' @param compute_vcov whether or not to compute the variance-covariance matrix.
@@ -255,7 +257,7 @@ m_estimate <- function(estFUN,
                        roots             = NULL,
                        compute_roots     = TRUE,
                        compute_vcov      = TRUE,
-                       corrections_list  = NULL,
+                       corrections,
                        deriv_control,
                        root_control,
                        approx_control){
@@ -296,10 +298,6 @@ m_estimate <- function(estFUN,
     stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
   }
 
-  if(!is.null(corrections_list)){
-    check_corrections(corrections_list)
-  }
-
   if(length(basis@.weights) > 0){
     if(length(basis@.weights) != length(basis@.split_data)){
       stop("Length of the weights vector is not equal to the number of units. Check the weights, data, and units arguments.")
@@ -335,10 +333,10 @@ m_estimate <- function(estFUN,
       .approx_control    = approx_control)
 
     ## Compute corrections ##
-    if(!is.null(corrections_list)){
-      corrections <- make_corrections(mats, corrections_list)
+    if(!missing(corrections)){
+      correction_results <- make_corrections(mats, corrections)
     } else {
-      corrections <- list()
+      correction_results <- list()
     }
 
     ## Compute covariance estimate(s) ##
@@ -353,7 +351,7 @@ m_estimate <- function(estFUN,
              rootFUN_results = eesolved,
              GFUN            = GmFUN,
              sandwich_components = mats,
-             corrections     = corrections,
+             corrections     = correction_results,
              estimates       = theta_hat,
              vcov            = vcov)
 
