@@ -20,7 +20,6 @@
 #'
 #' @param basis an object of class \code{\linkS4class{m_estimation_basis}}
 #' @param root_control an object of class \code{\linkS4class{root_control}}
-#' @inheritParams create_psi
 #' @return the output of the \code{rootFUN} function
 #' @export
 #'
@@ -71,7 +70,6 @@ process_matrix_list <- function(.l, .w){
 #' @param .basis basis an object of class \code{\linkS4class{m_estimation_basis}}
 #' @param .theta vector of parameter estimates (i.e. estimated roots)
 #' @param .deriv_control an object of class \code{\linkS4class{deriv_control}}
-#' @inheritParams create_psi
 #' @inheritParams create_GFUN
 #'
 #' @return a \code{\linkS4class{sandwich_components}} object
@@ -344,7 +342,7 @@ m_estimate <- function(estFUN,
     }
 
     ## Compute covariance estimate(s) ##
-    vcov <- compute_sigma(A = get_bread(mats), B = get_meat(mats))
+    vcov <- compute_sigma(A = grab_bread(mats), B = grab_meat(mats))
   }
 
   out <- new('geex',
