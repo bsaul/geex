@@ -126,7 +126,8 @@ grab_estFUN.geeglm <- function(object, data, ...){
 #' @export
 #------------------------------------------------------------------------------#
 
-setMethod("grab_estFUN", "merMod", function(object, data, numderiv_opts = NULL,...)
+# setMethod("grab_estFUN", "merMod", function(object, data, numderiv_opts = NULL,...)
+grab_estFUN.merMod <- function(object, data, numderiv_opts = NULL,...)
 {
   ## Warnings ##
   if(length(lme4::getME(object, 'theta')) > 1){
@@ -144,7 +145,7 @@ setMethod("grab_estFUN", "merMod", function(object, data, numderiv_opts = NULL,.
     args <- list(func = objfun, x = theta, response = Y, xmatrix = X, linkinv = lnkinv)
     do.call(numDeriv::grad, args = append(args, numderiv_opts))
   }
-})
+}
 
 #------------------------------------------------------------------------------#
 # Objective Function for merMod object
