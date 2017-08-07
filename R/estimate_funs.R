@@ -321,6 +321,7 @@ m_estimate <- function(estFUN,
     rootFUN_results <- eesolved
     theta_hat <- eesolved[[root_control@.object_name]]
   } else {
+    rootFUN_results <- list()
     theta_hat <- roots
   }
 
@@ -348,7 +349,7 @@ m_estimate <- function(estFUN,
              root_control    = root_control,
              approx_control  = approx_control,
              deriv_control   = deriv_control,
-             rootFUN_results = eesolved,
+             rootFUN_results = rootFUN_results,
              GFUN            = GmFUN,
              sandwich_components = mats,
              corrections     = correction_results,
