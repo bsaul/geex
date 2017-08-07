@@ -95,7 +95,7 @@ create_GFUN <- function(.basis){
     if(length(.basis@.weights) == 0){
       psii_array <- simplify2array(psii)
     } else {
-      psii_array <- simplify2array(Map(`*`, psii, .weights))
+      psii_array <- simplify2array(Map(`*`, psii, .basis@.weights))
     }
     # sum over unit-wise contributions to the estimating equations
     apply(check_array(psii_array), 1, sum)
