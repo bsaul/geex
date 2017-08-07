@@ -36,5 +36,16 @@ test_that("correct_control S4 class validates correctly",{
                     .FUN = testFUN3))
 })
 
+test_that("sandwich_components S4 class validates correctly",{
+  expect_error(new("sandwich_components",
+                   .A = matrix(NA, nrow = 4, ncol = 2)))
+  expect_error(new("sandwich_components",
+                   .A = matrix(NA, nrow = 4, ncol = 4),
+                   .B = matrix(NA, nrow = 4, ncol = 2)))
+  expect_silent(new("sandwich_components",
+                   .A = matrix(NA, nrow = 4, ncol = 4),
+                   .B = matrix(NA, nrow = 4, ncol = 4)))
+})
+
 
 

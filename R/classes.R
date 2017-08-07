@@ -186,7 +186,18 @@ setClass(
   slots = c(.A   = 'matrix',
             .A_i = 'list',
             .B   = 'matrix',
-            .B_i = 'list')
+            .B_i = 'list'),
+  validity = function(object){
+    A_dims <- dim(object@.A)
+    B_dims <- dim(object@.B)
+    if(A_dims[1] != A_dims[2]){
+      "The .A (bread) matrix must be square"
+    }
+    else if(B_dims[1] != B_dims[2]){
+      "The .B (meat) matrix must be square"
+    }
+    else TRUE
+  }
 )
 
 #------------------------------------------------------------------------------#
