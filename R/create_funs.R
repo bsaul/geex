@@ -2,6 +2,30 @@
 # create_** description:
 # Functions that take in stuff and create a function or list of functions.
 #------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+#' Creates an m_estimation_basis object
+#'
+#' @param split_data a \code{split} data.frame
+#' @inheritParams m_estimate
+#' @export
+#------------------------------------------------------------------------------#
+
+create_basis <- function(estFUN, data, units, outer_args, inner_args, split_data = NULL){
+  if(is.null(split_data)){
+    new(Class="m_estimation_basis",
+        .estFUN = estFUN,
+        .data   = data,
+        .units  =  if(!missing(units)) units else character(),
+        .outer_args = if(!missing(outer_args)) outer_args else list(),
+        .inner_args = if(!missing(inner_args)) inner_args else list() )
+  } else {
+    new(Class="m_estimation_basis",
+        .estFUN = estFUN,
+        .split_data = split_data,
+        .outer_args = if(!missing(outer_args)) outer_args else list(),
+        .inner_args = if(!missing(inner_args)) inner_args else list() )
+  }
+}
 
 #------------------------------------------------------------------------------#
 #' Creates list of psi functions
