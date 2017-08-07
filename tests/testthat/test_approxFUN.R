@@ -22,7 +22,7 @@ gbasis <- new('m_estimation_basis',
 
 
 test_that("approx_control is working", {
-  expect_silent({psii <- create_psi(.basis = gbasis,
+  expect_silent({psii <- create_psiFUN_list(.basis = gbasis,
                                     .approx_control = approx)})
 
   x <- m_estimate(
