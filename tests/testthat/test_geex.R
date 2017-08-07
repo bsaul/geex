@@ -19,6 +19,17 @@ test_eefun2 <- function(data){
     )
   }
 }
+
+# For testing inner and outer args
+test_eefun3 <- function(data, psi){
+  function(theta, alpha){
+    with(data,
+         c(Y1 - theta[1]/psi,
+           (Y1 - theta[1])^2 - theta[2]*alpha)
+    )
+  }
+}
+
 n <- nrow(geexex)
 theta_hat <- c(mean(geexex$Y1), var(geexex$Y1) * (n - 1) / n)
 
@@ -66,7 +77,6 @@ test_that("estimate_sandwich_matrices working", {
 
 test_that("m_estimation computations are working", {
 
-
   rooter_test <- new("root_control", .options = list(start = c(3, 3)))
 
   # should give error if units is not in the data.frame
@@ -80,4 +90,41 @@ test_that("m_estimation computations are working", {
 
   expect_is(estimates_2, 'geex')
 
+})
+
+
+test_that("m_estimation works when given outer and/or inner args", {
+
+  # should work
+  expect_is(m_estimate(estFUN  = test_eefun3,
+                          data  = geexex,
+                          outer_args = list(psi = 2),
+                          inner_args = list(alpha = 3),
+                          root_control = setup_rootFUN(start = c(3, 3))),
+            'geex')
+
+  # should fail
+  expect_error(m_estimate(estFUN  = test_eefun3,
+                       data  = geexex,
+                       outer_args = list(psi = 2),
+                       root_control = setup_rootFUN(start = c(3, 3))))
+  # should fail
+  expect_error(m_estimate(estFUN  = test_eefun3,
+                       data  = geexex,
+                       inner_args = list(alpha = 3),
+                       root_control = setup_rootFUN(start = c(3, 3))))
+
+})
+
+test_that("geex class accessors work", {
+
+  # should work
+  expect_is({hold <- m_estimate(estFUN  = test_eefun1,
+                       data  = geexex,
+                       root_control = setup_rootFUN(start = c(3, 3)))},
+            'geex')
+
+  expect_is(vcov(hold), 'matrix')
+  expect_is(coef(hold), 'numeric')
+  expect_is(roots(hold), 'numeric')
 })
