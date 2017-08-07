@@ -345,6 +345,7 @@ m_estimate <- function(estFUN,
   } else {
     mats <- new('sandwich_components')
     correction_results <- list()
+    vcov <- matrix()
   }
 
   out <- new('geex',
