@@ -74,13 +74,8 @@ process_matrix_list <- function(.l, .w){
 #' @inheritParams create_psi
 #' @inheritParams create_GFUN
 #'
-#' @return a list with
-#' \itemize{
-#' \item A - the 'bread' matrix
-#' \item B - the 'meat' matrix
-#' \item A_i - a list of 'bread' matrices for each group
-#' \item B_i - a list of 'meat' matrices for each group
-#' }
+#' @return a \code{\linkS4class{sandwich_components}} object
+#'
 #' @details For a set of estimating equations (\eqn{\sum_i \psi(O_i, \theta) = 0}{sum_i \psi(O_i, \theta) = 0}),
 #' this function computes:
 #'
@@ -101,8 +96,7 @@ process_matrix_list <- function(.l, .w){
 #' @references Stefanski, L. A., & Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.
 #------------------------------------------------------------------------------#
 
-estimate_sandwich_matrices <- function(.psi_list,
-                                       .basis,
+estimate_sandwich_matrices <- function(.basis,
                                        .theta,
                                        .deriv_control,
                                        .approx_control){
@@ -118,10 +112,10 @@ estimate_sandwich_matrices <- function(.psi_list,
 
   derivFUN <- match.fun(FUN(.deriv_control))
   w <- .basis@.weights
-
+  psi_list <- get_psiFUN_list(.basis)
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
-  A_i <- lapply(.psi_list, function(ee){
+  A_i <- lapply(psi_list, function(ee){
     args <- append(list(func = ee, x = .theta), options(.deriv_control))
     val  <- do.call(derivFUN, args = append(args, .basis@.inner_args))
     -val
@@ -130,14 +124,15 @@ estimate_sandwich_matrices <- function(.psi_list,
   A <- process_matrix_list(A_i, w)
 
   # Compute outer product of observed estimating eqns
-  B_i <- lapply(.psi_list, function(ee) {
+  B_i <- lapply(psi_list, function(ee) {
     ee_val <- do.call(ee, args = append(list(theta = .theta), .basis@.inner_args))
     ee_val %*% t(ee_val)
   })
 
   B <- process_matrix_list(B_i, w)
 
-  list(A = A, A_i = A_i, B = B, B_i = B_i)
+  new('sandwich_components',
+      .A = A, .A_i = A_i, .B = B, .B_i = B_i)
 }
 
 #------------------------------------------------------------------------------#
@@ -313,16 +308,13 @@ m_estimate <- function(estFUN,
     }
   }
 
-
   # Create estimating equation functions per group
-  psi_i <- create_psi(.basis          = basis,
-                      .approx_control = approx_control)
+  basis  <- create_psiFUN_list(.basis          = basis,
+                               .approx_control = approx_control)
 
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
-  GmFUN <- create_GFUN(.psi_list     = psi_i,
-                       .basis        = basis)
-
+  GmFUN <- create_GFUN(.basis = basis)
 
   ## Compute estimating equation roots ##
   if(compute_roots == TRUE){
@@ -339,7 +331,6 @@ m_estimate <- function(estFUN,
   ## Compute component matrices ##
   if(compute_vcov == TRUE){
     mats <- estimate_sandwich_matrices(
-      .psi_list          = psi_i,
       .basis             = basis,
       .theta             = theta_hat,
       .deriv_control     = deriv_control,
@@ -353,9 +344,8 @@ m_estimate <- function(estFUN,
     }
 
     ## Compute covariance estimate(s) ##
-    vcov <- compute_sigma(A = mats$A, B = mats$B)
+    vcov <- compute_sigma(A = get_bread(mats), B = get_meat(mats))
   }
-
 
   out <- new('geex',
              basis           = basis,
