@@ -113,7 +113,7 @@ setClass(
 #------------------------------------------------------------------------------#
 #' Initialize a m_estimation_basis object
 #'
-#' @export
+#'# @export
 #------------------------------------------------------------------------------#
 
 setMethod("initialize", "m_estimation_basis", function(.Object, ...){
