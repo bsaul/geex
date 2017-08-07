@@ -32,18 +32,18 @@ Compare sandwich variance estimators to `sandwich` treating individuals as units
 library(geex)
 library(inferference)
 mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
-estimates <- estimate_equations(
-  eeFUN = eefun,
+estimates <- m_estimate(
+  estFUN = eefun,
   data = vaccinesim,
-  rootFUN_control = list(start = c(-.35, 0)),
-  outer_eeargs = list(model = mglm))
+  root_control = setup_rootFUN(start = c(-.35, 0)),
+  outer_args = list(model = mglm))
 
 # Compare point estimates
-estimates$estimates # from GEEX
+coef(estimates) # from GEEX
 coef(mglm) # from the GLM function
 
 # Compare variance estimates
-estimates$vcov
+vcov(estimates)
 sandwich::sandwich(mglm)
 ```
 
