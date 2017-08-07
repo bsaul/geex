@@ -27,6 +27,24 @@ make_corrections <- function(components, corrections){
 ###############################################################################
 
 #------------------------------------------------------------------------------#
+#' Correct sandwich components
+#'
+#' @param .components an object of class \code{\linkS4class{sandwich_components}}
+#' @param .correct_control an object of class \code{\linkS4class{correct_control}}
+#'
+#' @return the result of \code{.FUN} in \code{.correct_control}.
+#' @export
+#------------------------------------------------------------------------------#
+
+
+correct_by <- function(.components, .correct_control){
+  f <- FUN(.correct_control)
+  opts <- options(.correct_control)
+  do.call(f, args = append(list(components = .components), opts))
+}
+
+
+#------------------------------------------------------------------------------#
 #' Correct sandwich variance estimator byFay's bias correction
 #'
 #' Computes the bias corrected sandwich covariance matrix described in Fay and
@@ -113,7 +131,7 @@ fay_bias_correction_partial <- function(components, b){
   Bbc_i <- lapply(seq_along(B_i), function(i){
     H_i[[i]] %*% B_i[[i]] %*% H_i[[i]]
   })
-  Bbc   <- apply(simplify2array(Bbc_i), 1:2, sum)
+  Bbc <-process_matrix_list(Bbc_i) #apply(simplify2array(Bbc_i), 1:2, sum)
 
   list(H_i = H_i, Bbc = Bbc)
 }
