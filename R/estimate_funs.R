@@ -344,6 +344,7 @@ m_estimate <- function(estFUN,
     vcov <- compute_sigma(A = grab_bread(mats), B = grab_meat(mats))
   } else {
     mats <- new('sandwich_components')
+    correction_results <- list()
   }
 
   out <- new('geex',
