@@ -75,7 +75,10 @@ H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
 The bias corrected estimator $\hat{\Sigma}^{bc}(b)$ can be implemented in `geex` by the following function:
 
 ```{r, echo = TRUE}
-correct_by_bias <- function(A, A_i, B, B_i, b){
+bias_correction <- function(components, b){
+  A <- grab_bread(components)
+  A_i <- grab_bread_list(components)
+  B_i <- grab_meat_list(components)
   Ainv <- solve(A)
 
   H_i <- lapply(A_i, function(m){
@@ -135,31 +138,29 @@ guo <- saws::geeUOmega(g)
 
 ```{r correction_run, echo = TRUE}
 library(geex)
-results <- estimate_equations(
-  eeFUN = gee_eefun, data  = warpbreaks, 
+results <- m_estimate(
+  estFUN = gee_eefun, data  = warpbreaks, 
   units = 'wool', roots = coef(g), compute_roots = FALSE,
-  outer_eeargs = list(formula = breaks ~ tension, 
+  outer_args = list(formula = breaks ~ tension, 
                       family  = gaussian()),
-  inner_eeargs = list(alpha   = g$working.correlation[1,2], 
+  inner_args = list(alpha   = g$working.correlation[1,2], 
                       psi     = g$scale), 
-  corrections_list = list(
-   bias_correction_.1 = list(correctFUN = correct_by_bias, 
-                             correctFUN_control = list(b = .1)),
-   bias_correction_.3 = list(correctFUN = correct_by_bias, 
-                             correctFUN_control = list(b = .3)))) 
+  corrections = list(
+   bias_correction_.1 = correction(bias_correction, list(b = .1)),
+   bias_correction_.3 = correction(bias_correction, list(b = .3)))) 
 ```
 
 In the `geex` output, the item `corrections` contains a list of the results of computing each item in the `corrections_list`. Comparing the `geex` results to the results of the `saws::geeUOmega` function, the maximum difference in the results for any of corrected estimated covariance matrices is `r format(max(saws::saws(guo, method = 'd4', bound  = 0.1)$V - results$corrections$bias_correction_.1, saws::saws(guo, method = 'd4', bound  = 0.3)$V - results$corrections$bias_correction_.3), digits = 2)`. 
 
 ```{r correction_comparison, echo = FALSE, results = 'hide'}
 saws::saws(guo, method = 'd1')$V 
-results$vcov
+vcov(results)
 
 saws::saws(guo, method = 'd4', bound  = 0.1)$V
-results$corrections$bias_correction_.1
+get_corrections(results)[[1]]
 
 saws::saws(guo, method = 'd4', bound  = 0.3)$V
-results$corrections$bias_correction_.3
+get_corrections(results)[[2]]
 ```
 
 ## References
