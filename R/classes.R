@@ -190,18 +190,33 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
-#' Gets the .A (bread matrix) slot
+#' Grabs the .A (bread matrix) slot
 #'
 #' @export
 #------------------------------------------------------------------------------#
 
-setGeneric("get_bread",function(object){standardGeneric ("get_bread")})
+setGeneric("grab_bread",function(object){standardGeneric ("grab_bread")})
 setMethod(
-  f = "get_bread",
+  f = "grab_bread",
   signature = "sandwich_components",
   function(object){
     return(object@.A)
   })
+
+#------------------------------------------------------------------------------#
+#' Gets the .A_i (list of bread matrices) slot
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("grab_bread_list",function(object){standardGeneric ("grab_bread_list")})
+setMethod(
+  f = "grab_bread_list",
+  signature = "sandwich_components",
+  function(object){
+    return(object@.A_i)
+  })
+
 
 #------------------------------------------------------------------------------#
 #' Gets the .B (meat matrix) slot
@@ -209,12 +224,26 @@ setMethod(
 #' @export
 #------------------------------------------------------------------------------#
 
-setGeneric("get_meat",function(object){standardGeneric ("get_meat")})
+setGeneric("grab_meat",function(object){standardGeneric ("grab_meat")})
 setMethod(
-  f = "get_meat",
+  f = "grab_meat",
   signature = "sandwich_components",
   function(object){
     return(object@.B)
+  })
+
+#------------------------------------------------------------------------------#
+#' Gets the .B_i (list of bread matrices) slot
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("grab_meat_list",function(object){standardGeneric ("grab_meat_list")})
+setMethod(
+  f = "grab_meat_list",
+  signature = "sandwich_components",
+  function(object){
+    return(object@.B_i)
   })
 
 #------------------------------------------------------------------------------#
