@@ -84,7 +84,7 @@ create_psiFUN_list <- function(.basis,
 #------------------------------------------------------------------------------#
 
 create_GFUN <- function(.basis){
-  psi_list <- get_psiFUN_list(.basis)
+  psi_list <- grab_psiFUN_list(.basis)
   function(theta){
     psii <- lapply(psi_list, function(psi) {
       do.call(psi, args = append(list(theta = theta), .basis@.inner_args))

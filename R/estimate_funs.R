@@ -110,7 +110,7 @@ estimate_sandwich_matrices <- function(.basis,
 
   derivFUN <- match.fun(FUN(.deriv_control))
   w <- .basis@.weights
-  psi_list <- get_psiFUN_list(.basis)
+  psi_list <- grab_psiFUN_list(.basis)
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
   A_i <- lapply(psi_list, function(ee){
