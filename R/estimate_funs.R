@@ -54,7 +54,7 @@ estimate_GFUN_roots <- function(.GFUN,
 # @param w a numeric vector of weights
 #------------------------------------------------------------------------------#
 
-process_matrix_list <- function(.l, .w){
+process_matrix_list <- function(.l, .w = numeric(0)){
   M_i_pre   <- if(length(.w) > 0){ Map(`*`, .l, .w) } else .l
   M_i_array <- check_array(simplify2array(M_i_pre))
   apply(M_i_array, 1:2, sum)
