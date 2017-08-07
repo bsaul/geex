@@ -34,7 +34,7 @@ mybasis %>%
   create_GFUN() %>%
   estimate_GFUN_roots(.root_control = rooter1)
 
-test_control <- correction(fay_bias, list(b = .75))
+test_control <- correction(fay_bias_correction, list(b = .75))
 
 mybasis %>%
   create_psiFUN_list() %>%
