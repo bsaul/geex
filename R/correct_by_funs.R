@@ -44,7 +44,7 @@ make_corrections <- function(components, corrections){
 correct_by_fay_bias <- function(components, b = 0.75){
   fay_bias_correction_partial(components, b = b) ->  corrected_matrices
 
-  compute_sigma(A = A, B = corrected_matrices$Bbc)
+  compute_sigma(A = grab_bread(components), B = corrected_matrices$Bbc)
 }
 
 #------------------------------------------------------------------------------#
@@ -67,7 +67,7 @@ correct_by_fay_df <- function(components, b = .75, L, version){
 
   ## Prepare necessary matrices ##
   bias_mats <- fay_bias_correction_partial(components, b = b)
-  A <- grab_bread(components)
+  A   <- grab_bread(components)
   A_i <- grab_bread_list(components)
   df_prep   <- df_correction_prep(L = L, A = A, A_i = A_i, H_i = bias_mats$H_i)
 

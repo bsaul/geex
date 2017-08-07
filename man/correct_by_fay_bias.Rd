@@ -4,16 +4,10 @@
 \alias{correct_by_fay_bias}
 \title{Correct sandwich variance estimator byFay's bias correction}
 \usage{
-correct_by_fay_bias(A_i, A, B_i, B, b = 0.75)
+correct_by_fay_bias(components, b = 0.75)
 }
 \arguments{
-\item{A_i}{a list of bread matrices per group}
-
-\item{A}{the outer "bread" matrix}
-
-\item{B_i}{a list of meat matrices per group}
-
-\item{B}{the inner "meat" matrix}
+\item{components}{an object of class \code{\linkS4class{sandwich_components}}}
 
 \item{b}{a numeric value < 1. Defaults to 0.75 as in Fay.}
 }
