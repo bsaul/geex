@@ -342,6 +342,8 @@ m_estimate <- function(estFUN,
 
     ## Compute covariance estimate(s) ##
     vcov <- compute_sigma(A = grab_bread(mats), B = grab_meat(mats))
+  } else {
+    mats <- new('sandwich_components')
   }
 
   out <- new('geex',
