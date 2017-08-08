@@ -486,7 +486,6 @@ setMethod("options", "geex_control", function(object) object@.options)
 setGeneric("FUN", function(object, ...) standardGeneric("FUN"))
 setMethod("FUN", "geex_control", function(object) object@.FUN)
 
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 ## geex class and methods ####
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
