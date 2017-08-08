@@ -4,7 +4,7 @@
 \alias{create_basis}
 \title{Creates an m_estimation_basis object}
 \usage{
-create_basis(estFUN, data, units, outer_args, inner_args, split_data = NULL)
+create_basis(estFUN, data, units, outer_args, inner_args)
 }
 \arguments{
 \item{estFUN}{a function that takes in group-level data and returns a function
@@ -17,8 +17,6 @@ that takes parameters as its first argument}
 \item{outer_args}{a list of arguments passed to the outer (data) function of \code{estFUN}. (optional)}
 
 \item{inner_args}{a list of arguments passed to the inner (theta) function of \code{estFUN}. (optional)}
-
-\item{split_data}{a \code{split} data.frame (optional)}
 }
 \value{
 a \code{\linkS4class{m_estimation_basis}}

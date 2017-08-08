@@ -7,5 +7,5 @@
 FUN(object, ...)
 }
 \description{
-Extracts the \code{.FUN} slot from a \code{\linkS4class{control}} object
+Extracts the \code{.FUN} slot from a \code{\linkS4class{basic_control}} object
 }

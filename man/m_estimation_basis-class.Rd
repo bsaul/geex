@@ -15,9 +15,6 @@ m_estimation_basis S4 class
 \item{\code{.units}}{an (optional) character string identifying the variable in
 \code{.data} which splits the data into indepedent units}
 
-\item{\code{.split_data}}{list formed by \code{split(.data, f = .data[[.units]])}
-(optional). This is automatically created if not provided.}
-
 \item{\code{.weights}}{a numeric vector of weights used in weighting the estimating
 functions}
 

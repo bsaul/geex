@@ -5,17 +5,16 @@
 \alias{geex_control-class}
 \title{geex_control S4 class}
 \description{
-A general class for defining a \code{function}, and the options passed to the
-function
+An object which control all the \code{\linkS4class{basic_control}} objects
+necessary to perform M-estimation
 }
 \section{Slots}{
 
 \describe{
-\item{\code{.FUN}}{a function}
+\item{\code{.approx}}{an \code{\linkS4class{approx_control}} object}
 
-\item{\code{.options}}{a list of options passed to \code{.FUN}}
+\item{\code{.root}}{a \code{\linkS4class{root_control}} object}
+
+\item{\code{.deriv}}{a \code{\linkS4class{deriv_control}} object}
 }}
 
-\seealso{
-root_control deriv_control approx_control
-}

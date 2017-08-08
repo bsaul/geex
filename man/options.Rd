@@ -7,5 +7,5 @@
 options(object, ...)
 }
 \description{
-Extracts the \code{.options} slot from a \code{\linkS4class{control}} object
+Extracts the \code{.options} slot from a \code{\linkS4class{basic_control}} object
 }
