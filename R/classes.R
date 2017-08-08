@@ -376,7 +376,7 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
-#' approxFUN generic
+#' grab_approxFUN method
 #'
 #' Extracts the \code{.approx@.FUN} slot from a \code{\linkS4class{geex_control}} object
 #'
@@ -386,7 +386,7 @@ setGeneric("grab_approxFUN", function(object, ...) standardGeneric("grab_approxF
 setMethod("grab_approxFUN", "geex_control", function(object) object@.approx@.FUN)
 
 #------------------------------------------------------------------------------#
-#' approxOPTS generic
+#' grab_approx_options method
 #'
 #' Extracts the \code{.approx@.options} slot from a \code{\linkS4class{geex_control}} object
 #'
@@ -395,8 +395,33 @@ setMethod("grab_approxFUN", "geex_control", function(object) object@.approx@.FUN
 setGeneric("grab_approx_options", function(object, ...) standardGeneric("grab_approx_options"))
 setMethod("grab_approx_options", "geex_control", function(object) object@.approx@.options)
 
+#------------------------------------------------------------------------------#
+#' approxOPTS generic
+#'
+#' Extracts the \code{.approx@.options} slot from a \code{\linkS4class{geex_control}} object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+setGeneric("set_control<-", function(object, slot, value){
+  standardGeneric("set_control<-")})
 
-
+setReplaceMethod(
+  f = "set_control",
+  signature="geex_control",
+  definition = function(object, slot, value){
+    if(slot == 'deriv'){
+      object@.deriv <- value
+    }
+    if(slot == 'root'){
+      object@.root <- value
+    }
+    if(slot == 'approx'){
+      object@.approx <- value
+    }
+    validObject(object)
+    return (object)
+  }
+)
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 ## m_estimation class and methods ####
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
