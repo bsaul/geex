@@ -79,8 +79,8 @@ $Y^3$ is a linear function of a latent variable $X^1$, whose coefficient $\beta$
 \end{pmatrix}
 \]
 
-```{r SB4_eefun, echo = TRUE}
-SB4_eefun <- function(data){
+```{r SB4_estFUN, echo = TRUE}
+SB4_estFUN <- function(data){
   function(theta){
     with(data,
       c(theta[1] - Z1,
@@ -93,10 +93,10 @@ SB4_eefun <- function(data){
 ```
 
 ```{r SB4_run, echo = TRUE, message=FALSE}
-estimates <- estimate_equations(
-  eeFUN = SB4_eefun, 
+estimates <- m_estimate(
+  estFUN = SB4_estFUN, 
   data  = geexex, 
-  rootFUN_control = list(start = c(1, 1, 1, 1)))
+  root_control = setup_root_solver(start = c(1, 1, 1, 1)))
 ```
 
 The R packages [`AER`](https://cran.r-project.org/web/packages/AER/index.html) and [`ivpack`](https://cran.r-project.org/web/packages/ivpack/index.html) can compute the IV estimator and sandwich variance estimators respectively, which is done below for comparison.  
@@ -108,9 +108,9 @@ iv_se <- ivpack::cluster.robust.se(ivfit, clusterid = 1:nrow(geexex))
 
 ```{r SB4_results, echo = TRUE}
 coef(ivfit)[2] 
-estimates$parameters[4]
+coef(estimates)[4]
 iv_se[2, 'Std. Error'] 
-sqrt(estimates$vcov[4, 4])
+sqrt(vcov(estimates)[4, 4])
 ```
 
 ## Connections to the Influence Curve
@@ -126,7 +126,7 @@ IC_{\hat{\theta}_{HL}}(Y^2; \theta_0) - (\theta_1 - \theta_0) \\
 \end{pmatrix}
 \]
 
-The functions used in `SB5_eefun` are defined below:
+The functions used in `SB5_estFUN` are defined below:
 
 ```{r SB5_internals, echo = TRUE}
 F0 <- function(y, theta0, distrFUN = pnorm){
@@ -144,20 +144,22 @@ integrand <- function(y, densFUN = dnorm){
 IC_denom <- integrate(integrand, lower = -Inf, upper = Inf)$value
 ```
 
-```{r SB5_eefun, echo = TRUE}
-SB5_eefun <- function(data){
-  Yi <- data$Y2
+```{r SB5_estFUN, echo = TRUE}
+SB5_estFUN <- function(data){
+  Yi <- data[['Y2']]
   function(theta){
+
      (1/IC_denom) * (F0(Yi, theta[1]) - 0.5)
   }
 }
 ```
 
 ```{r SB5_run, echo = TRUE, message=FALSE}
-estimates <- estimate_equations(
-  eeFUN = SB5_eefun, 
+create_basis(estFUN = SB5_eeFUN, data = geexex)
+estimates <- m_estimate(
+  estFUN = SB5_estFUN, 
   data  = geexex,
-  rootFUN_control = list(start = 2))
+  root_control = setup_root_solver(start = 2))
 ```
 
 The `hc.loc` of the [`ICSNP`](https://cran.r-project.org/web/packages/ICSNP/index.html) package computes the Hodges-Lehman estimator and SB gave closed form estimators for the variance.
@@ -168,7 +170,7 @@ Sigma_cls <- 1/(12 * IC_denom^2) / nrow(geexex)
 ```
 
 ```{r SB5_results, echo = FALSE}
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -187,8 +189,8 @@ k * sgn(Y^1_i - \theta) &  \text{when } |(Y^1_i - \theta)| > k\\
 \end{cases}
 \]
 
-```{r SB6_eefun, echo = TRUE}
-SB6_eefun <- function(data, k = 1.5){
+```{r SB6_estFUN, echo = TRUE}
+SB6_estFUN <- function(data, k = 1.5){
   function(theta){
     x <- data$Y1 - theta[1]
     if(abs(x) <= k) x else sign(x) * k
@@ -197,10 +199,10 @@ SB6_eefun <- function(data, k = 1.5){
 ```
 
 ```{r SB6_run, echo = TRUE, message=FALSE}
-estimates <- estimate_equations(
-  eeFUN = SB6_eefun, 
+estimates <- m_estimate(
+  estFUN = SB6_estFUN, 
   data  = geexex,
-  rootFUN_control = list(start = 3))
+  root_control = setup_root_solver(start = 3))
 ```
 
 The point estimate from `geex` is compared to the estimate obtained from the `huber` function in the [`MASS`](https://cran.r-project.org/web/packages/MASS/index.html) package. The variance estimate is compared to an estimator suggested by SB: $A_m = \sum_i [-\psi'(Y_i - \hat{\theta})]/m$ and $B_m = \sum_i \psi_k^2(Y_i - \hat{\theta})/m$, where $\psi_k'$ is the derivative of $\psi$ where is exists.
@@ -227,7 +229,7 @@ Sigma_cls <- matrix(1/A * B * 1/A / nrow(geexex))
 ```
 
 ```{r SB6_results, echo = TRUE}
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -243,8 +245,8 @@ Example 7 illustrates calculation of sample quantiles using M-estimation and app
 \end{pmatrix}
 \]
 
-```{r SB7_eefun, echo = TRUE}
-SB7_eefun <- function(data){
+```{r SB7_estFUN, echo = TRUE}
+SB7_estFUN <- function(data){
   function(theta){
     0.5  - (data$Y1 <= theta[1])
   }
@@ -263,18 +265,19 @@ spline_approx <- function(psi, eval_theta){
 
 
 ```{r SB7_run, echo = TRUE, message=FALSE}
-estimates <- estimate_equations(
-  eeFUN = SB7_eefun, 
+estimates <- m_estimate(
+  estFUN = SB7_estFUN, 
   data  = geexex, 
-  rootFUN_control = list(start = 4.7),
-  approxFUN = spline_approx,
-  approxFUN_control = list(eval_theta = seq(3, 6, by = .05)))
+  root_control = setup_root_solver(start = 4.7),
+  approx_control  = new("approx_control", 
+                        .FUN = spline_approx,
+                        .options = list(eval_theta = seq(3, 6, by = .05))))
 ```
 
 A comparison of the variance is not obvious, so no comparison is made.
 
 ```{r SB7_results, echo = FALSE}
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = median(geexex$Y1), vcov = NA))
 results
 ```
@@ -292,12 +295,12 @@ Example 8 demonstrates robust regression for estimating $\beta$ from 100 observa
 \end{pmatrix}
 \]
 
-```{r SB8_eefun, echo = TRUE}
+```{r SB8_estFUN, echo = TRUE}
 psi_k <- function(x, k = 1.345){
   if(abs(x) <= k) x else sign(x) * k
 }
 
-SB8_eefun <- function(data){
+SB8_estFUN <- function(data){
   Yi <- data$Y4
   xi <- model.matrix(Y4 ~ X1 + X2, data = data)
   function(theta){
@@ -308,10 +311,10 @@ SB8_eefun <- function(data){
 ```
 
 ```{r SB8_run, echo = TRUE, message = FALSE}
-estimates <- estimate_equations(
-  eeFUN = SB8_eefun, 
+estimates <- m_estimate(
+  estFUN = SB8_estFUN, 
   data  = geexex,
-  rootFUN_control = list(start = c(0, 0, 0)))
+  root_control = setup_root_solver(start = c(0, 0, 0)))
 ```
 
 ```{r SB8_clsform, echo = TRUE}
@@ -321,7 +324,7 @@ Sigma_cls <- vcov(m)
 ```
 
 ```{r SB8_results, echo = TRUE}
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -337,8 +340,8 @@ D_i(\beta)\frac{Y_i - \mu_i(\beta)}{V_i(\beta) \tau}
 \end{pmatrix}
 \]
 
-```{r SB9_eefun, echo = TRUE}
-SB9_eefun <- function(data){
+```{r SB9_estFUN, echo = TRUE}
+SB9_estFUN <- function(data){
   Yi <- data$Y5
   xi <- model.matrix(Y4 ~ X1 + X2, data = data, drop = FALSE)
   function(theta){
@@ -352,10 +355,10 @@ SB9_eefun <- function(data){
 ```
 
 ```{r SB9_run, echo = TRUE, message = FALSE}
-estimates <- estimate_equations(
-  eeFUN = SB9_eefun, 
+estimates <- m_estimate(
+  estFUN = SB9_estFUN, 
   data  = geexex, 
-  rootFUN_control = list(start = c(.1, .1, .5)))
+  root_control = setup_root_solver(start = c(.1, .1, .5)))
 ```
 
 Compare point estimates to `glm` coefficients and covariance matrix to `sandwich`.
@@ -367,7 +370,7 @@ Sigma_cls <- sandwich::sandwich(m9)
 ```
 
 ```{r SB9_results, echo = TRUE}
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)),  
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 ```
@@ -393,8 +396,8 @@ Y_i - n_i \theta_2
 \end{pmatrix}
 \]
 
-```{r SB10_eefun, echo = TRUE}
-SB10_eefun <- function(data){
+```{r SB10_estFUN, echo = TRUE}
+SB10_estFUN <- function(data){
   Y <- data$ft_made
   n <- data$ft_attp
   function(theta){
@@ -406,11 +409,11 @@ SB10_eefun <- function(data){
 ```
 
 ```{r SB10_run, echo = TRUE}
-estimates <- estimate_equations(
-  eeFUN = SB10_eefun, 
+estimates <- m_estimate(
+  estFUN = SB10_estFUN, 
   data  = shaq, 
   units = 'game', 
-  rootFUN_control = list(start = c(.5, .5)))
+  root_control = setup_root_solver(start = c(.5, .5)))
 ```
 
 ```{r SB10_clsform, echo = TRUE}
@@ -430,14 +433,14 @@ V11_hat <- V11(p_tilde)/23
 
 # Compare variance estimates
 V11_hat
-estimates$vcov[1, 1]
+vcov(estimates)[1, 1]
 
 # Note the differences in the p-values
 pnorm(35.51/23, mean  = 1, sd = sqrt(V11_hat), lower.tail = FALSE)
 
-pnorm(estimates$estimates[1], 
+pnorm(coef(estimates)[1], 
       mean = 1, 
-      sd = sqrt(estimates$vcov[1, 1]),
+      sd = sqrt(vcov(estimates)[1, 1]),
       lower.tail = FALSE)
 ```
 

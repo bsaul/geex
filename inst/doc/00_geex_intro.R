@@ -9,8 +9,8 @@ mu <- 5
 sigma <- 2
 dt <- data.frame(Y = rnorm(n, mean = mu, sd = sigma), id = 1:n)
 
-## ----SB1_eefun, echo=TRUE, results='hide'--------------------------------
-SB1_eefun <- function(data){
+## ----SB1_estFUN, echo=TRUE, results='hide'-------------------------------
+SB1_estFUN <- function(data){
   function(theta){
     with(data,
       c(Y - theta[1],
@@ -20,10 +20,10 @@ SB1_eefun <- function(data){
 }
 
 ## ----SB1_run, echo=TRUE--------------------------------------------------
-estimates <- estimate_equations(
-  eeFUN = SB1_eefun, 
+estimates <- m_estimate(
+  estFUN = SB1_estFUN, 
   data  = dt,
-  rootFUN_control = list(start = c(1,1)))
+  root_control = setup_root_solver(start = c(1,1)))
 
 ## ----SB1_clsform, echo=FALSE---------------------------------------------
 ## Compare to closed form ##
@@ -49,7 +49,7 @@ theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = var(Y) * (n() - 1)/ n() )
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
 ## ----SB1_results, echo = FALSE-------------------------------------------
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
@@ -63,8 +63,8 @@ dt <- data.frame(Y  = rnorm(n, mean = muY, sd = sigmaY),
                  X  = rnorm(n, mean = muX, sd = sigmaX),
                  id = 1:n)
 
-## ----SB2_eefun, echo = TRUE----------------------------------------------
-SB2_eefun <- function(data){
+## ----SB2_estFUN, echo = TRUE---------------------------------------------
+SB2_estFUN <- function(data){
   function(theta){
     with(data,
       c(Y - theta[1],
@@ -75,10 +75,10 @@ SB2_eefun <- function(data){
 }
 
 ## ----SB2_run, echo = TRUE------------------------------------------------
-estimates <- estimate_equations(
-  eeFUN = SB2_eefun, 
+estimates <- m_estimate(
+  estFUN = SB2_estFUN, 
   data  = dt, 
-  rootFUN_control = list(start = c(1, 1, 1)))
+  root_control = setup_root_solver(start = c(1, 1, 1)))
 
 ## ----SB2_clsform, echo = FALSE-------------------------------------------
 ## Compare to closed form ##
@@ -106,7 +106,7 @@ theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = mean(X), p3 = p1/p2)
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
 ## ----SB2_results, echo = FALSE-------------------------------------------
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
@@ -118,8 +118,8 @@ set.seed(100) # running into issue where sqrt(theta2) and log(theta2) return NaN
 dt <- data.frame(Y  = rnorm(n, mean = mu, sd = sigma), 
                  id = 1:n)
 
-## ----SB3_eefun, echo = TRUE----------------------------------------------
-SB3_eefun <- function(data){
+## ----SB3_estFUN, echo = TRUE---------------------------------------------
+SB3_estFUN <- function(data){
   function(theta){
     with(data,
       c(Y - theta[1],
@@ -131,10 +131,10 @@ SB3_eefun <- function(data){
 }
 
 ## ----SB3_run, echo = TRUE------------------------------------------------
-estimates <- estimate_equations(
-  eeFUN= SB3_eefun, 
+estimates <- m_estimate(
+  estFUN= SB3_estFUN, 
   data  = dt,
-  rootFUN_control = list(start = c(1, 1, 1, 1)))
+  root_control = setup_root_solver(start = c(1, 1, 1, 1)))
 
 ## ----SB3_clsform, echo = FALSE-------------------------------------------
 ## closed form roots
@@ -166,7 +166,7 @@ Sigma_cls <- matrix(
 # Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
 ## ----SB3_results, echo = FALSE-------------------------------------------
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 

@@ -1,10 +1,15 @@
 ## ---- echo = TRUE, eval=FALSE--------------------------------------------
-#  correct_by_nothing <- function(A, A_i, B, B_i){
+#  correct_by_nothing <- function(components){
+#    A <- grab_bread(components)
+#    B <- grab_meat(components)
 #    compute_sigma(A = A, B = B)
 #  }
 
 ## ---- echo = TRUE--------------------------------------------------------
-correct_by_bias <- function(A, A_i, B, B_i, b){
+bias_correction <- function(components, b){
+  A <- grab_bread(components)
+  A_i <- grab_bread_list(components)
+  B_i <- grab_meat_list(components)
   Ainv <- solve(A)
 
   H_i <- lapply(A_i, function(m){
@@ -41,26 +46,24 @@ guo <- saws::geeUOmega(g)
 
 ## ----correction_run, echo = TRUE-----------------------------------------
 library(geex)
-results <- estimate_equations(
-  eeFUN = gee_eefun, data  = warpbreaks, 
+results <- m_estimate(
+  estFUN = gee_eefun, data  = warpbreaks, 
   units = 'wool', roots = coef(g), compute_roots = FALSE,
-  outer_eeargs = list(formula = breaks ~ tension, 
+  outer_args = list(formula = breaks ~ tension, 
                       family  = gaussian()),
-  inner_eeargs = list(alpha   = g$working.correlation[1,2], 
+  inner_args = list(alpha   = g$working.correlation[1,2], 
                       psi     = g$scale), 
-  corrections_list = list(
-   bias_correction_.1 = list(correctFUN = correct_by_bias, 
-                             correctFUN_control = list(b = .1)),
-   bias_correction_.3 = list(correctFUN = correct_by_bias, 
-                             correctFUN_control = list(b = .3)))) 
+  corrections = list(
+   bias_correction_.1 = correction(bias_correction, b = .1),
+   bias_correction_.3 = correction(bias_correction, b = .3))) 
 
 ## ----correction_comparison, echo = FALSE, results = 'hide'---------------
 saws::saws(guo, method = 'd1')$V 
-results$vcov
+vcov(results)
 
 saws::saws(guo, method = 'd4', bound  = 0.1)$V
-results$corrections$bias_correction_.1
+get_corrections(results)[[1]]
 
 saws::saws(guo, method = 'd4', bound  = 0.3)$V
-results$corrections$bias_correction_.3
+get_corrections(results)[[2]]
 

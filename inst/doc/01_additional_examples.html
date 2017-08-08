@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bradley Saul" />
 
-<meta name="date" content="2017-07-28" />
+<meta name="date" content="2017-08-08" />
 
 <title>Additional calculus of M-estimation examples using geex</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Additional calculus of M-estimation examples using <code>geex</code></h1>
 <h4 class="author"><em>Bradley Saul</em></h4>
-<h4 class="date"><em>2017-07-28</em></h4>
+<h4 class="date"><em>2017-08-08</em></h4>
 
 
 
@@ -104,7 +104,7 @@ Z^1_i = \gamma + \delta X^1_i + \sigma_{\tau}\epsilon_{3, i}.
 (Y^3_i - \theta_4 W^1_i)(\theta_1 - Z^1_i) \\
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB4_eefun &lt;-<span class="st"> </span>function(data){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB4_estFUN &lt;-<span class="st"> </span>function(data){
   function(theta){
     <span class="kw">with</span>(data,
       <span class="kw">c</span>(theta[<span class="dv">1</span>] -<span class="st"> </span>Z1,
@@ -114,21 +114,21 @@ Z^1_i = \gamma + \delta X^1_i + \sigma_{\tau}\epsilon_{3, i}.
     )
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> SB4_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> SB4_estFUN, 
   <span class="dt">data  =</span> geexex, 
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
 <p>The R packages <a href="https://cran.r-project.org/web/packages/AER/index.html"><code>AER</code></a> and <a href="https://cran.r-project.org/web/packages/ivpack/index.html"><code>ivpack</code></a> can compute the IV estimator and sandwich variance estimators respectively, which is done below for comparison.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ivfit &lt;-<span class="st"> </span>AER::<span class="kw">ivreg</span>(Y3 ~<span class="st"> </span>W1 |<span class="st"> </span>Z1, <span class="dt">data =</span> geexex)
 iv_se &lt;-<span class="st"> </span>ivpack::<span class="kw">cluster.robust.se</span>(ivfit, <span class="dt">clusterid =</span> <span class="dv">1</span>:<span class="kw">nrow</span>(geexex))</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">coef</span>(ivfit)[<span class="dv">2</span>] </code></pre></div>
 <pre><code>##       W1 
 ## 3.041264</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates$parameters[<span class="dv">4</span>]</code></pre></div>
-<pre><code>## NULL</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">coef</span>(estimates)[<span class="dv">4</span>]</code></pre></div>
+<pre><code>## [1] 3.041264</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iv_se[<span class="dv">2</span>, <span class="st">'Std. Error'</span>] </code></pre></div>
 <pre><code>## [1] 0.01049669</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sqrt</span>(estimates$vcov[<span class="dv">4</span>, <span class="dv">4</span>])</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sqrt</span>(<span class="kw">vcov</span>(estimates)[<span class="dv">4</span>, <span class="dv">4</span>])</code></pre></div>
 <pre><code>## [1] 0.01039119</code></pre>
 </div>
 </div>
@@ -143,7 +143,7 @@ iv_se &lt;-<span class="st"> </span>ivpack::<span class="kw">cluster.robust.se</
 IC_{\hat{\theta}_{HL}}(Y^2; \theta_0) - (\theta_1 - \theta_0) \\
 \end{pmatrix}
 \]</span></p>
-<p>The functions used in <code>SB5_eefun</code> are defined below:</p>
+<p>The functions used in <code>SB5_estFUN</code> are defined below:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">F0 &lt;-<span class="st"> </span>function(y, theta0, <span class="dt">distrFUN =</span> pnorm){
   <span class="kw">distrFUN</span>(y -<span class="st"> </span>theta0, <span class="dt">mean =</span> <span class="dv">0</span>)
 }
@@ -157,21 +157,47 @@ integrand &lt;-<span class="st"> </span>function(y, <span class="dt">densFUN =</
 }
 
 IC_denom &lt;-<span class="st"> </span><span class="kw">integrate</span>(integrand, <span class="dt">lower =</span> -<span class="ot">Inf</span>, <span class="dt">upper =</span> <span class="ot">Inf</span>)$value</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB5_eefun &lt;-<span class="st"> </span>function(data){
-  Yi &lt;-<span class="st"> </span>data$Y2
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB5_estFUN &lt;-<span class="st"> </span>function(data){
+  Yi &lt;-<span class="st"> </span>data[[<span class="st">'Y2'</span>]]
   function(theta){
+
      (<span class="dv">1</span>/IC_denom) *<span class="st"> </span>(<span class="kw">F0</span>(Yi, theta[<span class="dv">1</span>]) -<span class="st"> </span><span class="fl">0.5</span>)
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> SB5_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">create_basis</span>(<span class="dt">estFUN =</span> SB5_eeFUN, <span class="dt">data =</span> geexex)</code></pre></div>
+<pre><code>## An object of class m_estimation_basis
+## psi: 
+## {
+##     Yi &lt;- data[[&quot;Y2&quot;]]
+##     function(theta) {
+##         (1/IC_denom) * (F0(Yi, theta[1]) - 0.5)
+##     }
+## }
+## Data:
+##           Y1        Y2       X1       Y3       W1        Z1 X2         Y4
+## 1  3.6683066 2.0281718 4.949316 16.34576 4.823768  8.921782  0 0.09273926
+## 2 10.4524548 1.6432966 7.851962 25.68742 7.884845 13.909474  0 1.01672736
+## 3  3.1234106 2.8526264 4.729075 16.10831 4.709346  9.014695  0 0.49399039
+## 4  8.3715025 2.5133652 2.564395 10.57997 2.786091  6.733378  0 1.24322433
+## 5 -0.8319749 3.0182030 4.782347 16.46401 4.811590  9.290492  0 0.69520599
+## 6  3.3987763 0.9785209 5.335713 18.32577 5.415370 10.322199  0 0.95220138
+##   Y5
+## 1  1
+## 2  1
+## 3  0
+## 4  0
+## 5  1
+## 6  1
+## Units:</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> SB5_estFUN, 
   <span class="dt">data  =</span> geexex,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="dv">2</span>))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="dv">2</span>))</code></pre></div>
 <p>The <code>hc.loc</code> of the <a href="https://cran.r-project.org/web/packages/ICSNP/index.html"><code>ICSNP</code></a> package computes the Hodges-Lehman estimator and SB gave closed form estimators for the variance.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_cls &lt;-<span class="st"> </span>ICSNP::<span class="kw">hl.loc</span>(geexex$Y2)
 Sigma_cls &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="dv">12</span> *<span class="st"> </span>IC_denom^<span class="dv">2</span>) /<span class="st"> </span><span class="kw">nrow</span>(geexex)</code></pre></div>
 <pre><code>## $geex
-## $geex$estimates
+## $geex$parameters
 ## [1] 2.026376
 ## 
 ## $geex$vcov
@@ -199,16 +225,16 @@ Sigma_cls &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="
 k * sgn(Y^1_i - \theta) &amp;  \text{when } |(Y^1_i - \theta)| &gt; k\\
 \end{cases}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB6_eefun &lt;-<span class="st"> </span>function(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB6_estFUN &lt;-<span class="st"> </span>function(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
   function(theta){
     x &lt;-<span class="st"> </span>data$Y1 -<span class="st"> </span>theta[<span class="dv">1</span>]
     if(<span class="kw">abs</span>(x) &lt;=<span class="st"> </span>k) x else <span class="kw">sign</span>(x) *<span class="st"> </span>k
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> SB6_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> SB6_estFUN, 
   <span class="dt">data  =</span> geexex,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="dv">3</span>))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="dv">3</span>))</code></pre></div>
 <p>The point estimate from <code>geex</code> is compared to the estimate obtained from the <code>huber</code> function in the <a href="https://cran.r-project.org/web/packages/MASS/index.html"><code>MASS</code></a> package. The variance estimate is compared to an estimator suggested by SB: <span class="math inline">\(A_m = \sum_i [-\psi'(Y_i - \hat{\theta})]/m\)</span> and <span class="math inline">\(B_m = \sum_i \psi_k^2(Y_i - \hat{\theta})/m\)</span>, where <span class="math inline">\(\psi_k'\)</span> is the derivative of <span class="math inline">\(\psi\)</span> where is exists.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_cls &lt;-<span class="st"> </span>MASS::<span class="kw">huber</span>(geexex$Y1, <span class="dt">k =</span> <span class="fl">1.5</span>, <span class="dt">tol =</span> <span class="fl">1e-10</span>)$mu
 
@@ -228,11 +254,11 @@ B &lt;-<span class="st"> </span><span class="kw">mean</span>(<span class="kw">un
 
 ## closed form covariance
 Sigma_cls &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">1</span>/A *<span class="st"> </span>B *<span class="st"> </span><span class="dv">1</span>/A /<span class="st"> </span><span class="kw">nrow</span>(geexex))</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> estimates[<span class="kw">c</span>(<span class="st">'estimates'</span>, <span class="st">'vcov'</span>)], 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> <span class="kw">coef</span>(estimates), <span class="dt">vcov =</span> <span class="kw">vcov</span>(estimates)), 
                 <span class="dt">cls =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> theta_cls, <span class="dt">vcov =</span> Sigma_cls))
 results</code></pre></div>
 <pre><code>## $geex
-## $geex$estimates
+## $geex$parameters
 ## [1] 4.82061
 ## 
 ## $geex$vcov
@@ -257,7 +283,7 @@ results</code></pre></div>
 0.5 - I(Y^1_i \leq \hat{\theta}_1) \\
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB7_eefun &lt;-<span class="st"> </span>function(data){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB7_estFUN &lt;-<span class="st"> </span>function(data){
   function(theta){
     <span class="fl">0.5</span>  -<span class="st"> </span>(data$Y1 &lt;=<span class="st"> </span>theta[<span class="dv">1</span>])
   }
@@ -268,15 +294,16 @@ results</code></pre></div>
   f &lt;-<span class="st"> </span><span class="kw">splinefun</span>(<span class="dt">x =</span> eval_theta, <span class="dt">y =</span> y)
   function(theta) <span class="kw">f</span>(theta)
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> SB7_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> SB7_estFUN, 
   <span class="dt">data  =</span> geexex, 
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="fl">4.7</span>),
-  <span class="dt">approxFUN =</span> spline_approx,
-  <span class="dt">approxFUN_control =</span> <span class="kw">list</span>(<span class="dt">eval_theta =</span> <span class="kw">seq</span>(<span class="dv">3</span>, <span class="dv">6</span>, <span class="dt">by =</span> .<span class="dv">05</span>)))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="fl">4.7</span>),
+  <span class="dt">approx_control  =</span> <span class="kw">new</span>(<span class="st">&quot;approx_control&quot;</span>, 
+                        <span class="dt">.FUN =</span> spline_approx,
+                        <span class="dt">.options =</span> <span class="kw">list</span>(<span class="dt">eval_theta =</span> <span class="kw">seq</span>(<span class="dv">3</span>, <span class="dv">6</span>, <span class="dt">by =</span> .<span class="dv">05</span>))))</code></pre></div>
 <p>A comparison of the variance is not obvious, so no comparison is made.</p>
 <pre><code>## $geex
-## $geex$estimates
+## $geex$parameters
 ## [1] 4.7
 ## 
 ## $geex$vcov
@@ -307,7 +334,7 @@ results</code></pre></div>
   if(<span class="kw">abs</span>(x) &lt;=<span class="st"> </span>k) x else <span class="kw">sign</span>(x) *<span class="st"> </span>k
 }
 
-SB8_eefun &lt;-<span class="st"> </span>function(data){
+SB8_estFUN &lt;-<span class="st"> </span>function(data){
   Yi &lt;-<span class="st"> </span>data$Y4
   xi &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(Y4 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> data)
   function(theta){
@@ -315,18 +342,18 @@ SB8_eefun &lt;-<span class="st"> </span>function(data){
     <span class="kw">c</span>(<span class="kw">psi_k</span>(r) %*%<span class="st"> </span>xi)
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> SB8_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> SB8_estFUN, 
   <span class="dt">data  =</span> geexex,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)))</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m &lt;-<span class="st"> </span>MASS::<span class="kw">rlm</span>(Y4 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> geexex, <span class="dt">method =</span> <span class="st">'M'</span>)
 theta_cls &lt;-<span class="st"> </span><span class="kw">coef</span>(m)
 Sigma_cls &lt;-<span class="st"> </span><span class="kw">vcov</span>(m)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> estimates[<span class="kw">c</span>(<span class="st">'estimates'</span>, <span class="st">'vcov'</span>)], 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> <span class="kw">coef</span>(estimates), <span class="dt">vcov =</span> <span class="kw">vcov</span>(estimates)), 
                 <span class="dt">cls =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> theta_cls, <span class="dt">vcov =</span> Sigma_cls))
 results</code></pre></div>
 <pre><code>## $geex
-## $geex$estimates
+## $geex$parameters
 ## [1] -0.04050369  0.14530196  0.30181589
 ## 
 ## $geex$vcov
@@ -356,7 +383,7 @@ results</code></pre></div>
 D_i(\beta)\frac{Y_i - \mu_i(\beta)}{V_i(\beta) \tau}
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB9_eefun &lt;-<span class="st"> </span>function(data){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB9_estFUN &lt;-<span class="st"> </span>function(data){
   Yi &lt;-<span class="st"> </span>data$Y5
   xi &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(Y4 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> data, <span class="dt">drop =</span> <span class="ot">FALSE</span>)
   function(theta){
@@ -367,19 +394,19 @@ D_i(\beta)\frac{Y_i - \mu_i(\beta)}{V_i(\beta) \tau}
     D %*%<span class="st"> </span><span class="kw">solve</span>(V) %*%<span class="st"> </span>(Yi -<span class="st"> </span>mu)
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> SB9_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> SB9_estFUN, 
   <span class="dt">data  =</span> geexex, 
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">1</span>, .<span class="dv">1</span>, .<span class="dv">5</span>)))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">1</span>, .<span class="dv">1</span>, .<span class="dv">5</span>)))</code></pre></div>
 <p>Compare point estimates to <code>glm</code> coefficients and covariance matrix to <code>sandwich</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m9 &lt;-<span class="st"> </span><span class="kw">glm</span>(Y5 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> geexex, <span class="dt">family =</span> <span class="kw">binomial</span>(<span class="dt">link =</span> <span class="st">'logit'</span>))
 theta_cls &lt;-<span class="st"> </span><span class="kw">coef</span>(m9)
 Sigma_cls &lt;-<span class="st"> </span>sandwich::<span class="kw">sandwich</span>(m9)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> estimates[<span class="kw">c</span>(<span class="st">'estimates'</span>, <span class="st">'vcov'</span>)], 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> <span class="kw">coef</span>(estimates), <span class="dt">vcov =</span> <span class="kw">vcov</span>(estimates)),  
                 <span class="dt">cls =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> theta_cls, <span class="dt">vcov =</span> Sigma_cls))
 results</code></pre></div>
 <pre><code>## $geex
-## $geex$estimates
+## $geex$parameters
 ## [1] -1.1256071  0.3410619 -0.1148368
 ## 
 ## $geex$vcov
@@ -413,7 +440,7 @@ results</code></pre></div>
 Y_i - n_i \theta_2
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB10_eefun &lt;-<span class="st"> </span>function(data){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB10_estFUN &lt;-<span class="st"> </span>function(data){
   Y &lt;-<span class="st"> </span>data$ft_made
   n &lt;-<span class="st"> </span>data$ft_attp
   function(theta){
@@ -422,11 +449,11 @@ Y_i - n_i \theta_2
       Y -<span class="st"> </span>n *<span class="st"> </span>p)
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> SB10_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> SB10_estFUN, 
   <span class="dt">data  =</span> shaq, 
   <span class="dt">units =</span> <span class="st">'game'</span>, 
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>)))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>)))</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">V11 &lt;-<span class="st"> </span>function(p) {
   k    &lt;-<span class="st"> </span><span class="kw">nrow</span>(shaq)
   sumn &lt;-<span class="st"> </span><span class="kw">sum</span>(shaq$ft_attp)
@@ -444,14 +471,14 @@ V11_hat &lt;-<span class="st"> </span><span class="kw">V11</span>(p_tilde)/<span
 <span class="co"># Compare variance estimates</span>
 V11_hat</code></pre></div>
 <pre><code>## [1] 0.0783097</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates$vcov[<span class="dv">1</span>, <span class="dv">1</span>]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">vcov</span>(estimates)[<span class="dv">1</span>, <span class="dv">1</span>]</code></pre></div>
 <pre><code>## [1] 0.1929791</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Note the differences in the p-values</span>
 <span class="kw">pnorm</span>(<span class="fl">35.51</span>/<span class="dv">23</span>, <span class="dt">mean  =</span> <span class="dv">1</span>, <span class="dt">sd =</span> <span class="kw">sqrt</span>(V11_hat), <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <pre><code>## [1] 0.02596785</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pnorm</span>(estimates$estimates[<span class="dv">1</span>], 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pnorm</span>(<span class="kw">coef</span>(estimates)[<span class="dv">1</span>], 
       <span class="dt">mean =</span> <span class="dv">1</span>, 
-      <span class="dt">sd =</span> <span class="kw">sqrt</span>(estimates$vcov[<span class="dv">1</span>, <span class="dv">1</span>]),
+      <span class="dt">sd =</span> <span class="kw">sqrt</span>(<span class="kw">vcov</span>(estimates)[<span class="dv">1</span>, <span class="dv">1</span>]),
       <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <pre><code>## [1] 0.1078138</code></pre>
 </div>

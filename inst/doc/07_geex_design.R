@@ -1,0 +1,43 @@
+## ----setup, include=FALSE, eval = FALSE----------------------------------
+#  library(geex)
+#  library(dplyr)
+#  
+#  myee <- function(data){
+#    function(theta){
+#      c(data$Y1 - theta[1],
+#        (data$Y1 - theta[1])^2 - theta[2])
+#    }
+#  }
+#  
+#  mybasis <- create_basis(
+#                 estFUN = myee,
+#                 data   = geexex)
+#  
+#  mybasis %>%
+#    create_GFUN() %>%
+#    estimate_GFUN_roots(.root_control = setup_root_solver(start = c(1, 1)))
+#  
+#  mybasis %>%
+#    estimate_sandwich_matrices(.theta = c(5.04, 10.04))
+#  
+#  mybasis %>%
+#    estimate_sandwich_matrices(.theta = c(5.04, 10.04)) %>%
+#    {compute_sigma(A = grab_bread(.), B = grab_meat(.))}
+#  
+#  mybasis %>%
+#    estimate_sandwich_matrices(.theta = c(5.04))
+#  
+#  mybasis %>%
+#    estimate_sandwich_matrices(.theta = c(5.04, 10.04)) %>%
+#    correct_by(.correct_control =  correction(fay_bias_correction, b = .75))
+#  
+#  test <- m_estimate(
+#    estFUN = myee,
+#    data = geexex,
+#    root_control = setup_root_solver(start = c(1,1))
+#  )
+#  
+#  vcov(test)
+#  
+#  test
+

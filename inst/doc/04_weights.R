@@ -2,7 +2,7 @@
 library(geex)
 library(dplyr)
 set.seed(42)
-n <- 16000
+n <- 1000
 
 data1 <- data_frame(
   ID = 1:n,
@@ -25,24 +25,24 @@ example <- function(data) {
 
 ## ------------------------------------------------------------------------
 system.time({
-results1 <- estimate_equations(
-  eeFUN = example,
+results1 <- m_estimate(
+  estFUN = example,
   data  = data1,
-  rootFUN_control = list(start = c(.5, .5, .5))
+  root_control = setup_root_solver(start = c(.5, .5, .5))
 )})
 
 system.time({
-  results2 <- estimate_equations(
-  eeFUN = example,
+  results2 <- m_estimate(
+  estFUN = example,
   data  = data2,
   weights = data2$n,
-  rootFUN_control = list(start = c(.5, .5, .5))
+  root_control = setup_root_solver(start = c(.5, .5, .5))
 )})
 
 ## ------------------------------------------------------------------------
-results1$estimates
-results2$estimates
+roots(results1)
+roots(results2)
 
-results1$vcov
-results2$vcov
+vcov(results1)
+vcov(results2)
 

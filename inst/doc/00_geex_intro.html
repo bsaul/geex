@@ -12,7 +12,7 @@
 
 <meta name="author" content="B. Saul" />
 
-<meta name="date" content="2017-07-28" />
+<meta name="date" content="2017-08-08" />
 
 <title>An introduction to M-estimation with geex</title>
 
@@ -71,7 +71,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">An introduction to M-estimation with <code>geex</code></h1>
 <h4 class="author"><em>B. Saul</em></h4>
-<h4 class="date"><em>2017-07-28</em></h4>
+<h4 class="date"><em>2017-08-08</em></h4>
 
 
 
@@ -116,8 +116,8 @@ Y_i - \theta_1 \\
 (Y_i - \theta_1)^2 - \theta_2
 \end{pmatrix}
 \]</span></p>
-<p>into an <code>eeFUN</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB1_eefun &lt;-<span class="st"> </span>function(data){
+<p>into an <code>estFUN</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB1_estFUN &lt;-<span class="st"> </span>function(data){
   function(theta){
     <span class="kw">with</span>(data,
       <span class="kw">c</span>(Y -<span class="st"> </span>theta[<span class="dv">1</span>],
@@ -125,31 +125,30 @@ Y_i - \theta_1 \\
     )
   }
 }</code></pre></div>
-<p>With the <code>eeFUN</code> function prepared, it is passed to <code>estimate_equations</code> along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> SB1_eefun, 
+<p>With the <code>estFUN</code> function prepared, it is passed to <code>m_estimate</code> along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> SB1_estFUN, 
   <span class="dt">data  =</span> dt,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)))</code></pre></div>
-<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)))</code></pre></div>
 <pre><code>## $geex
-## $geex$estimates
-## [1] 5.241179 3.262777
+## $geex$parameters
+## [1] 4.928711 4.131500
 ## 
 ## $geex$vcov
-##            [,1]       [,2]
-## [1,] 0.03262777 0.01067326
-## [2,] 0.01067326 0.19383836
+##             [,1]        [,2]
+## [1,]  0.04131500 -0.02978513
+## [2,] -0.02978513  0.30491679
 ## 
 ## 
 ## $cls
 ## $cls$parameters
-##         p1       p2
-## 1 5.241179 3.262777
+##         p1     p2
+## 1 4.928711 4.1315
 ## 
 ## $cls$vcov
-##            [,1]       [,2]
-## [1,] 0.03262777 0.01067326
-## [2,] 0.01067326 0.19383836</code></pre>
+##             [,1]        [,2]
+## [1,]  0.04131500 -0.02978513
+## [2,] -0.02978513  0.30491679</code></pre>
 </div>
 <div id="stefanski-boos-example-2" class="section level2">
 <h2>Stefanski &amp; Boos example 2</h2>
@@ -162,8 +161,8 @@ X_i - \theta_2 \\
 \theta_1 - \theta_3\theta_2
 \end{pmatrix}
 \]</span></p>
-<p>Corresponding <code>eeFUN</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB2_eefun &lt;-<span class="st"> </span>function(data){
+<p>Corresponding <code>estFUN</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB2_estFUN &lt;-<span class="st"> </span>function(data){
   function(theta){
     <span class="kw">with</span>(data,
       <span class="kw">c</span>(Y -<span class="st"> </span>theta[<span class="dv">1</span>],
@@ -172,32 +171,31 @@ X_i - \theta_2 \\
     )
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> SB2_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> SB2_estFUN, 
   <span class="dt">data  =</span> dt, 
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
-<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
 <pre><code>## $geex
-## $geex$estimates
-## [1] 4.748385 1.985340 2.391723
+## $geex$parameters
+## [1] 4.916862 2.010277 2.445863
 ## 
 ## $geex$vcov
 ##               [,1]          [,2]          [,3]
-## [1,]  3.113317e-02 -7.614413e-05  0.0157732555
-## [2,] -7.614413e-05  3.668673e-04 -0.0004803152
-## [3,]  1.577326e-02 -4.803152e-04  0.0085234937
+## [1,]  0.0408732714 -0.0006006656  0.0210629781
+## [2,] -0.0006006656  0.0004743021 -0.0008758711
+## [3,]  0.0210629781 -0.0008758711  0.0115433051
 ## 
 ## 
 ## $cls
 ## $cls$parameters
-##         p1      p2       p3
-## 1 4.748385 1.98534 2.391723
+##         p1       p2       p3
+## 1 4.916862 2.010277 2.445863
 ## 
 ## $cls$vcov
 ##               [,1]          [,2]          [,3]
-## [1,]  3.144764e-02 -7.691326e-05  0.0159325813
-## [2,] -7.691326e-05  3.705730e-04 -0.0004851669
-## [3,]  1.593258e-02 -4.851669e-04  0.0086095896</code></pre>
+## [1,]  0.0412861327 -0.0006067329  0.0212757354
+## [2,] -0.0006067329  0.0004790930 -0.0008847183
+## [3,]  0.0212757354 -0.0008847183  0.0116599041</code></pre>
 </div>
 <div id="stefanski-boos-example-3" class="section level2">
 <h2>Stefanski &amp; Boos example 3</h2>
@@ -211,8 +209,8 @@ X_i - \theta_2 \\
 log(\theta_2) - \theta_4
 \end{pmatrix}
 \]</span></p>
-<p>Corresponding <code>eeFUN</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB3_eefun &lt;-<span class="st"> </span>function(data){
+<p>Corresponding <code>estFUN</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB3_estFUN &lt;-<span class="st"> </span>function(data){
   function(theta){
     <span class="kw">with</span>(data,
       <span class="kw">c</span>(Y -<span class="st"> </span>theta[<span class="dv">1</span>],
@@ -222,13 +220,12 @@ log(\theta_2) - \theta_4
     )
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN=</span> SB3_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN=</span> SB3_estFUN, 
   <span class="dt">data  =</span> dt,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
-<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
 <pre><code>## $geex
-## $geex$estimates
+## $geex$parameters
 ## [1]  5.011650 16.502899  4.062376  2.803536
 ## 
 ## $geex$vcov

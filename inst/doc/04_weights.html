@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bradley Saul" />
 
-<meta name="date" content="2017-07-28" />
+<meta name="date" content="2017-08-08" />
 
 <title>Speeding computations using weights in geex</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Speeding computations using weights in <code>geex</code></h1>
 <h4 class="author"><em>Bradley Saul</em></h4>
-<h4 class="date"><em>2017-07-28</em></h4>
+<h4 class="date"><em>2017-08-08</em></h4>
 
 
 
@@ -84,7 +84,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
 <span class="kw">library</span>(dplyr)
 <span class="kw">set.seed</span>(<span class="dv">42</span>)
-n &lt;-<span class="st"> </span><span class="dv">16000</span>
+n &lt;-<span class="st"> </span><span class="dv">1000</span>
 
 data1 &lt;-<span class="st"> </span><span class="kw">data_frame</span>(
   <span class="dt">ID =</span> <span class="dv">1</span>:n,
@@ -111,43 +111,41 @@ data2 &lt;-<span class="st"> </span>data1 %&gt;%<span class="st"> </span><span c
 <h2>Computation time</h2>
 <p>The timing to find point and variance estimates is compared:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>({
-results1 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> example,
+results1 &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> example,
   <span class="dt">data  =</span> data1,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>, .<span class="dv">5</span>))
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>, .<span class="dv">5</span>))
 )})</code></pre></div>
-<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>##    user  system elapsed 
-##  19.919   0.195  20.207</code></pre>
+##   1.240   0.042   1.280</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>({
-  results2 &lt;-<span class="st"> </span><span class="kw">estimate_equations</span>(
-  <span class="dt">eeFUN =</span> example,
+  results2 &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
+  <span class="dt">estFUN =</span> example,
   <span class="dt">data  =</span> data2,
   <span class="dt">weights =</span> data2$n,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>, .<span class="dv">5</span>))
+  <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>, .<span class="dv">5</span>))
 )})</code></pre></div>
-<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.029   0.001   0.029</code></pre>
+##   0.027   0.000   0.028</code></pre>
 <p>The latter option is clearly preferred.</p>
 </div>
 <div id="results-comparison" class="section level2">
 <h2>Results comparison</h2>
 <p>And the results are basically identical:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results1$estimates</code></pre></div>
-<pre><code>## [1] 0.4020990 0.4009632 0.1612269</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results2$estimates</code></pre></div>
-<pre><code>## [1] 0.4020990 0.4009632 0.1612269</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results1$vcov</code></pre></div>
-<pre><code>##               [,1]          [,2]         [,3]
-## [1,]  3.765905e-05 -4.156653e-21 1.509989e-05
-## [2,] -4.156653e-21  3.731423e-05 1.500402e-05
-## [3,]  1.509989e-05  1.500402e-05 1.208760e-05</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results2$vcov</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">roots</span>(results1)</code></pre></div>
+<pre><code>## [1] 0.4123711 0.4014423 0.1655432</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">roots</span>(results2)</code></pre></div>
+<pre><code>## [1] 0.4123711 0.4014423 0.1655432</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">vcov</span>(results1)</code></pre></div>
 <pre><code>##              [,1]         [,2]         [,3]
-## [1,] 3.765905e-05 0.000000e+00 1.509989e-05
-## [2,] 0.000000e+00 3.731423e-05 1.500402e-05
-## [3,] 1.509989e-05 1.500402e-05 1.208760e-05</code></pre>
+## [1,] 0.0006245391 0.0000000000 0.0002507164
+## [2,] 0.0000000000 0.0005776115 0.0002381903
+## [3,] 0.0002507164 0.0002381903 0.0001988710</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">vcov</span>(results2)</code></pre></div>
+<pre><code>##              [,1]         [,2]         [,3]
+## [1,] 6.245391e-04 6.873914e-47 0.0002507164
+## [2,] 6.873914e-47 5.776115e-04 0.0002381903
+## [3,] 2.507164e-04 2.381903e-04 0.0001988710</code></pre>
 </div>
 
 

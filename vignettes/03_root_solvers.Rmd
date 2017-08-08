@@ -42,7 +42,7 @@ The `stats::uniroot` function, however, requires the arguments `f` and `interval
 uniroot_results <- m_estimate(
   estFUN = myefun, 
   data  = geexex,
-  root_control = setup_root_solver(rootFUN = stats::uniroot, interval = c(0, 10)))
+  root_control = setup_root_solver(stats::uniroot, interval = c(0, 10)))
 ```
 
 Comparing results:

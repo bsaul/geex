@@ -54,23 +54,23 @@ test <- interference(
 
 mglm <- glm(A ~ X1, data = vaccinesim, family = binomial)
 
-ce_estimates <- estimate_equations(
-  eeFUN = eefun,
+ce_estimates <- m_estimate(
+  estFUN = eefun,
   data  = vaccinesim,
   units = 'group',
-  rootFUN_control = list(start = c(coef(mglm), .4,  .13)),
-  outer_eeargs = list(alpha = .35, model = mglm)
+  root_control = setup_root_solver(start = c(coef(mglm), .4,  .13)),
+  outer_args = list(alpha = .35, model = mglm)
 )
 
-ce_estimates$estimates
+roots(ce_estimates)
 
 # Compare parameter estimates
 direct_effect(test, allocation = .35)$estimate
-ce_estimates$estimates[3] - ce_estimates$estimates[4]
+roots(ce_estimates)[3] - roots(ce_estimates)[4]
 
 # conpare SE estimates
 L <- c(0, 0, 1, -1)
-Sigma <- ce_estimates$vcov
+Sigma <- vcov(ce_estimates)
 sqrt(t(L) %*% Sigma %*% L)  # from GEEX
 direct_effect(test, allocation = .35)$std.error # from inferference
 ```

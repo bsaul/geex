@@ -1,8 +1,8 @@
 ## ---- echo = TRUE--------------------------------------------------------
 library(geex)
 
-## ----SB4_eefun, echo = TRUE----------------------------------------------
-SB4_eefun <- function(data){
+## ----SB4_estFUN, echo = TRUE---------------------------------------------
+SB4_estFUN <- function(data){
   function(theta){
     with(data,
       c(theta[1] - Z1,
@@ -14,10 +14,10 @@ SB4_eefun <- function(data){
 }
 
 ## ----SB4_run, echo = TRUE, message=FALSE---------------------------------
-estimates <- estimate_equations(
-  eeFUN = SB4_eefun, 
+estimates <- m_estimate(
+  estFUN = SB4_estFUN, 
   data  = geexex, 
-  rootFUN_control = list(start = c(1, 1, 1, 1)))
+  root_control = setup_root_solver(start = c(1, 1, 1, 1)))
 
 ## ----SB4_clsform, echo = TRUE, message = FALSE, results = 'hide'---------
 ivfit <- AER::ivreg(Y3 ~ W1 | Z1, data = geexex)
@@ -25,9 +25,9 @@ iv_se <- ivpack::cluster.robust.se(ivfit, clusterid = 1:nrow(geexex))
 
 ## ----SB4_results, echo = TRUE--------------------------------------------
 coef(ivfit)[2] 
-estimates$parameters[4]
+coef(estimates)[4]
 iv_se[2, 'Std. Error'] 
-sqrt(estimates$vcov[4, 4])
+sqrt(vcov(estimates)[4, 4])
 
 ## ----SB5_internals, echo = TRUE------------------------------------------
 F0 <- function(y, theta0, distrFUN = pnorm){
@@ -44,31 +44,33 @@ integrand <- function(y, densFUN = dnorm){
 
 IC_denom <- integrate(integrand, lower = -Inf, upper = Inf)$value
 
-## ----SB5_eefun, echo = TRUE----------------------------------------------
-SB5_eefun <- function(data){
-  Yi <- data$Y2
+## ----SB5_estFUN, echo = TRUE---------------------------------------------
+SB5_estFUN <- function(data){
+  Yi <- data[['Y2']]
   function(theta){
+
      (1/IC_denom) * (F0(Yi, theta[1]) - 0.5)
   }
 }
 
 ## ----SB5_run, echo = TRUE, message=FALSE---------------------------------
-estimates <- estimate_equations(
-  eeFUN = SB5_eefun, 
+create_basis(estFUN = SB5_eeFUN, data = geexex)
+estimates <- m_estimate(
+  estFUN = SB5_estFUN, 
   data  = geexex,
-  rootFUN_control = list(start = 2))
+  root_control = setup_root_solver(start = 2))
 
 ## ----SB5_clsform, echo = TRUE--------------------------------------------
 theta_cls <- ICSNP::hl.loc(geexex$Y2)
 Sigma_cls <- 1/(12 * IC_denom^2) / nrow(geexex)
 
 ## ----SB5_results, echo = FALSE-------------------------------------------
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
-## ----SB6_eefun, echo = TRUE----------------------------------------------
-SB6_eefun <- function(data, k = 1.5){
+## ----SB6_estFUN, echo = TRUE---------------------------------------------
+SB6_estFUN <- function(data, k = 1.5){
   function(theta){
     x <- data$Y1 - theta[1]
     if(abs(x) <= k) x else sign(x) * k
@@ -76,10 +78,10 @@ SB6_eefun <- function(data, k = 1.5){
 }
 
 ## ----SB6_run, echo = TRUE, message=FALSE---------------------------------
-estimates <- estimate_equations(
-  eeFUN = SB6_eefun, 
+estimates <- m_estimate(
+  estFUN = SB6_estFUN, 
   data  = geexex,
-  rootFUN_control = list(start = 3))
+  root_control = setup_root_solver(start = 3))
 
 ## ----SB6_clsform, echo = TRUE--------------------------------------------
 theta_cls <- MASS::huber(geexex$Y1, k = 1.5, tol = 1e-10)$mu
@@ -102,12 +104,12 @@ B <- mean(unlist(lapply(geexex$Y1, function(y){
 Sigma_cls <- matrix(1/A * B * 1/A / nrow(geexex))
 
 ## ----SB6_results, echo = TRUE--------------------------------------------
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
-## ----SB7_eefun, echo = TRUE----------------------------------------------
-SB7_eefun <- function(data){
+## ----SB7_estFUN, echo = TRUE---------------------------------------------
+SB7_estFUN <- function(data){
   function(theta){
     0.5  - (data$Y1 <= theta[1])
   }
@@ -121,24 +123,25 @@ spline_approx <- function(psi, eval_theta){
 }
 
 ## ----SB7_run, echo = TRUE, message=FALSE---------------------------------
-estimates <- estimate_equations(
-  eeFUN = SB7_eefun, 
+estimates <- m_estimate(
+  estFUN = SB7_estFUN, 
   data  = geexex, 
-  rootFUN_control = list(start = 4.7),
-  approxFUN = spline_approx,
-  approxFUN_control = list(eval_theta = seq(3, 6, by = .05)))
+  root_control = setup_root_solver(start = 4.7),
+  approx_control  = new("approx_control", 
+                        .FUN = spline_approx,
+                        .options = list(eval_theta = seq(3, 6, by = .05))))
 
 ## ----SB7_results, echo = FALSE-------------------------------------------
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = median(geexex$Y1), vcov = NA))
 results
 
-## ----SB8_eefun, echo = TRUE----------------------------------------------
+## ----SB8_estFUN, echo = TRUE---------------------------------------------
 psi_k <- function(x, k = 1.345){
   if(abs(x) <= k) x else sign(x) * k
 }
 
-SB8_eefun <- function(data){
+SB8_estFUN <- function(data){
   Yi <- data$Y4
   xi <- model.matrix(Y4 ~ X1 + X2, data = data)
   function(theta){
@@ -148,10 +151,10 @@ SB8_eefun <- function(data){
 }
 
 ## ----SB8_run, echo = TRUE, message = FALSE-------------------------------
-estimates <- estimate_equations(
-  eeFUN = SB8_eefun, 
+estimates <- m_estimate(
+  estFUN = SB8_estFUN, 
   data  = geexex,
-  rootFUN_control = list(start = c(0, 0, 0)))
+  root_control = setup_root_solver(start = c(0, 0, 0)))
 
 ## ----SB8_clsform, echo = TRUE--------------------------------------------
 m <- MASS::rlm(Y4 ~ X1 + X2, data = geexex, method = 'M')
@@ -159,12 +162,12 @@ theta_cls <- coef(m)
 Sigma_cls <- vcov(m)
 
 ## ----SB8_results, echo = TRUE--------------------------------------------
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
-## ----SB9_eefun, echo = TRUE----------------------------------------------
-SB9_eefun <- function(data){
+## ----SB9_estFUN, echo = TRUE---------------------------------------------
+SB9_estFUN <- function(data){
   Yi <- data$Y5
   xi <- model.matrix(Y4 ~ X1 + X2, data = data, drop = FALSE)
   function(theta){
@@ -177,10 +180,10 @@ SB9_eefun <- function(data){
 }
 
 ## ----SB9_run, echo = TRUE, message = FALSE-------------------------------
-estimates <- estimate_equations(
-  eeFUN = SB9_eefun, 
+estimates <- m_estimate(
+  estFUN = SB9_estFUN, 
   data  = geexex, 
-  rootFUN_control = list(start = c(.1, .1, .5)))
+  root_control = setup_root_solver(start = c(.1, .1, .5)))
 
 ## ----SB9_clsform, echo = TRUE--------------------------------------------
 m9 <- glm(Y5 ~ X1 + X2, data = geexex, family = binomial(link = 'logit'))
@@ -188,7 +191,7 @@ theta_cls <- coef(m9)
 Sigma_cls <- sandwich::sandwich(m9)
 
 ## ----SB9_results, echo = TRUE--------------------------------------------
-results <- list(geex = estimates[c('estimates', 'vcov')], 
+results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)),  
                 cls = list(parameters = theta_cls, vcov = Sigma_cls))
 results
 
@@ -198,8 +201,8 @@ shaq <- data.frame(
   ft_made = c(4, 5, 5, 5, 2, 7, 6, 9, 4, 1, 13, 5, 6, 9, 7, 3, 8, 1, 18, 3, 10, 1, 3),
   ft_attp = c(5, 11, 14, 12, 7, 10, 14, 15, 12, 4, 27, 17, 12, 9, 12, 10, 12, 6, 39, 13, 17, 6, 12))
 
-## ----SB10_eefun, echo = TRUE---------------------------------------------
-SB10_eefun <- function(data){
+## ----SB10_estFUN, echo = TRUE--------------------------------------------
+SB10_estFUN <- function(data){
   Y <- data$ft_made
   n <- data$ft_attp
   function(theta){
@@ -210,11 +213,11 @@ SB10_eefun <- function(data){
 }
 
 ## ----SB10_run, echo = TRUE-----------------------------------------------
-estimates <- estimate_equations(
-  eeFUN = SB10_eefun, 
+estimates <- m_estimate(
+  estFUN = SB10_estFUN, 
   data  = shaq, 
   units = 'game', 
-  rootFUN_control = list(start = c(.5, .5)))
+  root_control = setup_root_solver(start = c(.5, .5)))
 
 ## ----SB10_clsform, echo = TRUE-------------------------------------------
 V11 <- function(p) {
@@ -233,13 +236,13 @@ V11_hat <- V11(p_tilde)/23
 
 # Compare variance estimates
 V11_hat
-estimates$vcov[1, 1]
+vcov(estimates)[1, 1]
 
 # Note the differences in the p-values
 pnorm(35.51/23, mean  = 1, sd = sqrt(V11_hat), lower.tail = FALSE)
 
-pnorm(estimates$estimates[1], 
+pnorm(coef(estimates)[1], 
       mean = 1, 
-      sd = sqrt(estimates$vcov[1, 1]),
+      sd = sqrt(vcov(estimates)[1, 1]),
       lower.tail = FALSE)
 

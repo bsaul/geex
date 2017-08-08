@@ -145,7 +145,7 @@ IC_denom <- integrate(integrand, lower = -Inf, upper = Inf)$value
 ```
 
 ```{r SB5_estFUN, echo = TRUE}
-SB5_eeFUN <- function(data){
+SB5_estFUN <- function(data){
   Yi <- data[['Y2']]
   function(theta){
 
