@@ -85,7 +85,6 @@ setClass(
 ## m_estimation class and methods ####
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
-
 #------------------------------------------------------------------------------#
 #' m_estimation_basis S4 class
 #'
@@ -111,7 +110,7 @@ setClass(
   validity = function(object){
 
     if(length(object@.units) > 1){
-      "units should be a character string identifying the name of the variable in object@.data"
+      "units should be a character string of the name of single variable in data"
     }
 
     else if(length(names(object@.data)) > 0 & length(object@.units) > 0){
@@ -163,7 +162,7 @@ setGeneric("set_psiFUN_list<-", function(object,value){
 setReplaceMethod(
   f = "set_psiFUN_list",
   signature="m_estimation_basis",
-  definition = function(object,value){
+  definition = function(object, value){
     object@.psiFUN_list <- value
     validObject(object)
     return (object)
@@ -258,7 +257,7 @@ setMethod(
   signature = "sandwich_components",
   definition = function(object) {
     cat("An object of class ", class(object), "\n", sep = "")
-    cat("A (bread matrix): \n")
+    cat("A (bread matrix):\n")
     print(object@.A)
     cat("B (meat matrix):\n")
     print(object@.B)
@@ -380,7 +379,7 @@ setClass(
 #------------------------------------------------------------------------------#
 #' Setup a root_control object
 #'
-#' @param rootFUN a root finding function whose first argument must be named \code{f}.
+#' @param FUN a root finding function whose first argument must be named \code{f}.
 #' @param roots_name a character string identifying the object containing the
 #' roots in the output of \code{.FUN}.
 #' @param ... arguments passed to \code{rootFUN}
@@ -388,12 +387,12 @@ setClass(
 #' @export
 #------------------------------------------------------------------------------#
 
-setup_rootFUN <- function(rootFUN, roots_name, ...){
+setup_rootFUN <- function(FUN, roots_name, ...){
   dots <- list(...)
   hold <- call('new')
   hold[['Class']] <- "root_control"
-  if(!missing(rootFUN)){
-    hold[[".FUN"]] <- rootFUN
+  if(!missing(FUN)){
+    hold[[".FUN"]] <- FUN
   }
   if(length(dots) > 0){
     hold[[".options"]] <- dots
@@ -457,7 +456,7 @@ setClass(
     args_names <- formalArgs(FUN(object))
     option_names <- names(options(object))
     if(!('components' == args_names[1])){
-      "'components' must be the argument of a correction function"
+      "'components' must be the first argument of a correction function"
     } else if(any(!(option_names %in% args_names[-1]))) {
       "All correction options must be an argument for the correction function"
     } else
