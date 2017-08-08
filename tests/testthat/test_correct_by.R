@@ -23,23 +23,23 @@ bias_estimates <- m_estimate(
   units = 'id',
   root_control = rooter,
   corrections = list(test = correction(fay_bias_correction,
-                                            list(b = 0.75))))
+                                            b = 0.75)))
 
 df1_estimates <- m_estimate(
   estFUN = test_eefun,
   data  = dt,
   units = 'id',
   root_control = rooter,
-  corrections = list(test = correction(correctFUN = fay_df_correction,
-                            correctFUN_options = list(b = 0.75, L = c(1, 1), version = 1))))
+  corrections = list(test = correction(FUN = fay_df_correction,
+                            b = 0.75, L = c(1, 1), version = 1)))
 
 df2_estimates <- m_estimate(
   estFUN = test_eefun,
   data  = dt,
   units = 'id',
   root_control = rooter,
-  corrections = list(test = correction(correctFUN = fay_df_correction,
-                                      correctFUN_options = list(b = 0.75, L = c(1, 1), version = 2))))
+  corrections = list(test = correction(fay_df_correction,
+                                      b = 0.75, L = c(1, 1), version = 2)))
 
 
 
