@@ -93,12 +93,13 @@ create_GFUN <- function(.basis){
 
     # If weights are provided, then multiply each psi function by its
     # respective weight
-    if(length(.basis@.weights) == 0){
-      psii_array <- simplify2array(psii)
-    } else {
-      psii_array <- simplify2array(Map(`*`, psii, .basis@.weights))
-    }
-    # sum over unit-wise contributions to the estimating equations
-    apply(check_array(psii_array), 1, sum)
+    # if(length(.basis@.weights) == 0){
+    #   psii_array <- simplify2array(psii)
+    # } else {
+    #   psii_array <- simplify2array(Map(`*`, psii, .basis@.weights))
+    # }
+    # # sum over unit-wise contributions to the estimating equations
+    # apply(check_array(psii_array), 1, sum)
+    compute_sum_of_matrix_list(psii, .basis@.weights)
   }
 }
