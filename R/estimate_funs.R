@@ -244,27 +244,15 @@ m_estimate <- function(estFUN,
                        root_control,
                        approx_control){
 
-  # # Split data frame into data frames for each independent unit
-  # if(is.null(units)){
-  #   # if units are not specified, split into one per observation
-  #   split_data <- split(x = data, f = 1:nrow(data) )
-  #   message('When units are not specified, each observation is considered independent.')
-  # } else {
-  #   split_data <- split(x = data, f = data[[units]] )
-  # }
-
-  # Use deriv_control defaults if no options passed
-  if(missing(deriv_control)){
-    deriv_control <- new('deriv_control')
+  control <- new('geex_control')
+  if(!missing(deriv_control)){
+    set_control(control, 'deriv') <- deriv_control
   }
-  # Use root_control defaults if no options passed
-  if(missing(root_control)){
-    root_control <- new('root_control')
+  if(!missing(root_control)){
+    set_control(control, 'root') <- root_control
   }
-  # Use approx_control defaults if no options passed
-  # TODO: this code is in create_psi() as well, can it be in 1 place instead?
-  if(missing(approx_control)){
-    approx_control <- new('approx_control')
+  if(!missing(approx_control)){
+    set_control(control, 'approx') <- approx_control
   }
 
   basis <- new("m_estimation_basis",
@@ -273,8 +261,11 @@ m_estimate <- function(estFUN,
                .units      = units,
                .weights    = weights,
                .outer_args = outer_args,
-               .inner_args = inner_args)
+               .inner_args = inner_args,
+               .control    = control)
 
+  out <- new('geex',
+             basis           = basis)
   ## Checks/Warnings ##
   if(is.null(roots) & !compute_roots){
     stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
@@ -285,62 +276,50 @@ m_estimate <- function(estFUN,
       stop("Length of the weights vector is not equal to the number of units. Check the weights, data, and units arguments.")
     }
   }
-
-  # Create estimating equation functions per group
-  basis  <- create_psiFUN_list(.basis          = basis,
-                               .approx_control = approx_control)
+#
+#   # Create estimating equation functions per group
+#   basis  <- create_psiFUN_list(.basis          = basis,
+#                                .approx_control = approx_control)
 
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
   GmFUN <- create_GFUN(.basis = basis)
 
+  out@GFUN <- GmFUN
+
   ## Compute estimating equation roots ##
   if(compute_roots == TRUE){
     eesolved <- estimate_GFUN_roots(
       .GFUN           = GmFUN,
-      .root_control   = root_control,
-      .approx_control = approx_control)
-    rootFUN_results <- eesolved
+      .root_control   = basis@.control@.root,
+      .approx_control = basis@.control@.approx)
+    out@rootFUN_results <- eesolved
     theta_hat <- eesolved[[root_control@.object_name]]
   } else {
-    rootFUN_results <- list()
     theta_hat <- roots
   }
+
+  out@estimates <- theta_hat
 
   ## Compute component matrices ##
   if(compute_vcov == TRUE){
     mats <- estimate_sandwich_matrices(
       .basis             = basis,
       .theta             = theta_hat,
-      .deriv_control     = deriv_control,
-      .approx_control    = approx_control)
+      .deriv_control     = basis@.control@.deriv,
+      .approx_control    = basis@.control@.approx)
 
     ## Compute corrections ##
     if(!missing(corrections)){
-      correction_results <- make_corrections(mats, corrections)
-    } else {
-      correction_results <- list()
+      out@corrections <- make_corrections(mats, corrections)
     }
 
+    out@sandwich_components <- mats
     ## Compute covariance estimate(s) ##
-    vcov <- compute_sigma(A = grab_bread(mats), B = grab_meat(mats))
+    out@vcov <- compute_sigma(A = grab_bread(mats), B = grab_meat(mats))
   } else {
     mats <- new('sandwich_components')
-    correction_results <- list()
-    vcov <- matrix()
   }
-
-  out <- new('geex',
-             basis           = basis,
-             root_control    = root_control,
-             approx_control  = approx_control,
-             deriv_control   = deriv_control,
-             rootFUN_results = rootFUN_results,
-             GFUN            = GmFUN,
-             sandwich_components = mats,
-             corrections     = correction_results,
-             estimates       = theta_hat,
-             vcov            = vcov)
 
   out
 }
