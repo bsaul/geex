@@ -123,3 +123,26 @@ test_that("geex class accessors work", {
   expect_is(coef(hold), 'numeric')
   expect_is(roots(hold), 'numeric')
 })
+
+test_that("m_estimate() runs when compute_roots = FALSE", {
+
+  expect_error(m_estimate(estFUN  = test_eefun1,
+                                data  = geexex,
+                                compute_roots = FALSE))
+
+  expect_is(m_estimate(estFUN  = test_eefun1,
+                       data  = geexex,
+                       roots = c(1, 1),
+                       compute_roots = FALSE), 'geex')
+})
+
+test_that("m_estimate() runs when compute_vcov = FALSE", {
+  hold <- m_estimate(estFUN  = test_eefun1,
+                     data  = geexex,
+                     compute_vcov = FALSE,
+                     root_control = setup_root_solver(start = c(3, 3)))
+
+  expect_is(hold, 'geex')
+  expect_is(vcov(hold), 'matrix')
+  expect_equal(dim(vcov(hold)), c(0, 0))
+})
