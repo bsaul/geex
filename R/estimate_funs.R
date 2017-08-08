@@ -135,8 +135,8 @@ estimate_sandwich_matrices <- function(.basis,
 #' that takes parameters as its first argument
 #' @param data a data.frame
 #' @param units an optional character string identifying the grouping variable in \code{data}
-#' @param outer_eeargs a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)
-#' @param inner_eeargs a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)
+#' @param outer_args a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)
+#' @param inner_args a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)
 #' @param corrections an optional list of small sample corrections where each
 #' list element is a \code{\linkS4class{correct_control}} object which contains
 #' two elements: \code{correctFUN} and \code{correctFUN_options}. The function

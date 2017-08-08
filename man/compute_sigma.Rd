@@ -7,11 +7,16 @@
 compute_sigma(A, B)
 }
 \arguments{
-\item{A}{a matrix, generally the \eqn{A}{A} matrix returned in the list of matrices from
-\code{\link{compute_matrices}}}
+\item{A}{a matrix, generally the \code{.A} slot in a
+\code{\linkS4class{sandwich_components}} object created in
+\code{\link{estimate_sandwich_components}}}
 
-\item{B}{a matrix, generally the \eqn{B}{B} matrix returned in the list of matrices from
-\code{\link{compute_matrices}}}
+\item{B}{a matrix, generally the \code{.B} slot in a
+\code{\linkS4class{sandwich_components}} object created in
+\code{\link{estimate_sandwich_components}}}
+}
+\value{
+the \code{matrix} \code{Ainv \%*\% B \%*\% t(Ainv)}
 }
 \description{
 Computes \eqn{\Sigma = A^{-1} B (A^{-1})^T }{\Sigma = A^{-1} B (A^{-1})^T} with

@@ -12,6 +12,9 @@ first argument}
 
 \item{correctFUN_options}{a list of options passed to \code{correctFUN}}
 }
+\value{
+a \code{\linkS4class{correct_control}} object
+}
 \description{
 Creates a correct_control object
 }

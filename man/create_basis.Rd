@@ -7,12 +7,25 @@
 create_basis(estFUN, data, units, outer_args, inner_args, split_data = NULL)
 }
 \arguments{
+\item{estFUN}{a function that takes in group-level data and returns a function
+that takes parameters as its first argument}
+
 \item{data}{a data.frame}
 
 \item{units}{an optional character string identifying the grouping variable in \code{data}}
 
-\item{split_data}{a \code{split} data.frame}
+\item{outer_args}{a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)}
+
+\item{inner_args}{a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)}
+
+\item{split_data}{a \code{split} data.frame (optional)}
+}
+\value{
+a \code{\linkS4class{m_estimation_basis}}
 }
 \description{
 Creates an m_estimation_basis object
+}
+\details{
+Either \code{data} or \code{split_data} must be provided
 }

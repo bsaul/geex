@@ -10,9 +10,16 @@ m_estimate(estFUN, data, units = character(0), weights = numeric(0),
   root_control, approx_control)
 }
 \arguments{
+\item{estFUN}{a function that takes in group-level data and returns a function
+that takes parameters as its first argument}
+
 \item{data}{a data.frame}
 
 \item{units}{an optional character string identifying the grouping variable in \code{data}}
+
+\item{outer_args}{a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)}
+
+\item{inner_args}{a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)}
 
 \item{roots}{a vector of parameter estimates must be provided if \code{compute_roots = FALSE}}
 
@@ -29,13 +36,6 @@ two elements: \code{correctFUN} and \code{correctFUN_options}. The function
 See details for more information.}
 
 \item{root_control}{an object of class \code{\linkS4class{root_control}}}
-
-\item{eeFUN}{a function that takes in group-level data and returns a function
-that takes parameters as its first argument}
-
-\item{outer_eeargs}{a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)}
-
-\item{inner_eeargs}{a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)}
 }
 \value{
 a list with the following

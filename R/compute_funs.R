@@ -10,10 +10,14 @@
 #' Computes \eqn{\Sigma = A^{-1} B (A^{-1})^T }{\Sigma = A^{-1} B (A^{-1})^T} with
 #' provided \eqn{A}{A} and \eqn{B}{B} matrices.
 #'
-#' @param A a matrix, generally the \eqn{A}{A} matrix returned in the list of matrices from
-#'   \code{\link{compute_matrices}}
-#' @param B a matrix, generally the \eqn{B}{B} matrix returned in the list of matrices from
-#'   \code{\link{compute_matrices}}
+#' @param A a matrix, generally the \code{.A} slot in a
+#' \code{\linkS4class{sandwich_components}} object created in
+#' \code{\link{estimate_sandwich_components}}
+#' @param B a matrix, generally the \code{.B} slot in a
+#' \code{\linkS4class{sandwich_components}} object created in
+#' \code{\link{estimate_sandwich_components}}
+#'
+#' @return the \code{matrix} \code{Ainv \%*\% B \%*\% t(Ainv)}
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -21,7 +25,6 @@ compute_sigma <- function(A, B){
   Ainv <- solve(A)
   Ainv %*% B %*% t(Ainv)
 }
-
 
 #------------------------------------------------------------------------------#
 # Compute the sum of  a list of matrices to sum

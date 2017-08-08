@@ -533,7 +533,7 @@ setMethod(
   })
 
 #------------------------------------------------------------------------------#
-#' Gets the parameter estimates matrix from a geex object
+#' Gets the parameter estimates from a geex object
 #'
 #' @export
 #------------------------------------------------------------------------------#

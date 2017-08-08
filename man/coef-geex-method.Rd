@@ -3,10 +3,10 @@
 \docType{methods}
 \name{coef,geex-method}
 \alias{coef,geex-method}
-\title{Gets the parameter estimates matrix from a geex object}
+\title{Gets the parameter estimates from a geex object}
 \usage{
 \S4method{coef}{geex}(object)
 }
 \description{
-Gets the parameter estimates matrix from a geex object
+Gets the parameter estimates from a geex object
 }

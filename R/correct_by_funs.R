@@ -48,7 +48,7 @@ correct_by <- function(.components, .correct_control){
 #' @param correctFUN a correction to perform. \code{components} must be the
 #' first argument
 #' @param correctFUN_options a list of options passed to \code{correctFUN}
-#'
+#' @return a \code{\linkS4class{correct_control}} object
 #' @export
 #------------------------------------------------------------------------------#
 

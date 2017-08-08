@@ -5,8 +5,10 @@
 #------------------------------------------------------------------------------#
 #' Creates an m_estimation_basis object
 #'
-#' @param split_data a \code{split} data.frame
+#' @param split_data a \code{split} data.frame (optional)
 #' @inheritParams m_estimate
+#' @details Either \code{data} or \code{split_data} must be provided
+#' @return a \code{\linkS4class{m_estimation_basis}}
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -37,7 +39,6 @@ create_basis <- function(estFUN, data, units, outer_args, inner_args, split_data
 #'
 #' @param .basis an object of class \code{\linkS4class{m_estimation_basis}}
 #' @param .approx_control an object of class \code{\linkS4class{approx_control}}
-#' or \code{NULL}
 #' @return the \code{.basis} with the \code{.psiFUN_list} slot populated.
 #' @export
 #'
