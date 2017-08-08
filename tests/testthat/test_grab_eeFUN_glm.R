@@ -8,8 +8,8 @@ test_binomial <- glm(resp ~ age, data = ohio,
                      family = binomial(link = 'logit'))
 
 glm_eefun <- function(data, model){
+  f <- grab_estFUN(model, data, weights = 2)
   function(theta){
-    f <- grab_estFUN(model, data, weights = 2)
     f(theta)
   }
 }
