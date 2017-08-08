@@ -647,5 +647,3 @@ setMethod(
       object@corrections
     }
   })
-
-
