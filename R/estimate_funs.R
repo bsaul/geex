@@ -271,15 +271,11 @@ m_estimate <- function(estFUN,
     stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
   }
 
-  if(length(basis@.weights) > 0){
-    if(length(basis@.weights) != length(basis@.split_data)){
-      stop("Length of the weights vector is not equal to the number of units. Check the weights, data, and units arguments.")
-    }
-  }
-#
-#   # Create estimating equation functions per group
-#   basis  <- create_psiFUN_list(.basis          = basis,
-#                                .approx_control = approx_control)
+  # if(length(basis@.weights) > 0){
+  #   if(length(basis@.weights) != length(basis@.split_data)){
+  #     stop("Length of the weights vector is not equal to the number of units. Check the weights, data, and units arguments.")
+  #   }
+  # }
 
   # Create psi function that sums over all ee funs
   # G_m = sum_i psi(O_i, theta) in SB notation]
