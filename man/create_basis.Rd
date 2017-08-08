@@ -14,9 +14,9 @@ that takes parameters as its first argument}
 
 \item{units}{an optional character string identifying the grouping variable in \code{data}}
 
-\item{outer_args}{a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)}
+\item{outer_args}{a list of arguments passed to the outer (data) function of \code{estFUN}. (optional)}
 
-\item{inner_args}{a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)}
+\item{inner_args}{a list of arguments passed to the inner (theta) function of \code{estFUN}. (optional)}
 
 \item{split_data}{a \code{split} data.frame (optional)}
 }

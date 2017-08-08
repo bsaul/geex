@@ -20,7 +20,7 @@ this function estimates the roots of the equations:
 \deqn{G_m = sum_i psi(O_i, \hat{\theta}) = 0}{G_m = sum_i psi(O_i, theta) = 0}
 }
 \details{
-This is primilary an internal function used within \code{\link{estimate_equations}},
+This is primilary an internal function used within \code{\link{m_estimate}},
 but it is exported for use in debugging and development.
 
 For an example of how to use a different \code{rootFUN},

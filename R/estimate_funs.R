@@ -12,7 +12,7 @@
 #' this function estimates the roots of the equations:
 #' \deqn{G_m = sum_i psi(O_i, \hat{\theta}) = 0}{G_m = sum_i psi(O_i, theta) = 0}
 #'
-#' This is primilary an internal function used within \code{\link{estimate_equations}},
+#' This is primilary an internal function used within \code{\link{m_estimate}},
 #' but it is exported for use in debugging and development.
 #'
 #' For an example of how to use a different \code{rootFUN},
@@ -135,8 +135,8 @@ estimate_sandwich_matrices <- function(.basis,
 #' that takes parameters as its first argument
 #' @param data a data.frame
 #' @param units an optional character string identifying the grouping variable in \code{data}
-#' @param outer_args a list of arguments passed to the outer (data) function of \code{eeFUN}. (optional)
-#' @param inner_args a list of arguments passed to the inner (theta) function of \code{eeFUN}. (optional)
+#' @param outer_args a list of arguments passed to the outer (data) function of \code{estFUN}. (optional)
+#' @param inner_args a list of arguments passed to the inner (theta) function of \code{estFUN}. (optional)
 #' @param corrections an optional list of small sample corrections where each
 #' list element is a \code{\linkS4class{correct_control}} object which contains
 #' two elements: \code{correctFUN} and \code{correctFUN_options}. The function
@@ -154,17 +154,17 @@ estimate_sandwich_matrices <- function(.basis,
 #' two items:
 #' \itemize{
 #' \item data
-#' \item \code{eeFUN}: (the \eqn{\psi} function), a function that takes unit-level
+#' \item \code{estFUN}: (the \eqn{\psi} function), a function that takes unit-level
 #' data and returns a function in terms of parameters (\eqn{\theta})
 #' }
 #'
-#' With the \code{eeFUN}, \pkg{geex} computes the roots of the estimating equations
+#' With the \code{estFUN}, \pkg{geex} computes the roots of the estimating equations
 #' and/or the empirical sandwich variance estimator.
 #'
 #' The root finding algorithm defaults to \code{\link[rootSolve]{multiroot}} to
 #' estimate roots though the solver algorithm can be specified in the \code{rootFUN}
 #' argument. Starting values for \code{\link[rootSolve]{multiroot}} are passed via the
-#' \code{rootFUN_control} argument. See \code{vignette("03_root_solvers", package = "geex")}
+#' \code{root_control} argument. See \code{vignette("03_root_solvers", package = "geex")}
 #' for information on customizing the root solver function.
 #'
 #' To compute only the covariance matrix, set \code{compute_roots = FALSE} and pass
@@ -178,29 +178,24 @@ estimate_sandwich_matrices <- function(.basis,
 #' For information on the finite-sample corrections, refer to the finite sample
 #' correction API vignette: \code{vignette("05_finite_sample_corrections", package = "geex")}
 #'
-#' @section Writing an eeFUN:
+#' @section Writing an estFUN:
 #'
 #' \subsection{Description}{
-#' An \code{eeFUN} is a function that takes in *unit* level data plus possible
-#' "outer" arguments (see section on eefUN argument) and returns a function
+#' An \code{estFUN} is a function that takes in *unit* level data plus possible
 #' whose first argument is \code{theta}. See the examples below or the package
 #' vignettes for more information.
 #' }
 #'
 #' \subsection{Additional arguments}{
 #' Additional arguments may be passed to both the inner and outer function of the
-#' \code{eeFUN}. Elements in an \code{outer_eeargs} list are passed to the outer
-#' function; any elements of the \code{inner_eeargs} list are passed to the inner
+#' \code{estFUN}. Elements in an \code{outer_args} list are passed to the outer
+#' function; any elements of the \code{inner_args} list are passed to the inner
 #' function. For an example, see the finite sample correction vignette [\code{
 #' vignette("05_finite_sample_corrections", package = "geex")}].
 #' }
 #'
-#'@return a list with the following
-#' \itemize{
-#' \item \code{parameters} - a vector of estimated parameters
-#' \item \code{vcov} - the variance-covariance matrix for the parameters
-#' \item \code{corrections} - a list of corrected variance-covariance matrices
-#' }
+#' @return a \code{\linkS4class{geex}} object
+#'
 #' @references Stefanski, L. A., & Boos, D. D. (2002). The calculus of M-estimation.
 #' The American Statistician, 56(1), 29-38.
 #'
@@ -213,10 +208,10 @@ estimate_sandwich_matrices <- function(.basis,
 #'      (Y1 - theta[1])^2 - theta[2] ))
 #' }}
 #'
-#' estimate_equations(
-#'  eeFUN = ex_eeFUN,
+#' m_estimate(
+#'  estFUN = ex_eeFUN,
 #'  data  = geexex,
-#'  rootFUN_control = list(start = c(1,1)))
+#'  root_control = setup_rootFUN(start = c(1,1)))
 #'
 #' # A simple linear model for regressing X1 and X2 on Y4
 #' lm_eefun <- function(data){
@@ -227,10 +222,10 @@ estimate_sandwich_matrices <- function(.basis,
 #'    }
 #'  }
 #'
-#' estimate_equations(
-#'  eeFUN = lm_eefun,
+#' m_estimate(
+#'  estFUN = lm_eefun,
 #'  data  = geexex,
-#'  rootFUN_control = list(start = c(0, 0, 0)))
+#'  root_control = setup_rootFUN(start = c(0, 0, 0)))
 #'
 #' @export
 #------------------------------------------------------------------------------#

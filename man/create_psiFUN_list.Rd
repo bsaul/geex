@@ -9,8 +9,7 @@ create_psiFUN_list(.basis, .approx_control)
 \arguments{
 \item{.basis}{an object of class \code{\linkS4class{m_estimation_basis}}}
 
-\item{.approx_control}{an object of class \code{\linkS4class{approx_control}}
-or \code{NULL}}
+\item{.approx_control}{an object of class \code{\linkS4class{approx_control}}}
 }
 \value{
 the \code{.basis} with the \code{.psiFUN_list} slot populated.
