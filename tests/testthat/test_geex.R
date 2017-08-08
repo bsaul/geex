@@ -1,6 +1,5 @@
 context("Geex computations")
 
-
 test_eefun1 <- function(data){
   function(theta){
     with(data,
@@ -42,9 +41,8 @@ gbasis_bad <- new('m_estimation_basis',
                    .data   = geexex)
 
 test_that("estimate_GFUN_roots is working", {
-  expect_silent({psii <- create_psiFUN_list(.basis = gbasis_good)})
-  expect_is(psii, 'm_estimation_basis')
-  expect_silent({gtest <- create_GFUN(.basis = psii)})
+  expect_is(gbasis_good, 'm_estimation_basis')
+  expect_silent({gtest <- create_GFUN(.basis = gbasis_good)})
   expect_is(gtest, 'function')
 
   # Check running estimate_GFUN_roots without root_control gives error
@@ -61,14 +59,11 @@ test_that("estimate_GFUN_roots is working", {
 })
 
 test_that("estimate_sandwich_matrices working", {
-  expect_silent({psii <- create_psiFUN_list(.basis = gbasis_good)})
-  expect_is(psii, 'm_estimation_basis')
-
   # Check running estimate_sandwich_matrices without necessary arguments gives error
-  expect_error(estimate_sandwich_matrices(.basis = psii))
+  expect_error(estimate_sandwich_matrices(.basis = gbasis_good))
 
   # Check running estimate_GFUN_roots with proper root_control does not give error
-  expect_silent({mat_test <- estimate_sandwich_matrices(.basis = psii,
+  expect_silent({mat_test <- estimate_sandwich_matrices(.basis = gbasis_good,
                                                         .theta    = theta_hat)})
 
   expect_is(mat_test, 'sandwich_components')
