@@ -2,7 +2,7 @@ context("S4 classes")
 
 test_that("estimation_function S4 class validates correctly",{
   expect_error(new('estimating_function', .estFUN = function(x, z) {function(y) y + x}))
-  expect_error(new('estimating_function', .estFUN = function(data, z) {function(y) y + data}))
+  #expect_error(new('estimating_function', .estFUN = function(data, z) {function(y) y + data}))
   expect_error(new('estimating_function', .estFUN = function(x, data) {function(theta) theta + data}))
   expect_silent(new('estimating_function', .estFUN = function(data, z) {function(theta) theta + data}))
 })
