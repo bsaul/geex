@@ -131,7 +131,7 @@ estimate_sandwich_matrices <- function(.basis,
 #' for parameters that are solutions to estimating equations of the form:
 #' \deqn{\sum_i \psi(O_i, \hat{\theta}) = 0}{\sum_i \psi(O_i, \theta) = 0}
 #'
-#' @param eeFUN a function that takes in group-level data and returns a function
+#' @param estFUN a function that takes in group-level data and returns a function
 #' that takes parameters as its first argument
 #' @param data a data.frame
 #' @param units an optional character string identifying the grouping variable in \code{data}
