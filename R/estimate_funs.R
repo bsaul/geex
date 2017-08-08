@@ -48,19 +48,6 @@ estimate_GFUN_roots <- function(.GFUN,
 }
 
 #------------------------------------------------------------------------------#
-# Process a list of matrices to sum across them
-#
-# @param l a list of matrices
-# @param w a numeric vector of weights
-#------------------------------------------------------------------------------#
-
-process_matrix_list <- function(.l, .w = numeric(0)){
-  M_i_pre   <- if(length(.w) > 0){ Map(`*`, .l, .w) } else .l
-  M_i_array <- check_array(simplify2array(M_i_pre))
-  apply(M_i_array, 1:2, sum)
-}
-
-#------------------------------------------------------------------------------#
 #' Estimate component matrices of the empirical sandwich covariance estimator
 #'
 #' For a given set of estimating equations computes the 'meat' (\eqn{B_m}{B_m}
@@ -119,7 +106,7 @@ estimate_sandwich_matrices <- function(.basis,
     -val
   })
 
-  A <- process_matrix_list(A_i, w)
+  A <- compute_sum_of_matrix_list(A_i, w)
 
   # Compute outer product of observed estimating eqns
   B_i <- lapply(psi_list, function(ee) {
@@ -127,7 +114,7 @@ estimate_sandwich_matrices <- function(.basis,
     ee_val %*% t(ee_val)
   })
 
-  B <- process_matrix_list(B_i, w)
+  B <- compute_sum_of_matrix_list(B_i, w)
 
   new('sandwich_components',
       .A = A, .A_i = A_i, .B = B, .B_i = B_i)
