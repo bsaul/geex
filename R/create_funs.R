@@ -5,28 +5,19 @@
 #------------------------------------------------------------------------------#
 #' Creates an m_estimation_basis object
 #'
-#' @param split_data a \code{split} data.frame (optional)
 #' @inheritParams m_estimate
 #' @details Either \code{data} or \code{split_data} must be provided
 #' @return a \code{\linkS4class{m_estimation_basis}}
 #' @export
 #------------------------------------------------------------------------------#
 
-create_basis <- function(estFUN, data, units, outer_args, inner_args, split_data = NULL){
-  if(is.null(split_data)){
-    new(Class="m_estimation_basis",
-        .estFUN = estFUN,
-        .data   = data,
-        .units  =  if(!missing(units)) units else character(),
-        .outer_args = if(!missing(outer_args)) outer_args else list(),
-        .inner_args = if(!missing(inner_args)) inner_args else list() )
-  } else {
-    new(Class="m_estimation_basis",
-        .estFUN = estFUN,
-        .split_data = split_data,
-        .outer_args = if(!missing(outer_args)) outer_args else list(),
-        .inner_args = if(!missing(inner_args)) inner_args else list() )
-  }
+create_basis <- function(estFUN, data, units, outer_args, inner_args){
+  new(Class="m_estimation_basis",
+      .estFUN = estFUN,
+      .data   = data,
+      .units  =  if(!missing(units)) units else character(),
+      .outer_args = if(!missing(outer_args)) outer_args else list(),
+      .inner_args = if(!missing(inner_args)) inner_args else list() )
 }
 
 #------------------------------------------------------------------------------#
@@ -47,7 +38,14 @@ create_basis <- function(estFUN, data, units, outer_args, inner_args, split_data
 create_psiFUN_list <- function(.basis,
                                .approx_control){
 
-  out <- lapply(.basis@.split_data, function(data_i){
+  # Split data frame into data frames for each independent unit
+  # if units are not specified, split into one per observation
+  dt <- grab_basis_data(.basis)
+  ut <- if(length(.basis@.units) == 0) 1:nrow(dt) else dt[[.basis@.units]]
+  split_data <- split(x = dt, f = ut)
+
+  # Apply estFUN to each unit's data
+  out <- lapply(split_data, function(data_i){
     do.call(grab_estFUN(.basis),
             args = append(list(data = data_i), .basis@.outer_args))
   })

@@ -91,8 +91,6 @@ setClass(
 #' @slot .data the analysis data.frame
 #' @slot .units an (optional) character string identifying the variable in
 #' \code{.data} which splits the data into indepedent units
-#' @slot .split_data list formed by \code{split(.data, f = .data[[.units]])}
-#' (optional). This is automatically created if not provided.
 #' @slot .weights a numeric vector of weights used in weighting the estimating
 #' functions
 #' @slot .psiFUN_list a list of \code{psiFUN}s created by \code{\link{create_psiFUN_list}}
@@ -103,7 +101,6 @@ setClass(
   Class = "m_estimation_basis",
   slots = c(.data        = "data.frame",
             .units       = "character",
-            .split_data  = "list",
             .weights     = "numeric",
             .psiFUN_list = "list"),
   contains = "estimating_function",
@@ -131,22 +128,6 @@ setClass(
 setMethod("initialize", "m_estimation_basis", function(.Object, ...){
   .Object <- callNextMethod()
 
-  # TODO: This set up allows for the case where the split_data could be set to
-  # a different split than that defined by .units. This shouldn't be the case.
-
-  # TODO: an m_estimation_basis object will carry around both the .data
-  # and the .split_data, but this seems redundant. Is there a tighter, less
-  # memory greedy way?
-
-  if(length(.Object@.split_data) == 0){
-    dt <- grab_basis_data(.Object)
-    ut <- if(length(.Object@.units) == 0) 1:nrow(dt) else dt[[.Object@.units]]
-    # Split data frame into data frames for each independent unit
-    split(x = dt,
-          # if units are not specified, split into one per observation
-          f = ut) ->
-      .Object@.split_data
-  }
   .Object
 })
 
