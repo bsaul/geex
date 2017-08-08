@@ -6,8 +6,8 @@ test_binomial <- geeglm(resp ~ age, id = id, data = ohio,
                         family = binomial(link = 'logit'))
 
 gee_eefun <- function(data, model){
+  f <- grab_estFUN(model, data)
   function(theta){
-    f <- grab_estFUN(model, data)
     f(theta)
   }
 }
