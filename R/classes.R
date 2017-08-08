@@ -248,6 +248,24 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
+#' Shows the sandwich_components
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setMethod(
+  "show",
+  signature = "sandwich_components",
+  definition = function(object) {
+    cat("An object of class ", class(object), "\n", sep = "")
+    cat("A (bread matrix): \n")
+    print(object@.A)
+    cat("B (meat matrix):\n")
+    print(object@.B)
+
+    invisible(NULL)
+  })
+#------------------------------------------------------------------------------#
 #' Grabs the .A (bread matrix) slot
 #'
 #' @export
