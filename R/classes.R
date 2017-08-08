@@ -544,6 +544,13 @@ setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data
 #------------------------------------------------------------------------------#
 #' geex S4 class
 #'
+#' @slot basis a \code{\linkS4class{m_estimation_basis}} object
+#' @slot rootFUN_results the results of call to the root finding algorithm function
+#' @slot sandwich_components a \code{\linkS4class{sandwich_components}} object
+#' @slot GFUN the \code{function} of which the roots are computed.
+#' @slot corrections a \code{list} of correction performed on \code{sandwich_components}
+#' @slot estimates a \code{numeric} vector of parameter estimates
+#' @slot vcov the empirical sandwich variance \code{matrix}
 #' @export
 #------------------------------------------------------------------------------#
 
