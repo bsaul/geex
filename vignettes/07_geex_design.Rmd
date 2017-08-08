@@ -27,27 +27,22 @@ mybasis <- create_basis(
                data   = geexex)
 
 mybasis %>%
-  create_psiFUN_list() %>%
   create_GFUN() %>%
   estimate_GFUN_roots(.root_control = setup_root_solver(start = c(1, 1)))
 
 mybasis %>%
-  create_psiFUN_list() %>%
   estimate_sandwich_matrices(.theta = c(5.04, 10.04)) 
 
 mybasis %>%
-  create_psiFUN_list() %>%
   estimate_sandwich_matrices(.theta = c(5.04, 10.04)) %>%
   {compute_sigma(A = grab_bread(.), B = grab_meat(.))}
 
 mybasis %>%
-  create_psiFUN_list() %>%
   estimate_sandwich_matrices(.theta = c(5.04))
 
 mybasis %>%
-  create_psiFUN_list() %>%
   estimate_sandwich_matrices(.theta = c(5.04, 10.04)) %>%
-  correct_by(.correct_control =  correction(fay_bias_correction, list(b = .75)))
+  correct_by(.correct_control =  correction(fay_bias_correction, b = .75))
 
 test <- m_estimate(
   estFUN = myee,
@@ -57,5 +52,5 @@ test <- m_estimate(
 
 vcov(test)
 
-test %>% str()
+test
 ```
