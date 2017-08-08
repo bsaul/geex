@@ -29,44 +29,71 @@ create_basis <- function(estFUN, data, units, outer_args, inner_args){
 #' \code{estFUN}.
 #'
 #' @param .basis an object of class \code{\linkS4class{m_estimation_basis}}
-#' @param .approx_control an object of class \code{\linkS4class{approx_control}}
 #' @return the \code{.basis} with the \code{.psiFUN_list} slot populated.
 #' @export
 #'
 #------------------------------------------------------------------------------#
+setGeneric("create_psiFUN_list", function(object, ...) standardGeneric("create_psiFUN_list"))
+setMethod(
+  f = "create_psiFUN_list",
+  signature = "m_estimation_basis",
+  definition = function(object){
 
-create_psiFUN_list <- function(.basis,
-                               .approx_control){
+    # Split data frame into data frames for each independent unit
+    # if units are not specified, split into one per observation
+    dt <- grab_basis_data(object)
+    ut <- if(length(object@.units) == 0) 1:nrow(dt) else dt[[object@.units]]
+    split_data <- split(x = dt, f = ut)
 
-  # Split data frame into data frames for each independent unit
-  # if units are not specified, split into one per observation
-  dt <- grab_basis_data(.basis)
-  ut <- if(length(.basis@.units) == 0) 1:nrow(dt) else dt[[.basis@.units]]
-  split_data <- split(x = dt, f = ut)
+    # Apply estFUN to each unit's data
+    out <- lapply(split_data, function(data_i){
+      do.call(grab_estFUN(object),
+              args = append(list(data = data_i), object@.outer_args))
+    })
 
-  # Apply estFUN to each unit's data
-  out <- lapply(split_data, function(data_i){
-    do.call(grab_estFUN(.basis),
-            args = append(list(data = data_i), .basis@.outer_args))
-  })
+    # if user specifies an approximation function, apply the function to each
+    # evaluation of psi
 
-  # if user specifies an approximation function, apply the function to each
-  # evaluation of psi
+    appFUN  <- grab_approxFUN(object@.control)
+    appopts <- grab_approx_options(object@.control)
+    if(!(is.null(body(appFUN)))){
+      lapply(out, function(f){
+        do.call(appFUN, args = append(list(psi = f), appopts))
+      }) -> out
+    }
 
-  # Use approx_control defaults if no options passed
-  if(missing(.approx_control)){
-    .approx_control <- new('approx_control')
+    set_psiFUN_list(object) <- out
+    object
   }
-  approxFUN <- FUN(.approx_control)
-  if(!(is.null(body(approxFUN)))){
-    lapply(out, function(f){
-      do.call(approxFUN, args = append(list(psi = f), options(.approx_control)))
-    }) -> out
-  }
-
-  set_psiFUN_list(.basis) <- out
-  .basis
-}
+)
+# create_psiFUN_list <- function(.basis){
+#
+#   # Split data frame into data frames for each independent unit
+#   # if units are not specified, split into one per observation
+#   dt <- grab_basis_data(.basis)
+#   ut <- if(length(.basis@.units) == 0) 1:nrow(dt) else dt[[.basis@.units]]
+#   split_data <- split(x = dt, f = ut)
+#
+#   # Apply estFUN to each unit's data
+#   out <- lapply(split_data, function(data_i){
+#     do.call(grab_estFUN(.basis),
+#             args = append(list(data = data_i), .basis@.outer_args))
+#   })
+#
+#   # if user specifies an approximation function, apply the function to each
+#   # evaluation of psi
+#
+#   appFUN  <- grab_approxFUN(.basis@.control)
+#   appopts <- grab_approx_options(.basis@.control)
+#   if(!(is.null(body(appFUN)))){
+#     lapply(out, function(f){
+#       do.call(appFUN, args = append(list(psi = f), appopts))
+#     }) -> out
+#   }
+#
+#   set_psiFUN_list(.basis) <- out
+#   .basis
+# }
 
 #------------------------------------------------------------------------------#
 #' Creates a function that sums over psi functions

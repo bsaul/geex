@@ -82,119 +82,6 @@ setClass(
 )
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
-## m_estimation class and methods ####
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
-
-#------------------------------------------------------------------------------#
-#' m_estimation_basis S4 class
-#'
-#' @slot .data the analysis data.frame
-#' @slot .units an (optional) character string identifying the variable in
-#' \code{.data} which splits the data into indepedent units
-#' @slot .weights a numeric vector of weights used in weighting the estimating
-#' functions
-#' @slot .psiFUN_list a list of \code{psiFUN}s created by \code{\link{create_psiFUN_list}}
-#' @export
-#------------------------------------------------------------------------------#
-
-setClass(
-  Class = "m_estimation_basis",
-  slots = c(.data        = "data.frame",
-            .units       = "character",
-            .weights     = "numeric",
-            .psiFUN_list = "list"),
-  contains = "estimating_function",
-  validity = function(object){
-
-    if(length(object@.units) > 1){
-      "units should be a character string of the name of single variable in data"
-    }
-
-    else if(length(names(object@.data)) > 0 & length(object@.units) > 0){
-      if(length(object@.units) == 1 & !(object@.units %in% names(object@.data))){
-        paste(object@.units, " is not a variable in the data")
-      }
-    }
-
-    else TRUE
-})
-
-#------------------------------------------------------------------------------#
-#' Initialize a m_estimation_basis object
-#'
-#'# @export
-#------------------------------------------------------------------------------#
-
-setMethod("initialize", "m_estimation_basis", function(.Object, ...){
-  .Object <- callNextMethod()
-
-  .Object
-})
-
-#------------------------------------------------------------------------------#
-#' Sets the .psi_list slot in a m_estimation_basis
-#'
-#' @export
-#------------------------------------------------------------------------------#
-
-setGeneric("set_psiFUN_list<-", function(object,value){
-  standardGeneric("set_psiFUN_list<-")})
-
-setReplaceMethod(
-  f = "set_psiFUN_list",
-  signature="m_estimation_basis",
-  definition = function(object, value){
-    object@.psiFUN_list <- value
-    validObject(object)
-    return (object)
-  }
-)
-
-#------------------------------------------------------------------------------#
-#' Gets the .psi_list slot in a m_estimation_basis
-#'
-#' @export
-#------------------------------------------------------------------------------#
-
-setGeneric("grab_psiFUN_list",function(object){standardGeneric ("grab_psiFUN_list")})
-setMethod(
-  f = "grab_psiFUN_list",
-  signature = "m_estimation_basis",
-  function(object){
-    return(object@.psiFUN_list)
-})
-
-#------------------------------------------------------------------------------#
-#' Shows the m_estimation_basis
-#'
-#' @export
-#------------------------------------------------------------------------------#
-
-setMethod(
-  "show",
-  signature = "m_estimation_basis",
-  definition = function(object) {
-    cat("An object of class ", class(object), "\n", sep = "")
-    cat("psi: \n")
-    print(body(object@.estFUN))
-    cat("Data:\n")
-    print(head(object@.data))
-    cat("Units: ", object@.units)
-
-    invisible(NULL)
-  })
-
-#------------------------------------------------------------------------------#
-#' grab_basis_data generic
-#'
-#' Grabs the \code{.data} from an \code{\linkS4class{m_estimation_basis}} object
-#'
-#------------------------------------------------------------------------------#
-
-setGeneric("grab_basis_data", function(object, ...) standardGeneric("grab_basis_data"))
-setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data)
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 ## sandwich_components class and methods ####
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
@@ -306,7 +193,7 @@ setMethod(
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
 #------------------------------------------------------------------------------#
-#' geex_control S4 class
+#' basic_control S4 class
 #'
 #' A general class for defining a \code{function}, and the options passed to the
 #' function
@@ -317,8 +204,9 @@ setMethod(
 #'
 #' @export
 #------------------------------------------------------------------------------#
+
 setClass(
-  Class = "geex_control",
+  Class = "basic_control",
   slots = c(.FUN = 'function',
             .options = 'list')
 )
@@ -333,10 +221,11 @@ setClass(
 #'
 #' @export
 #------------------------------------------------------------------------------#
+
 setClass(
   Class = "root_control",
   slots = c(.object_name = 'character'),
-  contains = "geex_control",
+  contains = "basic_control",
   validity = function(object){
 
     FUN_arg_names <- formalArgs(object@.FUN)
@@ -398,7 +287,7 @@ setup_root_solver <- function(FUN, roots_name, ...){
 #------------------------------------------------------------------------------#
 setClass(
   Class = "deriv_control",
-  contains = "geex_control",
+  contains = "basic_control",
   prototype = prototype(
     .FUN = numDeriv::jacobian,
     .options = list(method = 'Richardson')
@@ -418,7 +307,7 @@ setClass(
 #------------------------------------------------------------------------------#
 setClass(
   Class = "approx_control",
-  contains = "geex_control"
+  contains = "basic_control"
 )
 
 #------------------------------------------------------------------------------#
@@ -432,7 +321,7 @@ setClass(
 #------------------------------------------------------------------------------#
 setClass(
   Class = "correct_control",
-  contains = "geex_control",
+  contains = "basic_control",
   validity = function(object){
     args_names <- formalArgs(FUN(object))
     option_names <- names(options(object))
@@ -448,24 +337,180 @@ setClass(
 #------------------------------------------------------------------------------#
 #' options generic
 #'
-#' Extracts the \code{.options} slot from a \code{\linkS4class{control}} object
+#' Extracts the \code{.options} slot from a \code{\linkS4class{basic_control}} object
 #'
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("options", function(object, ...) standardGeneric("options"))
-setMethod("options", "geex_control", function(object) object@.options)
+setMethod("options", "basic_control", function(object) object@.options)
 
 #------------------------------------------------------------------------------#
 #' FUN generic
 #'
-#' Extracts the \code{.FUN} slot from a \code{\linkS4class{control}} object
+#' Extracts the \code{.FUN} slot from a \code{\linkS4class{basic_control}} object
 #'
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("FUN", function(object, ...) standardGeneric("FUN"))
-setMethod("FUN", "geex_control", function(object) object@.FUN)
+setMethod("FUN", "basic_control", function(object) object@.FUN)
+
+#------------------------------------------------------------------------------#
+#' geex_control S4 class
+#'
+#' An object which control all the \code{\linkS4class{basic_control}} objects
+#' necessary to perform M-estimation
+#'
+#' @slot .approx an \code{\linkS4class{approx_control}} object
+#' @slot .root  a \code{\linkS4class{root_control}} object
+#' @slot .deriv  a \code{\linkS4class{deriv_control}} object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+setClass(
+  Class = "geex_control",
+  slots = c(.approx = 'approx_control',
+            .root   = 'root_control',
+            .deriv  = 'deriv_control')
+)
+
+#------------------------------------------------------------------------------#
+#' approxFUN generic
+#'
+#' Extracts the \code{.approx@.FUN} slot from a \code{\linkS4class{geex_control}} object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+setGeneric("grab_approxFUN", function(object, ...) standardGeneric("grab_approxFUN"))
+setMethod("grab_approxFUN", "geex_control", function(object) object@.approx@.FUN)
+
+#------------------------------------------------------------------------------#
+#' approxOPTS generic
+#'
+#' Extracts the \code{.approx@.options} slot from a \code{\linkS4class{geex_control}} object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+setGeneric("grab_approx_options", function(object, ...) standardGeneric("grab_approx_options"))
+setMethod("grab_approx_options", "geex_control", function(object) object@.approx@.options)
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+## m_estimation class and methods ####
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+
+#------------------------------------------------------------------------------#
+#' m_estimation_basis S4 class
+#'
+#' @slot .data the analysis data.frame
+#' @slot .units an (optional) character string identifying the variable in
+#' \code{.data} which splits the data into indepedent units
+#' @slot .weights a numeric vector of weights used in weighting the estimating
+#' functions
+#' @slot .psiFUN_list a list of \code{psiFUN}s created by \code{\link{create_psiFUN_list}}
+#' @export
+#------------------------------------------------------------------------------#
+
+setClass(
+  Class = "m_estimation_basis",
+  slots = c(.data        = "data.frame",
+            .units       = "character",
+            .weights     = "numeric",
+            .psiFUN_list = "list",
+            .control     = "geex_control"),
+  contains = "estimating_function",
+  validity = function(object){
+
+    if(length(object@.units) > 1){
+      "units should be a character string of the name of single variable in data"
+    }
+
+    else if(length(names(object@.data)) > 0 & length(object@.units) > 0){
+      if(length(object@.units) == 1 & !(object@.units %in% names(object@.data))){
+        paste(object@.units, " is not a variable in the data")
+      }
+    }
+
+    else TRUE
+  })
+
+#------------------------------------------------------------------------------#
+#' Initialize a m_estimation_basis object
+#'
+#'# @export
+#------------------------------------------------------------------------------#
+
+setMethod("initialize", "m_estimation_basis", function(.Object, ...){
+  .Object <- callNextMethod()
+
+  create_psiFUN_list(.Object)
+})
+
+#------------------------------------------------------------------------------#
+#' Sets the .psi_list slot in a m_estimation_basis
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("set_psiFUN_list<-", function(object,value){
+  standardGeneric("set_psiFUN_list<-")})
+
+setReplaceMethod(
+  f = "set_psiFUN_list",
+  signature="m_estimation_basis",
+  definition = function(object, value){
+    object@.psiFUN_list <- value
+    validObject(object)
+    return (object)
+  }
+)
+
+#------------------------------------------------------------------------------#
+#' Gets the .psi_list slot in a m_estimation_basis
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("grab_psiFUN_list",function(object){standardGeneric ("grab_psiFUN_list")})
+setMethod(
+  f = "grab_psiFUN_list",
+  signature = "m_estimation_basis",
+  function(object){
+    return(object@.psiFUN_list)
+  })
+
+#------------------------------------------------------------------------------#
+#' Shows the m_estimation_basis
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setMethod(
+  "show",
+  signature = "m_estimation_basis",
+  definition = function(object) {
+    cat("An object of class ", class(object), "\n", sep = "")
+    cat("psi: \n")
+    print(body(object@.estFUN))
+    cat("Data:\n")
+    print(head(object@.data))
+    cat("Units: ", object@.units)
+
+    invisible(NULL)
+  })
+
+#------------------------------------------------------------------------------#
+#' grab_basis_data generic
+#'
+#' Grabs the \code{.data} from an \code{\linkS4class{m_estimation_basis}} object
+#'
+#------------------------------------------------------------------------------#
+
+setGeneric("grab_basis_data", function(object, ...) standardGeneric("grab_basis_data"))
+setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data)
+
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 ## geex class and methods ####
@@ -480,9 +525,6 @@ setMethod("FUN", "geex_control", function(object) object@.FUN)
 setClass(
   Class = "geex",
   slots = c(basis           = "m_estimation_basis",
-            root_control    = "root_control",
-            approx_control  = "approx_control",
-            deriv_control   = "deriv_control",
             rootFUN_results = "ANY",
             sandwich_components = "sandwich_components",
             GFUN            = "function",
@@ -573,3 +615,5 @@ setMethod(
       object@corrections
     }
   })
+
+
