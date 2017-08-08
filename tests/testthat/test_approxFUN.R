@@ -16,14 +16,8 @@ rooter <- new('root_control', .options = list(start = c(1)))
 approx <- new('approx_control',
               .FUN = spline_approx,
               .options = list(eval_theta = seq(3, 6, by = .4)))
-gbasis <- new('m_estimation_basis',
-              .estFUN = quantile_eefun,
-              .data   = geexex)
-
 
 test_that("approx_control is working", {
-  expect_silent({psii <- create_psiFUN_list(.basis = gbasis,
-                                    .approx_control = approx)})
 
   x <- m_estimate(
     estFUN = quantile_eefun,
