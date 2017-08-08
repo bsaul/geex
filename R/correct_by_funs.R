@@ -145,7 +145,7 @@ fay_bias_correction_partial <- function(components, b){
   Bbc_i <- lapply(seq_along(B_i), function(i){
     H_i[[i]] %*% B_i[[i]] %*% H_i[[i]]
   })
-  Bbc <-compute_sum_of_matrix_list(Bbc_i) #apply(simplify2array(Bbc_i), 1:2, sum)
+  Bbc <- compute_sum_of_list(Bbc_i) #apply(simplify2array(Bbc_i), 1:2, sum)
 
   list(H_i = H_i, Bbc = Bbc)
 }

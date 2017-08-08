@@ -106,7 +106,7 @@ estimate_sandwich_matrices <- function(.basis,
     -val
   })
 
-  A <- compute_sum_of_matrix_list(A_i, w)
+  A <- compute_sum_of_list(A_i, w)
 
   # Compute outer product of observed estimating eqns
   B_i <- lapply(psi_list, function(ee) {
@@ -114,7 +114,7 @@ estimate_sandwich_matrices <- function(.basis,
     ee_val %*% t(ee_val)
   })
 
-  B <- compute_sum_of_matrix_list(B_i, w)
+  B <- compute_sum_of_list(B_i, w)
 
   new('sandwich_components',
       .A = A, .A_i = A_i, .B = B, .B_i = B_i)
