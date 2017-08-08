@@ -21,7 +21,7 @@ The following code generates two datasets: `data1` has one row per unit and `dat
 library(geex)
 library(dplyr)
 set.seed(42)
-n <- 16000
+n <- 1000
 
 data1 <- data_frame(
   ID = 1:n,
