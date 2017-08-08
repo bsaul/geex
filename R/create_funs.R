@@ -66,34 +66,6 @@ setMethod(
     object
   }
 )
-# create_psiFUN_list <- function(.basis){
-#
-#   # Split data frame into data frames for each independent unit
-#   # if units are not specified, split into one per observation
-#   dt <- grab_basis_data(.basis)
-#   ut <- if(length(.basis@.units) == 0) 1:nrow(dt) else dt[[.basis@.units]]
-#   split_data <- split(x = dt, f = ut)
-#
-#   # Apply estFUN to each unit's data
-#   out <- lapply(split_data, function(data_i){
-#     do.call(grab_estFUN(.basis),
-#             args = append(list(data = data_i), .basis@.outer_args))
-#   })
-#
-#   # if user specifies an approximation function, apply the function to each
-#   # evaluation of psi
-#
-#   appFUN  <- grab_approxFUN(.basis@.control)
-#   appopts <- grab_approx_options(.basis@.control)
-#   if(!(is.null(body(appFUN)))){
-#     lapply(out, function(f){
-#       do.call(appFUN, args = append(list(psi = f), appopts))
-#     }) -> out
-#   }
-#
-#   set_psiFUN_list(.basis) <- out
-#   .basis
-# }
 
 #------------------------------------------------------------------------------#
 #' Creates a function that sums over psi functions
