@@ -1,0 +1,45 @@
+---
+title: "Tips for making geex faster"
+output: html_document
+---
+
+*Under development*
+
+## Do everything not involving theta outside of the psiFUN
+
+```{r setup, include=FALSE}
+library(geex)
+library(geepack, quietly = TRUE)
+data('ohio')
+
+test_binomial <- glm(resp ~ age, data = ohio,
+                     weights = rep(2, nrow(ohio)),
+                     family = binomial(link = 'logit'))
+
+glm_eefun1 <- function(data, model){
+  f <- grab_estFUN(model, data, weights = 2)
+  function(theta){
+    f(theta)
+  }
+}
+
+glm_eefun2 <- function(data, model){
+  function(theta){
+    f <- grab_estFUN(model, data, weights = 2)
+    f(theta)
+  }
+}
+
+system.time(m_estimate(glm_eefun1,
+                data = ohio,
+                units = 'id',
+                root_control  = new('root_control', .options = list(start = c(-1.7, -.11))),
+                outer_args = list(model = test_binomial)))
+
+system.time(m_estimate(glm_eefun2,
+                       data = ohio,
+                       units = 'id',
+                       root_control  = new('root_control', .options = list(start = c(-1.7, -.11))),
+                       outer_args = list(model = test_binomial)))
+```
+
