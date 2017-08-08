@@ -146,8 +146,8 @@ results <- m_estimate(
   inner_args = list(alpha   = g$working.correlation[1,2], 
                       psi     = g$scale), 
   corrections = list(
-   bias_correction_.1 = correction(bias_correction, list(b = .1)),
-   bias_correction_.3 = correction(bias_correction, list(b = .3)))) 
+   bias_correction_.1 = correction(bias_correction, b = .1),
+   bias_correction_.3 = correction(bias_correction, b = .3))) 
 ```
 
 In the `geex` output, the item `corrections` contains a list of the results of computing each item in the `corrections_list`. Comparing the `geex` results to the results of the `saws::geeUOmega` function, the maximum difference in the results for any of corrected estimated covariance matrices is `r format(max(saws::saws(guo, method = 'd4', bound  = 0.1)$V - results$corrections$bias_correction_.1, saws::saws(guo, method = 'd4', bound  = 0.3)$V - results$corrections$bias_correction_.3), digits = 2)`. 

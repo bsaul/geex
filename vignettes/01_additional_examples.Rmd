@@ -96,7 +96,7 @@ SB4_estFUN <- function(data){
 estimates <- m_estimate(
   estFUN = SB4_estFUN, 
   data  = geexex, 
-  root_control = setup_rootFUN(start = c(1, 1, 1, 1)))
+  root_control = setup_root_solver(start = c(1, 1, 1, 1)))
 ```
 
 The R packages [`AER`](https://cran.r-project.org/web/packages/AER/index.html) and [`ivpack`](https://cran.r-project.org/web/packages/ivpack/index.html) can compute the IV estimator and sandwich variance estimators respectively, which is done below for comparison.  
@@ -159,7 +159,7 @@ create_basis(estFUN = SB5_eeFUN, data = geexex)
 estimates <- m_estimate(
   estFUN = SB5_estFUN, 
   data  = geexex,
-  root_control = setup_rootFUN(start = 2))
+  root_control = setup_root_solver(start = 2))
 ```
 
 The `hc.loc` of the [`ICSNP`](https://cran.r-project.org/web/packages/ICSNP/index.html) package computes the Hodges-Lehman estimator and SB gave closed form estimators for the variance.
@@ -202,7 +202,7 @@ SB6_estFUN <- function(data, k = 1.5){
 estimates <- m_estimate(
   estFUN = SB6_estFUN, 
   data  = geexex,
-  root_control = setup_rootFUN(start = 3))
+  root_control = setup_root_solver(start = 3))
 ```
 
 The point estimate from `geex` is compared to the estimate obtained from the `huber` function in the [`MASS`](https://cran.r-project.org/web/packages/MASS/index.html) package. The variance estimate is compared to an estimator suggested by SB: $A_m = \sum_i [-\psi'(Y_i - \hat{\theta})]/m$ and $B_m = \sum_i \psi_k^2(Y_i - \hat{\theta})/m$, where $\psi_k'$ is the derivative of $\psi$ where is exists.
@@ -268,7 +268,7 @@ spline_approx <- function(psi, eval_theta){
 estimates <- m_estimate(
   estFUN = SB7_estFUN, 
   data  = geexex, 
-  root_control = setup_rootFUN(start = 4.7),
+  root_control = setup_root_solver(start = 4.7),
   approx_control  = new("approx_control", 
                         .FUN = spline_approx,
                         .options = list(eval_theta = seq(3, 6, by = .05))))
@@ -314,7 +314,7 @@ SB8_estFUN <- function(data){
 estimates <- m_estimate(
   estFUN = SB8_estFUN, 
   data  = geexex,
-  root_control = setup_rootFUN(start = c(0, 0, 0)))
+  root_control = setup_root_solver(start = c(0, 0, 0)))
 ```
 
 ```{r SB8_clsform, echo = TRUE}
@@ -358,7 +358,7 @@ SB9_estFUN <- function(data){
 estimates <- m_estimate(
   estFUN = SB9_estFUN, 
   data  = geexex, 
-  root_control = setup_rootFUN(start = c(.1, .1, .5)))
+  root_control = setup_root_solver(start = c(.1, .1, .5)))
 ```
 
 Compare point estimates to `glm` coefficients and covariance matrix to `sandwich`.
@@ -413,7 +413,7 @@ estimates <- m_estimate(
   estFUN = SB10_estFUN, 
   data  = shaq, 
   units = 'game', 
-  root_control = setup_rootFUN(start = c(.5, .5)))
+  root_control = setup_root_solver(start = c(.5, .5)))
 ```
 
 ```{r SB10_clsform, echo = TRUE}

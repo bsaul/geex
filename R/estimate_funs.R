@@ -211,7 +211,7 @@ estimate_sandwich_matrices <- function(.basis,
 #' m_estimate(
 #'  estFUN = ex_eeFUN,
 #'  data  = geexex,
-#'  root_control = setup_rootFUN(start = c(1,1)))
+#'  root_control = setup_root_solver(start = c(1,1)))
 #'
 #' # A simple linear model for regressing X1 and X2 on Y4
 #' lm_eefun <- function(data){
@@ -225,7 +225,7 @@ estimate_sandwich_matrices <- function(.basis,
 #' m_estimate(
 #'  estFUN = lm_eefun,
 #'  data  = geexex,
-#'  root_control = setup_rootFUN(start = c(0, 0, 0)))
+#'  root_control = setup_root_solver(start = c(0, 0, 0)))
 #'
 #' @export
 #------------------------------------------------------------------------------#

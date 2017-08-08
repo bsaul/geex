@@ -33,7 +33,7 @@ Internally, `estFUN` is used to build $G_m = \sum_{i = 1}^m  \psi(O_i, \theta)$ 
 multiroot_results <- m_estimate(
   estFUN = myefun, 
   data  = geexex,
-  root_control = setup_rootFUN(start = 3))
+  root_control = setup_root_solver(start = 3))
 ```
 
 The `stats::uniroot` function, however, requires the arguments `f` and `interval` (or `lower` and `upper`)
@@ -42,7 +42,7 @@ The `stats::uniroot` function, however, requires the arguments `f` and `interval
 uniroot_results <- m_estimate(
   estFUN = myefun, 
   data  = geexex,
-  root_control = setup_rootFUN(rootFUN = stats::uniroot, interval = c(0, 10)))
+  root_control = setup_root_solver(rootFUN = stats::uniroot, interval = c(0, 10)))
 ```
 
 Comparing results:

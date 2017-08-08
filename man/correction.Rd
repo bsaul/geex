@@ -4,13 +4,13 @@
 \alias{correction}
 \title{Creates a correct_control object}
 \usage{
-correction(correctFUN, correctFUN_options)
+correction(FUN, ...)
 }
 \arguments{
-\item{correctFUN}{a correction to perform. \code{components} must be the
+\item{FUN}{a correction to perform. \code{components} must be the
 first argument}
 
-\item{correctFUN_options}{a list of options passed to \code{correctFUN}}
+\item{, , , }{additional arguments passed to \code{FUN}}
 }
 \value{
 a \code{\linkS4class{correct_control}} object

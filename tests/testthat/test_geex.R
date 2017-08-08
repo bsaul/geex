@@ -100,19 +100,19 @@ test_that("m_estimation works when given outer and/or inner args", {
                           data  = geexex,
                           outer_args = list(psi = 2),
                           inner_args = list(alpha = 3),
-                          root_control = setup_rootFUN(start = c(3, 3))),
+                          root_control = setup_root_solver(start = c(3, 3))),
             'geex')
 
   # should fail
   expect_error(m_estimate(estFUN  = test_eefun3,
                        data  = geexex,
                        outer_args = list(psi = 2),
-                       root_control = setup_rootFUN(start = c(3, 3))))
+                       root_control = setup_root_solver(start = c(3, 3))))
   # should fail
   expect_error(m_estimate(estFUN  = test_eefun3,
                        data  = geexex,
                        inner_args = list(alpha = 3),
-                       root_control = setup_rootFUN(start = c(3, 3))))
+                       root_control = setup_root_solver(start = c(3, 3))))
 
 })
 
@@ -121,7 +121,7 @@ test_that("geex class accessors work", {
   # should work
   expect_is({hold <- m_estimate(estFUN  = test_eefun1,
                        data  = geexex,
-                       root_control = setup_rootFUN(start = c(3, 3)))},
+                       root_control = setup_root_solver(start = c(3, 3)))},
             'geex')
 
   expect_is(vcov(hold), 'matrix')

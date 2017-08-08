@@ -381,13 +381,13 @@ setClass(
 #'
 #' @param FUN a root finding function whose first argument must be named \code{f}.
 #' @param roots_name a character string identifying the object containing the
-#' roots in the output of \code{.FUN}.
-#' @param ... arguments passed to \code{rootFUN}
-#'
+#' roots in the output of \code{FUN}.
+#' @param ... arguments passed to \code{FUN}
+#' @return a \code{\linkS4class{root_control}} object
 #' @export
 #------------------------------------------------------------------------------#
 
-setup_rootFUN <- function(FUN, roots_name, ...){
+setup_root_solver <- function(FUN, roots_name, ...){
   dots <- list(...)
   hold <- call('new')
   hold[['Class']] <- "root_control"
