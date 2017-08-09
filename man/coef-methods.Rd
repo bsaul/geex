@@ -3,6 +3,7 @@
 \docType{methods}
 \name{coef,geex-method}
 \alias{coef,geex-method}
+\alias{coef,geex,geex-method}
 \title{Gets the parameter estimates from a geex object}
 \usage{
 \S4method{coef}{geex}(object)

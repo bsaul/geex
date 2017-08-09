@@ -3,6 +3,7 @@
 \docType{methods}
 \name{vcov,geex-method}
 \alias{vcov,geex-method}
+\alias{vcov,geex,geex-method}
 \title{Gets the variance-covariance matrix from a geex object}
 \usage{
 \S4method{vcov}{geex}(object)

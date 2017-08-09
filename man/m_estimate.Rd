@@ -17,6 +17,8 @@ that takes parameters as its first argument}
 
 \item{units}{an optional character string identifying the grouping variable in \code{data}}
 
+\item{weights}{an optional vector of weights. See details.}
+
 \item{outer_args}{a list of arguments passed to the outer (data) function of \code{estFUN}. (optional)}
 
 \item{inner_args}{a list of arguments passed to the inner (theta) function of \code{estFUN}. (optional)}
@@ -34,6 +36,12 @@ list element is a \code{\linkS4class{correct_control}} object which contains
 two elements: \code{correctFUN} and \code{correctFUN_options}. The function
 \code{\link{correction}} constructs \code{\linkS4class{correct_control}} objects.
 See details for more information.}
+
+\item{deriv_control}{a \code{\linkS4class{deriv_control}} object}
+
+\item{root_control}{a \code{\linkS4class{root_control}} object}
+
+\item{approx_control}{a \code{\linkS4class{approx_control}} object}
 }
 \value{
 a \code{\linkS4class{geex}} object
@@ -91,6 +99,13 @@ function; any elements of the \code{inner_args} list are passed to the inner
 function. For an example, see the finite sample correction vignette [\code{
 vignette("05_finite_sample_corrections", package = "geex")}].
 }
+}
+
+\section{Using weights}{
+
+
+In some situations, use of weights can massively speed computations. Refer
+to \code{vignette("04_weights", package = "geex")} for an example.
 }
 
 \examples{

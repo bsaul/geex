@@ -3,13 +3,26 @@
 \docType{methods}
 \name{show,sandwich_components-method}
 \alias{show,sandwich_components-method}
+\alias{show,sandwich_components,sandwich_components-method}
+\alias{show,m_estimation_basis-method}
+\alias{show,m_estimation_basis,m_estimation_basis-method}
+\alias{show,geex-method}
+\alias{show,geex,geex-method}
 \title{Shows the sandwich_components S4 class}
 \usage{
 \S4method{show}{sandwich_components}(object)
+
+\S4method{show}{m_estimation_basis}(object)
+
+\S4method{show}{geex}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{sandwich_components}} object}
 }
 \description{
 Shows the sandwich_components S4 class
+
+# @param object a \code{\linkS4class{m_estimation_basis}} object
+
+# @param object a \code{\linkS4class{geex}} object
 }

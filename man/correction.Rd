@@ -10,7 +10,7 @@ correction(FUN, ...)
 \item{FUN}{a correction to perform. \code{components} must be the
 first argument}
 
-\item{, , , }{additional arguments passed to \code{FUN}}
+\item{...}{additional arguments passed to \code{FUN}}
 }
 \value{
 a \code{\linkS4class{correct_control}} object

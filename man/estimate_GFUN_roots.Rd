@@ -7,7 +7,7 @@
 estimate_GFUN_roots(.basis)
 }
 \arguments{
-\item{basis}{an object of class \code{\linkS4class{m_estimation_basis}}}
+\item{.basis}{an object of class \code{\linkS4class{m_estimation_basis}}}
 }
 \value{
 the output of the \code{rootFUN} function
