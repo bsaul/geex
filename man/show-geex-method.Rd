@@ -7,6 +7,9 @@
 \usage{
 \S4method{show}{geex}(object)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{geex}} object}
+}
 \description{
 Shows the geex object
 }

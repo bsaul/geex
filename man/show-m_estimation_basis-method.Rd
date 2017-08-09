@@ -7,6 +7,9 @@
 \usage{
 \S4method{show}{m_estimation_basis}(object)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{m_estimation_basis}} object}
+}
 \description{
 Shows the m_estimation_basis
 }

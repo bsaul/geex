@@ -6,6 +6,9 @@
 \usage{
 roots(object, ...)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{geex}} object}
+}
 \description{
 Gets the parameter estimates matrix from a geex object
 }

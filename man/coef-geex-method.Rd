@@ -7,6 +7,9 @@
 \usage{
 \S4method{coef}{geex}(object)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{geex}} object}
+}
 \description{
 Gets the parameter estimates from a geex object
 }

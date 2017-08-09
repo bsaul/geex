@@ -6,6 +6,9 @@
 \usage{
 grab_bread(object)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{sandwich_components}} object}
+}
 \description{
 Grabs the .A (bread matrix) slot
 }

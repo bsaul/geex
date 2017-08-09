@@ -3,10 +3,13 @@
 \docType{methods}
 \name{show,sandwich_components-method}
 \alias{show,sandwich_components-method}
-\title{Shows the sandwich_components}
+\title{Shows the sandwich_components S4 class}
 \usage{
 \S4method{show}{sandwich_components}(object)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{sandwich_components}} object}
+}
 \description{
-Shows the sandwich_components
+Shows the sandwich_components S4 class
 }

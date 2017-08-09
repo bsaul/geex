@@ -6,6 +6,9 @@
 \usage{
 grab_meat_list(object)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{sandwich_components}} object}
+}
 \description{
 Gets the .B_i (list of bread matrices) slot
 }

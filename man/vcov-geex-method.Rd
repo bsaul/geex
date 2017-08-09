@@ -7,6 +7,9 @@
 \usage{
 \S4method{vcov}{geex}(object)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{geex}} object}
+}
 \description{
 Gets the variance-covariance matrix from a geex object
 }

@@ -6,6 +6,9 @@
 \usage{
 get_corrections(object, ...)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{geex}} object}
+}
 \description{
 Gets the corrections from a geex object
 }

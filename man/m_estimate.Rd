@@ -34,8 +34,6 @@ list element is a \code{\linkS4class{correct_control}} object which contains
 two elements: \code{correctFUN} and \code{correctFUN_options}. The function
 \code{\link{correction}} constructs \code{\linkS4class{correct_control}} objects.
 See details for more information.}
-
-\item{root_control}{an object of class \code{\linkS4class{root_control}}}
 }
 \value{
 a \code{\linkS4class{geex}} object

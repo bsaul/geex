@@ -6,6 +6,9 @@
 \usage{
 grab_psiFUN_list(object)
 }
+\arguments{
+\item{object}{a \code{\linkS4class{m_estimation_basis}} object}
+}
 \description{
 Gets the .psi_list slot in a m_estimation_basis
 }

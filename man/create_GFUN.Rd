@@ -4,10 +4,7 @@
 \alias{create_GFUN}
 \title{Creates a function that sums over psi functions}
 \usage{
-create_GFUN(.basis)
-}
-\arguments{
-\item{.basis}{an object of class \code{\linkS4class{m_estimation_basis}}}
+create_GFUN(object, ...)
 }
 \description{
 From a list of \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} for i = 1, ..., m,

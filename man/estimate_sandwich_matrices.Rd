@@ -4,14 +4,12 @@
 \alias{estimate_sandwich_matrices}
 \title{Estimate component matrices of the empirical sandwich covariance estimator}
 \usage{
-estimate_sandwich_matrices(.basis, .theta, .deriv_control, .approx_control)
+estimate_sandwich_matrices(.basis, .theta)
 }
 \arguments{
 \item{.basis}{basis an object of class \code{\linkS4class{m_estimation_basis}}}
 
 \item{.theta}{vector of parameter estimates (i.e. estimated roots)}
-
-\item{.deriv_control}{an object of class \code{\linkS4class{deriv_control}}}
 }
 \value{
 a \code{\linkS4class{sandwich_components}} object

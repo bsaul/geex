@@ -2,10 +2,19 @@
 % Please edit documentation in R/classes.R
 \name{set_control<-}
 \alias{set_control<-}
-\title{approxOPTS generic}
+\title{Sets the slots from for \code{\linkS4class{geex_control}} object}
 \usage{
 set_control(object, slot) <- value
 }
+\arguments{
+\item{object}{a \code{\linkS4class{geex_control}} object}
+
+\item{slot}{name of the slot from which to grab the function. One of "deriv",
+"approx", or "root"}
+
+\item{value}{a \code{\linkS4class{root_control}}, \code{\linkS4class{apprix_control}},
+or \code{\linkS4class{deriv_control}} object}
+}
 \description{
-Extracts the \code{.approx@.options} slot from a \code{\linkS4class{geex_control}} object
+Sets the slots from for \code{\linkS4class{geex_control}} object
 }
