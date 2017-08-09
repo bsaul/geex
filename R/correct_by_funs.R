@@ -36,8 +36,7 @@ make_corrections <- function(components, corrections){
 #------------------------------------------------------------------------------#
 
 correct_by <- function(.components, .correct_control){
-  f <- FUN(.correct_control)
-  opts <- options(.correct_control)
+  f <- grab_FUN(.correct_control)
   do.call(f, args = append(list(components = .components), opts))
 }
 
