@@ -39,19 +39,19 @@ gbasis_good <- new('m_estimation_basis',
 gbasis_bad <- new('m_estimation_basis',
                    .estFUN = test_eefun2,
                    .data   = geexex)
-
+create_GFUN(gbasis_good)
 test_that("estimate_GFUN_roots is working", {
   expect_is(gbasis_good, 'm_estimation_basis')
-  expect_silent({gtest <- create_GFUN(.basis = gbasis_good)})
-  expect_is(gtest, 'function')
+  expect_silent({gtest <- create_GFUN(gbasis_good)})
+  expect_is(gtest@.GFUN, 'function')
 
   # Check running estimate_GFUN_roots without root_control gives error
   expect_error(estimate_GFUN_roots(.GFUN = gtest))
 
   rooter_test <- new("root_control", .options = list(start = c(3, 3)))
+  gbasis_good@.control@.root <- rooter_test
   # Check running estimate_GFUN_roots with proper root_control does not give error
-  expect_silent({root_test <- estimate_GFUN_roots(.GFUN = gtest,
-                                                 .root_control = rooter_test )})
+  expect_silent({root_test <- estimate_GFUN_roots(.basis = gbasis_good)})
 
   # Check that the first elements of the root is at least close to the
   # closed form

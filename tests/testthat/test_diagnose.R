@@ -17,13 +17,12 @@ test_that("check_GFUN function works", {
     root_control = new('root_control', .options = list(start = c(2,2)))
   )
 
+  expect_silent({gtest <- grab_GFUN(temp@basis)})
+  expect_is(gtest, "function")
 
-  test <- diagnose_roots(temp@GFUN, temp@estimates)
-
+  test <- diagnose_roots(gtest, temp@estimates)
   expect_equal(length(test), 2)
-
   expect_equal(test, c(0, 0), tolerance = 1e-5, check.attributes = FALSE)
-
 })
 
 
