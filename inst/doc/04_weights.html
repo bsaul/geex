@@ -117,7 +117,7 @@ results1 &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
   <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>, .<span class="dv">5</span>))
 )})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.240   0.042   1.280</code></pre>
+##   1.251   0.141   1.393</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>({
   results2 &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
   <span class="dt">estFUN =</span> example,
@@ -126,7 +126,7 @@ results1 &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
   <span class="dt">root_control =</span> <span class="kw">setup_root_solver</span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>, .<span class="dv">5</span>))
 )})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.027   0.000   0.028</code></pre>
+##   0.029   0.000   0.030</code></pre>
 <p>The latter option is clearly preferred.</p>
 </div>
 <div id="results-comparison" class="section level2">

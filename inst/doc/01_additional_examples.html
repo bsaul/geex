@@ -164,31 +164,6 @@ IC_denom &lt;-<span class="st"> </span><span class="kw">integrate</span>(integra
      (<span class="dv">1</span>/IC_denom) *<span class="st"> </span>(<span class="kw">F0</span>(Yi, theta[<span class="dv">1</span>]) -<span class="st"> </span><span class="fl">0.5</span>)
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">create_basis</span>(<span class="dt">estFUN =</span> SB5_eeFUN, <span class="dt">data =</span> geexex)</code></pre></div>
-<pre><code>## An object of class m_estimation_basis
-## psi: 
-## {
-##     Yi &lt;- data[[&quot;Y2&quot;]]
-##     function(theta) {
-##         (1/IC_denom) * (F0(Yi, theta[1]) - 0.5)
-##     }
-## }
-## Data:
-##           Y1        Y2       X1       Y3       W1        Z1 X2         Y4
-## 1  3.6683066 2.0281718 4.949316 16.34576 4.823768  8.921782  0 0.09273926
-## 2 10.4524548 1.6432966 7.851962 25.68742 7.884845 13.909474  0 1.01672736
-## 3  3.1234106 2.8526264 4.729075 16.10831 4.709346  9.014695  0 0.49399039
-## 4  8.3715025 2.5133652 2.564395 10.57997 2.786091  6.733378  0 1.24322433
-## 5 -0.8319749 3.0182030 4.782347 16.46401 4.811590  9.290492  0 0.69520599
-## 6  3.3987763 0.9785209 5.335713 18.32577 5.415370 10.322199  0 0.95220138
-##   Y5
-## 1  1
-## 2  1
-## 3  0
-## 4  0
-## 5  1
-## 6  1
-## Units:</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw">m_estimate</span>(
   <span class="dt">estFUN =</span> SB5_estFUN, 
   <span class="dt">data  =</span> geexex,

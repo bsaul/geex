@@ -155,7 +155,6 @@ SB5_estFUN <- function(data){
 ```
 
 ```{r SB5_run, echo = TRUE, message=FALSE}
-create_basis(estFUN = SB5_eeFUN, data = geexex)
 estimates <- m_estimate(
   estFUN = SB5_estFUN, 
   data  = geexex,
