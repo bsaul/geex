@@ -24,6 +24,7 @@ grab_psiFUN <- function(object, ...){
 #' @inheritParams grab_psiFUN
 #' @param weights a scalar or vector of weight values
 #' @describeIn grab_psiFUN Create estimating equation function from a \code{glm} object
+#' @export
 
 grab_psiFUN.glm <- function(object, data, weights = 1, ...){
 
@@ -63,6 +64,7 @@ grab_psiFUN.glm <- function(object, data, weights = 1, ...){
 
 #' @inheritParams grab_psiFUN
 #' @describeIn grab_psiFUN Create estimating equation function from a \code{geeglm} object
+#' @export
 
 grab_psiFUN.geeglm <- function(object, data, ...){
   if(object$corstr != 'independence'){
