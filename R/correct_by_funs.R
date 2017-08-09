@@ -47,14 +47,14 @@ correct_by <- function(.components, .correct_control){
 #'
 #' @param FUN a correction to perform. \code{components} must be the
 #' first argument
-#' @param ,,, additional arguments passed to \code{FUN}
+#' @param ... additional arguments passed to \code{FUN}
 #' @return a \code{\linkS4class{correct_control}} object
 #' @export
 #------------------------------------------------------------------------------#
 
 correction <- function(FUN, ...){
   dots <- list(...)
-  new(Class="correct_control",
+  methods::new(Class="correct_control",
       .FUN = FUN,
       .options   = dots)
 }

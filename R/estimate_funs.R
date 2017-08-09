@@ -18,7 +18,7 @@
 #' For an example of how to use a different \code{rootFUN},
 #' see the root solver vignette, \code{vignette('geex_root_solvers', package = 'geex')}.
 #'
-#' @param basis an object of class \code{\linkS4class{m_estimation_basis}}
+#' @param .basis an object of class \code{\linkS4class{m_estimation_basis}}
 #' @return the output of the \code{rootFUN} function
 #' @export
 #'
@@ -107,6 +107,7 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 #' that takes parameters as its first argument
 #' @param data a data.frame
 #' @param units an optional character string identifying the grouping variable in \code{data}
+#' @param weights an optional vector of weights. See details.
 #' @param outer_args a list of arguments passed to the outer (data) function of \code{estFUN}. (optional)
 #' @param inner_args a list of arguments passed to the inner (theta) function of \code{estFUN}. (optional)
 #' @param corrections an optional list of small sample corrections where each
@@ -119,8 +120,9 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 #' @param compute_vcov whether or not to compute the variance-covariance matrix.
 #' Defaults to \code{TRUE}.
 #' @param roots a vector of parameter estimates must be provided if \code{compute_roots = FALSE}
-#' @inheritParams estimate_GFUN_roots
-#' @inheritParams estimate_sandwich_matrices
+#' @param deriv_control a \code{\linkS4class{deriv_control}} object
+#' @param root_control a \code{\linkS4class{root_control}} object
+#' @param approx_control a \code{\linkS4class{approx_control}} object
 #'
 #' @details The basic idea of \pkg{geex} is for the analyst to provide at least
 #' two items:
@@ -165,6 +167,11 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 #' function. For an example, see the finite sample correction vignette [\code{
 #' vignette("05_finite_sample_corrections", package = "geex")}].
 #' }
+#'
+#' @section Using weights:
+#'
+#' In some situations, use of weights can massively speed computations. Refer
+#' to \code{vignette("04_weights", package = "geex")} for an example.
 #'
 #' @return a \code{\linkS4class{geex}} object
 #'

@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------#
 
 create_basis <- function(estFUN, data, units, outer_args, inner_args){
-  new(Class="m_estimation_basis",
+  methods::new(Class="m_estimation_basis",
       .estFUN = estFUN,
       .data   = data,
       .units  =  if(!missing(units)) units else character(),
@@ -29,11 +29,18 @@ create_basis <- function(estFUN, data, units, outer_args, inner_args){
 #' \code{estFUN}.
 #'
 #' @param object an object of class \code{\linkS4class{m_estimation_basis}}
+#' @param ... additional arguments passed to other methods
+#' @docType methods
+#' @rdname create_psiFUN_list-methods
 #' @return the \code{object} with the \code{.psiFUN_list} slot populated.
 #' @export
 #'
 #------------------------------------------------------------------------------#
 setGeneric("create_psiFUN_list", function(object, ...) standardGeneric("create_psiFUN_list"))
+
+#' @rdname create_psiFUN_list-methods
+#' @aliases create_psiFUN_list,m_estimation_basis,m_estimation_basis-method
+
 setMethod(
   f = "create_psiFUN_list",
   signature = "m_estimation_basis",
@@ -77,11 +84,17 @@ setMethod(
 #' is a function of \eqn{\theta)}{\theta}.
 #'
 #' @inheritParams create_psiFUN_list
+#' @docType methods
+#' @rdname create_GFUN-methods
 #' @export
 #'
 #------------------------------------------------------------------------------#
 
 setGeneric("create_GFUN", function(object, ...) standardGeneric("create_GFUN"))
+
+#' @rdname create_GFUN-methods
+#' @aliases create_GFUN,m_estimation_basis,m_estimation_basis-method
+
 setMethod(
   f = "create_GFUN",
   signature = "m_estimation_basis",

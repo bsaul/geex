@@ -118,6 +118,8 @@ setClass(
 #' Shows the sandwich_components S4 class
 #'
 #' @param object a \code{\linkS4class{sandwich_components}} object
+#' @rdname show-methods
+#' @aliases show,sandwich_components,sandwich_components-method
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -137,10 +139,16 @@ setMethod(
 #' Grabs the .A (bread matrix) slot
 #'
 #' @param object a \code{\linkS4class{sandwich_components}} object
+#' @docType methods
+#' @rdname grab_bread-methods
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_bread",function(object){standardGeneric ("grab_bread")})
+
+#' @rdname grab_bread-methods
+#' @aliases grab_bread,sandwich_components,sandwich_components-method
+
 setMethod(
   f = "grab_bread",
   signature = "sandwich_components",
@@ -152,10 +160,16 @@ setMethod(
 #' Gets the .A_i (list of bread matrices) slot
 #'
 #' @param object a \code{\linkS4class{sandwich_components}} object
+#' @docType methods
+#' @rdname grab_bread_list-methods
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_bread_list",function(object){standardGeneric ("grab_bread_list")})
+
+#' @rdname grab_bread_list-methods
+#' @aliases grab_bread_list,sandwich_components,sandwich_components-method
+
 setMethod(
   f = "grab_bread_list",
   signature = "sandwich_components",
@@ -167,10 +181,16 @@ setMethod(
 #' Gets the .B (meat matrix) slot
 #'
 #' @param object a \code{\linkS4class{sandwich_components}} object
+#' @docType methods
+#' @rdname grab_meat-methods
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_meat",function(object){standardGeneric ("grab_meat")})
+
+#' @rdname grab_meat-methods
+#' @aliases grab_meat,sandwich_components,sandwich_components-method
+
 setMethod(
   f = "grab_meat",
   signature = "sandwich_components",
@@ -182,10 +202,16 @@ setMethod(
 #' Gets the .B_i (list of bread matrices) slot
 #'
 #' @param object a \code{\linkS4class{sandwich_components}} object
+#' @docType methods
+#' @rdname grab_meat_list-methods
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_meat_list",function(object){standardGeneric ("grab_meat_list")})
+
+#' @rdname grab_meat_list-methods
+#' @aliases grab_meat_list,sandwich_components,sandwich_components-method
+
 setMethod(
   f = "grab_meat_list",
   signature = "sandwich_components",
@@ -343,22 +369,34 @@ setClass(
 #' Extracts the \code{.options} slot from a \code{\linkS4class{basic_control}} object
 #'
 #' @param object a \code{\linkS4class{basic_control}} object
-#'
+#' @param ... additional arguments passed to other methods
+#' @docType methods
+#' @rdname grab_options-methods
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_options", function(object, ...) standardGeneric("grab_options"))
+
+#' @rdname grab_options-methods
+#' @aliases grab_options,basic_control,basic_control-method
+
 setMethod("grab_options", "basic_control", function(object) object@.options)
 
 #------------------------------------------------------------------------------#
 #' Extracts the \code{.FUN} slot from a \code{\linkS4class{basic_control}} object
 #'
 #' @param object a \code{\linkS4class{basic_control}} object
-#'
+#' @param ... additional arguments passed to other methods
+#' @docType methods
+#' @rdname grab_FUN-methods
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_FUN", function(object, ...) standardGeneric("grab_FUN"))
+
+#' @rdname grab_FUN-methods
+#' @aliases grab_FUN,basic_control,basic_control-method
+
 setMethod("grab_FUN", "basic_control", function(object) object@.FUN)
 
 #------------------------------------------------------------------------------#
@@ -381,11 +419,15 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
-#' Extracts the \code{.approx@.FUN} slot from a \code{\linkS4class{geex_control}} object
+#' Extracts functions from a \code{\linkS4class{geex_control}} object
 #'
 #' @param object a \code{\linkS4class{geex_control}} object
 #' @param slot name of the slot from which to grab the function. One of "deriv",
 #' "approx", or "root"
+#'
+#' @rdname grab_FUN-methods
+#' @aliases grab_FUN,geex_control,geex_control-method
+#'
 #' @export
 #------------------------------------------------------------------------------#
 setMethod("grab_FUN", "geex_control", function(object, slot) {
@@ -396,11 +438,13 @@ setMethod("grab_FUN", "geex_control", function(object, slot) {
 })
 
 #------------------------------------------------------------------------------#
-#' Extracts the \code{.approx@.options} slot from a \code{\linkS4class{geex_control}} object
+#' Extracts options from a \code{\linkS4class{geex_control}} object
 #'
 #' @param object a \code{\linkS4class{geex_control}} object
 #' @param slot name of the slot from which to grab the function. One of "deriv",
 #' "approx", or "root"
+#' @rdname grab_options-methods
+#' @aliases grab_options,geex_control,geex_control-method
 #'
 #' @export
 #------------------------------------------------------------------------------#
@@ -412,15 +456,15 @@ setMethod("grab_options", "geex_control", function(object, slot) {
 })
 
 #------------------------------------------------------------------------------#
-#' Sets the slots from for \code{\linkS4class{geex_control}} object
-#'
-#' @param object a \code{\linkS4class{geex_control}} object
-#' @param slot name of the slot from which to grab the function. One of "deriv",
-#' "approx", or "root"
-#' @param value a \code{\linkS4class{root_control}}, \code{\linkS4class{apprix_control}},
-#' or \code{\linkS4class{deriv_control}} object
-#'
-#' @export
+# Sets the slots from for \code{\linkS4class{geex_control}} object
+#
+# @param object a \code{\linkS4class{geex_control}} object
+# @param slot name of the slot from which to grab the function. One of "deriv",
+# "approx", or "root"
+# @param value a \code{\linkS4class{root_control}}, \code{\linkS4class{approx_control}},
+# or \code{\linkS4class{deriv_control}} object
+#
+# @export
 #------------------------------------------------------------------------------#
 setGeneric("set_control<-", function(object, slot, value){
   standardGeneric("set_control<-")})
@@ -438,7 +482,7 @@ setReplaceMethod(
     if(slot == 'approx'){
       object@.approx <- value
     }
-    validObject(object)
+    methods::validObject(object)
     return (object)
   }
 )
@@ -485,13 +529,13 @@ setClass(
   })
 
 #------------------------------------------------------------------------------#
-#' Initialize a m_estimation_basis object
-#'
-#'# @export
+# Initialize a m_estimation_basis object
+#
+# @export
 #------------------------------------------------------------------------------#
 
 setMethod("initialize", "m_estimation_basis", function(.Object, ...){
-  .Object <- callNextMethod()
+  .Object <- methods::callNextMethod()
 
   .Object <- create_psiFUN_list(.Object)
   .Object <- create_GFUN(.Object)
@@ -499,12 +543,11 @@ setMethod("initialize", "m_estimation_basis", function(.Object, ...){
 })
 
 #------------------------------------------------------------------------------#
-#' Sets the .psi_list slot in a m_estimation_basis
-#'
-#' @param object a \code{\linkS4class{m_estimation_basis}} object
-#' @param value a \code{list} of psiFUNs created by \code{\link{create_psiFUN_list}}
-#'
-#' @export
+# Sets the .psi_list slot in a m_estimation_basis
+#
+# @param object a \code{\linkS4class{m_estimation_basis}} object
+# @param value a \code{list} of psiFUNs created by \code{\link{create_psiFUN_list}}
+# @export
 #------------------------------------------------------------------------------#
 
 setGeneric("set_psiFUN_list<-", function(object, value){
@@ -515,7 +558,7 @@ setReplaceMethod(
   signature="m_estimation_basis",
   definition = function(object, value){
     object@.psiFUN_list <- value
-    validObject(object)
+    methods::validObject(object)
     return (object)
   }
 )
@@ -524,11 +567,16 @@ setReplaceMethod(
 #' Gets the .psi_list slot in a m_estimation_basis
 #'
 #' @param object a \code{\linkS4class{m_estimation_basis}} object
-#'
+#' @docType methods
+#' @rdname grab_psiFUN_list-methods
 #' @export
 #------------------------------------------------------------------------------#
 
-setGeneric("grab_psiFUN_list",function(object){standardGeneric ("grab_psiFUN_list")})
+setGeneric("grab_psiFUN_list",function(object){standardGeneric("grab_psiFUN_list")})
+
+#' @rdname grab_psiFUN_list-methods
+#' @aliases grab_psiFUN_list,m_estimation_basis,m_estimation_basis-method
+
 setMethod(
   f = "grab_psiFUN_list",
   signature = "m_estimation_basis",
@@ -537,12 +585,12 @@ setMethod(
   })
 
 #------------------------------------------------------------------------------#
-#' Sets the .psi_list slot in a m_estimation_basis
-#'
-#' @param object a \code{\linkS4class{m_estimation_basis}} object
-#' @param value a \code{function} created \code{\link{create_GFUN}}
-#'
-#' @export
+# Sets the .psi_list slot in a m_estimation_basis
+#
+# @param object a \code{\linkS4class{m_estimation_basis}} object
+# @param value a \code{function} created \code{\link{create_GFUN}}
+#
+# @export
 #------------------------------------------------------------------------------#
 
 setGeneric("set_GFUN<-", function(object, value){
@@ -553,7 +601,7 @@ setReplaceMethod(
   signature="m_estimation_basis",
   definition = function(object, value){
     object@.GFUN <- value
-    validObject(object)
+    methods::validObject(object)
     return (object)
   }
 )
@@ -562,11 +610,16 @@ setReplaceMethod(
 #' Gets the .psi_list slot in a m_estimation_basis
 #'
 #' @param object a \code{\linkS4class{m_estimation_basis}} object
-#'
+#' @docType methods
+#' @rdname grab_GFUN-methods
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_GFUN",function(object){standardGeneric ("grab_GFUN")})
+
+#' @rdname grab_GFUN-methods
+#' @aliases grab_GFUN,m_estimation_basis,m_estimation_basis-method
+
 setMethod(
   f = "grab_GFUN",
   signature = "m_estimation_basis",
@@ -577,8 +630,9 @@ setMethod(
 #------------------------------------------------------------------------------#
 #' Shows the m_estimation_basis
 #'
-#' @param object a \code{\linkS4class{m_estimation_basis}} object
-#'
+#'# @param object a \code{\linkS4class{m_estimation_basis}} object
+#' @rdname show-methods
+#' @aliases show,m_estimation_basis,m_estimation_basis-method
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -590,23 +644,22 @@ setMethod(
     cat("psi: \n")
     print(body(object@.estFUN))
     cat("Data:\n")
-    print(head(object@.data))
+    print(utils::head(object@.data))
     cat("Units: ", object@.units)
 
     invisible(NULL)
   })
 
 #------------------------------------------------------------------------------#
-#' grab_basis_data generic
-#'
-#' Grabs the \code{.data} from an \code{\linkS4class{m_estimation_basis}} object
-#'
-#' @param object a \code{\linkS4class{m_estimation_basis}} object
+# grab_basis_data generic
+#
+# Grabs the \code{.data} from an \code{\linkS4class{m_estimation_basis}} object
+#
+# @param object a \code{\linkS4class{m_estimation_basis}} object
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_basis_data", function(object, ...) standardGeneric("grab_basis_data"))
 setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data)
-
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 ## geex class and methods ####
@@ -639,7 +692,9 @@ setClass(
 #------------------------------------------------------------------------------#
 #' Shows the geex object
 #'
-#' @param object a \code{\linkS4class{geex}} object
+#'# @param object a \code{\linkS4class{geex}} object
+#' @rdname show-methods
+#' @aliases show,geex,geex-method
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -666,7 +721,8 @@ setMethod(
 #' Gets the variance-covariance matrix from a geex object
 #'
 #' @param object a \code{\linkS4class{geex}} object
-#'
+#' @rdname vcov-methods
+#' @aliases vcov,geex,geex-method
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -681,6 +737,8 @@ setMethod(
 #' Gets the parameter estimates from a geex object
 #'
 #' @param object a \code{\linkS4class{geex}} object
+#' @rdname coef-methods
+#' @aliases coef,geex,geex-method
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -695,10 +753,17 @@ setMethod(
 #' Gets the parameter estimates matrix from a geex object
 #'
 #' @param object a \code{\linkS4class{geex}} object
+#' @param ... arguments passed to other methods
+#' @docType methods
+#' @rdname roots-methods
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("roots", function(object, ...) standardGeneric("roots"))
+
+#' @rdname roots-methods
+#' @aliases roots,geex,geex-method
+
 setMethod(
   "roots",
   signature = "geex",
@@ -710,10 +775,16 @@ setMethod(
 #' Gets the corrections from a geex object
 #'
 #' @param object a \code{\linkS4class{geex}} object
+#' @param ... arguments passed to other methods
+#' @docType methods
+#' @rdname get_corrections-methods
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("get_corrections", function(object, ...) standardGeneric("get_corrections"))
+
+#' @rdname get_corrections-methods
+#' @aliases get_corrections,m_estimation_basis,m_estimation_basis-method
 setMethod(
   "get_corrections",
   signature = "geex",

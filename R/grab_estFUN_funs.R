@@ -7,6 +7,9 @@
 #------------------------------------------------------------------------------#
 #' Grab estimating functions from a model object
 #'
+#' @param object the object from which to extrace \code{estFUN}
+#' @param ... additonal arguments passed to other methods
+#'
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -18,12 +21,18 @@ grab_estFUN <- function(object, ...){
 #------------------------------------------------------------------------------#
 #' grab_estFUN generic
 #'
-#' Grabs the \code{.estFUN} from an \code{\linkS4class{m_estimation_basis}} object
+#' Grabs the \code{.estFUN} from an object
+#' @docType methods
+#' @rdname grab_estFUN-methods
 #'
 #' @export
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_estFUN")
+
+#' @rdname grab_estFUN-methods
+#' @aliases grab_estFUN,estimating_function,estimating_function-method
+
 setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
 
 #------------------------------------------------------------------------------#
@@ -32,6 +41,7 @@ setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
 #' Create estimating equation function from a \code{glm} object
 #'
 #' @inheritParams grab_estFUN
+#' @param data the data to use for the estimating function
 #' @param weights a scalar or vector of weight values
 #' @export
 #------------------------------------------------------------------------------#
@@ -78,6 +88,7 @@ grab_estFUN.glm <- function(object, data, weights = 1, ...){
 #' Create estimating equation function from a \code{geeglm} object
 #'
 #' @inheritParams grab_estFUN
+#' @param data the data to use for the estimating function
 #------------------------------------------------------------------------------#
 
 grab_estFUN.geeglm <- function(object, data, ...){
@@ -120,7 +131,7 @@ grab_estFUN.geeglm <- function(object, data, ...){
 #' Grab estimating functions from a merMod object
 #'
 #' Create estimating equation function from a \code{merMod} object
-#'
+#' @param data the data to use for the estimating function
 #' @param numderiv_opts a list of argument passed to \code{numDeriv::grad}
 #' @inheritParams grab_estFUN
 #' @export
