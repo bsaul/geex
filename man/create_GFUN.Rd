@@ -6,6 +6,9 @@
 \usage{
 create_GFUN(object, ...)
 }
+\arguments{
+\item{object}{an object of class \code{\linkS4class{m_estimation_basis}}}
+}
 \description{
 From a list of \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} for i = 1, ..., m,
 creates \eqn{G_m = \sum_i \psi(O_i, \theta)}{G_m = \sum_i \psi(O_i, \theta)},

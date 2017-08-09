@@ -455,6 +455,8 @@ setReplaceMethod(
 #' @slot .weights a numeric vector of weights used in weighting the estimating
 #' functions
 #' @slot .psiFUN_list a list of \code{psiFUN}s created by \code{\link{create_psiFUN_list}}
+#' @slot .GFUN a function created by \code{\link{create_GFUN}}
+#' @slot .control a \code{\linkS4class{geex_control}} object
 #' @export
 #------------------------------------------------------------------------------#
 

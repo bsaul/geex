@@ -46,7 +46,7 @@ estimate_GFUN_roots <- function(.basis){
 #' @details For a set of estimating equations (\eqn{\sum_i \psi(O_i, \theta) = 0}{sum_i \psi(O_i, \theta) = 0}),
 #' this function computes:
 #'
-#' \deqn{A_i =  \partial \psi(O_i, \theta)/\partial \theta}{A_i =  partial \psi(O_i, theta)/\partial \theta}
+#' \deqn{A_i =  \partial \psi(O_i, \theta)/\partial \theta}{A_i =  \partial \psi(O_i, \theta)/\partial \theta}
 #'
 #' \deqn{A =  \sum_i A_i}{A =  \sum_i A_i}
 #'
@@ -55,7 +55,7 @@ estimate_GFUN_roots <- function(.basis){
 #' \deqn{B =  \sum_i B_i}{B =  \sum_i B_i}
 #'
 #' where all of the above are evaluated at \eqn{\hat{\theta}}{hat(\theta)}. The partial derivatives in \eqn{A_i}{A_i}
-#' numerically approximated by the \code{derivFUN}.
+#' numerically approximated by the function defined in \code{\linkS4class{deriv_control}}.
 #'
 #' Note that \eqn{A =  \sum_i A_i}{A =  \sum_i A_i} and not \eqn{\sum_i A_i/m}{A =  \sum_i A_i/m}, and the same for \eqn{B}{B}.
 #'
@@ -67,8 +67,9 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 
   derivFUN <- match.fun(grab_FUN(.basis@.control, "deriv"))
   derivOPT <- grab_options(.basis@.control, "deriv")
-  w <- .basis@.weights
+  w        <- .basis@.weights
   psi_list <- grab_psiFUN_list(.basis)
+
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
   A_i <- lapply(psi_list, function(ee){
@@ -87,7 +88,7 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 
   B <- compute_sum_of_list(B_i, w)
 
-  new('sandwich_components',
+  methods::new('sandwich_components',
       .A = A, .A_i = A_i, .B = B, .B_i = B_i)
 }
 
@@ -215,7 +216,7 @@ m_estimate <- function(estFUN,
                        root_control,
                        approx_control){
 
-  control <- new('geex_control')
+  control <- methods::new('geex_control')
   if(!missing(deriv_control)){
     set_control(control, 'deriv') <- deriv_control
   }
@@ -226,7 +227,7 @@ m_estimate <- function(estFUN,
     set_control(control, 'approx') <- approx_control
   }
 
-  basis <- new("m_estimation_basis",
+  basis <- methods::new("m_estimation_basis",
                .estFUN     = estFUN,
                .data       = data,
                .units      = units,
@@ -235,7 +236,7 @@ m_estimate <- function(estFUN,
                .inner_args = inner_args,
                .control    = control)
 
-  out <- new('geex',
+  out <- methods::new('geex',
              basis           = basis)
   ## Checks/Warnings ##
   if(is.null(roots) & !compute_roots){
@@ -265,10 +266,8 @@ m_estimate <- function(estFUN,
     ## Compute covariance estimate(s) ##
     out@vcov <- compute_sigma(A = grab_bread(mats), B = grab_meat(mats))
   } else {
-    mats <- new('sandwich_components')
+    mats <- methods::new('sandwich_components')
   }
 
   out
 }
-
-

@@ -23,7 +23,7 @@ in Stefanski and Boos notation) and 'bread' (\eqn{A_m}{A_m} in Stefanski and
 For a set of estimating equations (\eqn{\sum_i \psi(O_i, \theta) = 0}{sum_i \psi(O_i, \theta) = 0}),
 this function computes:
 
-\deqn{A_i =  \partial \psi(O_i, \theta)/\partial \theta}{A_i =  partial \psi(O_i, theta)/\partial \theta}
+\deqn{A_i =  \partial \psi(O_i, \theta)/\partial \theta}{A_i =  \partial \psi(O_i, \theta)/\partial \theta}
 
 \deqn{A =  \sum_i A_i}{A =  \sum_i A_i}
 
@@ -32,7 +32,7 @@ this function computes:
 \deqn{B =  \sum_i B_i}{B =  \sum_i B_i}
 
 where all of the above are evaluated at \eqn{\hat{\theta}}{hat(\theta)}. The partial derivatives in \eqn{A_i}{A_i}
-numerically approximated by the \code{derivFUN}.
+numerically approximated by the function defined in \code{\linkS4class{deriv_control}}.
 
 Note that \eqn{A =  \sum_i A_i}{A =  \sum_i A_i} and not \eqn{\sum_i A_i/m}{A =  \sum_i A_i/m}, and the same for \eqn{B}{B}.
 }

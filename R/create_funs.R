@@ -28,8 +28,8 @@ create_basis <- function(estFUN, data, units, outer_args, inner_args){
 #' \code{estFUN} for each independent unit and a returns the inner function in
 #' \code{estFUN}.
 #'
-#' @param .basis an object of class \code{\linkS4class{m_estimation_basis}}
-#' @return the \code{.basis} with the \code{.psiFUN_list} slot populated.
+#' @param object an object of class \code{\linkS4class{m_estimation_basis}}
+#' @return the \code{object} with the \code{.psiFUN_list} slot populated.
 #' @export
 #'
 #------------------------------------------------------------------------------#
@@ -98,14 +98,3 @@ setMethod(
     object
   }
 )
-# create_GFUN <- function(.basis){
-#   psi_list <- grab_psiFUN_list(.basis)
-#   GFUN <- function(theta){
-#     psii <- lapply(psi_list, function(psi) {
-#       do.call(psi, args = append(list(theta = theta), .basis@.inner_args))
-#     })
-#
-#     compute_sum_of_list(psii, .basis@.weights)
-#   }
-#   set_GFUN(.basis)
-# }

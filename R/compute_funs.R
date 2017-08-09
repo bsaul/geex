@@ -12,10 +12,10 @@
 #'
 #' @param A a matrix, generally the \code{.A} slot in a
 #' \code{\linkS4class{sandwich_components}} object created in
-#' \code{\link{estimate_sandwich_components}}
+#' \code{\link{estimate_sandwich_matrices}}
 #' @param B a matrix, generally the \code{.B} slot in a
 #' \code{\linkS4class{sandwich_components}} object created in
-#' \code{\link{estimate_sandwich_components}}
+#' \code{\link{estimate_sandwich_matrices}}
 #'
 #' @return the \code{matrix} \code{Ainv \%*\% B \%*\% t(Ainv)}
 #' @export

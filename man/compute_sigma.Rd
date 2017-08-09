@@ -9,11 +9,11 @@ compute_sigma(A, B)
 \arguments{
 \item{A}{a matrix, generally the \code{.A} slot in a
 \code{\linkS4class{sandwich_components}} object created in
-\code{\link{estimate_sandwich_components}}}
+\code{\link{estimate_sandwich_matrices}}}
 
 \item{B}{a matrix, generally the \code{.B} slot in a
 \code{\linkS4class{sandwich_components}} object created in
-\code{\link{estimate_sandwich_components}}}
+\code{\link{estimate_sandwich_matrices}}}
 }
 \value{
 the \code{matrix} \code{Ainv \%*\% B \%*\% t(Ainv)}

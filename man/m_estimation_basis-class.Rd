@@ -19,5 +19,9 @@ m_estimation_basis S4 class
 functions}
 
 \item{\code{.psiFUN_list}}{a list of \code{psiFUN}s created by \code{\link{create_psiFUN_list}}}
+
+\item{\code{.GFUN}}{a function created by \code{\link{create_GFUN}}}
+
+\item{\code{.control}}{a \code{\linkS4class{geex_control}} object}
 }}
 

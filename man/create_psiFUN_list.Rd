@@ -7,10 +7,10 @@
 create_psiFUN_list(object, ...)
 }
 \arguments{
-\item{.basis}{an object of class \code{\linkS4class{m_estimation_basis}}}
+\item{object}{an object of class \code{\linkS4class{m_estimation_basis}}}
 }
 \value{
-the \code{.basis} with the \code{.psiFUN_list} slot populated.
+the \code{object} with the \code{.psiFUN_list} slot populated.
 }
 \description{
 Creates the estimating function (\eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)})
