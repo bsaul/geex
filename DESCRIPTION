@@ -18,7 +18,8 @@ Imports:
     Matrix (>= 1.2-6),
     rootSolve (>= 1.6.6),
     numDeriv (>= 2014.2-1),
-    lme4 (>= 1.1-12)
+    lme4 (>= 1.1-12),
+    methods (>= 3.3)
 Suggests:
     testthat,
     knitr,
@@ -26,7 +27,13 @@ Suggests:
     moments,
     sandwich,
     inferference,
-    xtable
+    xtable,
+    AER,
+    ICSNP,
+    MASS,
+    gee, 
+    ivpack,
+    saws
 URL: https://bsaul.github.io/geex/, https://github.com/bsaul/geex
 BugReports: https://github.com/bsaul/geex/issues
 License: MIT + file LICENSE
