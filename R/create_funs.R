@@ -54,8 +54,8 @@ setMethod(
     # if user specifies an approximation function, apply the function to each
     # evaluation of psi
 
-    appFUN  <- grab_approxFUN(object@.control)
-    appopts <- grab_approx_options(object@.control)
+    appFUN  <- grab_FUN(object@.control, "approx")
+    appopts <- grab_options(object@.control, "approx")
     if(!(is.null(body(appFUN)))){
       lapply(out, function(f){
         do.call(appFUN, args = append(list(psi = f), appopts))

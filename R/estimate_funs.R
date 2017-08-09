@@ -40,7 +40,7 @@ estimate_GFUN_roots <- function(.GFUN,
     .approx_control <- new('approx_control')
   }
 
-  rootFUN <- match.fun(FUN(.root_control))
+  rootFUN <- match.fun(grab_FUN(.root_control))
 
   # Find roots of psi
   rargs <- append(grab_options(.root_control), list(f = .GFUN))
@@ -95,7 +95,7 @@ estimate_sandwich_matrices <- function(.basis,
     .approx_control <- new('approx_control')
   }
 
-  derivFUN <- match.fun(FUN(.deriv_control))
+  derivFUN <- match.fun(grab_FUN(.deriv_control))
   w <- .basis@.weights
   psi_list <- grab_psiFUN_list(.basis)
   # Compute the negative of the derivative matrix of estimating eqn functions
