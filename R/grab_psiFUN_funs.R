@@ -1,52 +1,31 @@
 #------------------------------------------------------------------------------#
-# grab_eeFUN description:
-# a generic function that takes a model object and "grabs" the estimating
-# functions from the object.
+# grab_psiFUN description:
+# a generic function that takes a model object and "grabs" the inner estFUN
+# from the object.
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
 #' Grab estimating functions from a model object
 #'
-#' @param object the object from which to extrace \code{estFUN}
+#' @param object the object from which to extrace \code{psiFUN}
+#' @param data the data to use for the estimating function
 #' @param ... additonal arguments passed to other methods
+#' @docType methods
 #'
 #' @export
 #------------------------------------------------------------------------------#
 
-grab_estFUN <- function(object, ...){
+grab_psiFUN <- function(object, ...){
   # S3 generic, for S3 dispatch
-  UseMethod("grab_estFUN")
+  UseMethod("grab_psiFUN")
 }
 
-#------------------------------------------------------------------------------#
-#' grab_estFUN generic
-#'
-#' Grabs the \code{.estFUN} from an object
-#' @docType methods
-#' @rdname grab_estFUN-methods
-#'
-#' @export
-#------------------------------------------------------------------------------#
 
-setGeneric("grab_estFUN")
-
-#' @rdname grab_estFUN-methods
-#' @aliases grab_estFUN,estimating_function,estimating_function-method
-
-setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
-
-#------------------------------------------------------------------------------#
-#' Grab estimating functions from a glm object
-#'
-#' Create estimating equation function from a \code{glm} object
-#'
-#' @inheritParams grab_estFUN
-#' @param data the data to use for the estimating function
+#' @inheritParams grab_psiFUN
 #' @param weights a scalar or vector of weight values
-#' @export
-#------------------------------------------------------------------------------#
+#' @describeIn grab_psiFUN Create estimating equation function from a \code{glm} object
 
-grab_estFUN.glm <- function(object, data, weights = 1, ...){
+grab_psiFUN.glm <- function(object, data, weights = 1, ...){
 
   X  <- stats::model.matrix(object$formula, data = data)
   Y  <- as.numeric(stats::model.frame(grab_response_formula(object), data = data)[[1]])
@@ -82,16 +61,10 @@ grab_estFUN.glm <- function(object, data, weights = 1, ...){
   }
 }
 
-#------------------------------------------------------------------------------#
-#' Grab estimating functions from a geeglm object
-#'
-#' Create estimating equation function from a \code{geeglm} object
-#'
-#' @inheritParams grab_estFUN
-#' @param data the data to use for the estimating function
-#------------------------------------------------------------------------------#
+#' @inheritParams grab_psiFUN
+#' @describeIn grab_psiFUN Create estimating equation function from a \code{geeglm} object
 
-grab_estFUN.geeglm <- function(object, data, ...){
+grab_psiFUN.geeglm <- function(object, data, ...){
   if(object$corstr != 'independence'){
     stop("only independence working correlation is supported at this time")
   }
@@ -127,18 +100,12 @@ grab_estFUN.geeglm <- function(object, data, ...){
   }
 }
 
-#------------------------------------------------------------------------------#
-#' Grab estimating functions from a merMod object
-#'
-#' Create estimating equation function from a \code{merMod} object
-#' @param data the data to use for the estimating function
-#' @param numderiv_opts a list of argument passed to \code{numDeriv::grad}
-#' @inheritParams grab_estFUN
+#' @param numderiv_opts a list of arguments passed to \code{numDeriv::grad}
+#' @inheritParams grab_psiFUN
+#' @describeIn grab_psiFUN Create estimating equation function from a \code{merMod} object
 #' @export
-#------------------------------------------------------------------------------#
 
-# setMethod("grab_estFUN", "merMod", function(object, data, numderiv_opts = NULL,...)
-grab_estFUN.merMod <- function(object, data, numderiv_opts = NULL,...)
+grab_psiFUN.merMod <- function(object, data, numderiv_opts = NULL,...)
 {
   ## Warnings ##
   if(length(lme4::getME(object, 'theta')) > 1){

@@ -57,7 +57,7 @@ Note that `geex` does most of this work internally.
 
 ```{r}
 eefun <- function(data, lme4model){
-  f <- grab_estFUN(lme4model, data = data)
+  f <- grab_psiFUN(lme4model, data = data)
   function(theta) f(theta)
 }
 

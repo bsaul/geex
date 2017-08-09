@@ -45,13 +45,13 @@ test_that("objFun_merMod returns function for binomial family", {
   expect_is(x, 'function')
 })
 
-test_that("grab_estFUN.merMod returns function for binomial family", {
-  ee_glmer <- grab_estFUN(m, testdt_id1)
+test_that("grab_psiFUN.merMod returns function for binomial family", {
+  ee_glmer <- grab_psiFUN(m, testdt_id1)
   expect_is(ee_glmer, 'function')
 })
 
 test_that("eefun.merMod evaluates when passed theta", {
-  ee_glmer <- grab_estFUN(m, data = testdt_id1)
+  ee_glmer <- grab_psiFUN(m, data = testdt_id1)
   x <- ee_glmer(theta)
   expect_is(x, 'numeric')
 })

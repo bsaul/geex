@@ -17,7 +17,7 @@ test_binomial <- glm(resp ~ age, data = ohio,
                      family = binomial(link = 'logit'))
 
 glm_eefun1 <- function(data, model){
-  f <- grab_estFUN(model, data, weights = 2)
+  f <- grab_psiFUN(model, data, weights = 2)
   function(theta){
     f(theta)
   }
@@ -25,7 +25,7 @@ glm_eefun1 <- function(data, model){
 
 glm_eefun2 <- function(data, model){
   function(theta){
-    f <- grab_estFUN(model, data, weights = 2)
+    f <- grab_psiFUN(model, data, weights = 2)
     f(theta)
   }
 }

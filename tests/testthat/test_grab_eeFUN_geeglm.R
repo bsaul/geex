@@ -6,14 +6,14 @@ test_binomial <- geeglm(resp ~ age, id = id, data = ohio,
                         family = binomial(link = 'logit'))
 
 gee_eefun <- function(data, model){
-  f <- grab_estFUN(model, data)
+  f <- grab_psiFUN(model, data)
   function(theta){
     f(theta)
   }
 }
 
-test_that("grab_estFUN returns functions", {
-  expect_is(grab_estFUN(test_binomial, data = subset(ohio, id == 1)),
+test_that("grab_psiFUN returns functions", {
+  expect_is(grab_psiFUN(test_binomial, data = subset(ohio, id == 1)),
             'function')
 })
 

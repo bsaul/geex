@@ -15,6 +15,6 @@ test_that("grab() function return expected objects and fail safely", {
   expect_is(dm, 'matrix')
   expect_error(  grab(from = ohio, what = "xxx"))
 
-  ee <- grab(from = test_binomial, what = 'estFUN', data = ohio)
+  ee <- grab(from = test_binomial, what = 'psiFUN', data = ohio)
   expect_is(ee, 'function')
 })

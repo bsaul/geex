@@ -81,6 +81,22 @@ setClass(
   }
 )
 
+#------------------------------------------------------------------------------#
+#' Grab estimating functions from a model object
+#'
+#' @param object a \code{\linkS4class{estimating_function}} object
+#' @docType methods
+#' @rdname grab_estFUN-methods
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("grab_estFUN",function(object){ standardGeneric("grab_estFUN") })
+
+#' @rdname grab_estFUN-methods
+#' @aliases grab_estFUN,estimating_function,estimating_function-method
+
+setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 ## sandwich_components class and methods ####
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
@@ -144,7 +160,7 @@ setMethod(
 #' @export
 #------------------------------------------------------------------------------#
 
-setGeneric("grab_bread",function(object){standardGeneric ("grab_bread")})
+setGeneric("grab_bread",function(object){standardGeneric("grab_bread")})
 
 #' @rdname grab_bread-methods
 #' @aliases grab_bread,sandwich_components,sandwich_components-method
@@ -421,7 +437,6 @@ setClass(
 #------------------------------------------------------------------------------#
 #' Extracts functions from a \code{\linkS4class{geex_control}} object
 #'
-#' @param object a \code{\linkS4class{geex_control}} object
 #' @param slot name of the slot from which to grab the function. One of "deriv",
 #' "approx", or "root"
 #'
@@ -440,7 +455,6 @@ setMethod("grab_FUN", "geex_control", function(object, slot) {
 #------------------------------------------------------------------------------#
 #' Extracts options from a \code{\linkS4class{geex_control}} object
 #'
-#' @param object a \code{\linkS4class{geex_control}} object
 #' @param slot name of the slot from which to grab the function. One of "deriv",
 #' "approx", or "root"
 #' @rdname grab_options-methods
