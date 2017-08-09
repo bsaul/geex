@@ -464,6 +464,7 @@ setClass(
             .units       = "character",
             .weights     = "numeric",
             .psiFUN_list = "list",
+            .GFUN        = "function",
             .control     = "geex_control"),
   contains = "estimating_function",
   validity = function(object){
@@ -491,6 +492,7 @@ setMethod("initialize", "m_estimation_basis", function(.Object, ...){
   .Object <- callNextMethod()
 
   .Object <- create_psiFUN_list(.Object)
+  .Object <- create_GFUN(.Object)
   .Object
 })
 
@@ -530,6 +532,44 @@ setMethod(
   signature = "m_estimation_basis",
   function(object){
     return(object@.psiFUN_list)
+  })
+
+#------------------------------------------------------------------------------#
+#' Sets the .psi_list slot in a m_estimation_basis
+#'
+#' @param object a \code{\linkS4class{m_estimation_basis}} object
+#' @param value a \code{function} created \code{\link{create_GFUN}}
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("set_GFUN<-", function(object, value){
+  standardGeneric("set_GFUN<-")})
+
+setReplaceMethod(
+  f = "set_GFUN",
+  signature="m_estimation_basis",
+  definition = function(object, value){
+    object@.GFUN <- value
+    validObject(object)
+    return (object)
+  }
+)
+
+#------------------------------------------------------------------------------#
+#' Gets the .psi_list slot in a m_estimation_basis
+#'
+#' @param object a \code{\linkS4class{m_estimation_basis}} object
+#'
+#' @export
+#------------------------------------------------------------------------------#
+
+setGeneric("grab_GFUN",function(object){standardGeneric ("grab_GFUN")})
+setMethod(
+  f = "grab_GFUN",
+  signature = "m_estimation_basis",
+  function(object){
+    return(object@.GFUN)
   })
 
 #------------------------------------------------------------------------------#

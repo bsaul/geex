@@ -81,13 +81,31 @@ setMethod(
 #'
 #------------------------------------------------------------------------------#
 
-create_GFUN <- function(.basis){
-  psi_list <- grab_psiFUN_list(.basis)
-  function(theta){
-    psii <- lapply(psi_list, function(psi) {
-      do.call(psi, args = append(list(theta = theta), .basis@.inner_args))
-    })
+setGeneric("create_GFUN", function(object, ...) standardGeneric("create_GFUN"))
+setMethod(
+  f = "create_GFUN",
+  signature = "m_estimation_basis",
+  definition = function(object){
+    psi_list <- grab_psiFUN_list(object)
+    GFUN <- function(theta){
+      psii <- lapply(psi_list, function(psi) {
+        do.call(psi, args = append(list(theta = theta), object@.inner_args))
+      })
 
-    compute_sum_of_list(psii, .basis@.weights)
+      compute_sum_of_list(psii, object@.weights)
+    }
+    set_GFUN(object) <- GFUN
+    object
   }
-}
+)
+# create_GFUN <- function(.basis){
+#   psi_list <- grab_psiFUN_list(.basis)
+#   GFUN <- function(theta){
+#     psii <- lapply(psi_list, function(psi) {
+#       do.call(psi, args = append(list(theta = theta), .basis@.inner_args))
+#     })
+#
+#     compute_sum_of_list(psii, .basis@.weights)
+#   }
+#   set_GFUN(.basis)
+# }

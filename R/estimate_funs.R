@@ -19,31 +19,15 @@
 #' see the root solver vignette, \code{vignette('geex_root_solvers', package = 'geex')}.
 #'
 #' @param basis an object of class \code{\linkS4class{m_estimation_basis}}
-#' @param root_control an object of class \code{\linkS4class{root_control}}
 #' @return the output of the \code{rootFUN} function
 #' @export
 #'
 #------------------------------------------------------------------------------#
 
-estimate_GFUN_roots <- function(.GFUN,
-                                .root_control,
-                                .approx_control){
-
-  # Use root_control defaults if no options passed
-  if(missing(.root_control)){
-    .root_control <- new('root_control')
-  }
-
-  # Use approx_control defaults if no options passed
-  # TODO: this code is in create_psi() as well, can it be in 1 place instead?
-  if(missing(.approx_control)){
-    .approx_control <- new('approx_control')
-  }
-
-  rootFUN <- match.fun(grab_FUN(.root_control))
-
-  # Find roots of psi
-  rargs <- append(grab_options(.root_control), list(f = .GFUN))
+estimate_GFUN_roots <- function(.basis){
+  GFUN    <- grab_GFUN(.basis)
+  rootFUN <- match.fun(grab_FUN(.basis@.control, "root"))
+  rargs   <- append(grab_options(.basis@.control, "root"), list(f = GFUN))
   do.call(rootFUN, args = rargs)
 }
 
@@ -258,18 +242,9 @@ m_estimate <- function(estFUN,
     stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
   }
 
-  # Create psi function that sums over all ee funs
-  # G_m = sum_i psi(O_i, theta) in SB notation]
-  GmFUN <- create_GFUN(.basis = basis)
-
-  out@GFUN <- GmFUN
-
   ## Compute estimating equation roots ##
   if(compute_roots == TRUE){
-    eesolved <- estimate_GFUN_roots(
-      .GFUN           = GmFUN,
-      .root_control   = basis@.control@.root,
-      .approx_control = basis@.control@.approx)
+    eesolved <- estimate_GFUN_roots(basis)
     out@rootFUN_results <- eesolved
     theta_hat <- eesolved[[root_control@.object_name]]
   } else {
