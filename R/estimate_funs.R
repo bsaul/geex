@@ -56,8 +56,6 @@ estimate_GFUN_roots <- function(.GFUN,
 #'
 #' @param .basis basis an object of class \code{\linkS4class{m_estimation_basis}}
 #' @param .theta vector of parameter estimates (i.e. estimated roots)
-#' @param .deriv_control an object of class \code{\linkS4class{deriv_control}}
-#' @inheritParams create_GFUN
 #'
 #' @return a \code{\linkS4class{sandwich_components}} object
 #'
@@ -81,27 +79,16 @@ estimate_GFUN_roots <- function(.GFUN,
 #' @references Stefanski, L. A., & Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.
 #------------------------------------------------------------------------------#
 
-estimate_sandwich_matrices <- function(.basis,
-                                       .theta,
-                                       .deriv_control,
-                                       .approx_control){
-  # Use deriv_control defaults if no options passed
-  if(missing(.deriv_control)){
-    .deriv_control <- new('deriv_control')
-  }
-  # Use approx_control defaults if no options passed
-  # TODO: this code is in create_psi() as well, can it be in 1 place instead?
-  if(missing(.approx_control)){
-    .approx_control <- new('approx_control')
-  }
+estimate_sandwich_matrices <- function(.basis, .theta){
 
-  derivFUN <- match.fun(grab_FUN(.deriv_control))
+  derivFUN <- match.fun(grab_FUN(.basis@.control, "deriv"))
+  derivOPT <- grab_options(.basis@.control, "deriv")
   w <- .basis@.weights
   psi_list <- grab_psiFUN_list(.basis)
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
   A_i <- lapply(psi_list, function(ee){
-    args <- append(list(func = ee, x = .theta), grab_options(.deriv_control))
+    args <- append(list(func = ee, x = .theta), derivOPT)
     val  <- do.call(derivFUN, args = append(args, .basis@.inner_args))
     -val
   })
@@ -293,12 +280,7 @@ m_estimate <- function(estFUN,
 
   ## Compute component matrices ##
   if(compute_vcov == TRUE){
-    mats <- estimate_sandwich_matrices(
-      .basis             = basis,
-      .theta             = theta_hat,
-      .deriv_control     = basis@.control@.deriv,
-      .approx_control    = basis@.control@.approx)
-
+    mats <- estimate_sandwich_matrices(.basis = basis, .theta = theta_hat)
     ## Compute corrections ##
     if(!missing(corrections)){
       out@corrections <- make_corrections(mats, corrections)
