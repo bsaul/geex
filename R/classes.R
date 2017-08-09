@@ -324,7 +324,7 @@ setClass(
   contains = "basic_control",
   validity = function(object){
     args_names <- formalArgs(FUN(object))
-    option_names <- names(options(object))
+    option_names <- names(grab_options(object))
     if(!('components' == args_names[1])){
       "'components' must be the first argument of a correction function"
     } else if(any(!(option_names %in% args_names[-1]))) {
@@ -342,8 +342,8 @@ setClass(
 #' @export
 #------------------------------------------------------------------------------#
 
-setGeneric("options", function(object, ...) standardGeneric("options"))
-setMethod("options", "basic_control", function(object) object@.options)
+setGeneric("grab_options", function(object, ...) standardGeneric("grab_options"))
+setMethod("grab_options", "basic_control", function(object) object@.options)
 
 #------------------------------------------------------------------------------#
 #' FUN generic

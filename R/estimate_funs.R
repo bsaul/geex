@@ -43,7 +43,7 @@ estimate_GFUN_roots <- function(.GFUN,
   rootFUN <- match.fun(FUN(.root_control))
 
   # Find roots of psi
-  rargs <- append(options(.root_control), list(f = .GFUN))
+  rargs <- append(grab_options(.root_control), list(f = .GFUN))
   do.call(rootFUN, args = rargs)
 }
 
@@ -101,7 +101,7 @@ estimate_sandwich_matrices <- function(.basis,
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
   A_i <- lapply(psi_list, function(ee){
-    args <- append(list(func = ee, x = .theta), options(.deriv_control))
+    args <- append(list(func = ee, x = .theta), grab_options(.deriv_control))
     val  <- do.call(derivFUN, args = append(args, .basis@.inner_args))
     -val
   })
