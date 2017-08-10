@@ -162,11 +162,11 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 #' \item the "outer" part of the \code{estFUN} which manipulates \code{data} and
 #' \code{outer_args} and returns an
 #' \item "inner" function of \code{theta} and \code{inner_args}. Internally, this
-#' "inner" function is this \code{psiFUN}
+#' "inner" function is called \code{psiFUN}.
 #' }
 #'
 #' In pseudo-code this looks like:
-#' \code{
+#' \preformatted{
 #' function(data, <<outer_args>>){
 #'   O <- manipulate(data, <<outer_args>>)
 #'   function(theta, <<inner_args>>){
@@ -174,7 +174,11 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 #'   }
 #' }}
 #'
-#' See the examples below or the package vignettes to see this in action.
+#' See the examples below or the package vignettes to see an \code{estFUN}
+#' in action.
+#'
+#' Importantly, the \code{data} used in an \code{estFUN} is *unit* level data,
+#' which may be single rows in a data.frame or block of rows for clustered data.
 #' }
 #'
 #' \subsection{Additional arguments}{
@@ -188,13 +192,13 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 #' @section Setting up root_control:
 #'
 #' To estimate roots of the estimating functions, \pkg{geex} uses the \pkg{rootSolve}
-#' \code{\link[rootSolve]{mutiroot}} function by default, which requires starting
+#' \code{\link[rootSolve]{multiroot}} function by default, which requires starting
 #' values. The \code{root_control} argument expects a \code{\linkS4class{root_control}}
 #' object, which the utility function \code{\link{setup_root_control}} aids in
 #' creating. For example, \code{setup_root_control(start = 4)} creates a
 #' \code{\linkS4class{root_control}} setting the starting value to 4. In general,
 #' the dimension of \code{start} must the same as \code{theta} in the inner
-#' \code{estFUN}
+#' \code{estFUN}.
 #'
 #' @section Using weights:
 #'
