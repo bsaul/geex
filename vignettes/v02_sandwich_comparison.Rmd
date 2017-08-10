@@ -35,7 +35,7 @@ mglm    <- glm(A ~ X1, data = vaccinesim, family = binomial)
 estimates <- m_estimate(
   estFUN = eefun,
   data = vaccinesim,
-  root_control = setup_root_solver(start = c(-.35, 0)),
+  root_control = setup_root_control(start = c(-.35, 0)),
   outer_args = list(model = mglm))
 
 # Compare point estimates

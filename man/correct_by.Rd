@@ -15,5 +15,28 @@ correct_by(.components, .correct_control)
 the result of \code{.FUN} in \code{.correct_control}.
 }
 \description{
-Correct sandwich components
+Modifies the matrices in a \code{\linkS4class{sandwich_components}} object
+using the function and options in a \code{\linkS4class{correct_control}} object.
+The function \code{\link{correction}} is a utility for creating
+\code{\linkS4class{correct_control}} objects.
+}
+\details{
+See the finite sample corrections vignette for further examples.
+}
+\examples{
+myee <- function(data){
+   function(theta){
+    c(data$Y1 - theta[1],
+     (data$Y1 - theta[1])^2 - theta[2])
+   }
+ }
+mybasis <- create_basis(
+   estFUN = myee,
+   data   = geexex)
+mats <- estimate_sandwich_matrices(mybasis, .theta = c(5.04, 10.04))
+correct_by(mats,
+   .correct_control =  correction(fay_bias_correction, b = .75))
+}
+\seealso{
+fay_bias_correction fay_df_correction
 }

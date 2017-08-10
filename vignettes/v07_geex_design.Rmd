@@ -11,7 +11,7 @@ vignette: >
 
 *Under construction*
 
-```{r setup, include=FALSE, eval = FALSE}
+```{r setup, eval = FALSE}
 library(geex)
 library(dplyr)
 
@@ -28,7 +28,7 @@ mybasis <- create_basis(
 
 mybasis %>%
   create_GFUN() %>%
-  estimate_GFUN_roots(.root_control = setup_root_solver(start = c(1, 1)))
+  estimate_GFUN_roots(.root_control = setup_root_control(start = c(1, 1)))
 
 mybasis %>%
   estimate_sandwich_matrices(.theta = c(5.04, 10.04)) 
@@ -47,7 +47,7 @@ mybasis %>%
 test <- m_estimate(
   estFUN = myee,
   data = geexex,
-  root_control = setup_root_solver(start = c(1,1))
+  root_control = setup_root_control(start = c(1,1))
 )
 
 vcov(test)

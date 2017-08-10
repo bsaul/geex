@@ -69,7 +69,7 @@ and/or the empirical sandwich variance estimator.
 The root finding algorithm defaults to \code{\link[rootSolve]{multiroot}} to
 estimate roots though the solver algorithm can be specified in the \code{rootFUN}
 argument. Starting values for \code{\link[rootSolve]{multiroot}} are passed via the
-\code{root_control} argument. See \code{vignette("03_root_solvers", package = "geex")}
+\code{root_control} argument. See \code{vignette("v03_root_solvers", package = "geex")}
 for information on customizing the root solver function.
 
 To compute only the covariance matrix, set \code{compute_roots = FALSE} and pass
@@ -81,15 +81,36 @@ This argument defaults to \code{NULL}, in which case the number of units equals
 the number of rows in the data.frame.
 
 For information on the finite-sample corrections, refer to the finite sample
-correction API vignette: \code{vignette("05_finite_sample_corrections", package = "geex")}
+correction API vignette: \code{vignette("v05_finite_sample_corrections", package = "geex")}
 }
 \section{Writing an estFUN}{
 
 
 \subsection{Description}{
-An \code{estFUN} is a function that takes in *unit* level data plus possible
-whose first argument is \code{theta}. See the examples below or the package
-vignettes for more information.
+An \code{estFUN} is a function representing \eqn{\psi}{\psi}. \pkg{geex} works
+by breaking \eqn{\psi}{\psi} into two parts:
+
+\itemize{
+\item the "outer" part of the \code{estFUN} which manipulates \code{data} and
+\code{outer_args} and returns an
+\item "inner" function of \code{theta} and \code{inner_args}. Internally, this
+"inner" function is called \code{psiFUN}.
+}
+
+In pseudo-code this looks like:
+\preformatted{
+function(data, <<outer_args>>){
+  O <- manipulate(data, <<outer_args>>)
+  function(theta, <<inner_args>>){
+    map(O, to = theta, and = <<inner_args>>)
+  }
+}}
+
+See the examples below or the package vignettes to see an \code{estFUN}
+in action.
+
+Importantly, the \code{data} used in an \code{estFUN} is *unit* level data,
+which may be single rows in a data.frame or block of rows for clustered data.
 }
 
 \subsection{Additional arguments}{
@@ -97,15 +118,28 @@ Additional arguments may be passed to both the inner and outer function of the
 \code{estFUN}. Elements in an \code{outer_args} list are passed to the outer
 function; any elements of the \code{inner_args} list are passed to the inner
 function. For an example, see the finite sample correction vignette [\code{
-vignette("05_finite_sample_corrections", package = "geex")}].
+vignette("v05_finite_sample_corrections", package = "geex")}].
 }
+}
+
+\section{Setting up root_control}{
+
+
+To estimate roots of the estimating functions, \pkg{geex} uses the \pkg{rootSolve}
+\code{\link[rootSolve]{multiroot}} function by default, which requires starting
+values. The \code{root_control} argument expects a \code{\linkS4class{root_control}}
+object, which the utility function \code{\link{setup_root_control}} aids in
+creating. For example, \code{setup_root_control(start = 4)} creates a
+\code{\linkS4class{root_control}} setting the starting value to 4. In general,
+the dimension of \code{start} must the same as \code{theta} in the inner
+\code{estFUN}.
 }
 
 \section{Using weights}{
 
 
 In some situations, use of weights can massively speed computations. Refer
-to \code{vignette("04_weights", package = "geex")} for an example.
+to \code{vignette("v04_weights", package = "geex")} for an example.
 }
 
 \examples{
@@ -120,13 +154,18 @@ ex_eeFUN <- function(data){
 m_estimate(
  estFUN = ex_eeFUN,
  data  = geexex,
- root_control = setup_root_solver(start = c(1,1)))
+ root_control = setup_root_control(start = c(1,1)))
+
+# compare to the mean() and variance() functions
+mean(geexex$Y1)
+n <- nrow(geexex)
+var(geexex$Y1) * (n - 1)/n
 
 # A simple linear model for regressing X1 and X2 on Y4
 lm_eefun <- function(data){
  X <- cbind(1, data$X1, data$X2)
  Y <- data$Y4
-  function(theta){
+ function(theta){
     t(X) \%*\% (Y - X \%*\% theta)
    }
  }
@@ -134,8 +173,10 @@ lm_eefun <- function(data){
 m_estimate(
  estFUN = lm_eefun,
  data  = geexex,
- root_control = setup_root_solver(start = c(0, 0, 0)))
+ root_control = setup_root_control(start = c(0, 0, 0)))
 
+# Compare to lm() results
+summary(lm(Y4 ~ X1 + X2, data = geexex))
 }
 \references{
 Stefanski, L. A., & Boos, D. D. (2002). The calculus of M-estimation.

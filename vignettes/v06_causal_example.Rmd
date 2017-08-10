@@ -65,7 +65,7 @@ ce_estimates <- m_estimate(
   estFUN = eefun,
   data  = vaccinesim,
   units = 'group',
-  root_control = setup_root_solver(start = c(coef(mglm), .4,  .13)),
+  root_control = setup_root_control(start = c(coef(mglm), .4,  .13)),
   outer_args = list(alpha = .35, model = mglm)
 )
 

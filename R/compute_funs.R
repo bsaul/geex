@@ -34,6 +34,11 @@ compute_sigma <- function(A, B){
 #------------------------------------------------------------------------------#
 
 compute_sum_of_list <- function(.l, .w = numeric(0)){
-  M_i_pre   <- if(length(.w) > 0){ Map(`*`, .l, .w) } else .l
+  dimw <- length(.w)
+
+  M_i_pre   <- if(dimw > 0){
+    stopifnot(dimw == length(.l))
+    Map(`*`, .l, .w)
+  } else .l
   Reduce(`+`, M_i_pre)
 }

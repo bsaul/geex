@@ -297,14 +297,26 @@ setClass(
 #' Setup a root_control object
 #'
 #' @param FUN a root finding function whose first argument must be named \code{f}.
+#' Defaults to \code{\link[rootSolve]{multiroot}}
 #' @param roots_name a character string identifying the object containing the
-#' roots in the output of \code{FUN}.
+#' roots in the output of \code{FUN}. Defaults to \code{"root"}
 #' @param ... arguments passed to \code{FUN}
 #' @return a \code{\linkS4class{root_control}} object
+#' @examples
+#' # Setup the default
+#' setup_root_control(start = c(3, 5, 6))
+#'
+#' # Also setup the default
+#' setup_root_control(FUN = rootSolve::multiroot,
+#'                    start = c(3, 5, 6))
+#'
+#' # Or use uniroot()
+#' setup_root_control(FUN = stats::uniroot,
+#'                    interval = c(0, 1))
 #' @export
 #------------------------------------------------------------------------------#
 
-setup_root_solver <- function(FUN, roots_name, ...){
+setup_root_control <- function(FUN, roots_name, ...){
   dots <- list(...)
   hold <- call('new')
   hold[['Class']] <- "root_control"

@@ -14,6 +14,13 @@ test_that("m_estimation_basis S4 class validates correctly",{
     .units = "group",
     .data  = geexex))
 
+  expect_error(create_basis(estFUN = function(x, z) {function(theta) theta + x},
+                   units = "group",
+                   data  = geexex))
+
+  expect_silent(create_basis(estFUN = function(data, z) {function(theta) theta + data},
+                            data  = geexex))
+
 })
 
 test_that("root_control S4 class validates correctly",{
@@ -34,6 +41,8 @@ test_that("correct_control S4 class validates correctly",{
                    .options = list(b = .75)))
   expect_error(new("correct_control",
                     .FUN = testFUN3))
+
+
 })
 
 test_that("sandwich_components S4 class validates correctly",{
@@ -46,6 +55,7 @@ test_that("sandwich_components S4 class validates correctly",{
                    .A = matrix(NA, nrow = 4, ncol = 4),
                    .B = matrix(NA, nrow = 4, ncol = 4)))
 })
+
 
 
 
