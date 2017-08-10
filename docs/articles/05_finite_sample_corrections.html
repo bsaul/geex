@@ -16,7 +16,7 @@
 </head>
 <body>
     <div class="container template-vignette">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -29,10 +29,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
+  <a href="../index.html">Home</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../news/index.html">News</a>
@@ -41,7 +44,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/bsaul/geex">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -61,7 +64,7 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-07-31</h4>
+            <h4 class="date">2017-08-09</h4>
           </div>
 
     
@@ -71,8 +74,10 @@
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
 <p>The empirical sandwich variance estimator is known to underestimate <span class="math inline">\(V(\theta)\)</span> in small samples <span class="citation">(Fay and Graubard 2001)</span>. Particularly in the context of GEE, <a href="https://bsaul.github.io/geex/articles/articles/mestimation_bib.html">many authors</a> have proposed corrections that modify components of <span class="math inline">\(\hat{\Sigma}\)</span> and/or by assuming <span class="math inline">\(\hat{\theta}\)</span> follows a <span class="math inline">\(t\)</span> (or <span class="math inline">\(F\)</span>), as opposed to Normal, distribution with some estimated degrees of freedom. Many of the proposed corrections somehow modify a combination of the <span class="math inline">\(A_i\)</span>, <span class="math inline">\(A_m\)</span>, <span class="math inline">\(B_i\)</span>, or <span class="math inline">\(B_m\)</span> matrices.</p>
-<p><code>geex</code> provides an API that allows users to specify functions that utilize these matrices to form corrections. A finite sample correction function at a minimum takes the arguments <code>A</code> (<span class="math inline">\(= \sum_i A_i\)</span>) matrix, <code>A_i</code> (a list of all <span class="math inline">\(m\)</span> <span class="math inline">\(A_i\)</span> matrices), <code>B</code> (<span class="math inline">\(= \sum_i B_i\)</span>) matrix, and <code>B_i</code> (a list of all <span class="math inline">\(m\)</span> <span class="math inline">\(B_i\)</span> matrices). For example,</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">correct_by_nothing &lt;-<span class="st"> </span>function(A, A_i, B, B_i){
+<p><code>geex</code> provides an API that allows users to specify functions that utilize these matrices to form corrections. A finite sample correction function at a minimum takes the argument <code>components</code>, which is an object of class <code>sandwich_components</code>. For example,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">correct_by_nothing &lt;-<span class="st"> </span>function(components){
+  A &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_bread-methods.html">grab_bread</a></span>(components)
+  B &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_meat-methods.html">grab_meat</a></span>(components)
   <span class="kw"><a href="../reference/compute_sigma.html">compute_sigma</a></span>(<span class="dt">A =</span> A, <span class="dt">B =</span> B)
 }</code></pre></div>
 <p>is a correctly formed function that does no corrections. Additional arguments may also be specified, as shown in the example.</p>
@@ -96,7 +101,10 @@ H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
 <h2 class="hasAnchor">
 <a href="#bias-correction-example" class="anchor"></a>Bias correction example</h2>
 <p>The bias corrected estimator <span class="math inline">\(\hat{\Sigma}^{bc}(b)\)</span> can be implemented in <code>geex</code> by the following function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">correct_by_bias &lt;-<span class="st"> </span>function(A, A_i, B, B_i, b){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bias_correction &lt;-<span class="st"> </span>function(components, b){
+  A &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_bread-methods.html">grab_bread</a></span>(components)
+  A_i &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_bread_list-methods.html">grab_bread_list</a></span>(components)
+  B_i &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_meat_list-methods.html">grab_meat_list</a></span>(components)
   Ainv &lt;-<span class="st"> </span><span class="kw">solve</span>(A)
 
   H_i &lt;-<span class="st"> </span><span class="kw">lapply</span>(A_i, function(m){
@@ -141,18 +149,16 @@ H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">g &lt;-<span class="st"> </span>gee::<span class="kw">gee</span>(breaks~tension, <span class="dt">id=</span>wool, <span class="dt">data=</span>warpbreaks, <span class="dt">corstr=</span><span class="st">"exchangeable"</span>)
 guo &lt;-<span class="st"> </span>saws::<span class="kw">geeUOmega</span>(g)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
-results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/estimate_equations.html">estimate_equations</a></span>(
-  <span class="dt">eeFUN =</span> gee_eefun, <span class="dt">data  =</span> warpbreaks, 
+results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN =</span> gee_eefun, <span class="dt">data  =</span> warpbreaks, 
   <span class="dt">units =</span> <span class="st">'wool'</span>, <span class="dt">roots =</span> <span class="kw">coef</span>(g), <span class="dt">compute_roots =</span> <span class="ot">FALSE</span>,
-  <span class="dt">outer_eeargs =</span> <span class="kw">list</span>(<span class="dt">formula =</span> breaks ~<span class="st"> </span>tension, 
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">formula =</span> breaks ~<span class="st"> </span>tension, 
                       <span class="dt">family  =</span> <span class="kw">gaussian</span>()),
-  <span class="dt">inner_eeargs =</span> <span class="kw">list</span>(<span class="dt">alpha   =</span> g$working.correlation[<span class="dv">1</span>,<span class="dv">2</span>], 
+  <span class="dt">inner_args =</span> <span class="kw">list</span>(<span class="dt">alpha   =</span> g$working.correlation[<span class="dv">1</span>,<span class="dv">2</span>], 
                       <span class="dt">psi     =</span> g$scale), 
-  <span class="dt">corrections_list =</span> <span class="kw">list</span>(
-   <span class="dt">bias_correction_.1 =</span> <span class="kw">list</span>(<span class="dt">correctFUN =</span> correct_by_bias, 
-                             <span class="dt">correctFUN_control =</span> <span class="kw">list</span>(<span class="dt">b =</span> .<span class="dv">1</span>)),
-   <span class="dt">bias_correction_.3 =</span> <span class="kw">list</span>(<span class="dt">correctFUN =</span> correct_by_bias, 
-                             <span class="dt">correctFUN_control =</span> <span class="kw">list</span>(<span class="dt">b =</span> .<span class="dv">3</span>)))) </code></pre></div>
+  <span class="dt">corrections =</span> <span class="kw">list</span>(
+   <span class="dt">bias_correction_.1 =</span> <span class="kw"><a href="../reference/correction.html">correction</a></span>(bias_correction, <span class="dt">b =</span> .<span class="dv">1</span>),
+   <span class="dt">bias_correction_.3 =</span> <span class="kw"><a href="../reference/correction.html">correction</a></span>(bias_correction, <span class="dt">b =</span> .<span class="dv">3</span>))) </code></pre></div>
 <p>In the <code>geex</code> output, the item <code>corrections</code> contains a list of the results of computing each item in the <code>corrections_list</code>. Comparing the <code>geex</code> results to the results of the <code>saws::geeUOmega</code> function, the maximum difference in the results for any of corrected estimated covariance matrices is 1.1e-09.</p>
 </div>
 <div id="references" class="section level2 unnumbered">

@@ -39,7 +39,7 @@
   <body>
     <div class="container template-reference-index">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -52,10 +52,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">Home</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../news/index.html">News</a>
@@ -65,7 +68,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/bsaul/geex">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -82,7 +85,7 @@
     <div class="page-header">
       <h1>
         Reference
-        <small>version&nbsp;0.3.0</small>
+        <small>version&nbsp;1.0.0</small>
       </h1>
     </div>
 
@@ -97,130 +100,100 @@
       <tbody>
         <tr>
           <th colspan="2">
-            <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
+            <h2 id="section-m-estimation" class="hasAnchor"><a href="#section-m-estimation" class="anchor"></a>M-estimation</h2>
+            <p class="section-desc"><p>The core functions of geex</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m_estimate.html">m_estimate</a></code> </p>
+          </td>
+          <td><p>Estimate parameters and their covariance from a set of estimating equations</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="setup_root_solver.html">setup_root_solver</a></code> </p>
+          </td>
+          <td><p>Setup a root_control object</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-finite-sample-corrections" class="hasAnchor"><a href="#section-finite-sample-corrections" class="anchor"></a>Finite sample corrections</h2>
+            <p class="section-desc"><p>Functions for performing small sample corrections</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="correct_by.html">correct_by</a></code> </p>
+          </td>
+          <td><p>Correct sandwich components</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="correction.html">correction</a></code> </p>
+          </td>
+          <td><p>Creates a correct_control object</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-utilities" class="hasAnchor"><a href="#section-utilities" class="anchor"></a>Utilities</h2>
+            <p class="section-desc"><p>Functions for accessing elements of a geex object</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="vcov-methods.html">vcov</a></code> </p>
+          </td>
+          <td><p>Gets the variance-covariance matrix from a geex object</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="coef-methods.html">coef</a></code> </p>
+          </td>
+          <td><p>Gets the parameter estimates from a geex object</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="get_corrections-methods.html">get_corrections</a></code> </p>
+          </td>
+          <td><p>Gets the corrections from a geex object</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-key-s-classes" class="hasAnchor"><a href="#section-key-s-classes" class="anchor"></a>Key S4 Classes</h2>
             <p class="section-desc"></p>
           </th>
         </tr>
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="compute_eeroot.html">compute_eeroot</a></code> </p>
+            <p><code><a href="m_estimation_basis-class.html">m_estimation_basis-class</a></code> </p>
           </td>
-          <td><p>Compute roots for a set of estimating equations</p></td>
+          <td><p>m_estimation_basis S4 class</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="compute_matrices.html">compute_matrices</a></code> </p>
+            <p><code><a href="geex_control-class.html">geex_control-class</a></code> </p>
           </td>
-          <td><p>Compute component matrices of the empirical sandwich covariance estimator</p></td>
+          <td><p>geex_control S4 class</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="compute_sigma.html">compute_sigma</a></code> </p>
+            <p><code><a href="sandwich_components-class.html">sandwich_components-class</a></code> </p>
           </td>
-          <td><p>Compute empirical sandwich covariate estimator</p></td>
+          <td><p>sandwich_components S4 class</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="correct_by_fay_bias.html">correct_by_fay_bias</a></code> </p>
+            <p><code><a href="geex-class.html">geex-class</a></code> </p>
           </td>
-          <td><p>Correct sandwich variance estimator byFay's bias correction</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="correct_by_fay_df.html">correct_by_fay_df</a></code> </p>
-          </td>
-          <td><p>Correct sandwich variance inference by Fay's degrees of freedom correction</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="create_GFUN.html">create_GFUN</a></code> </p>
-          </td>
-          <td><p>Creates a function that sums over psi functions</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="create_psi.html">create_psi</a></code> </p>
-          </td>
-          <td><p>Creates list of psi functions</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="diagnose_roots.html">diagnose_roots</a></code> </p>
-          </td>
-          <td><p>Diagnose roots of estimating equations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="estimate_equations.html">estimate_equations</a></code> </p>
-          </td>
-          <td><p>Estimate parameters and their covariance from a set of estimating equations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="geex-package.html">geex-package</a></code> </p>
-          </td>
-          <td><p>geex: M-estimation API</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="geexex.html">geexex</a></code> </p>
-          </td>
-          <td><p>Dataset used to illustrate Stefanski and Boos examples.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grab_design_matrix.html">grab_design_matrix</a></code> </p>
-          </td>
-          <td><p>Grab a matrix of fixed effects from a model object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grab_eeFUN.geeglm.html">grab_eeFUN</a></code> </p>
-          </td>
-          <td><p>Grab estimating functions from a geeglm object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grab_eeFUN.glm.html">grab_eeFUN</a></code> </p>
-          </td>
-          <td><p>Grab estimating functions from a glm object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grab_eeFUN.merMod.html">grab_eeFUN</a></code> </p>
-          </td>
-          <td><p>Grab estimating functions from a merMod object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grab_eeFUN.html">grab_eeFUN</a></code> </p>
-          </td>
-          <td><p>Grab estimating functions from a model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grab_fixed_formula.html">grab_fixed_formula</a></code> </p>
-          </td>
-          <td><p>Grab the RHS formula from a model object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grab_response_formula.html">grab_response_formula</a></code> </p>
-          </td>
-          <td><p>Grab the LHS formula from a model object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grab_response.html">grab_response</a></code> </p>
-          </td>
-          <td><p>Grab a vector of responses from a model object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grab.html">grab</a></code> </p>
-          </td>
-          <td><p>Grab something from an object</p></td>
+          <td><p>geex S4 class</p></td>
         </tr>
       </tbody>
       </table>
@@ -230,7 +203,10 @@
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#section-m-estimation">M-estimation</a></li>
+      <li><a href="#section-finite-sample-corrections">Finite sample corrections</a></li>
+      <li><a href="#section-utilities">Utilities</a></li>
+      <li><a href="#section-key-s-classes">Key S4 Classes</a></li>
     </ul>
   </div>
 </div>

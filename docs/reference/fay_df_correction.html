@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fay's degrees of freedom corrections — fay_df_correction • geex</title>
+<title>Correct sandwich variance inference by Fay's degrees of freedom correction — fay_df_correction • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -39,7 +39,7 @@
   <body>
     <div class="container template-reference-topic">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -52,10 +52,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">Home</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../news/index.html">News</a>
@@ -63,7 +66,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -75,33 +83,23 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fay's degrees of freedom corrections</h1>
+    <h1>Correct sandwich variance inference by Fay's degrees of freedom correction</h1>
     </div>
 
     
-    <p>Fay's degrees of freedom corrections</p>
+    <p>Computes the degrees of freedom correction described in Fay and
+Graubard (2001). See <code>NA</code>
+for further information.</p>
     
 
-    <pre class="usage"><span class='fu'>fay_df_correction</span>(<span class='no'>A_i</span>, <span class='no'>A</span>, <span class='no'>B_i</span>, <span class='no'>B</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='fl'>0.75</span>, <span class='no'>L</span>, <span class='no'>version</span>)</pre>
+    <pre class="usage"><span class='fu'>fay_df_correction</span>(<span class='no'>components</span>, <span class='kw'>b</span> <span class='kw'>=</span> <span class='fl'>0.75</span>, <span class='no'>L</span>, <span class='no'>version</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>A_i</th>
-      <td><p>a list of bread matrices per group</p></td>
-    </tr>
-    <tr>
-      <th>A</th>
-      <td><p>the outer "bread" matrix</p></td>
-    </tr>
-    <tr>
-      <th>B_i</th>
-      <td><p>a list of meat matrices per group</p></td>
-    </tr>
-    <tr>
-      <th>B</th>
-      <td><p>the inner "meat" matrix</p></td>
+      <th>components</th>
+      <td><p>an object of class <code><a href='sandwich_components-class.html'>sandwich_components</a></code></p></td>
     </tr>
     <tr>
       <th>b</th>
@@ -123,7 +121,8 @@
     
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>Fay, M. P., &amp; Graubard, B. I. (2001). Small-Sample adjustments for wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206</p>
+    <p>Fay, M. P., &amp; Graubard, B. I. (2001). Small-Sample adjustments for
+Wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206</p>
     
 
   </div>

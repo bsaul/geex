@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Grab a vector of responses from a model object — grab_response • geex</title>
+<title>Estimate roots for a set of estimating equations — estimate_GFUN_roots • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -83,27 +83,36 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Grab a vector of responses from a model object</h1>
+    <h1>Estimate roots for a set of estimating equations</h1>
     </div>
 
     
-    <p>Grab a vector of responses from a model object</p>
+    <p>Using the <code>rootFUN</code> specified by the user (defaults to <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code>),
+this function estimates the roots of the equations:
+$$G_m = sum_i psi(O_i, \hat{\theta}) = 0$$</p>
     
 
-    <pre class="usage"><span class='fu'>grab_response</span>(<span class='no'>data</span>, <span class='no'>formula</span>)</pre>
+    <pre class="usage"><span class='fu'>estimate_GFUN_roots</span>(<span class='no'>.basis</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>data.frame from which to extract the vector of responses</p></td>
-    </tr>
-    <tr>
-      <th>formula</th>
-      <td><p>model formula</p></td>
+      <th>.basis</th>
+      <td><p>an object of class <code><a href='m_estimation_basis-class.html'>m_estimation_basis</a></code></p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>the output of the <code>rootFUN</code> function</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This is primilary an internal function used within <code><a href='m_estimate.html'>m_estimate</a></code>,
+but it is exported for use in debugging and development.</p>
+<p>For an example of how to use a different <code>rootFUN</code>,
+see the root solver vignette, <code>NA</code>.</p>
     
 
   </div>
@@ -111,7 +120,11 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+          </ul>
 
   </div>
 </div>

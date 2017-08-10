@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Grab a vector of responses from a model object — grab_response • geex</title>
+<title>Estimate component matrices of the empirical sandwich covariance estimator — estimate_sandwich_matrices • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -83,27 +83,49 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Grab a vector of responses from a model object</h1>
+    <h1>Estimate component matrices of the empirical sandwich covariance estimator</h1>
     </div>
 
     
-    <p>Grab a vector of responses from a model object</p>
+    <p>For a given set of estimating equations computes the 'meat' (\(B_m\)
+in Stefanski and Boos notation) and 'bread' (\(A_m\) in Stefanski and
+ Boos notation) matrices necessary to compute the covariance matrix.</p>
     
 
-    <pre class="usage"><span class='fu'>grab_response</span>(<span class='no'>data</span>, <span class='no'>formula</span>)</pre>
+    <pre class="usage"><span class='fu'>estimate_sandwich_matrices</span>(<span class='no'>.basis</span>, <span class='no'>.theta</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>data.frame from which to extract the vector of responses</p></td>
+      <th>.basis</th>
+      <td><p>basis an object of class <code><a href='m_estimation_basis-class.html'>m_estimation_basis</a></code></p></td>
     </tr>
     <tr>
-      <th>formula</th>
-      <td><p>model formula</p></td>
+      <th>.theta</th>
+      <td><p>vector of parameter estimates (i.e. estimated roots)</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a <code><a href='sandwich_components-class.html'>sandwich_components</a></code> object</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>For a set of estimating equations (\(\sum_i \psi(O_i, \theta) = 0\)),
+this function computes:
+    $$A_i =  \partial \psi(O_i, \theta)/\partial \theta$$
+    $$A =  \sum_i A_i$$
+    $$B_i =  \psi(O_i, \theta)\psi(O_i, \theta)^T$$
+    $$B =  \sum_i B_i$$</p>
+<p>where all of the above are evaluated at \(\hat{\theta}\). The partial derivatives in \(A_i\)
+numerically approximated by the function defined in <code><a href='deriv_control-class.html'>deriv_control</a></code>.</p>
+<p>Note that \(A =  \sum_i A_i\) and not \(\sum_i A_i/m\), and the same for \(B\).</p>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Stefanski, L. A., &amp; Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.</p>
     
 
   </div>
@@ -111,7 +133,13 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+
+      <li><a href="#references">References</a></li>
+          </ul>
 
   </div>
 </div>

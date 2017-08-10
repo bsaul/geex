@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Grab a vector of responses from a model object — grab_response • geex</title>
+<title>root_control S4 class — root_control-class • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -83,35 +83,32 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Grab a vector of responses from a model object</h1>
+    <h1>root_control S4 class</h1>
     </div>
 
     
-    <p>Grab a vector of responses from a model object</p>
+    <p>root_control S4 class</p>
     
 
-    <pre class="usage"><span class='fu'>grab_response</span>(<span class='no'>data</span>, <span class='no'>formula</span>)</pre>
+        
+    <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
+
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>data</th>
-      <td><p>data.frame from which to extract the vector of responses</p></td>
-    </tr>
-    <tr>
-      <th>formula</th>
-      <td><p>model formula</p></td>
-    </tr>
-    </table>
+    <dl class='dl-horizontal'>
+<dt><code>.FUN</code></dt><dd><p>a root finding function whose first argument must be named <code>f</code>.</p></dd>
+    <dt><code>.options</code></dt><dd><p>a list of options passed to <code>.FUN</code>.</p></dd>
+    <dt><code>.object_name</code></dt><dd><p>a character string identifying the object containing the
+roots in the output of <code>.FUN</code>.</p></dd>
+</dl>
     
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#slots">Slots</a></li>
+          </ul>
 
   </div>
 </div>

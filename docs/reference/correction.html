@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Grab a vector of responses from a model object — grab_response • geex</title>
+<title>Creates a correct_control object — correction • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -83,27 +83,32 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Grab a vector of responses from a model object</h1>
+    <h1>Creates a correct_control object</h1>
     </div>
 
     
-    <p>Grab a vector of responses from a model object</p>
+    <p>Creates a correct_control object</p>
     
 
-    <pre class="usage"><span class='fu'>grab_response</span>(<span class='no'>data</span>, <span class='no'>formula</span>)</pre>
+    <pre class="usage"><span class='fu'>correction</span>(<span class='no'>FUN</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>data.frame from which to extract the vector of responses</p></td>
+      <th>FUN</th>
+      <td><p>a correction to perform. <code>components</code> must be the
+first argument</p></td>
     </tr>
     <tr>
-      <th>formula</th>
-      <td><p>model formula</p></td>
+      <th>...</th>
+      <td><p>additional arguments passed to <code>FUN</code></p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a <code><a href='correct_control-class.html'>correct_control</a></code> object</p>
     
 
   </div>
@@ -111,7 +116,9 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+          </ul>
 
   </div>
 </div>

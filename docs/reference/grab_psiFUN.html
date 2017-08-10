@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Grab a vector of responses from a model object — grab_response • geex</title>
+<title>Grab estimating functions from a model object — grab_psiFUN • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -83,27 +83,56 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Grab a vector of responses from a model object</h1>
+    <h1>Grab estimating functions from a model object</h1>
     </div>
 
     
-    <p>Grab a vector of responses from a model object</p>
+    <p>Grab estimating functions from a model object</p>
     
 
-    <pre class="usage"><span class='fu'>grab_response</span>(<span class='no'>data</span>, <span class='no'>formula</span>)</pre>
+    <pre class="usage"><span class='fu'>grab_psiFUN</span>(<span class='no'>object</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for glm</span>
+<span class='fu'>grab_psiFUN</span>(<span class='no'>object</span>, <span class='no'>data</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for geeglm</span>
+<span class='fu'>grab_psiFUN</span>(<span class='no'>object</span>, <span class='no'>data</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for merMod</span>
+<span class='fu'>grab_psiFUN</span>(<span class='no'>object</span>, <span class='no'>data</span>, <span class='kw'>numderiv_opts</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>data.frame from which to extract the vector of responses</p></td>
+      <th>object</th>
+      <td><p>the object from which to extrace <code>psiFUN</code></p></td>
     </tr>
     <tr>
-      <th>formula</th>
-      <td><p>model formula</p></td>
+      <th>...</th>
+      <td><p>additonal arguments passed to other methods</p></td>
+    </tr>
+    <tr>
+      <th>data</th>
+      <td><p>the data to use for the estimating function</p></td>
+    </tr>
+    <tr>
+      <th>weights</th>
+      <td><p>a scalar or vector of weight values</p></td>
+    </tr>
+    <tr>
+      <th>numderiv_opts</th>
+      <td><p>a list of arguments passed to <code>numDeriv::grad</code></p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="methods-by-class-"><a class="anchor" href="#methods-by-class-"></a>Methods (by class)</h2>
+
+    <ul>
+<li><p><code>glm</code>: Create estimating equation function from a <code>glm</code> object</p></li>
+<li><p><code>geeglm</code>: Create estimating equation function from a <code>geeglm</code> object</p></li>
+<li><p><code>merMod</code>: Create estimating equation function from a <code>merMod</code> object</p></li>
+</ul>
     
 
   </div>
@@ -111,7 +140,9 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#methods-by-class-">Methods (by class)</a></li>
+          </ul>
 
   </div>
 </div>

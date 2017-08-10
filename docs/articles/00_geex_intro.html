@@ -16,7 +16,7 @@
 </head>
 <body>
     <div class="container template-vignette">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -29,10 +29,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
+  <a href="../index.html">Home</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../news/index.html">News</a>
@@ -41,7 +44,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/bsaul/geex">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -61,7 +64,7 @@
 </h1>
                         <h4 class="author">B. Saul</h4>
             
-            <h4 class="date">2017-07-31</h4>
+            <h4 class="date">2017-08-09</h4>
           </div>
 
     
@@ -111,8 +114,8 @@ Y_i - \theta_1 \\
 (Y_i - \theta_1)^2 - \theta_2
 \end{pmatrix}
 \]</span></p>
-<p>into an <code>eeFUN</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB1_eefun &lt;-<span class="st"> </span>function(data){
+<p>into an <code>estFUN</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB1_estFUN &lt;-<span class="st"> </span>function(data){
   function(theta){
     <span class="kw">with</span>(data,
       <span class="kw">c</span>(Y -<span class="st"> </span>theta[<span class="dv">1</span>],
@@ -120,32 +123,31 @@ Y_i - \theta_1 \\
     )
   }
 }</code></pre></div>
-<p>With the <code>eeFUN</code> function prepared, it is passed to <code>estimate_equations</code> along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/estimate_equations.html">estimate_equations</a></span>(
-  <span class="dt">eeFUN =</span> SB1_eefun, 
+<p>With the <code>estFUN</code> function prepared, it is passed to <code>m_estimate</code> along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN =</span> SB1_estFUN, 
   <span class="dt">data  =</span> dt,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)))</code></pre></div>
-<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_solver.html">setup_root_solver</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)))</code></pre></div>
 <pre><code>## Warning: package 'bindrcpp' was built under R version 3.3.2</code></pre>
 <pre><code>## $geex
-## $geex$estimates
-## [1] 5.03426 3.55198
+## $geex$parameters
+## [1] 5.144633 4.880770
 ## 
 ## $geex$vcov
-##             [,1]        [,2]
-## [1,]  0.03551980 -0.02031938
-## [2,] -0.02031938  0.24296788
+##            [,1]       [,2]
+## [1,] 0.04880770 0.00664699
+## [2,] 0.00664699 0.32574987
 ## 
 ## 
 ## $cls
 ## $cls$parameters
-##        p1      p2
-## 1 5.03426 3.55198
+##         p1      p2
+## 1 5.144633 4.88077
 ## 
 ## $cls$vcov
-##             [,1]        [,2]
-## [1,]  0.03551980 -0.02031938
-## [2,] -0.02031938  0.24296788</code></pre>
+##            [,1]       [,2]
+## [1,] 0.04880770 0.00664699
+## [2,] 0.00664699 0.32574987</code></pre>
 </div>
 <div id="stefanski-boos-example-2" class="section level2">
 <h2 class="hasAnchor">
@@ -159,8 +161,8 @@ X_i - \theta_2 \\
 \theta_1 - \theta_3\theta_2
 \end{pmatrix}
 \]</span></p>
-<p>Corresponding <code>eeFUN</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB2_eefun &lt;-<span class="st"> </span>function(data){
+<p>Corresponding <code>estFUN</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB2_estFUN &lt;-<span class="st"> </span>function(data){
   function(theta){
     <span class="kw">with</span>(data,
       <span class="kw">c</span>(Y -<span class="st"> </span>theta[<span class="dv">1</span>],
@@ -169,32 +171,31 @@ X_i - \theta_2 \\
     )
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/estimate_equations.html">estimate_equations</a></span>(
-  <span class="dt">eeFUN =</span> SB2_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN =</span> SB2_estFUN, 
   <span class="dt">data  =</span> dt, 
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
-<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_solver.html">setup_root_solver</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
 <pre><code>## $geex
-## $geex$estimates
-## [1] 4.728976 2.026777 2.333250
+## $geex$parameters
+## [1] 4.872998 2.024164 2.407413
 ## 
 ## $geex$vcov
-##               [,1]          [,2]         [,3]
-## [1,]  0.0414015025 -0.0001477654  0.020597374
-## [2,] -0.0001477654  0.0003677493 -0.000496264
-## [3,]  0.0205973741 -0.0004962640  0.010733932
+##              [,1]          [,2]          [,3]
+## [1,] 0.0457184556  0.0001770737  0.0223757417
+## [2,] 0.0001770737  0.0004783027 -0.0004813832
+## [3,] 0.0223757417 -0.0004813832  0.0116268408
 ## 
 ## 
 ## $cls
 ## $cls$parameters
-##         p1       p2      p3
-## 1 4.728976 2.026777 2.33325
+##         p1       p2       p3
+## 1 4.872998 2.024164 2.407413
 ## 
 ## $cls$vcov
 ##              [,1]          [,2]          [,3]
-## [1,]  0.041819700 -0.0001492580  0.0208054284
-## [2,] -0.000149258  0.0003714640 -0.0005012768
-## [3,]  0.020805428 -0.0005012768  0.0108423554</code></pre>
+## [1,] 0.0461802582  0.0001788624  0.0226017593
+## [2,] 0.0001788624  0.0004831341 -0.0004862457
+## [3,] 0.0226017593 -0.0004862457  0.0117442836</code></pre>
 </div>
 <div id="stefanski-boos-example-3" class="section level2">
 <h2 class="hasAnchor">
@@ -209,8 +210,8 @@ X_i - \theta_2 \\
 log(\theta_2) - \theta_4
 \end{pmatrix}
 \]</span></p>
-<p>Corresponding <code>eeFUN</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB3_eefun &lt;-<span class="st"> </span>function(data){
+<p>Corresponding <code>estFUN</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB3_estFUN &lt;-<span class="st"> </span>function(data){
   function(theta){
     <span class="kw">with</span>(data,
       <span class="kw">c</span>(Y -<span class="st"> </span>theta[<span class="dv">1</span>],
@@ -220,13 +221,12 @@ log(\theta_2) - \theta_4
     )
   }
 }</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/estimate_equations.html">estimate_equations</a></span>(
-  <span class="dt">eeFUN=</span> SB3_eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN=</span> SB3_estFUN, 
   <span class="dt">data  =</span> dt,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
-<pre><code>## When units are not specified, each observation is considered independent.</code></pre>
+  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_solver.html">setup_root_solver</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
 <pre><code>## $geex
-## $geex$estimates
+## $geex$parameters
 ## [1]  5.011650 16.502899  4.062376  2.803536
 ## 
 ## $geex$vcov

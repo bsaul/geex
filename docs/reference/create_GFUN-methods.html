@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Grab a vector of responses from a model object — grab_response • geex</title>
+<title>Creates a function that sums over psi functions — create_GFUN • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -83,25 +83,32 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Grab a vector of responses from a model object</h1>
+    <h1>Creates a function that sums over psi functions</h1>
     </div>
 
     
-    <p>Grab a vector of responses from a model object</p>
+    <p>From a list of \(\psi(O_i, \theta)\) for i = 1, ..., m,
+creates \(G_m = \sum_i \psi(O_i, \theta)\),
+called <code>GFUN</code>. Here, \(\psi(O_i, \theta)\) is the
+*inner* part of an <code>estFUN</code>, in that the data is fixed and \(G_m\)
+is a function of \(\theta)\).</p>
     
 
-    <pre class="usage"><span class='fu'>grab_response</span>(<span class='no'>data</span>, <span class='no'>formula</span>)</pre>
+    <pre class="usage"><span class='fu'>create_GFUN</span>(<span class='no'>object</span>, <span class='no'>...</span>)
+
+<span class='co'># S4 method for m_estimation_basis</span>
+<span class='fu'>create_GFUN</span>(<span class='no'>object</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>data.frame from which to extract the vector of responses</p></td>
+      <th>object</th>
+      <td><p>an object of class <code><a href='m_estimation_basis-class.html'>m_estimation_basis</a></code></p></td>
     </tr>
     <tr>
-      <th>formula</th>
-      <td><p>model formula</p></td>
+      <th>...</th>
+      <td><p>additional arguments passed to other methods</p></td>
     </tr>
     </table>
     

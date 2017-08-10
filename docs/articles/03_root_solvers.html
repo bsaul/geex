@@ -16,7 +16,7 @@
 </head>
 <body>
     <div class="container template-vignette">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -29,10 +29,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
+  <a href="../index.html">Home</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../news/index.html">News</a>
@@ -41,7 +44,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/bsaul/geex">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -61,7 +64,7 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-07-31</h4>
+            <h4 class="date">2017-08-09</h4>
           </div>
 
     
@@ -71,28 +74,27 @@
 <h2 class="hasAnchor">
 <a href="#choice-of-rootfun" class="anchor"></a>Choice of <code>rootFUN</code>
 </h2>
-<p>By default, <code>geex</code> uses the <a href="https://cran.r-project.org/web/packages/rootSolve/rootSolve.pdf"><code>rootSolve::multiroot</code></a> function for finding roots of a set of estimating equations when <code>compute_roots = TRUE</code> in <code><a href="../reference/estimate_equations.html">estimate_equations()</a></code>. However, a user can choose a different root find find algorithm via the <code>rootFUN</code> argument.</p>
-<p>For example, consider the following <code>eefun</code> which is Huber’s estimator for the center of symmetric distributions [<span class="citation">@stefanski2002</span>; example 6]. This example was chosen because it has a single root, so that the <code>stats::uniroot</code> function can be used to find the roots.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eefun &lt;-<span class="st"> </span>function(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
+<p>By default, <code>geex</code> uses the <a href="https://cran.r-project.org/web/packages/rootSolve/rootSolve.pdf"><code>rootSolve::multiroot</code></a> function for finding roots of a set of estimating equations when <code>compute_roots = TRUE</code> in <code><a href="../reference/m_estimate.html">m_estimate()</a></code>. However, a user can choose a different root find find algorithm via the <code>root_control</code> argument.</p>
+<p>For example, consider the following <code>estFUN</code> which is Huber’s estimator for the center of symmetric distributions [<span class="citation">@stefanski2002</span>; example 6]. This example was chosen because it has a single root, so that the <code>stats::uniroot</code> function can be used to find the roots.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myefun &lt;-<span class="st"> </span>function(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
   function(theta){
     x &lt;-<span class="st"> </span>data$Y1 -<span class="st"> </span>theta[<span class="dv">1</span>]
     if(<span class="kw">abs</span>(x) &lt;=<span class="st"> </span>k) x else <span class="kw">sign</span>(x) *<span class="st"> </span>k
   }
 }</code></pre></div>
-<p>Internally, <code>eefun</code> is used to build <span class="math inline">\(G_m = \sum_{i = 1}^m \psi(O_i, \theta)\)</span> or in psuedo-code <code>f = sum(inner_eefun(theta))</code>. <code>f</code> is passed to the root finding function along with options in the <code>rootFUN_control</code> arguments. For example, <code>multiroot</code> requires <code>f</code> and <code>start</code> (starting values for the algorithm:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">multiroot_results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/estimate_equations.html">estimate_equations</a></span>(
-  <span class="dt">eeFUN =</span> eefun, 
+<p>Internally, <code>estFUN</code> is used to build <span class="math inline">\(G_m = \sum_{i = 1}^m \psi(O_i, \theta)\)</span> or in psuedo-code <code>f = sum(inner_estFUN(theta))</code>. <code>f</code> is passed to the root finding function along with options in the <code>root_control</code> arguments. For example, <code>multiroot</code> requires <code>f</code> and <code>start</code> (starting values for the algorithm:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">multiroot_results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN =</span> myefun, 
   <span class="dt">data  =</span> geexex,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="dv">3</span>))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_solver.html">setup_root_solver</a></span>(<span class="dt">start =</span> <span class="dv">3</span>))</code></pre></div>
 <p>The <code>stats::uniroot</code> function, however, requires the arguments <code>f</code> and <code>interval</code> (or <code>lower</code> and <code>upper</code>)</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">uniroot_results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/estimate_equations.html">estimate_equations</a></span>(
-  <span class="dt">eeFUN =</span> eefun, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">uniroot_results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN =</span> myefun, 
   <span class="dt">data  =</span> geexex,
-  <span class="dt">rootFUN =</span> stats::uniroot,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">interval =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">10</span>)))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_solver.html">setup_root_solver</a></span>(stats::uniroot, <span class="dt">interval =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">10</span>)))</code></pre></div>
 <p>Comparing results:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">multiroot_results$estimates -<span class="st"> </span>uniroot_results$estimates</code></pre></div>
-<pre><code>## [1] 6.244897e-07</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(multiroot_results) -<span class="st"> </span><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(uniroot_results)</code></pre></div>
+<pre><code>## [1] 6.244845e-07</code></pre>
 <p>They are basically the same, but this may not be true depending <code>f</code> and the options given to the root finder.</p>
 </div>
 <div id="building-a-custom-root-finder" class="section level2">
@@ -101,7 +103,7 @@
 <p>All that is necessary for <code>rootFUN</code> is a function where:</p>
 <ul>
 <li>the <em>first</em> argument is the function whose roots are sought</li>
-<li>the output is a named list where the root estimates can be identified by the <code>rootFUN_object</code> argument in <code>estimate_equations</code>. For example, both <code>uniroot</code> and <code>multiroot</code> return a list where the root estimates are in the item named “roots”. The default is <code>rootFUN_object = 'roots'</code>, so this option works for both <code>uniroot</code> and <code>multiroot</code>.</li>
+<li>the output is a named list where the root estimates can be identified by the <code>rootFUN_object</code> argument in <code>m_estimate</code>. For example, both <code>uniroot</code> and <code>multiroot</code> return a list where the root estimates are in the item named “roots”. The default is <code>rootFUN_object = 'roots'</code>, so this option works for both <code>uniroot</code> and <code>multiroot</code>.</li>
 </ul>
 </div>
 </div>

@@ -16,7 +16,7 @@
 </head>
 <body>
     <div class="container template-vignette">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -29,10 +29,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
+  <a href="../../index.html">Home</a>
+</li>
+<li>
   <a href="../../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../../articles/index.html">Articles</a>
+  <a href="../../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../../news/index.html">News</a>
@@ -41,7 +44,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/bsaul/geex">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -126,7 +129,8 @@ fit &lt;-<span class="st"> </span>lme4::<span class="kw">glmer</span>(y~x+(<span
 <a href="#computing-score-equations" class="anchor"></a>Computing score equations</h2>
 <p>Note that <code>geex</code> does most of this work internally.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eefun &lt;-<span class="st"> </span>function(data, lme4model){
-  <span class="kw"><a href="../../reference/grab_eeFUN.html">grab_eeFUN</a></span>(<span class="dt">model =</span> lme4model, <span class="dt">data =</span> data)
+  f &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/grab_psiFUN.html">grab_psiFUN</a></span>(lme4model, <span class="dt">data =</span> data)
+  function(theta) <span class="kw">f</span>(theta)
 }
 
 splitdt &lt;-<span class="st"> </span><span class="kw">split</span>(d, <span class="dt">f =</span> d$id)
@@ -183,20 +187,20 @@ objFun &lt;-<span class="st"> </span><span class="kw">lapply</span>(splitdt, fun
 <p>What happens if instead of using <span class="math inline">\(\hat{\theta}_{glmer}\)</span> to compute the scores we use estimated parameters obtained from the finding the roots of the score functions as they are defined within the <code>grab_eeFUN</code> function?</p>
 <p>NOTE: the evaluation of <code>estimate_equations</code> is slow!</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># NOT run to speed creation of documentation</span>
-attempt &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/estimate_equations.html">estimate_equations</a></span>(
-  <span class="dt">eeFUN =</span> eefun,
+attempt &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN =</span> eefun,
   <span class="dt">data  =</span> d,
   <span class="dt">units =</span> <span class="st">'id'</span>,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> theta_hat), <span class="co"># start root finding at lme4's beta hat.</span>
+  <span class="dt">root_control =</span> <span class="kw">setup_rootFUN</span>(<span class="dt">start =</span> theta_hat), <span class="co"># start root finding at lme4's beta hat.</span>
   <span class="dt">compute_vcov =</span> <span class="ot">FALSE</span>,
-  <span class="dt">outer_eeargs =</span> <span class="kw">list</span>(<span class="dt">lme4model =</span> fit)
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">lme4model =</span> fit)
 )
 
 ## parameter estimates obtained from geex
 attempt
 
 psi_eval2 &lt;-<span class="st"> </span><span class="kw">lapply</span>(psi, function(f){
-  <span class="kw">f</span>(attempt$estimates)
+  <span class="kw">f</span>(<span class="kw"><a href="../../reference/roots-methods.html">roots</a></span>(attempt))
 })
 
 <span class="kw">colSums</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(psi_eval2), <span class="dt">ncol =</span> <span class="dv">3</span>, <span class="dt">byrow  =</span> <span class="ot">TRUE</span>))</code></pre></div>

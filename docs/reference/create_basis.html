@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Grab a vector of responses from a model object — grab_response • geex</title>
+<title>Creates an m_estimation_basis object — create_basis • geex</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -83,27 +83,48 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Grab a vector of responses from a model object</h1>
+    <h1>Creates an m_estimation_basis object</h1>
     </div>
 
     
-    <p>Grab a vector of responses from a model object</p>
+    <p>Creates an m_estimation_basis object</p>
     
 
-    <pre class="usage"><span class='fu'>grab_response</span>(<span class='no'>data</span>, <span class='no'>formula</span>)</pre>
+    <pre class="usage"><span class='fu'>create_basis</span>(<span class='no'>estFUN</span>, <span class='no'>data</span>, <span class='no'>units</span>, <span class='no'>outer_args</span>, <span class='no'>inner_args</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>data.frame from which to extract the vector of responses</p></td>
+      <th>estFUN</th>
+      <td><p>a function that takes in group-level data and returns a function
+that takes parameters as its first argument</p></td>
     </tr>
     <tr>
-      <th>formula</th>
-      <td><p>model formula</p></td>
+      <th>data</th>
+      <td><p>a data.frame</p></td>
+    </tr>
+    <tr>
+      <th>units</th>
+      <td><p>an optional character string identifying the grouping variable in <code>data</code></p></td>
+    </tr>
+    <tr>
+      <th>outer_args</th>
+      <td><p>a list of arguments passed to the outer (data) function of <code>estFUN</code>. (optional)</p></td>
+    </tr>
+    <tr>
+      <th>inner_args</th>
+      <td><p>a list of arguments passed to the inner (theta) function of <code>estFUN</code>. (optional)</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a <code><a href='m_estimation_basis-class.html'>m_estimation_basis</a></code></p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Either <code>data</code> or <code>split_data</code> must be provided</p>
     
 
   </div>
@@ -111,7 +132,11 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+          </ul>
 
   </div>
 </div>

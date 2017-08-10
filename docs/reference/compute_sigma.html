@@ -39,7 +39,7 @@
   <body>
     <div class="container template-reference-topic">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -52,10 +52,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">Home</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../news/index.html">News</a>
@@ -65,7 +68,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/bsaul/geex">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -95,15 +98,21 @@ provided \(A\) and \(B\) matrices.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>A</th>
-      <td><p>a matrix, generally the \(A\) matrix returned in the list of matrices from
-<code><a href='compute_matrices.html'>compute_matrices</a></code></p></td>
+      <td><p>a matrix, generally the <code>.A</code> slot in a
+<code><a href='sandwich_components-class.html'>sandwich_components</a></code> object created in
+<code><a href='estimate_sandwich_matrices.html'>estimate_sandwich_matrices</a></code></p></td>
     </tr>
     <tr>
       <th>B</th>
-      <td><p>a matrix, generally the \(B\) matrix returned in the list of matrices from
-<code><a href='compute_matrices.html'>compute_matrices</a></code></p></td>
+      <td><p>a matrix, generally the <code>.B</code> slot in a
+<code><a href='sandwich_components-class.html'>sandwich_components</a></code> object created in
+<code><a href='estimate_sandwich_matrices.html'>estimate_sandwich_matrices</a></code></p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>the <code>matrix</code> <code>Ainv %*% B %*% t(Ainv)</code></p>
     
 
   </div>
@@ -111,7 +120,9 @@ provided \(A\) and \(B\) matrices.</p>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+          </ul>
 
   </div>
 </div>
