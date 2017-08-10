@@ -1,3 +1,11 @@
+# geex 1.0.0
+
+* implements an `S4` system throughout `geex`
+* `estimate_equations` becomes `m_estimate`. See documentation for changes to arguments. Notably, `eeFUN` becomes `estFUN`
+* `make_eeFUN` functions become `grab_psiFUN`
+* speeds up the summation of list of matrices with `compute_sum_of_list`
+* plus many more updates and vignettes
+
 # geex 0.3.0
 
 * adds a `weights` argument to `estimate_equations` for faster computations with grouped data. See the [weights vignette](https://bsaul.github.io/geex/docs/articles/weights.html) for a demonstration.
