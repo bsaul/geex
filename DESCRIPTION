@@ -1,17 +1,16 @@
 Package: geex
 Type: Package
-Title: A Framework for Estimating Equations
+Title: An API for M-estimation
 Version: 1.0.0
 Authors@R: c(person("Bradley", "Saul", role = c("aut", "cre"),
                     email = "bradleysaul@gmail.com"),
              person("Brian", "Barkley", role = c("ctb")))
 Author: Bradley Saul [aut, cre], Brian Barkley [ctb]
 Maintainer: Bradley Saul <bradleysaul@gmail.com>
-Description: Provides a framework for estimating parameters from a set of unbiased
-    estimating equations. Computes large sample variance using M-estimation
-    theory as detailed by L.A. Stefanski and D.D. Boos in "The Calculus of M-
-    estimation" (The American Statistician (2002), 56(1), 29-38). Also provides an 
-    API to compute finite-sample variance corrections.
+Description: Provides a general, flexible framework for estimating parameters 
+    and empirical sandwich variance estimator from a set of unbiased estimating 
+    equations (i.e., M-estimation). Also provides an API to compute finite-sample
+    variance corrections.
 Depends:
     R (>= 3.1)
 Imports:
