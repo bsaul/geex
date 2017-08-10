@@ -12,6 +12,6 @@ test_that("compute_sum_of_list works with and without weights", {
   expect_is(m2, "matrix")
 
   expect_equal(m1, matrix(16, nrow = 4, ncol = 4))
-  expect_equal(m1, matrix(160, nrow = 4, ncol = 4))
-  expect_error({m3 <- compute_sum_of_list(.l = hold, .w = weights2)})
+  expect_equal(m2, matrix(160, nrow = 4, ncol = 4))
+  expect_error(compute_sum_of_list(.l = hold, .w = weights2))
 })
