@@ -1,7 +1,7 @@
 Package: geex
 Type: Package
 Title: A Framework for Estimating Equations
-Version: 0.3.0
+Version: 1.0.0
 Authors@R: c(person("Bradley", "Saul", role = c("aut", "cre"),
                     email = "bradleysaul@gmail.com"),
              person("Brian", "Barkley", role = c("ctb")))
@@ -33,7 +33,8 @@ Suggests:
     MASS,
     gee, 
     ivpack,
-    saws
+    saws,
+    rmarkdown
 URL: https://bsaul.github.io/geex/, https://github.com/bsaul/geex
 BugReports: https://github.com/bsaul/geex/issues
 License: MIT + file LICENSE
