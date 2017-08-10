@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/tidyverse/geex.svg?branch=master)](https://travis-ci.org/tidyverse/geex)
+[![Build Status](https://travis-ci.org/bsaul/geex.svg?branch=master)](https://travis-ci.org/bsaul/geex)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/geex)](https://cran.r-project.org/package=geex)
-[![Coverage Status](https://img.shields.io/codecov/c/github/tidyverse/geex/master.svg)](https://codecov.io/github/tidyverse/geex?branch=master)
+[![Coverage Status](https://img.shields.io/codecov/c/github/bsaul/geex/master.svg)](https://codecov.io/github/bsaul/geex?branch=master)
 
 # Overview
 
