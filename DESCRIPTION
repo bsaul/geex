@@ -34,7 +34,8 @@ Suggests:
     gee, 
     ivpack,
     saws,
-    rmarkdown
+    rmarkdown,
+    geepack
 URL: https://bsaul.github.io/geex/, https://github.com/bsaul/geex
 BugReports: https://github.com/bsaul/geex/issues
 License: MIT + file LICENSE
