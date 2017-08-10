@@ -1,4 +1,4 @@
-
+context("Test primary geex functions and classes")
 test_eefun1 <- function(data){
   function(theta){
     with(data,
