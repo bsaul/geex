@@ -42,6 +42,13 @@ eefun <- function(data, model, alpha){
 
 Compare to what `inferference` gets.
 
+```{r, echo = FALSE}
+if(packageVersion('inferference') < 0.5.2){
+  vaccinesim$Y <- vaccinesim$y
+}
+
+```
+
 ```{r example2, echo =TRUE}
 library(geex)
 library(inferference)
