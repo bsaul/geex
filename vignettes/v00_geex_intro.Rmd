@@ -3,12 +3,10 @@ title: "An introduction to M-estimation with `geex`"
 author: "B. Saul"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-header-includes:
-- \usepackage{float}
 vignette: >
-  %\VignetteIndexEntry{An introduction to M-estimation with geex}
+  %\VignetteIndexEntry{Introduction to geex}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, echo = FALSE, message = FALSE, warning=FALSE}
