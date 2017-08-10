@@ -1,3 +1,7 @@
+template:
+  params:
+    bootswatch: yeti
+
 reference:
   - title: "M-estimation"
     desc: >
