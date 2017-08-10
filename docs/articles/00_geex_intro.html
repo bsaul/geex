@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>An introduction to M-estimation with <code>geex</code> • geex</title>
-<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -131,23 +131,23 @@ Y_i - \theta_1 \\
 <pre><code>## Warning: package 'bindrcpp' was built under R version 3.3.2</code></pre>
 <pre><code>## $geex
 ## $geex$parameters
-## [1] 5.144633 4.880770
+## [1] 5.25352 4.26842
 ## 
 ## $geex$vcov
-##            [,1]       [,2]
-## [1,] 0.04880770 0.00664699
-## [2,] 0.00664699 0.32574987
+##             [,1]        [,2]
+## [1,]  0.04268420 -0.03743674
+## [2,] -0.03743674  0.52690075
 ## 
 ## 
 ## $cls
 ## $cls$parameters
-##         p1      p2
-## 1 5.144633 4.88077
+##        p1      p2
+## 1 5.25352 4.26842
 ## 
 ## $cls$vcov
-##            [,1]       [,2]
-## [1,] 0.04880770 0.00664699
-## [2,] 0.00664699 0.32574987</code></pre>
+##             [,1]        [,2]
+## [1,]  0.04268420 -0.03743674
+## [2,] -0.03743674  0.52690075</code></pre>
 </div>
 <div id="stefanski-boos-example-2" class="section level2">
 <h2 class="hasAnchor">
@@ -177,25 +177,25 @@ X_i - \theta_2 \\
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_solver.html">setup_root_solver</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
 <pre><code>## $geex
 ## $geex$parameters
-## [1] 4.872998 2.024164 2.407413
+## [1] 4.963452 1.980064 2.506713
 ## 
 ## $geex$vcov
 ##              [,1]          [,2]          [,3]
-## [1,] 0.0457184556  0.0001770737  0.0223757417
-## [2,] 0.0001770737  0.0004783027 -0.0004813832
-## [3,] 0.0223757417 -0.0004813832  0.0116268408
+## [1,] 0.0471958940  0.0005823571  0.0230982912
+## [2,] 0.0005823571  0.0003794797 -0.0001863018
+## [3,] 0.0230982912 -0.0001863018  0.0119012810
 ## 
 ## 
 ## $cls
 ## $cls$parameters
 ##         p1       p2       p3
-## 1 4.872998 2.024164 2.407413
+## 1 4.963452 1.980064 2.506713
 ## 
 ## $cls$vcov
 ##              [,1]          [,2]          [,3]
-## [1,] 0.0461802582  0.0001788624  0.0226017593
-## [2,] 0.0001788624  0.0004831341 -0.0004862457
-## [3,] 0.0226017593 -0.0004862457  0.0117442836</code></pre>
+## [1,] 0.0476726202  0.0005882395  0.0233316073
+## [2,] 0.0005882395  0.0003833128 -0.0001881837
+## [3,] 0.0233316073 -0.0001881837  0.0120214959</code></pre>
 </div>
 <div id="stefanski-boos-example-3" class="section level2">
 <h2 class="hasAnchor">
