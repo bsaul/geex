@@ -97,7 +97,7 @@ With the `estFUN` function prepared, it is passed to `m_estimate` along with the
 estimates <- m_estimate(
   estFUN = SB1_estFUN, 
   data  = dt,
-  root_control = setup_root_solver(start = c(1,1)))
+  root_control = setup_root_control(start = c(1,1)))
 ```
 
 ```{r SB1_clsform, echo=FALSE}
@@ -174,7 +174,7 @@ SB2_estFUN <- function(data){
 estimates <- m_estimate(
   estFUN = SB2_estFUN, 
   data  = dt, 
-  root_control = setup_root_solver(start = c(1, 1, 1)))
+  root_control = setup_root_control(start = c(1, 1, 1)))
 ```
 
 ```{r SB2_clsform, echo = FALSE}
@@ -251,7 +251,7 @@ SB3_estFUN <- function(data){
 estimates <- m_estimate(
   estFUN= SB3_estFUN, 
   data  = dt,
-  root_control = setup_root_solver(start = c(1, 1, 1, 1)))
+  root_control = setup_root_control(start = c(1, 1, 1, 1)))
 ```
 
 ```{r SB3_clsform, echo = FALSE}

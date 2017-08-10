@@ -304,7 +304,7 @@ setClass(
 #' @export
 #------------------------------------------------------------------------------#
 
-setup_root_solver <- function(FUN, roots_name, ...){
+setup_root_control <- function(FUN, roots_name, ...){
   dots <- list(...)
   hold <- call('new')
   hold[['Class']] <- "root_control"
