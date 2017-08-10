@@ -63,7 +63,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -79,7 +84,9 @@
     </div>
 
     
-    <p>Creates list of psi functions</p>
+    <p>Creates the estimating function (\(\psi(O_i, \theta)\))
+for each unit. That is, this function evaluates the outer function in <code>eeFUN</code>
+for each independent unit and a returns the inner function in <code>eeFUN</code>.</p>
     
 
     <pre class="usage"><span class='fu'>create_psi</span>(<span class='no'>splitdt</span>, <span class='no'>eeFUN</span>, <span class='kw'>approxFUN</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>approxFUN_control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -98,7 +105,8 @@
     </tr>
     <tr>
       <th>approxFUN</th>
-      <td><p>a function that approximates the inner function of <code>eeFUN</code></p></td>
+      <td><p>a function that approximates the inner function of <code>eeFUN</code>.
+(EXPERIMENTAL).</p></td>
     </tr>
     <tr>
       <th>approxFUN_control</th>
@@ -110,13 +118,19 @@
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a list of functions, each function corresponding to a single unit</p>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#value">Value</a></li>
+          </ul>
 
   </div>
 </div>

@@ -63,7 +63,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -79,7 +84,12 @@
     </div>
 
     
-    <p>Estimate parameters and their covariance from a set of estimating equations</p>
+    <p>M-estimation theory provides a framework for asympotic properties of estimators
+that are solutions to estimating equations. Many R packages implement specific
+applications of estimating equations. <span class="pkg">geex</span> aims to be provide a more general
+framework that any modelling method can use to compute point and variance estimates
+for parameters that are solutions to estimating equations of the form:
+$$\sum_i \psi(O_i, \hat{\theta}) = 0$$</p>
     
 
     <pre class="usage"><span class='fu'>estimate_equations</span>(<span class='no'>eeFUN</span>, <span class='no'>data</span>, <span class='kw'>units</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -103,12 +113,11 @@ that takes parameters as its first argument</p></td>
     </tr>
     <tr>
       <th>units</th>
-      <td><p>a string identifying the grouping variable in <code>data</code></p></td>
+      <td><p>an optional character string identifying the grouping variable in <code>data</code></p></td>
     </tr>
     <tr>
       <th>roots</th>
-      <td><p>a numeric vector containing either starting values for the roots when using
-the default <code>rootsolver</code> or roots that have been estimated elsewhere</p></td>
+      <td><p>a vector of parameter estimates must be provided if <code>compute_roots = FALSE</code></p></td>
     </tr>
     <tr>
       <th>outer_eeargs</th>
@@ -131,12 +140,13 @@ Defaults to <code>TRUE</code>.</p></td>
     <tr>
       <th>corrections_list</th>
       <td><p>an optional list of small sample corrections where each
-list element is a list with two elements: `fun` and `options`. See details.</p></td>
+list element is a list with two elements: <code>correctFUN</code> and <code>correctFUN_options</code>.
+See details.</p></td>
     </tr>
     <tr>
       <th>derivFUN</th>
       <td><p>the function used to take derivatives of the estimating equation functions.
-Defaults to <code>numDeriv::jacobian</code></p></td>
+Defaults to <code><a href='http://www.rdocumentation.org/packages/numDeriv/topics/jacobian'>jacobian</a></code>.</p></td>
     </tr>
     <tr>
       <th>derivFUN_control</th>
@@ -154,15 +164,9 @@ Defaults to <code><a href='http://www.rdocumentation.org/packages/rootSolve/topi
 function</p></td>
     </tr>
     <tr>
-      <th>rootFUN_object</th>
-      <td><p>the name of the object within the output of <code>rootFUN</code> that contains
-the parameters estimates. For example, the 'root' object within the output of multiroot::rootSolve
-contains the parameter estimates. Defaults to 'root'. Can also be a set of numeric positions within
-the object.</p></td>
-    </tr>
-    <tr>
       <th>approxFUN</th>
-      <td><p>a function that approximates the inner function of <code>eeFUN</code></p></td>
+      <td><p>a function that approximates the inner function of <code>eeFUN</code>.
+(EXPERIMENTAL).</p></td>
     </tr>
     <tr>
       <th>approxFUN_control</th>
@@ -179,35 +183,3560 @@ the object.</p></td>
 </ul>
 
     
-    <h2 class="hasAnchor" id="eefun-arguments"><a class="anchor" href="#eefun-arguments"></a>eeFUN arguments</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The basic idea of <span class="pkg">geex</span> is for the analyst to provide at least
+two items:</p><ul>
+<li><p>data</p></li>
+<li><p><code>eeFUN</code>: (the \(\psi\) function), a function that takes unit-level
+data and returns a function in terms of parameters (\(\theta\))</p></li>
+</ul>
+    <p>With the <code>eeFUN</code>, <span class="pkg">geex</span> computes the roots of the estimating equations
+and/or the empirical sandwich variance estimator.</p>
+<p>The root finding algorithm defaults to <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code> to
+estimate roots though the solver algorithm can be specified in the <code>rootFUN</code>
+argument. Starting values for <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code> are passed via the
+<code>rootFUN_control</code> argument. See <code>NA</code>
+for information on customizing the root solver function.</p>
+<p>To compute only the covariance matrix, set <code>compute_roots = FALSE</code> and pass
+estimates of \(\theta\) via the <code>roots</code> argument.</p>
+<p>M-estimation is often used for clustered data, and a variable by which to split
+the data.frame  into independent units is specified by the <code>units</code> argument.
+This argument defaults to <code>NULL</code>, in which case the number of units equals
+the number of rows in the data.frame.</p>
+<p>For information on the finite-sample corrections, refer to the finite sample
+correction API vignette: <code>NA</code></p>
+    
+    <h2 class="hasAnchor" id="writing-an-eefun"><a class="anchor" href="#writing-an-eefun"></a>Writing an eeFUN</h2>
 
     
-    <p>Additional arguments may be passed to both the inner and outer function of the `eeFUN`.
-Elements in an <code>outer_eeargs</code> listare passed to the outer function; any elements of the <code>inner_eeargs</code> list
-are passed to the inner function. For example, a practical example might be computing a
-counterfactual mean using an IPW estimator:</p><pre>
-myeeFUN &lt;- function(data, model){
-  X &lt;- model.matrix(model, data = data) #covariates
-  A &lt;- data$A #treatment
-  Y &lt;- data$Y #outcome
-  p &lt;- ncol(X) #number of parameters in model
-  function(theta, a){
-    Y * (A == a) * 1/plogis(X %*% theta[p - 1]) - theta[p]
-    # Here theta[p] is the target parameter.
-  }
-}
-</pre>
-    <p>Then to estimate the mean where `a == 1`:</p><pre>
-estimate_equations(
-  eeFUN = myeeFUN,
-  data  = mydata,
-  units = myunits,
-  inner_eeargs = list(a = 1),
-  outer_eeargs = list(model = mymodel)
-)
-</pre>
+    <h3>Description</h3>
+    An <code>eeFUN</code> is a function that takes in *unit* level data plus possible
+"outer" arguments (see section on eefUN argument) and returns a function
+whose first argument is <code>theta</code>. See the examples below or the package
+vignettes for more information.
+    <h3>Additional arguments</h3>
+    Additional arguments may be passed to both the inner and outer function of the
+<code>eeFUN</code>. Elements in an <code>outer_eeargs</code> list are passed to the outer
+function; any elements of the <code>inner_eeargs</code> list are passed to the inner
+function. For an example, see the finite sample correction vignette [<code>NA</code>].
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Stefanski, L. A., &amp; Boos, D. D. (2002). The calculus of M-estimation.
+The American Statistician, 56(1), 29-38.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># Estimate the mean and variance of Y1 in the geexex dataset</span>
+<span class='no'>ex_eeFUN</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>data</span>){
+ <span class='kw'>function</span>(<span class='no'>theta</span>){
+   <span class='fu'>with</span>(<span class='no'>data</span>,
+    <span class='fu'>c</span>(<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>],
+     (<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>])^<span class='fl'>2</span> - <span class='no'>theta</span>[<span class='fl'>2</span>] ))
+}}
+
+<span class='fu'>estimate_equations</span>(
+ <span class='kw'>eeFUN</span> <span class='kw'>=</span> <span class='no'>ex_eeFUN</span>,
+ <span class='kw'>data</span>  <span class='kw'>=</span> <span class='no'>geexex</span>,
+ <span class='kw'>rootFUN_control</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>1</span>)))</div><div class='output co'>#&gt; <span class='message'>When units are not specified, each observation is considered independent.</span></div><div class='output co'>#&gt; $rootFUN_results
+#&gt; $rootFUN_results$root
+#&gt; [1]  5.044563 10.041239
+#&gt; 
+#&gt; $rootFUN_results$f.root
+#&gt; [1] -2.353673e-14 -3.286260e-14
+#&gt; 
+#&gt; $rootFUN_results$iter
+#&gt; [1] 4
+#&gt; 
+#&gt; $rootFUN_results$estim.precis
+#&gt; [1] 2.819966e-14
+#&gt; 
+#&gt; 
+#&gt; $estimates
+#&gt; [1]  5.044563 10.041239
+#&gt; 
+#&gt; $vcov
+#&gt;            [,1]       [,2]
+#&gt; [1,] 0.10041239 0.03667969
+#&gt; [2,] 0.03667969 2.49219638
+#&gt; 
+#&gt; $component_matrices
+#&gt; $component_matrices$A
+#&gt;               [,1] [,2]
+#&gt; [1,]  1.000000e+02    0
+#&gt; [2,] -1.452962e-10  100
+#&gt; 
+#&gt; $component_matrices$A_i
+#&gt; $component_matrices$A_i$`1`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.752514    1
+#&gt; 
+#&gt; $component_matrices$A_i$`2`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] 10.81578    1
+#&gt; 
+#&gt; $component_matrices$A_i$`3`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.842305    1
+#&gt; 
+#&gt; $component_matrices$A_i$`4`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 6.653878    1
+#&gt; 
+#&gt; $component_matrices$A_i$`5`
+#&gt;           [,1] [,2]
+#&gt; [1,]   1.00000    0
+#&gt; [2,] -11.75308    1
+#&gt; 
+#&gt; $component_matrices$A_i$`6`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.291574    1
+#&gt; 
+#&gt; $component_matrices$A_i$`7`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -6.300465    1
+#&gt; 
+#&gt; $component_matrices$A_i$`8`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.043499    1
+#&gt; 
+#&gt; $component_matrices$A_i$`9`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 9.831685    1
+#&gt; 
+#&gt; $component_matrices$A_i$`10`
+#&gt;            [,1] [,2]
+#&gt; [1,]  1.0000000    0
+#&gt; [2,] -0.9485972    1
+#&gt; 
+#&gt; $component_matrices$A_i$`11`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 1.291621    1
+#&gt; 
+#&gt; $component_matrices$A_i$`12`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 1.947683    1
+#&gt; 
+#&gt; $component_matrices$A_i$`13`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -5.005397    1
+#&gt; 
+#&gt; $component_matrices$A_i$`14`
+#&gt;           [,1] [,2]
+#&gt; [1,]   1.00000    0
+#&gt; [2,] -11.52285    1
+#&gt; 
+#&gt; $component_matrices$A_i$`15`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] -2.73693    1
+#&gt; 
+#&gt; $component_matrices$A_i$`16`
+#&gt;           [,1] [,2]
+#&gt; [1,] 1.0000000    0
+#&gt; [2,] 0.9379618    1
+#&gt; 
+#&gt; $component_matrices$A_i$`17`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 8.055833    1
+#&gt; 
+#&gt; $component_matrices$A_i$`18`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.133716    1
+#&gt; 
+#&gt; $component_matrices$A_i$`19`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.509455    1
+#&gt; 
+#&gt; $component_matrices$A_i$`20`
+#&gt;         [,1] [,2]
+#&gt; [1,]  1.0000    0
+#&gt; [2,] 12.8324    1
+#&gt; 
+#&gt; $component_matrices$A_i$`21`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -6.278834    1
+#&gt; 
+#&gt; $component_matrices$A_i$`22`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 3.302893    1
+#&gt; 
+#&gt; $component_matrices$A_i$`23`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -4.760703    1
+#&gt; 
+#&gt; $component_matrices$A_i$`24`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 3.231159    1
+#&gt; 
+#&gt; $component_matrices$A_i$`25`
+#&gt;           [,1] [,2]
+#&gt; [1,]   1.00000    0
+#&gt; [2,] -12.45122    1
+#&gt; 
+#&gt; $component_matrices$A_i$`26`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -4.239123    1
+#&gt; 
+#&gt; $component_matrices$A_i$`27`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.327459    1
+#&gt; 
+#&gt; $component_matrices$A_i$`28`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 7.970532    1
+#&gt; 
+#&gt; $component_matrices$A_i$`29`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.845686    1
+#&gt; 
+#&gt; $component_matrices$A_i$`30`
+#&gt;         [,1] [,2]
+#&gt; [1,] 1.00000    0
+#&gt; [2,] 2.29405    1
+#&gt; 
+#&gt; $component_matrices$A_i$`31`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.431482    1
+#&gt; 
+#&gt; $component_matrices$A_i$`32`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -6.892173    1
+#&gt; 
+#&gt; $component_matrices$A_i$`33`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 5.423243    1
+#&gt; 
+#&gt; $component_matrices$A_i$`34`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.770696    1
+#&gt; 
+#&gt; $component_matrices$A_i$`35`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] 10.69635    1
+#&gt; 
+#&gt; $component_matrices$A_i$`36`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 3.455444    1
+#&gt; 
+#&gt; $component_matrices$A_i$`37`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -1.296536    1
+#&gt; 
+#&gt; $component_matrices$A_i$`38`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 3.555264    1
+#&gt; 
+#&gt; $component_matrices$A_i$`39`
+#&gt;            [,1] [,2]
+#&gt; [1,]  1.0000000    0
+#&gt; [2,] -0.4103641    1
+#&gt; 
+#&gt; $component_matrices$A_i$`40`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 3.559842    1
+#&gt; 
+#&gt; $component_matrices$A_i$`41`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.356527    1
+#&gt; 
+#&gt; $component_matrices$A_i$`42`
+#&gt;           [,1] [,2]
+#&gt; [1,]   1.00000    0
+#&gt; [2,] -17.18108    1
+#&gt; 
+#&gt; $component_matrices$A_i$`43`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 1.165449    1
+#&gt; 
+#&gt; $component_matrices$A_i$`44`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 5.191265    1
+#&gt; 
+#&gt; $component_matrices$A_i$`45`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -7.943802    1
+#&gt; 
+#&gt; $component_matrices$A_i$`46`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -8.998276    1
+#&gt; 
+#&gt; $component_matrices$A_i$`47`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.587908    1
+#&gt; 
+#&gt; $component_matrices$A_i$`48`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -4.218017    1
+#&gt; 
+#&gt; $component_matrices$A_i$`49`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 3.262841    1
+#&gt; 
+#&gt; $component_matrices$A_i$`50`
+#&gt;           [,1] [,2]
+#&gt; [1,] 1.0000000    0
+#&gt; [2,] 0.9841168    1
+#&gt; 
+#&gt; $component_matrices$A_i$`51`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 8.188365    1
+#&gt; 
+#&gt; $component_matrices$A_i$`52`
+#&gt;         [,1] [,2]
+#&gt; [1,]  1.0000    0
+#&gt; [2,] 13.1389    1
+#&gt; 
+#&gt; $component_matrices$A_i$`53`
+#&gt;            [,1] [,2]
+#&gt; [1,]  1.0000000    0
+#&gt; [2,] -0.2327012    1
+#&gt; 
+#&gt; $component_matrices$A_i$`54`
+#&gt;            [,1] [,2]
+#&gt; [1,]  1.0000000    0
+#&gt; [2,] -0.2827533    1
+#&gt; 
+#&gt; $component_matrices$A_i$`55`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 1.912849    1
+#&gt; 
+#&gt; $component_matrices$A_i$`56`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.786123    1
+#&gt; 
+#&gt; $component_matrices$A_i$`57`
+#&gt;            [,1] [,2]
+#&gt; [1,]  1.0000000    0
+#&gt; [2,] -0.9959563    1
+#&gt; 
+#&gt; $component_matrices$A_i$`58`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] -0.88019    1
+#&gt; 
+#&gt; $component_matrices$A_i$`59`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 2.023568    1
+#&gt; 
+#&gt; $component_matrices$A_i$`60`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 1.022743    1
+#&gt; 
+#&gt; $component_matrices$A_i$`61`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.027283    1
+#&gt; 
+#&gt; $component_matrices$A_i$`62`
+#&gt;           [,1] [,2]
+#&gt; [1,] 1.0000000    0
+#&gt; [2,] 0.3831244    1
+#&gt; 
+#&gt; $component_matrices$A_i$`63`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -1.507302    1
+#&gt; 
+#&gt; $component_matrices$A_i$`64`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 6.268315    1
+#&gt; 
+#&gt; $component_matrices$A_i$`65`
+#&gt;            [,1] [,2]
+#&gt; [1,]  1.0000000    0
+#&gt; [2,] -0.0352244    1
+#&gt; 
+#&gt; $component_matrices$A_i$`66`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -5.127449    1
+#&gt; 
+#&gt; $component_matrices$A_i$`67`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.109045    1
+#&gt; 
+#&gt; $component_matrices$A_i$`68`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -5.612504    1
+#&gt; 
+#&gt; $component_matrices$A_i$`69`
+#&gt;         [,1] [,2]
+#&gt; [1,] 1.00000    0
+#&gt; [2,] 1.53121    1
+#&gt; 
+#&gt; $component_matrices$A_i$`70`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 6.681925    1
+#&gt; 
+#&gt; $component_matrices$A_i$`71`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 4.967466    1
+#&gt; 
+#&gt; $component_matrices$A_i$`72`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 1.522182    1
+#&gt; 
+#&gt; $component_matrices$A_i$`73`
+#&gt;            [,1] [,2]
+#&gt; [1,]  1.0000000    0
+#&gt; [2,] -0.8176918    1
+#&gt; 
+#&gt; $component_matrices$A_i$`74`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 2.226746    1
+#&gt; 
+#&gt; $component_matrices$A_i$`75`
+#&gt;            [,1] [,2]
+#&gt; [1,]  1.0000000    0
+#&gt; [2,] -0.5266062    1
+#&gt; 
+#&gt; $component_matrices$A_i$`76`
+#&gt;           [,1] [,2]
+#&gt; [1,]   1.00000    0
+#&gt; [2,] -16.42393    1
+#&gt; 
+#&gt; $component_matrices$A_i$`77`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 2.777827    1
+#&gt; 
+#&gt; $component_matrices$A_i$`78`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.069934    1
+#&gt; 
+#&gt; $component_matrices$A_i$`79`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] 10.05734    1
+#&gt; 
+#&gt; $component_matrices$A_i$`80`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] 17.25968    1
+#&gt; 
+#&gt; $component_matrices$A_i$`81`
+#&gt;           [,1] [,2]
+#&gt; [1,]   1.00000    0
+#&gt; [2,] -10.00691    1
+#&gt; 
+#&gt; $component_matrices$A_i$`82`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 4.629864    1
+#&gt; 
+#&gt; $component_matrices$A_i$`83`
+#&gt;           [,1] [,2]
+#&gt; [1,] 1.0000000    0
+#&gt; [2,] 0.9030276    1
+#&gt; 
+#&gt; $component_matrices$A_i$`84`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -4.278789    1
+#&gt; 
+#&gt; $component_matrices$A_i$`85`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 4.872697    1
+#&gt; 
+#&gt; $component_matrices$A_i$`86`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 5.576646    1
+#&gt; 
+#&gt; $component_matrices$A_i$`87`
+#&gt;            [,1] [,2]
+#&gt; [1,]  1.0000000    0
+#&gt; [2,] -0.8347135    1
+#&gt; 
+#&gt; $component_matrices$A_i$`88`
+#&gt;         [,1] [,2]
+#&gt; [1,]  1.0000    0
+#&gt; [2,] -2.4507    1
+#&gt; 
+#&gt; $component_matrices$A_i$`89`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -8.775649    1
+#&gt; 
+#&gt; $component_matrices$A_i$`90`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -5.087647    1
+#&gt; 
+#&gt; $component_matrices$A_i$`91`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -1.953179    1
+#&gt; 
+#&gt; $component_matrices$A_i$`92`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.095662    1
+#&gt; 
+#&gt; $component_matrices$A_i$`93`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 7.542036    1
+#&gt; 
+#&gt; $component_matrices$A_i$`94`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.216907    1
+#&gt; 
+#&gt; $component_matrices$A_i$`95`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] 15.07308    1
+#&gt; 
+#&gt; $component_matrices$A_i$`96`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.529053    1
+#&gt; 
+#&gt; $component_matrices$A_i$`97`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] 12.51525    1
+#&gt; 
+#&gt; $component_matrices$A_i$`98`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 1.206403    1
+#&gt; 
+#&gt; $component_matrices$A_i$`99`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] -8.77275    1
+#&gt; 
+#&gt; $component_matrices$A_i$`100`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 4.526372    1
+#&gt; 
+#&gt; 
+#&gt; $component_matrices$B
+#&gt;           [,1]       [,2]
+#&gt; [1,] 1004.1239   366.7969
+#&gt; [2,]  366.7969 24921.9638
+#&gt; 
+#&gt; $component_matrices$B_i
+#&gt; $component_matrices$B_i$`1`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  1.894083 11.21258
+#&gt; [2,] 11.212579 66.37615
+#&gt; 
+#&gt; $component_matrices$B_i$`2`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  29.24529 103.8534
+#&gt; [2,] 103.85343 368.7956
+#&gt; 
+#&gt; $component_matrices$B_i$`3`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  3.690828 12.20011
+#&gt; [2,] 12.200110 40.32772
+#&gt; 
+#&gt; $component_matrices$B_i$`4`
+#&gt;           [,1]     [,2]
+#&gt; [1,] 11.068524 3.417716
+#&gt; [2,]  3.417716 1.055315
+#&gt; 
+#&gt; $component_matrices$B_i$`5`
+#&gt;           [,1]      [,2]
+#&gt; [1,]   34.5337 -143.9309
+#&gt; [2,] -143.9309  599.8807
+#&gt; 
+#&gt; $component_matrices$B_i$`6`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  2.708615 12.06794
+#&gt; [2,] 12.067937 53.76737
+#&gt; 
+#&gt; $component_matrices$B_i$`7`
+#&gt;           [,1]       [,2]
+#&gt; [1,] 9.9239647 0.36944079
+#&gt; [2,] 0.3694408 0.01375322
+#&gt; 
+#&gt; $component_matrices$B_i$`8`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  2.315721 11.75630
+#&gt; [2,] 11.756302 59.68362
+#&gt; 
+#&gt; $component_matrices$B_i$`9`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 24.16551  69.43268
+#&gt; [2,] 69.43268 199.49496
+#&gt; 
+#&gt; $component_matrices$B_i$`10`
+#&gt;           [,1]      [,2]
+#&gt; [1,] 0.2249591  4.655848
+#&gt; [2,] 4.6558475 96.359348
+#&gt; 
+#&gt; $component_matrices$B_i$`11`
+#&gt;            [,1]     [,2]
+#&gt; [1,]  0.4170714 -6.21539
+#&gt; [2,] -6.2153901 92.62460
+#&gt; 
+#&gt; $component_matrices$B_i$`12`
+#&gt;            [,1]      [,2]
+#&gt; [1,]  0.9483677 -8.855017
+#&gt; [2,] -8.8550173 82.680306
+#&gt; 
+#&gt; $component_matrices$B_i$`13`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 6.263501  9.454541
+#&gt; [2,] 9.454541 14.271306
+#&gt; 
+#&gt; $component_matrices$B_i$`14`
+#&gt;           [,1]      [,2]
+#&gt; [1,]   33.1940 -133.3929
+#&gt; [2,] -133.3929  536.0505
+#&gt; 
+#&gt; $component_matrices$B_i$`15`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  1.872697 11.17836
+#&gt; [2,] 11.178365 66.72508
+#&gt; 
+#&gt; $component_matrices$B_i$`16`
+#&gt;            [,1]     [,2]
+#&gt; [1,]  0.2199431 -4.60600
+#&gt; [2,] -4.6060002 96.45785
+#&gt; 
+#&gt; $component_matrices$B_i$`17`
+#&gt;          [,1]     [,2]
+#&gt; [1,] 16.22411 24.90410
+#&gt; [2,] 24.90410 38.22792
+#&gt; 
+#&gt; $component_matrices$B_i$`18`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 1.138186  9.498294
+#&gt; [2,] 9.498294 79.264346
+#&gt; 
+#&gt; $component_matrices$B_i$`19`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  1.574341 10.62365
+#&gt; [2,] 10.623649 71.68836
+#&gt; 
+#&gt; $component_matrices$B_i$`20`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  41.16761 199.7130
+#&gt; [2,] 199.71303 968.8513
+#&gt; 
+#&gt; $component_matrices$B_i$`21`
+#&gt;           [,1]       [,2]
+#&gt; [1,] 9.8559376 0.58173782
+#&gt; [2,] 0.5817378 0.03433655
+#&gt; 
+#&gt; $component_matrices$B_i$`22`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   2.727275 -12.07862
+#&gt; [2,] -12.078619  53.49407
+#&gt; 
+#&gt; $component_matrices$B_i$`23`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  5.666072 10.41443
+#&gt; [2,] 10.414434 19.14208
+#&gt; 
+#&gt; $component_matrices$B_i$`24`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   2.610097 -12.00560
+#&gt; [2,] -12.005600  55.22187
+#&gt; 
+#&gt; $component_matrices$B_i$`25`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   38.75822 -178.7807
+#&gt; [2,] -178.78072  824.6650
+#&gt; 
+#&gt; $component_matrices$B_i$`26`
+#&gt;          [,1]     [,2]
+#&gt; [1,]  4.49254 11.76081
+#&gt; [2,] 11.76081 30.78805
+#&gt; 
+#&gt; $component_matrices$B_i$`27`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  1.354266 10.10929
+#&gt; [2,] 10.109287 75.46349
+#&gt; 
+#&gt; $component_matrices$B_i$`28`
+#&gt;          [,1]     [,2]
+#&gt; [1,] 15.88235 23.27837
+#&gt; [2,] 23.27837 34.11854
+#&gt; 
+#&gt; $component_matrices$B_i$`29`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  3.697326 12.19835
+#&gt; [2,] 12.198350 40.24523
+#&gt; 
+#&gt; $component_matrices$B_i$`30`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   1.315666 -10.00845
+#&gt; [2,] -10.008449  76.13562
+#&gt; 
+#&gt; $component_matrices$B_i$`31`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  2.943767 12.17742
+#&gt; [2,] 12.177423 50.37410
+#&gt; 
+#&gt; $component_matrices$B_i$`32`
+#&gt;           [,1]      [,2]
+#&gt; [1,] 11.875512 -6.321063
+#&gt; [2,] -6.321063  3.364557
+#&gt; 
+#&gt; $component_matrices$B_i$`33`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  7.352891 -7.289782
+#&gt; [2,] -7.289782  7.227215
+#&gt; 
+#&gt; $component_matrices$B_i$`34`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  3.554538 12.22969
+#&gt; [2,] 12.229690 42.07729
+#&gt; 
+#&gt; $component_matrices$B_i$`35`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 28.60297  99.27135
+#&gt; [2,] 99.27135 344.53775
+#&gt; 
+#&gt; $component_matrices$B_i$`36`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   2.985024 -12.19118
+#&gt; [2,] -12.191179  49.79017
+#&gt; 
+#&gt; $component_matrices$B_i$`37`
+#&gt;           [,1]      [,2]
+#&gt; [1,] 0.4202515  6.236979
+#&gt; [2,] 6.2369792 92.563397
+#&gt; 
+#&gt; $component_matrices$B_i$`38`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   3.159976 -12.23235
+#&gt; [2,] -12.232354  47.35178
+#&gt; 
+#&gt; $component_matrices$B_i$`39`
+#&gt;            [,1]      [,2]
+#&gt; [1,] 0.04209968  2.051644
+#&gt; [2,] 2.05164409 99.982784
+#&gt; 
+#&gt; $component_matrices$B_i$`40`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   3.168118 -12.23361
+#&gt; [2,] -12.233611  47.23979
+#&gt; 
+#&gt; $component_matrices$B_i$`41`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  2.816568 12.12490
+#&gt; [2,] 12.124901 52.19587
+#&gt; 
+#&gt; $component_matrices$B_i$`42`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   73.79736 -547.6994
+#&gt; [2,] -547.69940 4064.8425
+#&gt; 
+#&gt; $component_matrices$B_i$`43`
+#&gt;            [,1]     [,2]
+#&gt; [1,]  0.3395676 -5.65340
+#&gt; [2,] -5.6533998 94.12242
+#&gt; 
+#&gt; $component_matrices$B_i$`44`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  6.737307 -8.575793
+#&gt; [2,] -8.575793 10.915967
+#&gt; 
+#&gt; $component_matrices$B_i$`45`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  15.77600 -22.77789
+#&gt; [2,] -22.77789  32.88746
+#&gt; 
+#&gt; $component_matrices$B_i$`46`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  20.24224 -45.89573
+#&gt; [2,] -45.89573 104.06051
+#&gt; 
+#&gt; $component_matrices$B_i$`47`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  3.218271 12.24009
+#&gt; [2,] 12.240091 46.55289
+#&gt; 
+#&gt; $component_matrices$B_i$`48`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  4.447916 11.79636
+#&gt; [2,] 11.796364 31.28526
+#&gt; 
+#&gt; $component_matrices$B_i$`49`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   2.661533 -12.03940
+#&gt; [2,] -12.039404  54.46006
+#&gt; 
+#&gt; $component_matrices$B_i$`50`
+#&gt;            [,1]      [,2]
+#&gt; [1,]  0.2421215 -4.821738
+#&gt; [2,] -4.8217380 96.022702
+#&gt; 
+#&gt; $component_matrices$B_i$`51`
+#&gt;          [,1]     [,2]
+#&gt; [1,] 16.76233 27.51737
+#&gt; [2,] 27.51737 45.17307
+#&gt; 
+#&gt; $component_matrices$B_i$`52`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  43.15767  217.5567
+#&gt; [2,] 217.55671 1096.6978
+#&gt; 
+#&gt; $component_matrices$B_i$`53`
+#&gt;            [,1]       [,2]
+#&gt; [1,] 0.01353747   1.166729
+#&gt; [2,] 1.16672924 100.554795
+#&gt; 
+#&gt; $component_matrices$B_i$`54`
+#&gt;            [,1]       [,2]
+#&gt; [1,] 0.01998735   1.416771
+#&gt; [2,] 1.41677076 100.425482
+#&gt; 
+#&gt; $component_matrices$B_i$`55`
+#&gt;            [,1]      [,2]
+#&gt; [1,]  0.9147474 -8.728798
+#&gt; [2,] -8.7287978 83.292847
+#&gt; 
+#&gt; $component_matrices$B_i$`56`
+#&gt;          [,1]     [,2]
+#&gt; [1,]  1.94062 11.28466
+#&gt; [2,] 11.28466 65.62002
+#&gt; 
+#&gt; $component_matrices$B_i$`57`
+#&gt;           [,1]      [,2]
+#&gt; [1,] 0.2479823  4.876828
+#&gt; [2,] 4.8768280 95.907875
+#&gt; 
+#&gt; $component_matrices$B_i$`58`
+#&gt;           [,1]     [,2]
+#&gt; [1,] 0.1936836  4.33386
+#&gt; [2,] 4.3338599 96.97434
+#&gt; 
+#&gt; $component_matrices$B_i$`59`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  1.023707 -9.123794
+#&gt; [2,] -9.123794 81.315885
+#&gt; 
+#&gt; $component_matrices$B_i$`60`
+#&gt;            [,1]      [,2]
+#&gt; [1,]  0.2615007 -5.001078
+#&gt; [2,] -5.0010784 95.643278
+#&gt; 
+#&gt; $component_matrices$B_i$`61`
+#&gt;          [,1]     [,2]
+#&gt; [1,] 1.027469  9.13673
+#&gt; [2,] 9.136730 81.24805
+#&gt; 
+#&gt; $component_matrices$B_i$`62`
+#&gt;             [,1]       [,2]
+#&gt; [1,]  0.03669607  -1.916492
+#&gt; [2,] -1.91649203 100.090877
+#&gt; 
+#&gt; $component_matrices$B_i$`63`
+#&gt;           [,1]      [,2]
+#&gt; [1,] 0.5679896  7.139522
+#&gt; [2,] 7.1395221 89.742452
+#&gt; 
+#&gt; $component_matrices$B_i$`64`
+#&gt;            [,1]        [,2]
+#&gt; [1,]  9.8229447 -0.68416849
+#&gt; [2,] -0.6841685  0.04765236
+#&gt; 
+#&gt; $component_matrices$B_i$`65`
+#&gt;              [,1]        [,2]
+#&gt; [1,] 0.0003101896   0.1768428
+#&gt; [2,] 0.1768428421 100.8202487
+#&gt; 
+#&gt; $component_matrices$B_i$`66`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 6.572683  8.892421
+#&gt; [2,] 8.892421 12.030877
+#&gt; 
+#&gt; $component_matrices$B_i$`67`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 1.112018  9.416064
+#&gt; [2,] 9.416064 79.730991
+#&gt; 
+#&gt; $component_matrices$B_i$`68`
+#&gt;          [,1]     [,2]
+#&gt; [1,] 7.875050 6.078871
+#&gt; [2,] 6.078871 4.692373
+#&gt; 
+#&gt; $component_matrices$B_i$`69`
+#&gt;            [,1]      [,2]
+#&gt; [1,]  0.5861514 -7.238864
+#&gt; [2,] -7.2388645 89.398679
+#&gt; 
+#&gt; $component_matrices$B_i$`70`
+#&gt;          [,1]     [,2]
+#&gt; [1,] 11.16203 3.744520
+#&gt; [2,]  3.74452 1.256172
+#&gt; 
+#&gt; $component_matrices$B_i$`71`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  6.168929 -9.617783
+#&gt; [2,] -9.617783 14.994783
+#&gt; 
+#&gt; $component_matrices$B_i$`72`
+#&gt;            [,1]      [,2]
+#&gt; [1,]  0.5792591 -7.201425
+#&gt; [2,] -7.2014253 89.529060
+#&gt; 
+#&gt; $component_matrices$B_i$`73`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 0.167155  4.036979
+#&gt; [2,] 4.036979 97.497532
+#&gt; 
+#&gt; $component_matrices$B_i$`74`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  1.239600 -9.799509
+#&gt; [2,] -9.799509 77.468851
+#&gt; 
+#&gt; $component_matrices$B_i$`75`
+#&gt;            [,1]      [,2]
+#&gt; [1,] 0.06932852  2.625635
+#&gt; [2,] 2.62563494 99.438996
+#&gt; 
+#&gt; $component_matrices$B_i$`76`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   67.43633 -471.3264
+#&gt; [2,] -471.32637 3294.1968
+#&gt; 
+#&gt; $component_matrices$B_i$`77`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   1.929081 -11.26709
+#&gt; [2,] -11.267086  65.80710
+#&gt; 
+#&gt; $component_matrices$B_i$`78`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  2.356123 11.79640
+#&gt; [2,] 11.796397 59.06101
+#&gt; 
+#&gt; $component_matrices$B_i$`79`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 25.28754  76.66866
+#&gt; [2,] 76.66866 232.44977
+#&gt; 
+#&gt; $component_matrices$B_i$`80`
+#&gt;          [,1]      [,2]
+#&gt; [1,]  74.4741  556.0452
+#&gt; [2,] 556.0452 4151.5939
+#&gt; 
+#&gt; $component_matrices$B_i$`81`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  25.03456 -75.0184
+#&gt; [2,] -75.01840 224.7997
+#&gt; 
+#&gt; $component_matrices$B_i$`82`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   5.358911 -10.83927
+#&gt; [2,] -10.839271  21.92419
+#&gt; 
+#&gt; $component_matrices$B_i$`83`
+#&gt;            [,1]     [,2]
+#&gt; [1,]  0.2038647 -4.44171
+#&gt; [2,] -4.4417103 96.77393
+#&gt; 
+#&gt; $component_matrices$B_i$`84`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  4.577009 11.69014
+#&gt; [2,] 11.690144 29.85781
+#&gt; 
+#&gt; $component_matrices$B_i$`85`
+#&gt;            [,1]      [,2]
+#&gt; [1,]   5.935795 -10.00229
+#&gt; [2,] -10.002293  16.85467
+#&gt; 
+#&gt; $component_matrices$B_i$`86`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  7.774745 -6.319717
+#&gt; [2,] -6.319717  5.136994
+#&gt; 
+#&gt; $component_matrices$B_i$`87`
+#&gt;           [,1]      [,2]
+#&gt; [1,] 0.1741867  4.118081
+#&gt; [2,] 4.1180809 97.358719
+#&gt; 
+#&gt; $component_matrices$B_i$`88`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  1.501483 10.46419
+#&gt; [2,] 10.464191 72.92743
+#&gt; 
+#&gt; $component_matrices$B_i$`89`
+#&gt;          [,1]      [,2]
+#&gt; [1,]  19.2530 -40.41960
+#&gt; [2,] -40.4196  84.85658
+#&gt; 
+#&gt; $component_matrices$B_i$`90`
+#&gt;          [,1]     [,2]
+#&gt; [1,] 6.471038  9.08196
+#&gt; [2,] 9.081960 12.74633
+#&gt; 
+#&gt; $component_matrices$B_i$`91`
+#&gt;           [,1]      [,2]
+#&gt; [1,] 0.9537271  8.874769
+#&gt; [2,] 8.8747688 82.582870
+#&gt; 
+#&gt; $component_matrices$B_i$`92`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 1.097949  9.371054
+#&gt; [2,] 9.371054 79.982427
+#&gt; 
+#&gt; $component_matrices$B_i$`93`
+#&gt;          [,1]     [,2]
+#&gt; [1,] 14.22058 15.76036
+#&gt; [2,] 15.76036 17.46687
+#&gt; 
+#&gt; $component_matrices$B_i$`94`
+#&gt;          [,1]      [,2]
+#&gt; [1,] 1.228669  9.768323
+#&gt; [2,] 9.768323 77.661390
+#&gt; 
+#&gt; $component_matrices$B_i$`95`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  56.79944  352.3951
+#&gt; [2,] 352.39509 2186.3295
+#&gt; 
+#&gt; $component_matrices$B_i$`96`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  3.113554 12.22408
+#&gt; [2,] 12.224084 47.99281
+#&gt; 
+#&gt; $component_matrices$B_i$`97`
+#&gt;           [,1]     [,2]
+#&gt; [1,]  39.15787 182.2009
+#&gt; [2,] 182.20092 847.7780
+#&gt; 
+#&gt; $component_matrices$B_i$`98`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  0.363852 -5.837414
+#&gt; [2,] -5.837414 93.651817
+#&gt; 
+#&gt; $component_matrices$B_i$`99`
+#&gt;           [,1]      [,2]
+#&gt; [1,]  19.24029 -40.35047
+#&gt; [2,] -40.35047  84.62246
+#&gt; 
+#&gt; $component_matrices$B_i$`100`
+#&gt;           [,1]      [,2]
+#&gt; [1,]   5.12201 -11.13313
+#&gt; [2,] -11.13313  24.19881
+#&gt; 
+#&gt; 
+#&gt; 
+#&gt; $split_data
+#&gt; $split_data$`1`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.668307 2.028172 4.949316 16.34576 4.823768 8.921782     0 0.09273926     1
+#&gt; 
+#&gt; $split_data$`2`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 10.45245 1.643297 7.851962 25.68742 7.884845 13.90947     0 1.016727     1
+#&gt; 
+#&gt; $split_data$`3`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.123411 2.852626 4.729075 16.10831 4.709346 9.014695     0 0.4939904     0
+#&gt; 
+#&gt; $split_data$`4`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 8.371503 2.513365 2.564395 10.57997 2.786091 6.733378     0 1.243224     0
+#&gt; 
+#&gt; $split_data$`5`
+#&gt; # A tibble: 1 x 9
+#&gt;           Y1       Y2       X1       Y3      W1       Z1    X2       Y4    Y5
+#&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -0.8319749 3.018203 4.782347 16.46401 4.81159 9.290492     0 0.695206     1
+#&gt; 
+#&gt; $split_data$`6`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3      W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.398776 0.9785209 5.335713 18.32577 5.41537 10.3222     0 0.9522014     1
+#&gt; 
+#&gt; $split_data$`7`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 1.894331 1.438332 1.386442 5.577536 1.240995 3.497873     0 -0.3431465     0
+#&gt; 
+#&gt; $split_data$`8`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3      W1       Z1    X2      Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.522814 0.9874439 3.453377 13.07466 3.63201 7.894598     0 1.15987     0
+#&gt; 
+#&gt; $split_data$`9`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 9.960406 -1.020814 2.958662 10.05073 2.752347 5.612733     0 -0.4293933     0
+#&gt; 
+#&gt; $split_data$`10`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2      X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.570265 2.33235 7.59137 24.41425 7.501404 13.02719     0 0.4992748     1
+#&gt; 
+#&gt; $split_data$`11`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2      X1       Y3       W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.690374 3.240512 6.81294 22.52871 6.835412 12.3093     0 0.8711801     1
+#&gt; 
+#&gt; $split_data$`12`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1      Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.018405 2.67135 2.481492 9.54075 2.505561 5.818512     0 0.4444237     0
+#&gt; 
+#&gt; $split_data$`13`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1      Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.541865 0.6699659 3.307246 11.7201 3.256837 6.759235     0 0.2290906     1
+#&gt; 
+#&gt; $split_data$`14`
+#&gt; # A tibble: 1 x 9
+#&gt;           Y1      Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;        &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -0.7168604 1.14942 2.366527 9.839421 2.551487 6.289631     0 1.076493     0
+#&gt; 
+#&gt; $split_data$`15`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.676098 0.2111693 6.308752 21.04963 6.339597 11.58651     0 0.8542547     1
+#&gt; 
+#&gt; $split_data$`16`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.513544 3.231522 2.280638 8.812598 2.273309 5.391641     0 0.2987471     0
+#&gt; 
+#&gt; $split_data$`17`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1     Y2       X1       Y3      W1       Z1    X2           Y4    Y5
+#&gt;     &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;        &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 9.07248 1.6656 2.872154 10.22761 2.77494 5.919377     0 -0.001638862     0
+#&gt; 
+#&gt; $split_data$`18`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.977705 1.032678 4.361465 15.59525 4.489179 9.053054     0 1.047003     1
+#&gt; 
+#&gt; $split_data$`19`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3     W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.789836 2.87937 3.573053 11.80535 3.3446 6.445765     0 -0.4565089     1
+#&gt; 
+#&gt; $split_data$`20`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 11.46076 1.746421 5.556376 20.97943 6.133951 12.64486     0 2.965934     0
+#&gt; 
+#&gt; $split_data$`21`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 1.905147 0.4821242 7.752991 24.82088 7.643469 13.1914     0 0.4372091     0
+#&gt; 
+#&gt; $split_data$`22`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.69601 1.976117 6.030068 20.85426 6.221083 11.80916     0 1.467067     0
+#&gt; 
+#&gt; $split_data$`23`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.664212 2.026659 4.213262 14.90175 4.278752 8.581854     0 0.7832875     0
+#&gt; 
+#&gt; $split_data$`24`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.660143 2.163681 2.923132 11.5428 3.116483 7.158102     0 1.165718     0
+#&gt; 
+#&gt; $split_data$`25`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2      X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -1.181047 2.410008 5.15683 16.65611 4.953235 8.920865     0 -0.1986962     1
+#&gt; 
+#&gt; $split_data$`26`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.925002 1.372637 5.519839 18.12107 5.410226 9.841308     0 0.2135333     1
+#&gt; 
+#&gt; $split_data$`27`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2          Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.880834 2.636918 5.477283 17.71163 5.297228 9.495703     0 -0.07249326     1
+#&gt; 
+#&gt; $split_data$`28`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1        Y2      X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 9.02983 0.7980652 4.05543 14.39723 4.113166 8.314089     0 0.7364875     1
+#&gt; 
+#&gt; $split_data$`29`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.12172 3.346542 4.319714 13.80141 4.030281 7.321841     0 -0.6257581     1
+#&gt; 
+#&gt; $split_data$`30`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.191588 1.401233 10.28389 33.09876 10.34566 17.67292     0 1.375465     1
+#&gt; 
+#&gt; $split_data$`31`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.328822 2.442204 2.557841 9.582409 2.535063 5.745648     0 0.2646705     0
+#&gt; 
+#&gt; $split_data$`32`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2      Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 1.598477 2.613526 11.15274 37.2156 11.59209 20.48649     0 2.97265     1
+#&gt; 
+#&gt; $split_data$`33`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.756185 1.700904 2.538047 9.476212 2.503565 5.669141     0 0.2158751     1
+#&gt; 
+#&gt; $split_data$`34`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1      Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.159215 0.3994119 7.939765 25.7081 7.911967 13.79845     0 0.782783     1
+#&gt; 
+#&gt; $split_data$`35`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 10.39274 1.660533 3.629295 12.19787 3.456791 6.753928     0 -0.2270849     1
+#&gt; 
+#&gt; $split_data$`36`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.772286 1.418692 5.644317 18.71116 5.588868 10.24468     0 0.4426374     1
+#&gt; 
+#&gt; $split_data$`37`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3      W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.396295 1.609638 1.385403 6.339116 1.43113 4.261012     0 0.421448     0
+#&gt; 
+#&gt; $split_data$`38`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.822195 2.845514 3.651563 13.37201 3.755894 7.894667     0 0.8824796     0
+#&gt; 
+#&gt; $split_data$`39`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.839381 2.684727 2.075987 9.293362 2.342337 6.179382     0 1.373001     1
+#&gt; 
+#&gt; $split_data$`40`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.824484 2.237713 7.947636 26.81311 8.190186 14.89166     0 1.864966     1
+#&gt; 
+#&gt; $split_data$`41`
+#&gt; # A tibble: 1 x 9
+#&gt;       Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.3663 1.289378 3.893624 13.57924 3.868217 7.738807     0 0.3877331     1
+#&gt; 
+#&gt; $split_data$`42`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -3.545975 4.613319 4.399113 16.60054 4.749914 10.00187     0 1.943115     1
+#&gt; 
+#&gt; $split_data$`43`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.627288 0.3733526 2.019187 6.280784 1.574993 3.252004     0 -1.474857     0
+#&gt; 
+#&gt; $split_data$`44`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.640196 0.3926937 10.18205 33.16901 10.33776 17.89594     0 1.741072     1
+#&gt; 
+#&gt; $split_data$`45`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 1.072662 2.340317 4.471305 14.89163 4.340734 8.184674     0 0.02484717     1
+#&gt; 
+#&gt; $split_data$`46`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1      Y3      W1       Z1    X2       Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 0.5454252 4.727888 5.445723 19.6594 5.77628 11.49081     0 1.966803     1
+#&gt; 
+#&gt; $split_data$`47`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1      Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.250609 1.67281 5.030453 16.72792 4.939593 9.18224     0 0.239605     0
+#&gt; 
+#&gt; $split_data$`48`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.935555 0.7431033 7.586987 26.08003 7.916753 14.69955     0 2.177764     1
+#&gt; 
+#&gt; $split_data$`49`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.675984 1.568602 9.452187 30.40034 9.463132 16.22206     0 1.088998     1
+#&gt; 
+#&gt; $split_data$`50`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.536622 4.548853 8.141977 24.54727 7.672313 12.33431     0 -0.9644582     1
+#&gt; 
+#&gt; $split_data$`51`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 9.138746 1.228592 5.623052 18.42209 5.511286 9.987515     1 0.715243     1
+#&gt; 
+#&gt; $split_data$`52`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 11.61401 1.492658 5.066275 15.46023 4.631626 7.860815     1 -0.6319704     1
+#&gt; 
+#&gt; $split_data$`53`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3      W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.928213 1.729977 2.174904 8.703576 2.21962 5.44122     1 0.9963552     0
+#&gt; 
+#&gt; $split_data$`54`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.903187 2.748117 1.373871 8.019078 1.848237 5.958272     1 2.634853     1
+#&gt; 
+#&gt; $split_data$`55`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.000988 2.668594 4.252394 12.48526 3.684413 6.106666     1 -1.246686     1
+#&gt; 
+#&gt; $split_data$`56`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.651502 1.544701 1.844766 8.514763 2.089882 5.747614     1 1.764941     0
+#&gt; 
+#&gt; $split_data$`57`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1         Y2       X1       Y3       W1       Z1    X2         Y4
+#&gt;      &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt;
+#&gt; 1 4.546585 0.07215478 6.257311 19.37311 5.907605 9.987141     1 -0.1730945
+#&gt; # ... with 1 more variables: Y5 &lt;int&gt;
+#&gt; 
+#&gt; $split_data$`58`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3      W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.604468 3.881977 7.640542 26.7465 8.09676 15.28569     1 3.188927     1
+#&gt; 
+#&gt; $split_data$`59`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.056347 0.7502889 3.400547 13.58294 3.745871 8.482119     1 2.321353     1
+#&gt; 
+#&gt; $split_data$`60`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.555935 1.510655 3.879217 12.7988 3.669504 6.979974     1 0.1490699     0
+#&gt; 
+#&gt; $split_data$`61`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.030922 2.215391 5.044494 16.87149 4.978996 9.304746     1 0.8424537     1
+#&gt; 
+#&gt; $split_data$`62`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.236126 2.422109 3.724228 13.10384 3.707017 7.517498     1 0.9035788     0
+#&gt; 
+#&gt; $split_data$`63`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.290913 0.7788517 3.209739 11.25033 3.115018 6.435724     1 0.5420903     1
+#&gt; 
+#&gt; $split_data$`64`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3      W1      Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 8.178721 2.312228 3.503141 15.09138 4.14863 9.83667     1 3.532273     0
+#&gt; 
+#&gt; $split_data$`65`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.026951 2.886462 3.588984 12.89679 3.621443 7.513311     1 1.088733     1
+#&gt; 
+#&gt; $split_data$`66`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3      W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.480839 2.474811 2.572586 9.004733 2.39433 5.145854     1 0.1442336     1
+#&gt; 
+#&gt; $split_data$`67`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2      X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.990041 2.869841 2.32132 9.601955 2.480819 6.119975     1 1.470126     0
+#&gt; 
+#&gt; $split_data$`68`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.238311 1.113476 7.354859 24.26627 7.405282 13.23398     1 1.537177     0
+#&gt; 
+#&gt; $split_data$`69`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2      X1       Y3      W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.810169 1.871344 1.78062 7.271942 1.76314 4.601012     1 0.708145     1
+#&gt; 
+#&gt; $split_data$`70`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3      W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 8.385526 3.09651 2.438272 9.222328 2.41515 5.564919     1 0.7513374     0
+#&gt; 
+#&gt; $split_data$`71`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.528296 2.51803 4.870025 17.05898 4.982251 9.753941     1 1.535906     1
+#&gt; 
+#&gt; $split_data$`72`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.805654 2.398033 6.107551 19.2583 5.841462 10.09697     1 0.1463994     0
+#&gt; 
+#&gt; $split_data$`73`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.635717 3.066659 3.068762 10.04387 2.778158 5.440724     1 -0.2555431     0
+#&gt; 
+#&gt; $split_data$`74`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.157937 1.55046 8.069649 27.85747 8.481779 15.75299     1 3.055487     0
+#&gt; 
+#&gt; $split_data$`75`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.78126 2.626102 2.564135 7.630308 2.048611 3.784106     1 -1.205683     1
+#&gt; 
+#&gt; $split_data$`76`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -3.167399 1.181164 6.700594 22.11453 6.703782 12.06364     1 1.282809     1
+#&gt; 
+#&gt; $split_data$`77`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.433477 1.736484 5.381833 17.05797 5.109951 8.985221     1 0.05065496     1
+#&gt; 
+#&gt; $split_data$`78`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2      X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.509597 2.154575 12.6449 40.20524 12.71253 21.23789     1 2.135029     1
+#&gt; 
+#&gt; $split_data$`79`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 10.07324 2.568446 2.037142 9.119878 2.289255 6.064165     1 1.812166     1
+#&gt; 
+#&gt; $split_data$`80`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1         Y2      X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;     &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 13.6744 -0.6601597 5.88364 17.57652 5.365039 8.751055     1 -0.8860408     1
+#&gt; 
+#&gt; $split_data$`81`
+#&gt; # A tibble: 1 x 9
+#&gt;           Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 0.04110863 3.136533 7.093428 24.17711 7.317634 13.53696     1 2.206165     1
+#&gt; 
+#&gt; $split_data$`82`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.359496 2.421773 4.873831 16.5715 4.861332 9.260751     1 1.037387     1
+#&gt; 
+#&gt; $split_data$`83`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.496077 3.350083 8.291038 25.52777 7.954701 13.09121     1 0.08375453     0
+#&gt; 
+#&gt; $split_data$`84`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.905169 3.103757 4.051026 12.22187 3.568223 6.145328     1 -0.9261089     0
+#&gt; 
+#&gt; $split_data$`85`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.480912 2.647046 7.689539 25.7782 7.866935 14.24389     1 2.078536     1
+#&gt; 
+#&gt; $split_data$`86`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1     Y3      W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.832886 2.175636 4.933636 16.643 4.89416 9.24255     1 0.9354586     0
+#&gt; 
+#&gt; $split_data$`87`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.627207 2.653558 5.774989 19.54133 5.829081 10.87885     1 1.393867     0
+#&gt; 
+#&gt; $split_data$`88`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.819213 1.93451 4.483566 16.26806 4.687907 9.542711     1 1.865719     0
+#&gt; 
+#&gt; $split_data$`89`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 0.6567391 2.645522 2.739769 11.94648 3.171563 7.836829     1 2.601153     0
+#&gt; 
+#&gt; $split_data$`90`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.50074 2.364294 5.286464 17.75562 5.260521 9.825925     1 1.024876     1
+#&gt; 
+#&gt; $split_data$`91`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.067974 2.843442 3.701213 12.54652 3.561933 6.994698     1 0.412999     1
+#&gt; 
+#&gt; $split_data$`92`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2     Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.996733 1.323521 5.795986 20.81626 6.153061 12.12228     1 2.6079     0
+#&gt; 
+#&gt; $split_data$`93`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 8.815581 1.608567 4.883292 15.75692 4.660053 8.431981     1 0.1953718     1
+#&gt; 
+#&gt; $split_data$`94`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3      W1       Z1    X2       Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.93611 2.404941 7.172253 22.35919 6.88286 11.60081     1 0.159654     1
+#&gt; 
+#&gt; $split_data$`95`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1        Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 12.5811 0.8931413 3.340735 11.49191 3.208161 6.480807     1 0.4037771     0
+#&gt; 
+#&gt; $split_data$`96`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1     Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.280037 1.6167 7.262549 26.23333 7.873969 15.33951     1 3.771938     1
+#&gt; 
+#&gt; $split_data$`97`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1       Z1    X2          Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 11.30219 2.29402 1.940701 6.989609 1.732577 4.078556     1 -0.03842565     1
+#&gt; 
+#&gt; $split_data$`98`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.647765 3.793061 5.958475 20.28894 6.061855 11.35123     1 1.609367     0
+#&gt; 
+#&gt; $split_data$`99`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 0.6581884 2.814032 4.432708 14.11944 4.138037 7.470379     1 -0.1354124     1
+#&gt; 
+#&gt; $split_data$`100`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3      W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.307749 0.6799756 3.283518 10.67652 2.99001 5.751243     1 -0.2456829     0
+#&gt; 
+#&gt; </div><div class='input'>
+<span class='co'># A simple linear model for regressing X1 and X2 on Y4</span>
+<span class='no'>lm_eefun</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>data</span>){
+ <span class='no'>X</span> <span class='kw'>&lt;-</span> <span class='fu'>cbind</span>(<span class='fl'>1</span>, <span class='no'>data</span>$<span class='no'>X1</span>, <span class='no'>data</span>$<span class='no'>X2</span>)
+ <span class='no'>Y</span> <span class='kw'>&lt;-</span> <span class='no'>data</span>$<span class='no'>Y4</span>
+  <span class='kw'>function</span>(<span class='no'>theta</span>){
+    <span class='fu'>t</span>(<span class='no'>X</span>) <span class='kw'>%*%</span> (<span class='no'>Y</span> - <span class='no'>X</span> <span class='kw'>%*%</span> <span class='no'>theta</span>)
+   }
+ }
+
+<span class='fu'>estimate_equations</span>(
+ <span class='kw'>eeFUN</span> <span class='kw'>=</span> <span class='no'>lm_eefun</span>,
+ <span class='kw'>data</span>  <span class='kw'>=</span> <span class='no'>geexex</span>,
+ <span class='kw'>rootFUN_control</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>)))</div><div class='output co'>#&gt; <span class='message'>When units are not specified, each observation is considered independent.</span></div><div class='output co'>#&gt; $rootFUN_results
+#&gt; $rootFUN_results$root
+#&gt; [1] -0.04061272  0.14435320  0.35436823
+#&gt; 
+#&gt; $rootFUN_results$f.root
+#&gt; [1] 8.021361e-15 5.940561e-14 5.107026e-15
+#&gt; 
+#&gt; $rootFUN_results$iter
+#&gt; [1] 3
+#&gt; 
+#&gt; $rootFUN_results$estim.precis
+#&gt; [1] 2.4178e-14
+#&gt; 
+#&gt; 
+#&gt; $estimates
+#&gt; [1] -0.04061272  0.14435320  0.35436823
+#&gt; 
+#&gt; $vcov
+#&gt;              [,1]          [,2]          [,3]
+#&gt; [1,]  0.053446050 -0.0085998270 -0.0117461490
+#&gt; [2,] -0.008599827  0.0018120535 -0.0001770491
+#&gt; [3,] -0.011746149 -0.0001770491  0.0403839561
+#&gt; 
+#&gt; $component_matrices
+#&gt; $component_matrices$A
+#&gt;         [,1]      [,2]     [,3]
+#&gt; [1,] 100.000  487.7690  50.0000
+#&gt; [2,] 487.769 2902.9210 237.3681
+#&gt; [3,]  50.000  237.3681  50.0000
+#&gt; 
+#&gt; $component_matrices$A_i
+#&gt; $component_matrices$A_i$`1`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  4.949316    0
+#&gt; [2,] 4.949316 24.495730    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`2`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  7.851962    0
+#&gt; [2,] 7.851962 61.653306    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`3`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  4.729075    0
+#&gt; [2,] 4.729075 22.364149    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`4`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.564395    0
+#&gt; [2,] 2.564395 6.576123    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`5`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  4.782347    0
+#&gt; [2,] 4.782347 22.870844    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`6`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  5.335713    0
+#&gt; [2,] 5.335713 28.469832    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`7`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 1.386442    0
+#&gt; [2,] 1.386442 1.922222    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`8`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  3.453377    0
+#&gt; [2,] 3.453377 11.925814    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`9`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.958662    0
+#&gt; [2,] 2.958662 8.753678    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`10`
+#&gt;         [,1]     [,2] [,3]
+#&gt; [1,] 1.00000  7.59137    0
+#&gt; [2,] 7.59137 57.62889    0
+#&gt; [3,] 0.00000  0.00000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`11`
+#&gt;         [,1]     [,2] [,3]
+#&gt; [1,] 1.00000  6.81294    0
+#&gt; [2,] 6.81294 46.41615    0
+#&gt; [3,] 0.00000  0.00000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`12`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.481492    0
+#&gt; [2,] 2.481492 6.157802    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`13`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  3.307246    0
+#&gt; [2,] 3.307246 10.937874    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`14`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.366527    0
+#&gt; [2,] 2.366527 5.600449    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`15`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  6.308752    0
+#&gt; [2,] 6.308752 39.800348    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`16`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.280638    0
+#&gt; [2,] 2.280638 5.201311    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`17`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.872154    0
+#&gt; [2,] 2.872154 8.249268    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`18`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  4.361465    0
+#&gt; [2,] 4.361465 19.022379    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`19`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  3.573053    0
+#&gt; [2,] 3.573053 12.766708    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`20`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  5.556376    0
+#&gt; [2,] 5.556376 30.873320    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`21`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  7.752991    0
+#&gt; [2,] 7.752991 60.108874    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`22`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  6.030068    0
+#&gt; [2,] 6.030068 36.361715    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`23`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  4.213262    0
+#&gt; [2,] 4.213262 17.751575    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`24`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.923132    0
+#&gt; [2,] 2.923132 8.544699    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`25`
+#&gt;         [,1]     [,2] [,3]
+#&gt; [1,] 1.00000  5.15683    0
+#&gt; [2,] 5.15683 26.59289    0
+#&gt; [3,] 0.00000  0.00000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`26`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  5.519839    0
+#&gt; [2,] 5.519839 30.468624    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`27`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  5.477283    0
+#&gt; [2,] 5.477283 30.000628    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`28`
+#&gt;         [,1]     [,2] [,3]
+#&gt; [1,] 1.00000  4.05543    0
+#&gt; [2,] 4.05543 16.44651    0
+#&gt; [3,] 0.00000  0.00000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`29`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  4.319714    0
+#&gt; [2,] 4.319714 18.659927    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`30`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,]  1.00000  10.28389    0
+#&gt; [2,] 10.28389 105.75848    0
+#&gt; [3,]  0.00000   0.00000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`31`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.557841    0
+#&gt; [2,] 2.557841 6.542550    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`32`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,]  1.00000  11.15274    0
+#&gt; [2,] 11.15274 124.38366    0
+#&gt; [3,]  0.00000   0.00000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`33`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.538047    0
+#&gt; [2,] 2.538047 6.441684    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`34`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  7.939765    0
+#&gt; [2,] 7.939765 63.039867    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`35`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  3.629295    0
+#&gt; [2,] 3.629295 13.171780    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`36`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  5.644317    0
+#&gt; [2,] 5.644317 31.858312    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`37`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 1.385403    0
+#&gt; [2,] 1.385403 1.919341    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`38`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  3.651563    0
+#&gt; [2,] 3.651563 13.333910    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`39`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.075987    0
+#&gt; [2,] 2.075987 4.309721    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`40`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  7.947636    0
+#&gt; [2,] 7.947636 63.164914    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`41`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  3.893624    0
+#&gt; [2,] 3.893624 15.160307    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`42`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  4.399113    0
+#&gt; [2,] 4.399113 19.352196    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`43`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.000000 2.019187    0
+#&gt; [2,] 2.019187 4.077114    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`44`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,]  1.00000  10.18205    0
+#&gt; [2,] 10.18205 103.67407    0
+#&gt; [3,]  0.00000   0.00000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`45`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  4.471305    0
+#&gt; [2,] 4.471305 19.992570    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`46`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  5.445723    0
+#&gt; [2,] 5.445723 29.655894    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`47`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  5.030453    0
+#&gt; [2,] 5.030453 25.305462    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`48`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  7.586987    0
+#&gt; [2,] 7.586987 57.562365    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`49`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  9.452187    0
+#&gt; [2,] 9.452187 89.343839    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`50`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.000000  8.141977    0
+#&gt; [2,] 8.141977 66.291783    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$A_i$`51`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  5.623052 1.000000
+#&gt; [2,] 5.623052 31.618709 5.623052
+#&gt; [3,] 1.000000  5.623052 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`52`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  5.066275 1.000000
+#&gt; [2,] 5.066275 25.667144 5.066275
+#&gt; [3,] 1.000000  5.066275 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`53`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 2.174904 1.000000
+#&gt; [2,] 2.174904 4.730206 2.174904
+#&gt; [3,] 1.000000 2.174904 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`54`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 1.373871 1.000000
+#&gt; [2,] 1.373871 1.887521 1.373871
+#&gt; [3,] 1.000000 1.373871 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`55`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  4.252394 1.000000
+#&gt; [2,] 4.252394 18.082857 4.252394
+#&gt; [3,] 1.000000  4.252394 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`56`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 1.844766 1.000000
+#&gt; [2,] 1.844766 3.403163 1.844766
+#&gt; [3,] 1.000000 1.844766 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`57`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  6.257311 1.000000
+#&gt; [2,] 6.257311 39.153943 6.257311
+#&gt; [3,] 1.000000  6.257311 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`58`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  7.640542 1.000000
+#&gt; [2,] 7.640542 58.377883 7.640542
+#&gt; [3,] 1.000000  7.640542 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`59`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  3.400547 1.000000
+#&gt; [2,] 3.400547 11.563718 3.400547
+#&gt; [3,] 1.000000  3.400547 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`60`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  3.879217 1.000000
+#&gt; [2,] 3.879217 15.048328 3.879217
+#&gt; [3,] 1.000000  3.879217 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`61`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  5.044494 1.000000
+#&gt; [2,] 5.044494 25.446924 5.044494
+#&gt; [3,] 1.000000  5.044494 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`62`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  3.724228 1.000000
+#&gt; [2,] 3.724228 13.869875 3.724228
+#&gt; [3,] 1.000000  3.724228 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`63`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  3.209739 1.000000
+#&gt; [2,] 3.209739 10.302421 3.209739
+#&gt; [3,] 1.000000  3.209739 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`64`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  3.503141 1.000000
+#&gt; [2,] 3.503141 12.271994 3.503141
+#&gt; [3,] 1.000000  3.503141 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`65`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  3.588984 1.000000
+#&gt; [2,] 3.588984 12.880809 3.588984
+#&gt; [3,] 1.000000  3.588984 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`66`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 2.572586 1.000000
+#&gt; [2,] 2.572586 6.618198 2.572586
+#&gt; [3,] 1.000000 2.572586 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`67`
+#&gt;         [,1]     [,2]    [,3]
+#&gt; [1,] 1.00000 2.321320 1.00000
+#&gt; [2,] 2.32132 5.388528 2.32132
+#&gt; [3,] 1.00000 2.321320 1.00000
+#&gt; 
+#&gt; $component_matrices$A_i$`68`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  7.354859 1.000000
+#&gt; [2,] 7.354859 54.093946 7.354859
+#&gt; [3,] 1.000000  7.354859 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`69`
+#&gt;         [,1]     [,2]    [,3]
+#&gt; [1,] 1.00000 1.780620 1.00000
+#&gt; [2,] 1.78062 3.170606 1.78062
+#&gt; [3,] 1.00000 1.780620 1.00000
+#&gt; 
+#&gt; $component_matrices$A_i$`70`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 2.438272 1.000000
+#&gt; [2,] 2.438272 5.945173 2.438272
+#&gt; [3,] 1.000000 2.438272 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`71`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  4.870025 1.000000
+#&gt; [2,] 4.870025 23.717145 4.870025
+#&gt; [3,] 1.000000  4.870025 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`72`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  6.107551 1.000000
+#&gt; [2,] 6.107551 37.302178 6.107551
+#&gt; [3,] 1.000000  6.107551 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`73`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 3.068762 1.000000
+#&gt; [2,] 3.068762 9.417303 3.068762
+#&gt; [3,] 1.000000 3.068762 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`74`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  8.069649 1.000000
+#&gt; [2,] 8.069649 65.119232 8.069649
+#&gt; [3,] 1.000000  8.069649 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`75`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 2.564135 1.000000
+#&gt; [2,] 2.564135 6.574787 2.564135
+#&gt; [3,] 1.000000 2.564135 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`76`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  6.700594 1.000000
+#&gt; [2,] 6.700594 44.897963 6.700594
+#&gt; [3,] 1.000000  6.700594 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`77`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  5.381833 1.000000
+#&gt; [2,] 5.381833 28.964128 5.381833
+#&gt; [3,] 1.000000  5.381833 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`78`
+#&gt;         [,1]     [,2]    [,3]
+#&gt; [1,]  1.0000  12.6449  1.0000
+#&gt; [2,] 12.6449 159.8935 12.6449
+#&gt; [3,]  1.0000  12.6449  1.0000
+#&gt; 
+#&gt; $component_matrices$A_i$`79`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 2.037142 1.000000
+#&gt; [2,] 2.037142 4.149947 2.037142
+#&gt; [3,] 1.000000 2.037142 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`80`
+#&gt;         [,1]     [,2]    [,3]
+#&gt; [1,] 1.00000  5.88364 1.00000
+#&gt; [2,] 5.88364 34.61722 5.88364
+#&gt; [3,] 1.00000  5.88364 1.00000
+#&gt; 
+#&gt; $component_matrices$A_i$`81`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  7.093428 1.000000
+#&gt; [2,] 7.093428 50.316720 7.093428
+#&gt; [3,] 1.000000  7.093428 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`82`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  4.873831 1.000000
+#&gt; [2,] 4.873831 23.754232 4.873831
+#&gt; [3,] 1.000000  4.873831 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`83`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  8.291038 1.000000
+#&gt; [2,] 8.291038 68.741319 8.291038
+#&gt; [3,] 1.000000  8.291038 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`84`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  4.051026 1.000000
+#&gt; [2,] 4.051026 16.410813 4.051026
+#&gt; [3,] 1.000000  4.051026 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`85`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  7.689539 1.000000
+#&gt; [2,] 7.689539 59.129016 7.689539
+#&gt; [3,] 1.000000  7.689539 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`86`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  4.933636 1.000000
+#&gt; [2,] 4.933636 24.340769 4.933636
+#&gt; [3,] 1.000000  4.933636 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`87`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  5.774989 1.000000
+#&gt; [2,] 5.774989 33.350494 5.774989
+#&gt; [3,] 1.000000  5.774989 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`88`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  4.483566 1.000000
+#&gt; [2,] 4.483566 20.102364 4.483566
+#&gt; [3,] 1.000000  4.483566 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`89`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 2.739769 1.000000
+#&gt; [2,] 2.739769 7.506334 2.739769
+#&gt; [3,] 1.000000 2.739769 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`90`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  5.286464 1.000000
+#&gt; [2,] 5.286464 27.946699 5.286464
+#&gt; [3,] 1.000000  5.286464 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`91`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  3.701213 1.000000
+#&gt; [2,] 3.701213 13.698980 3.701213
+#&gt; [3,] 1.000000  3.701213 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`92`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  5.795986 1.000000
+#&gt; [2,] 5.795986 33.593451 5.795986
+#&gt; [3,] 1.000000  5.795986 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`93`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  4.883292 1.000000
+#&gt; [2,] 4.883292 23.846542 4.883292
+#&gt; [3,] 1.000000  4.883292 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`94`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  7.172253 1.000000
+#&gt; [2,] 7.172253 51.441211 7.172253
+#&gt; [3,] 1.000000  7.172253 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`95`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  3.340735 1.000000
+#&gt; [2,] 3.340735 11.160513 3.340735
+#&gt; [3,] 1.000000  3.340735 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`96`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  7.262549 1.000000
+#&gt; [2,] 7.262549 52.744614 7.262549
+#&gt; [3,] 1.000000  7.262549 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`97`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.000000 1.940701 1.000000
+#&gt; [2,] 1.940701 3.766322 1.940701
+#&gt; [3,] 1.000000 1.940701 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`98`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  5.958475 1.000000
+#&gt; [2,] 5.958475 35.503422 5.958475
+#&gt; [3,] 1.000000  5.958475 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`99`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  4.432708 1.000000
+#&gt; [2,] 4.432708 19.648898 4.432708
+#&gt; [3,] 1.000000  4.432708 1.000000
+#&gt; 
+#&gt; $component_matrices$A_i$`100`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.000000  3.283518 1.000000
+#&gt; [2,] 3.283518 10.781492 3.283518
+#&gt; [3,] 1.000000  3.283518 1.000000
+#&gt; 
+#&gt; 
+#&gt; $component_matrices$B
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 101.49842  498.0078  69.60688
+#&gt; [2,] 498.00784 2943.3859 325.89676
+#&gt; [3,]  69.60688  325.8968  69.60688
+#&gt; 
+#&gt; $component_matrices$B_i
+#&gt; $component_matrices$B_i$`1`
+#&gt;           [,1]     [,2] [,3]
+#&gt; [1,] 0.3376745 1.671258    0
+#&gt; [2,] 1.6712577 8.271583    0
+#&gt; [3,] 0.0000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`2`
+#&gt;             [,1]      [,2] [,3]
+#&gt; [1,] 0.005793609 0.0454912    0
+#&gt; [2,] 0.045491199 0.3571952    0
+#&gt; [3,] 0.000000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`3`
+#&gt;            [,1]      [,2] [,3]
+#&gt; [1,] 0.02191998 0.1036612    0
+#&gt; [2,] 0.10366122 0.4902217    0
+#&gt; [3,] 0.00000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`4`
+#&gt;           [,1]     [,2] [,3]
+#&gt; [1,] 0.8347717 2.140684    0
+#&gt; [2,] 2.1406844 5.489561    0
+#&gt; [3,] 0.0000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`5`
+#&gt;             [,1]        [,2] [,3]
+#&gt; [1,] 0.002067665 0.009888292    0
+#&gt; [2,] 0.009888292 0.047289245    0
+#&gt; [3,] 0.000000000 0.000000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`6`
+#&gt;            [,1]      [,2] [,3]
+#&gt; [1,] 0.04954491 0.2643574    0
+#&gt; [2,] 0.26435742 1.4105353    0
+#&gt; [3,] 0.00000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`7`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.2526782 0.3503238    0
+#&gt; [2,] 0.3503238 0.4857037    0
+#&gt; [3,] 0.0000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`8`
+#&gt;           [,1]     [,2] [,3]
+#&gt; [1,] 0.4927719 1.701727    0
+#&gt; [2,] 1.7017270 5.876705    0
+#&gt; [3,] 0.0000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`9`
+#&gt;           [,1]     [,2] [,3]
+#&gt; [1,] 0.6656484 1.969428    0
+#&gt; [2,] 1.9694284 5.826872    0
+#&gt; [3,] 0.0000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`10`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.3090815  2.346352    0
+#&gt; [2,] 2.3463516 17.812022    0
+#&gt; [3,] 0.0000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`11`
+#&gt;             [,1]       [,2] [,3]
+#&gt; [1,] 0.005137569 0.03500195    0
+#&gt; [2,] 0.035001949 0.23846618    0
+#&gt; [3,] 0.000000000 0.00000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`12`
+#&gt;           [,1]       [,2] [,3]
+#&gt; [1,] 0.0160846 0.03991380    0
+#&gt; [2,] 0.0399138 0.09904578    0
+#&gt; [3,] 0.0000000 0.00000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`13`
+#&gt;            [,1]      [,2] [,3]
+#&gt; [1,] 0.04314268 0.1426834    0
+#&gt; [2,] 0.14268345 0.4718892    0
+#&gt; [3,] 0.00000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`14`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 0.601385 1.423194    0
+#&gt; [2,] 1.423194 3.368026    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`15`
+#&gt;              [,1]        [,2] [,3]
+#&gt; [1,] 0.0002503076 0.001579129    0
+#&gt; [2,] 0.0015791286 0.009962330    0
+#&gt; [3,] 0.0000000000 0.000000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`16`
+#&gt;              [,1]         [,2] [,3]
+#&gt; [1,] 0.0001028684 0.0002346056    0
+#&gt; [2,] 0.0002346056 0.0005350506    0
+#&gt; [3,] 0.0000000000 0.0000000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`17`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.1410985 0.4052565    0
+#&gt; [2,] 0.4052565 1.1639589    0
+#&gt; [3,] 0.0000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`18`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.2097860 0.9149744    0
+#&gt; [2,] 0.9149744 3.9906291    0
+#&gt; [3,] 0.0000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`19`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.8680235  3.101494    0
+#&gt; [2,] 3.1014942 11.081803    0
+#&gt; [3,] 0.0000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`20`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,]  4.859672  27.00217    0
+#&gt; [2,] 27.002169 150.03422    0
+#&gt; [3,]  0.000000   0.00000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`21`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.4113263  3.189009    0
+#&gt; [2,] 3.1890091 24.724360    0
+#&gt; [3,] 0.0000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`22`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 0.406050  2.448509    0
+#&gt; [2,] 2.448509 14.764675    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`23`
+#&gt;            [,1]      [,2] [,3]
+#&gt; [1,] 0.04652751 0.1960326    0
+#&gt; [2,] 0.19603258 0.8259366    0
+#&gt; [3,] 0.00000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`24`
+#&gt;           [,1]     [,2] [,3]
+#&gt; [1,] 0.6152317 1.798403    0
+#&gt; [2,] 1.7984033 5.256969    0
+#&gt; [3,] 0.0000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`25`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.8144851  4.200161    0
+#&gt; [2,] 4.2001611 21.659516    0
+#&gt; [3,] 0.0000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`26`
+#&gt;           [,1]     [,2] [,3]
+#&gt; [1,] 0.2944803 1.625484    0
+#&gt; [2,] 1.6254838 8.972409    0
+#&gt; [3,] 0.0000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`27`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.6765784  3.705811    0
+#&gt; [2,] 3.7058113 20.297777    0
+#&gt; [3,] 0.0000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`28`
+#&gt;            [,1]      [,2] [,3]
+#&gt; [1,] 0.03674351 0.1490107    0
+#&gt; [2,] 0.14901071 0.6043025    0
+#&gt; [3,] 0.00000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`29`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.460980  6.311013    0
+#&gt; [2,] 6.311013 27.261771    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`30`
+#&gt;             [,1]       [,2] [,3]
+#&gt; [1,] 0.004683337 0.04816295    0
+#&gt; [2,] 0.048162946 0.49530264    0
+#&gt; [3,] 0.000000000 0.00000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`31`
+#&gt;            [,1]       [,2] [,3]
+#&gt; [1,] 0.00408951 0.01046032    0
+#&gt; [2,] 0.01046032 0.02675582    0
+#&gt; [3,] 0.00000000 0.00000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`32`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,]  1.969331  21.96344    0
+#&gt; [2,] 21.963440 244.95259    0
+#&gt; [3,]  0.000000   0.00000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`33`
+#&gt;            [,1]       [,2] [,3]
+#&gt; [1,] 0.01207524 0.03064754    0
+#&gt; [2,] 0.03064754 0.07778491    0
+#&gt; [3,] 0.00000000 0.00000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`34`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.1041577 0.8269879    0
+#&gt; [2,] 0.8269879 6.5660893    0
+#&gt; [3,] 0.0000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`35`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 0.504629 1.831447    0
+#&gt; [2,] 1.831447 6.646862    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`36`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.1099088 0.6203603    0
+#&gt; [2,] 0.6203603 3.5015103    0
+#&gt; [3,] 0.0000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`37`
+#&gt;            [,1]       [,2] [,3]
+#&gt; [1,] 0.06868244 0.09515285    0
+#&gt; [2,] 0.09515285 0.13182503    0
+#&gt; [3,] 0.00000000 0.00000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`38`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.1567982 0.5725584    0
+#&gt; [2,] 0.5725584 2.0907330    0
+#&gt; [3,] 0.0000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`39`
+#&gt;          [,1]     [,2] [,3]
+#&gt; [1,] 1.240859 2.576006    0
+#&gt; [2,] 2.576006 5.347755    0
+#&gt; [3,] 0.000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`40`
+#&gt;           [,1]      [,2] [,3]
+#&gt; [1,] 0.5750366  4.570181    0
+#&gt; [2,] 4.5701811 36.322135    0
+#&gt; [3,] 0.0000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`41`
+#&gt;            [,1]       [,2] [,3]
+#&gt; [1,] 0.01787868 0.06961287    0
+#&gt; [2,] 0.06961287 0.27104634    0
+#&gt; [3,] 0.00000000 0.00000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`42`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.818996  8.001968    0
+#&gt; [2,] 8.001968 35.201560    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`43`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 2.978111  6.013361    0
+#&gt; [2,] 6.013361 12.142097    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`44`
+#&gt;            [,1]       [,2] [,3]
+#&gt; [1,] 0.09726523  0.9903592    0
+#&gt; [2,] 0.99035916 10.0838831    0
+#&gt; [3,] 0.00000000  0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`45`
+#&gt;           [,1]     [,2] [,3]
+#&gt; [1,] 0.3363853 1.504081    0
+#&gt; [2,] 1.5040813 6.725207    0
+#&gt; [3,] 0.0000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`46`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.491594  8.122809    0
+#&gt; [2,] 8.122809 44.234564    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`47`
+#&gt;           [,1]     [,2] [,3]
+#&gt; [1,] 0.1988663 1.000388    0
+#&gt; [2,] 1.0003879 5.032405    0
+#&gt; [3,] 0.0000000 0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`48`
+#&gt;          [,1]      [,2] [,3]
+#&gt; [1,] 1.261514  9.571088    0
+#&gt; [2,] 9.571088 72.615719    0
+#&gt; [3,] 0.000000  0.000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`49`
+#&gt;            [,1]      [,2] [,3]
+#&gt; [1,] 0.05515122 0.5212996    0
+#&gt; [2,] 0.52129963 4.9274216    0
+#&gt; [3,] 0.00000000 0.0000000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`50`
+#&gt;           [,1]     [,2] [,3]
+#&gt; [1,]  4.406497  35.8776    0
+#&gt; [2,] 35.877599 292.1146    0
+#&gt; [3,]  0.000000   0.0000    0
+#&gt; 
+#&gt; $component_matrices$B_i$`51`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.1682788 0.9462405 0.1682788
+#&gt; [2,] 0.9462405 5.3207592 0.9462405
+#&gt; [3,] 0.1682788 0.9462405 0.1682788
+#&gt; 
+#&gt; $component_matrices$B_i$`52`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,]  2.812527 14.24903  2.812527
+#&gt; [2,] 14.249035 72.18953 14.249035
+#&gt; [3,]  2.812527 14.24903  2.812527
+#&gt; 
+#&gt; $component_matrices$B_i$`53`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.1358994 0.2955682 0.1358994
+#&gt; [2,] 0.2955682 0.6428323 0.2955682
+#&gt; [3,] 0.1358994 0.2955682 0.1358994
+#&gt; 
+#&gt; $component_matrices$B_i$`54`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 4.506172 6.190898 4.506172
+#&gt; [2,] 6.190898 8.505494 6.190898
+#&gt; [3,] 4.506172 6.190898 4.506172
+#&gt; 
+#&gt; $component_matrices$B_i$`55`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,]  4.72753 20.10332  4.72753
+#&gt; [2,] 20.10332 85.48724 20.10332
+#&gt; [3,]  4.72753 20.10332  4.72753
+#&gt; 
+#&gt; $component_matrices$B_i$`56`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.403958 2.589974 1.403958
+#&gt; [2,] 2.589974 4.777898 2.589974
+#&gt; [3,] 1.403958 2.589974 1.403958
+#&gt; 
+#&gt; $component_matrices$B_i$`57`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,]  1.932414 12.09172  1.932414
+#&gt; [2,] 12.091715 75.66162 12.091715
+#&gt; [3,]  1.932414 12.09172  1.932414
+#&gt; 
+#&gt; $component_matrices$B_i$`58`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,]  3.140815  23.99753  3.140815
+#&gt; [2,] 23.997528 183.35412 23.997528
+#&gt; [3,]  3.140815  23.99753  3.140815
+#&gt; 
+#&gt; $component_matrices$B_i$`59`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 2.300434  7.822733 2.300434
+#&gt; [2,] 7.822733 26.601568 7.822733
+#&gt; [3,] 2.300434  7.822733 2.300434
+#&gt; 
+#&gt; $component_matrices$B_i$`60`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,] 0.5251366 2.037119 0.5251366
+#&gt; [2,] 2.0371190 7.902427 2.0371190
+#&gt; [3,] 0.5251366 2.037119 0.5251366
+#&gt; 
+#&gt; $component_matrices$B_i$`61`
+#&gt;            [,1]      [,2]       [,3]
+#&gt; [1,] 0.03979656 0.2007535 0.03979656
+#&gt; [2,] 0.20075354 1.0127001 0.20075354
+#&gt; [3,] 0.03979656 0.2007535 0.03979656
+#&gt; 
+#&gt; $component_matrices$B_i$`62`
+#&gt;             [,1]       [,2]        [,3]
+#&gt; [1,] 0.002726827 0.01015533 0.002726827
+#&gt; [2,] 0.010155326 0.03782075 0.010155326
+#&gt; [3,] 0.002726827 0.01015533 0.002726827
+#&gt; 
+#&gt; $component_matrices$B_i$`63`
+#&gt;            [,1]      [,2]       [,3]
+#&gt; [1,] 0.05522558 0.1772597 0.05522558
+#&gt; [2,] 0.17725968 0.5689572 0.17725968
+#&gt; [3,] 0.05522558 0.1772597 0.05522558
+#&gt; 
+#&gt; $component_matrices$B_i$`64`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,]  7.359435 25.78114  7.359435
+#&gt; [2,] 25.781136 90.31494 25.781136
+#&gt; [3,]  7.359435 25.78114  7.359435
+#&gt; 
+#&gt; $component_matrices$B_i$`65`
+#&gt;            [,1]      [,2]       [,3]
+#&gt; [1,] 0.06599539 0.2368564 0.06599539
+#&gt; [2,] 0.23685644 0.8500741 0.23685644
+#&gt; [3,] 0.06599539 0.2368564 0.06599539
+#&gt; 
+#&gt; $component_matrices$B_i$`66`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.2925543 0.7526211 0.2925543
+#&gt; [2,] 0.7526211 1.9361825 0.7526211
+#&gt; [3,] 0.2925543 0.7526211 0.2925543
+#&gt; 
+#&gt; $component_matrices$B_i$`67`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,] 0.6745021 1.565735 0.6745021
+#&gt; [2,] 1.5657353 3.634573 1.5657353
+#&gt; [3,] 0.6745021 1.565735 0.6745021
+#&gt; 
+#&gt; $component_matrices$B_i$`68`
+#&gt;            [,1]      [,2]       [,3]
+#&gt; [1,] 0.02615483 0.1923651 0.02615483
+#&gt; [2,] 0.19236510 1.4148181 0.19236510
+#&gt; [3,] 0.02615483 0.1923651 0.02615483
+#&gt; 
+#&gt; $component_matrices$B_i$`69`
+#&gt;           [,1]       [,2]      [,3]
+#&gt; [1,] 0.0188654 0.03359210 0.0188654
+#&gt; [2,] 0.0335921 0.05981475 0.0335921
+#&gt; [3,] 0.0188654 0.03359210 0.0188654
+#&gt; 
+#&gt; $component_matrices$B_i$`70`
+#&gt;             [,1]       [,2]        [,3]
+#&gt; [1,] 0.007328974 0.01787004 0.007328974
+#&gt; [2,] 0.017870037 0.04357202 0.017870037
+#&gt; [3,] 0.007328974 0.01787004 0.007328974
+#&gt; 
+#&gt; $component_matrices$B_i$`71`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,] 0.2695132 1.312536 0.2695132
+#&gt; [2,] 1.3125358 6.392083 1.3125358
+#&gt; [3,] 0.2695132 1.312536 0.2695132
+#&gt; 
+#&gt; $component_matrices$B_i$`72`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.100402  6.720763 1.100402
+#&gt; [2,] 6.720763 41.047402 6.720763
+#&gt; [3,] 1.100402  6.720763 1.100402
+#&gt; 
+#&gt; $component_matrices$B_i$`73`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.024719 3.144621 1.024719
+#&gt; [2,] 3.144621 9.650093 3.144621
+#&gt; [3,] 1.024719 3.144621 1.024719
+#&gt; 
+#&gt; $component_matrices$B_i$`74`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,]  2.486461  20.06486  2.486461
+#&gt; [2,] 20.064864 161.91640 20.064864
+#&gt; [3,]  2.486461  20.06486  2.486461
+#&gt; 
+#&gt; $component_matrices$B_i$`75`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 3.570509  9.155267 3.570509
+#&gt; [2,] 9.155267 23.475337 9.155267
+#&gt; [3,] 3.570509  9.155267 3.570509
+#&gt; 
+#&gt; $component_matrices$B_i$`76`
+#&gt;              [,1]         [,2]         [,3]
+#&gt; [1,] 3.245084e-06 2.174399e-05 3.245084e-06
+#&gt; [2,] 2.174399e-05 1.456977e-04 2.174399e-05
+#&gt; [3,] 3.245084e-06 2.174399e-05 3.245084e-06
+#&gt; 
+#&gt; $component_matrices$B_i$`77`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.081570  5.820827 1.081570
+#&gt; [2,] 5.820827 31.326720 5.820827
+#&gt; [3,] 1.081570  5.820827 1.081570
+#&gt; 
+#&gt; $component_matrices$B_i$`78`
+#&gt;              [,1]         [,2]         [,3]
+#&gt; [1,] 1.646536e-05 0.0002082028 1.646536e-05
+#&gt; [2,] 2.082028e-04 0.0026327036 2.082028e-04
+#&gt; [3,] 1.646536e-05 0.0002082028 1.646536e-05
+#&gt; 
+#&gt; $component_matrices$B_i$`79`
+#&gt;          [,1]     [,2]     [,3]
+#&gt; [1,] 1.450441 2.954754 1.450441
+#&gt; [2,] 2.954754 6.019254 2.954754
+#&gt; [3,] 1.450441 2.954754 1.450441
+#&gt; 
+#&gt; $component_matrices$B_i$`80`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,]  4.198887  24.70474  4.198887
+#&gt; [2,] 24.704738 145.35378 24.704738
+#&gt; [3,]  4.198887  24.70474  4.198887
+#&gt; 
+#&gt; $component_matrices$B_i$`81`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.7542063  5.349908 0.7542063
+#&gt; [2,] 5.3499082 37.949188 5.3499082
+#&gt; [3,] 0.7542063  5.349908 0.7542063
+#&gt; 
+#&gt; $component_matrices$B_i$`82`
+#&gt;              [,1]        [,2]         [,3]
+#&gt; [1,] 0.0004031544 0.001964907 0.0004031544
+#&gt; [2,] 0.0019649066 0.009576623 0.0019649066
+#&gt; [3,] 0.0004031544 0.001964907 0.0004031544
+#&gt; 
+#&gt; $component_matrices$B_i$`83`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,]  2.035869  16.87947  2.035869
+#&gt; [2,] 16.879471 139.94834 16.879471
+#&gt; [3,]  2.035869  16.87947  2.035869
+#&gt; 
+#&gt; $component_matrices$B_i$`84`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,]  3.329322 13.48717  3.329322
+#&gt; [2,] 13.487171 54.63688 13.487171
+#&gt; [3,]  3.329322 13.48717  3.329322
+#&gt; 
+#&gt; $component_matrices$B_i$`85`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.4287243  3.296692 0.4287243
+#&gt; [2,] 3.2966921 25.350044 3.2966921
+#&gt; [3,] 0.4287243  3.296692 0.4287243
+#&gt; 
+#&gt; $component_matrices$B_i$`86`
+#&gt;             [,1]       [,2]        [,3]
+#&gt; [1,] 0.008187193 0.04039263 0.008187193
+#&gt; [2,] 0.040392634 0.19928257 0.040392634
+#&gt; [3,] 0.008187193 0.04039263 0.008187193
+#&gt; 
+#&gt; $component_matrices$B_i$`87`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.0607490 0.3508248 0.0607490
+#&gt; [2,] 0.3508248 2.0260093 0.3508248
+#&gt; [3,] 0.0607490 0.3508248 0.0607490
+#&gt; 
+#&gt; $component_matrices$B_i$`88`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.8185654  3.670092 0.8185654
+#&gt; [2,] 3.6700922 16.455101 3.6700922
+#&gt; [3,] 0.8185654  3.670092 0.8185654
+#&gt; 
+#&gt; $component_matrices$B_i$`89`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 3.579296  9.806444 3.579296
+#&gt; [2,] 9.806444 26.867390 9.806444
+#&gt; [3,] 3.579296  9.806444 3.579296
+#&gt; 
+#&gt; $component_matrices$B_i$`90`
+#&gt;             [,1]       [,2]        [,3]
+#&gt; [1,] 0.002703729 0.01429316 0.002703729
+#&gt; [2,] 0.014293163 0.07556029 0.014293163
+#&gt; [3,] 0.002703729 0.01429316 0.002703729
+#&gt; 
+#&gt; $component_matrices$B_i$`91`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.1892585 0.7004859 0.1892585
+#&gt; [2,] 0.7004859 2.5926477 0.7004859
+#&gt; [3,] 0.1892585 0.7004859 0.1892585
+#&gt; 
+#&gt; $component_matrices$B_i$`92`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,]  2.124235 12.31203  2.124235
+#&gt; [2,] 12.312033 71.36037 12.312033
+#&gt; [3,]  2.124235 12.31203  2.124235
+#&gt; 
+#&gt; $component_matrices$B_i$`93`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.6778271  3.310028 0.6778271
+#&gt; [2,] 3.3100277 16.163832 3.3100277
+#&gt; [3,] 0.6778271  3.310028 0.6778271
+#&gt; 
+#&gt; $component_matrices$B_i$`94`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,]  1.414765 10.14706  1.414765
+#&gt; [2,] 10.147055 72.77725 10.147055
+#&gt; [3,]  1.414765 10.14706  1.414765
+#&gt; 
+#&gt; $component_matrices$B_i$`95`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.1538399 0.5139383 0.1538399
+#&gt; [2,] 0.5139383 1.7169320 0.5139383
+#&gt; [3,] 0.1538399 0.5139383 0.1538399
+#&gt; 
+#&gt; $component_matrices$B_i$`96`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,]  5.807184  42.17496  5.807184
+#&gt; [2,] 42.174957 306.29768 42.174957
+#&gt; [3,]  5.807184  42.17496  5.807184
+#&gt; 
+#&gt; $component_matrices$B_i$`97`
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 0.3998382 0.7759666 0.3998382
+#&gt; [2,] 0.7759666 1.5059195 0.7759666
+#&gt; [3,] 0.3998382 0.7759666 0.3998382
+#&gt; 
+#&gt; $component_matrices$B_i$`98`
+#&gt;           [,1]     [,2]      [,3]
+#&gt; [1,] 0.1896488 1.130018 0.1896488
+#&gt; [2,] 1.1300179 6.733183 1.1300179
+#&gt; [3,] 0.1896488 1.130018 0.1896488
+#&gt; 
+#&gt; $component_matrices$B_i$`99`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.186016  5.257261 1.186016
+#&gt; [2,] 5.257261 23.303900 5.257261
+#&gt; [3,] 1.186016  5.257261 1.186016
+#&gt; 
+#&gt; $component_matrices$B_i$`100`
+#&gt;          [,1]      [,2]     [,3]
+#&gt; [1,] 1.067967  3.506689 1.067967
+#&gt; [2,] 3.506689 11.514276 3.506689
+#&gt; [3,] 1.067967  3.506689 1.067967
+#&gt; 
+#&gt; 
+#&gt; 
+#&gt; $split_data
+#&gt; $split_data$`1`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.668307 2.028172 4.949316 16.34576 4.823768 8.921782     0 0.09273926     1
+#&gt; 
+#&gt; $split_data$`2`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 10.45245 1.643297 7.851962 25.68742 7.884845 13.90947     0 1.016727     1
+#&gt; 
+#&gt; $split_data$`3`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.123411 2.852626 4.729075 16.10831 4.709346 9.014695     0 0.4939904     0
+#&gt; 
+#&gt; $split_data$`4`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 8.371503 2.513365 2.564395 10.57997 2.786091 6.733378     0 1.243224     0
+#&gt; 
+#&gt; $split_data$`5`
+#&gt; # A tibble: 1 x 9
+#&gt;           Y1       Y2       X1       Y3      W1       Z1    X2       Y4    Y5
+#&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -0.8319749 3.018203 4.782347 16.46401 4.81159 9.290492     0 0.695206     1
+#&gt; 
+#&gt; $split_data$`6`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3      W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.398776 0.9785209 5.335713 18.32577 5.41537 10.3222     0 0.9522014     1
+#&gt; 
+#&gt; $split_data$`7`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 1.894331 1.438332 1.386442 5.577536 1.240995 3.497873     0 -0.3431465     0
+#&gt; 
+#&gt; $split_data$`8`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3      W1       Z1    X2      Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.522814 0.9874439 3.453377 13.07466 3.63201 7.894598     0 1.15987     0
+#&gt; 
+#&gt; $split_data$`9`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 9.960406 -1.020814 2.958662 10.05073 2.752347 5.612733     0 -0.4293933     0
+#&gt; 
+#&gt; $split_data$`10`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2      X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.570265 2.33235 7.59137 24.41425 7.501404 13.02719     0 0.4992748     1
+#&gt; 
+#&gt; $split_data$`11`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2      X1       Y3       W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.690374 3.240512 6.81294 22.52871 6.835412 12.3093     0 0.8711801     1
+#&gt; 
+#&gt; $split_data$`12`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1      Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.018405 2.67135 2.481492 9.54075 2.505561 5.818512     0 0.4444237     0
+#&gt; 
+#&gt; $split_data$`13`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1      Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.541865 0.6699659 3.307246 11.7201 3.256837 6.759235     0 0.2290906     1
+#&gt; 
+#&gt; $split_data$`14`
+#&gt; # A tibble: 1 x 9
+#&gt;           Y1      Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;        &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -0.7168604 1.14942 2.366527 9.839421 2.551487 6.289631     0 1.076493     0
+#&gt; 
+#&gt; $split_data$`15`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.676098 0.2111693 6.308752 21.04963 6.339597 11.58651     0 0.8542547     1
+#&gt; 
+#&gt; $split_data$`16`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.513544 3.231522 2.280638 8.812598 2.273309 5.391641     0 0.2987471     0
+#&gt; 
+#&gt; $split_data$`17`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1     Y2       X1       Y3      W1       Z1    X2           Y4    Y5
+#&gt;     &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;        &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 9.07248 1.6656 2.872154 10.22761 2.77494 5.919377     0 -0.001638862     0
+#&gt; 
+#&gt; $split_data$`18`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.977705 1.032678 4.361465 15.59525 4.489179 9.053054     0 1.047003     1
+#&gt; 
+#&gt; $split_data$`19`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3     W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.789836 2.87937 3.573053 11.80535 3.3446 6.445765     0 -0.4565089     1
+#&gt; 
+#&gt; $split_data$`20`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 11.46076 1.746421 5.556376 20.97943 6.133951 12.64486     0 2.965934     0
+#&gt; 
+#&gt; $split_data$`21`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 1.905147 0.4821242 7.752991 24.82088 7.643469 13.1914     0 0.4372091     0
+#&gt; 
+#&gt; $split_data$`22`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.69601 1.976117 6.030068 20.85426 6.221083 11.80916     0 1.467067     0
+#&gt; 
+#&gt; $split_data$`23`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.664212 2.026659 4.213262 14.90175 4.278752 8.581854     0 0.7832875     0
+#&gt; 
+#&gt; $split_data$`24`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.660143 2.163681 2.923132 11.5428 3.116483 7.158102     0 1.165718     0
+#&gt; 
+#&gt; $split_data$`25`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2      X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -1.181047 2.410008 5.15683 16.65611 4.953235 8.920865     0 -0.1986962     1
+#&gt; 
+#&gt; $split_data$`26`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.925002 1.372637 5.519839 18.12107 5.410226 9.841308     0 0.2135333     1
+#&gt; 
+#&gt; $split_data$`27`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2          Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.880834 2.636918 5.477283 17.71163 5.297228 9.495703     0 -0.07249326     1
+#&gt; 
+#&gt; $split_data$`28`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1        Y2      X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 9.02983 0.7980652 4.05543 14.39723 4.113166 8.314089     0 0.7364875     1
+#&gt; 
+#&gt; $split_data$`29`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.12172 3.346542 4.319714 13.80141 4.030281 7.321841     0 -0.6257581     1
+#&gt; 
+#&gt; $split_data$`30`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.191588 1.401233 10.28389 33.09876 10.34566 17.67292     0 1.375465     1
+#&gt; 
+#&gt; $split_data$`31`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.328822 2.442204 2.557841 9.582409 2.535063 5.745648     0 0.2646705     0
+#&gt; 
+#&gt; $split_data$`32`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2      Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 1.598477 2.613526 11.15274 37.2156 11.59209 20.48649     0 2.97265     1
+#&gt; 
+#&gt; $split_data$`33`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.756185 1.700904 2.538047 9.476212 2.503565 5.669141     0 0.2158751     1
+#&gt; 
+#&gt; $split_data$`34`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1      Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.159215 0.3994119 7.939765 25.7081 7.911967 13.79845     0 0.782783     1
+#&gt; 
+#&gt; $split_data$`35`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 10.39274 1.660533 3.629295 12.19787 3.456791 6.753928     0 -0.2270849     1
+#&gt; 
+#&gt; $split_data$`36`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.772286 1.418692 5.644317 18.71116 5.588868 10.24468     0 0.4426374     1
+#&gt; 
+#&gt; $split_data$`37`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3      W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.396295 1.609638 1.385403 6.339116 1.43113 4.261012     0 0.421448     0
+#&gt; 
+#&gt; $split_data$`38`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.822195 2.845514 3.651563 13.37201 3.755894 7.894667     0 0.8824796     0
+#&gt; 
+#&gt; $split_data$`39`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.839381 2.684727 2.075987 9.293362 2.342337 6.179382     0 1.373001     1
+#&gt; 
+#&gt; $split_data$`40`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.824484 2.237713 7.947636 26.81311 8.190186 14.89166     0 1.864966     1
+#&gt; 
+#&gt; $split_data$`41`
+#&gt; # A tibble: 1 x 9
+#&gt;       Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.3663 1.289378 3.893624 13.57924 3.868217 7.738807     0 0.3877331     1
+#&gt; 
+#&gt; $split_data$`42`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -3.545975 4.613319 4.399113 16.60054 4.749914 10.00187     0 1.943115     1
+#&gt; 
+#&gt; $split_data$`43`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.627288 0.3733526 2.019187 6.280784 1.574993 3.252004     0 -1.474857     0
+#&gt; 
+#&gt; $split_data$`44`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.640196 0.3926937 10.18205 33.16901 10.33776 17.89594     0 1.741072     1
+#&gt; 
+#&gt; $split_data$`45`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 1.072662 2.340317 4.471305 14.89163 4.340734 8.184674     0 0.02484717     1
+#&gt; 
+#&gt; $split_data$`46`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1      Y3      W1       Z1    X2       Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 0.5454252 4.727888 5.445723 19.6594 5.77628 11.49081     0 1.966803     1
+#&gt; 
+#&gt; $split_data$`47`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1      Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.250609 1.67281 5.030453 16.72792 4.939593 9.18224     0 0.239605     0
+#&gt; 
+#&gt; $split_data$`48`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.935555 0.7431033 7.586987 26.08003 7.916753 14.69955     0 2.177764     1
+#&gt; 
+#&gt; $split_data$`49`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.675984 1.568602 9.452187 30.40034 9.463132 16.22206     0 1.088998     1
+#&gt; 
+#&gt; $split_data$`50`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.536622 4.548853 8.141977 24.54727 7.672313 12.33431     0 -0.9644582     1
+#&gt; 
+#&gt; $split_data$`51`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 9.138746 1.228592 5.623052 18.42209 5.511286 9.987515     1 0.715243     1
+#&gt; 
+#&gt; $split_data$`52`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 11.61401 1.492658 5.066275 15.46023 4.631626 7.860815     1 -0.6319704     1
+#&gt; 
+#&gt; $split_data$`53`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3      W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.928213 1.729977 2.174904 8.703576 2.21962 5.44122     1 0.9963552     0
+#&gt; 
+#&gt; $split_data$`54`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.903187 2.748117 1.373871 8.019078 1.848237 5.958272     1 2.634853     1
+#&gt; 
+#&gt; $split_data$`55`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.000988 2.668594 4.252394 12.48526 3.684413 6.106666     1 -1.246686     1
+#&gt; 
+#&gt; $split_data$`56`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.651502 1.544701 1.844766 8.514763 2.089882 5.747614     1 1.764941     0
+#&gt; 
+#&gt; $split_data$`57`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1         Y2       X1       Y3       W1       Z1    X2         Y4
+#&gt;      &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt;
+#&gt; 1 4.546585 0.07215478 6.257311 19.37311 5.907605 9.987141     1 -0.1730945
+#&gt; # ... with 1 more variables: Y5 &lt;int&gt;
+#&gt; 
+#&gt; $split_data$`58`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3      W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.604468 3.881977 7.640542 26.7465 8.09676 15.28569     1 3.188927     1
+#&gt; 
+#&gt; $split_data$`59`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.056347 0.7502889 3.400547 13.58294 3.745871 8.482119     1 2.321353     1
+#&gt; 
+#&gt; $split_data$`60`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.555935 1.510655 3.879217 12.7988 3.669504 6.979974     1 0.1490699     0
+#&gt; 
+#&gt; $split_data$`61`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.030922 2.215391 5.044494 16.87149 4.978996 9.304746     1 0.8424537     1
+#&gt; 
+#&gt; $split_data$`62`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.236126 2.422109 3.724228 13.10384 3.707017 7.517498     1 0.9035788     0
+#&gt; 
+#&gt; $split_data$`63`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.290913 0.7788517 3.209739 11.25033 3.115018 6.435724     1 0.5420903     1
+#&gt; 
+#&gt; $split_data$`64`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3      W1      Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 8.178721 2.312228 3.503141 15.09138 4.14863 9.83667     1 3.532273     0
+#&gt; 
+#&gt; $split_data$`65`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.026951 2.886462 3.588984 12.89679 3.621443 7.513311     1 1.088733     1
+#&gt; 
+#&gt; $split_data$`66`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3      W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.480839 2.474811 2.572586 9.004733 2.39433 5.145854     1 0.1442336     1
+#&gt; 
+#&gt; $split_data$`67`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2      X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.990041 2.869841 2.32132 9.601955 2.480819 6.119975     1 1.470126     0
+#&gt; 
+#&gt; $split_data$`68`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.238311 1.113476 7.354859 24.26627 7.405282 13.23398     1 1.537177     0
+#&gt; 
+#&gt; $split_data$`69`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2      X1       Y3      W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.810169 1.871344 1.78062 7.271942 1.76314 4.601012     1 0.708145     1
+#&gt; 
+#&gt; $split_data$`70`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3      W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 8.385526 3.09651 2.438272 9.222328 2.41515 5.564919     1 0.7513374     0
+#&gt; 
+#&gt; $split_data$`71`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.528296 2.51803 4.870025 17.05898 4.982251 9.753941     1 1.535906     1
+#&gt; 
+#&gt; $split_data$`72`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.805654 2.398033 6.107551 19.2583 5.841462 10.09697     1 0.1463994     0
+#&gt; 
+#&gt; $split_data$`73`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.635717 3.066659 3.068762 10.04387 2.778158 5.440724     1 -0.2555431     0
+#&gt; 
+#&gt; $split_data$`74`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.157937 1.55046 8.069649 27.85747 8.481779 15.75299     1 3.055487     0
+#&gt; 
+#&gt; $split_data$`75`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.78126 2.626102 2.564135 7.630308 2.048611 3.784106     1 -1.205683     1
+#&gt; 
+#&gt; $split_data$`76`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 -3.167399 1.181164 6.700594 22.11453 6.703782 12.06364     1 1.282809     1
+#&gt; 
+#&gt; $split_data$`77`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 6.433477 1.736484 5.381833 17.05797 5.109951 8.985221     1 0.05065496     1
+#&gt; 
+#&gt; $split_data$`78`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2      X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.509597 2.154575 12.6449 40.20524 12.71253 21.23789     1 2.135029     1
+#&gt; 
+#&gt; $split_data$`79`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 10.07324 2.568446 2.037142 9.119878 2.289255 6.064165     1 1.812166     1
+#&gt; 
+#&gt; $split_data$`80`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1         Y2      X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;     &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 13.6744 -0.6601597 5.88364 17.57652 5.365039 8.751055     1 -0.8860408     1
+#&gt; 
+#&gt; $split_data$`81`
+#&gt; # A tibble: 1 x 9
+#&gt;           Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 0.04110863 3.136533 7.093428 24.17711 7.317634 13.53696     1 2.206165     1
+#&gt; 
+#&gt; $split_data$`82`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.359496 2.421773 4.873831 16.5715 4.861332 9.260751     1 1.037387     1
+#&gt; 
+#&gt; $split_data$`83`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.496077 3.350083 8.291038 25.52777 7.954701 13.09121     1 0.08375453     0
+#&gt; 
+#&gt; $split_data$`84`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.905169 3.103757 4.051026 12.22187 3.568223 6.145328     1 -0.9261089     0
+#&gt; 
+#&gt; $split_data$`85`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1      Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.480912 2.647046 7.689539 25.7782 7.866935 14.24389     1 2.078536     1
+#&gt; 
+#&gt; $split_data$`86`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1     Y3      W1      Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.832886 2.175636 4.933636 16.643 4.89416 9.24255     1 0.9354586     0
+#&gt; 
+#&gt; $split_data$`87`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.627207 2.653558 5.774989 19.54133 5.829081 10.87885     1 1.393867     0
+#&gt; 
+#&gt; $split_data$`88`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.819213 1.93451 4.483566 16.26806 4.687907 9.542711     1 1.865719     0
+#&gt; 
+#&gt; $split_data$`89`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 0.6567391 2.645522 2.739769 11.94648 3.171563 7.836829     1 2.601153     0
+#&gt; 
+#&gt; $split_data$`90`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 2.50074 2.364294 5.286464 17.75562 5.260521 9.825925     1 1.024876     1
+#&gt; 
+#&gt; $split_data$`91`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 4.067974 2.843442 3.701213 12.54652 3.561933 6.994698     1 0.412999     1
+#&gt; 
+#&gt; $split_data$`92`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2     Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.996733 1.323521 5.795986 20.81626 6.153061 12.12228     1 2.6079     0
+#&gt; 
+#&gt; $split_data$`93`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 8.815581 1.608567 4.883292 15.75692 4.660053 8.431981     1 0.1953718     1
+#&gt; 
+#&gt; $split_data$`94`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1       Y2       X1       Y3      W1       Z1    X2       Y4    Y5
+#&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.93611 2.404941 7.172253 22.35919 6.88286 11.60081     1 0.159654     1
+#&gt; 
+#&gt; $split_data$`95`
+#&gt; # A tibble: 1 x 9
+#&gt;        Y1        Y2       X1       Y3       W1       Z1    X2        Y4    Y5
+#&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 12.5811 0.8931413 3.340735 11.49191 3.208161 6.480807     1 0.4037771     0
+#&gt; 
+#&gt; $split_data$`96`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1     Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 3.280037 1.6167 7.262549 26.23333 7.873969 15.33951     1 3.771938     1
+#&gt; 
+#&gt; $split_data$`97`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1      Y2       X1       Y3       W1       Z1    X2          Y4    Y5
+#&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 11.30219 2.29402 1.940701 6.989609 1.732577 4.078556     1 -0.03842565     1
+#&gt; 
+#&gt; $split_data$`98`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1       Y2       X1       Y3       W1       Z1    X2       Y4    Y5
+#&gt;      &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 5.647765 3.793061 5.958475 20.28894 6.061855 11.35123     1 1.609367     0
+#&gt; 
+#&gt; $split_data$`99`
+#&gt; # A tibble: 1 x 9
+#&gt;          Y1       Y2       X1       Y3       W1       Z1    X2         Y4    Y5
+#&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 0.6581884 2.814032 4.432708 14.11944 4.138037 7.470379     1 -0.1354124     1
+#&gt; 
+#&gt; $split_data$`100`
+#&gt; # A tibble: 1 x 9
+#&gt;         Y1        Y2       X1       Y3      W1       Z1    X2         Y4    Y5
+#&gt;      &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;
+#&gt; 1 7.307749 0.6799756 3.283518 10.67652 2.99001 5.751243     1 -0.2456829     0
+#&gt; 
+#&gt; </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -216,8 +3745,14 @@ estimate_equations(
       
       <li><a href="#value">Value</a></li>
 
-      <li><a href="#eefun-arguments">eeFUN arguments</a></li>
-          </ul>
+      <li><a href="#details">Details</a></li>
+
+      <li><a href="#writing-an-eefun">Writing an eeFUN</a></li>
+
+      <li><a href="#references">References</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

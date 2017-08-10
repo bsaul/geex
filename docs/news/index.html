@@ -11,8 +11,8 @@
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -39,7 +39,7 @@
   <body>
     <div class="container template-news">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -52,10 +52,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">Home</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../news/index.html">News</a>
@@ -63,7 +66,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -80,6 +88,23 @@
     </div>
 
     <div class="contents">
+    <div id="geex-1-0-0" class="section level1">
+<h1 class="hasAnchor">
+<a href="#geex-1-0-0" class="anchor"></a>geex 1.0.0</h1>
+<ul>
+<li>implements an <code>S4</code> system throughout <code>geex</code>
+</li>
+<li>
+<code>estimate_equations</code> becomes <code>m_estimate</code>. See documentation for changes to arguments. Notably, <code>eeFUN</code> becomes <code>estFUN</code>
+</li>
+<li>
+<code>make_eeFUN</code> functions become <code>grab_psiFUN</code>
+</li>
+<li>speeds up the summation of list of matrices with <code>compute_sum_of_list</code>
+</li>
+<li>plus many more updates and vignettes</li>
+</ul>
+</div>
     <div id="geex-0-3-0" class="section level1">
 <h1 class="hasAnchor">
 <a href="#geex-0-3-0" class="anchor"></a>geex 0.3.0</h1>
@@ -131,6 +156,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#geex-1-0-0">1.0.0</a></li>
         <li><a href="#geex-0-3-0">0.3.0</a></li>
         <li><a href="#geex-0-2-2">0.2.2</a></li>
         <li><a href="#geex-0-2-1">0.2.1</a></li>

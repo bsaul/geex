@@ -16,7 +16,7 @@ sigma_tau <- 1
 
 tau <- c(0.1, 0.1, 0.5)
 
-geexex <- dplyr::data_frame(
+geexex <- as.data.frame(dplyr::data_frame(
   # Used in Examples 1-3, 5, 6, 7
   Y1 = rnorm(n, mean = 5, sd = 4),
   Y2 = rnorm(n, mean = 2, sd = 1),
@@ -33,7 +33,7 @@ geexex <- dplyr::data_frame(
 
   # Used in Example 9
   Y5 = rbinom(n, 1, prob = as.numeric(plogis(cbind(1, X1, X2) %*% tau)))
-)
+))
 
 
 save(geexex, file = 'data/geexex.rda')

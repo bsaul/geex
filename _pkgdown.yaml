@@ -1,0 +1,71 @@
+template:
+  params:
+    bootswatch: yeti
+
+reference:
+  - title: "M-estimation"
+    desc: >
+       The core functions of geex
+    contents:
+       - m_estimate
+       - setup_root_solver
+  - title: "Finite sample corrections"
+    desc: >
+       Functions for performing small sample corrections
+    contents:
+       - correct_by
+       - correction
+  - title: "Utilities"
+    desc: >
+       Functions for accessing elements of a geex object
+    contents:
+       - starts_with("vcov")
+       - starts_with("coef")
+       - get_corrections
+  - title: "Key S4 Classes"
+    contents:
+       - m_estimation_basis-class
+       - geex_control-class
+       - sandwich_components-class
+       - geex-class
+
+navbar:
+  title: "geex"
+  type: inverse
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Reference"
+      href: "reference/index.html"
+    - text: "Vignettes"
+      href: "articles/index.html"
+    - text: "News"
+      href: "news/index.html"
+  right:
+    - icon: fa-github
+      href: https://github.com/bsaul/geex
+
+articles:
+  - title: "Vignettes"
+    desc: >
+      Vignettes on using geex
+    contents:
+    - 00_geex_intro
+    - 01_additional_examples
+    - 02_sandwich_comparison
+    - 03_root_solvers
+    - 04_weights
+    - 05_finite_sample_corrections
+    - 06_causal_example
+    - 07_geex_design
+  - title: "Articles"
+    desc: >
+      Other articles about using geex
+    contents:
+    - lme4_discussion
+    - speed_tips
+  - title: "Bibliography"
+    desc: >
+      Reference list of M-estimation
+    contents:
+    - mestimation_bib

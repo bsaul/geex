@@ -11,8 +11,8 @@
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -39,7 +39,7 @@
   <body>
     <div class="container template-reference-index">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -52,10 +52,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">Home</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../news/index.html">News</a>
@@ -63,7 +66,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -77,7 +85,7 @@
     <div class="page-header">
       <h1>
         Reference
-        <small>version&nbsp;0.3.0</small>
+        <small>version&nbsp;1.0.0</small>
       </h1>
     </div>
 
@@ -92,190 +100,100 @@
       <tbody>
         <tr>
           <th colspan="2">
-            <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
+            <h2 id="section-m-estimation" class="hasAnchor"><a href="#section-m-estimation" class="anchor"></a>M-estimation</h2>
+            <p class="section-desc"><p>The core functions of geex</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m_estimate.html">m_estimate</a></code> </p>
+          </td>
+          <td><p>Estimate parameters and their covariance from a set of estimating equations</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="setup_root_solver.html">setup_root_solver</a></code> </p>
+          </td>
+          <td><p>Setup a root_control object</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-finite-sample-corrections" class="hasAnchor"><a href="#section-finite-sample-corrections" class="anchor"></a>Finite sample corrections</h2>
+            <p class="section-desc"><p>Functions for performing small sample corrections</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="correct_by.html">correct_by</a></code> </p>
+          </td>
+          <td><p>Correct sandwich components</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="correction.html">correction</a></code> </p>
+          </td>
+          <td><p>Creates a correct_control object</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-utilities" class="hasAnchor"><a href="#section-utilities" class="anchor"></a>Utilities</h2>
+            <p class="section-desc"><p>Functions for accessing elements of a geex object</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="vcov-methods.html">vcov</a></code> </p>
+          </td>
+          <td><p>Gets the variance-covariance matrix from a geex object</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="coef-methods.html">coef</a></code> </p>
+          </td>
+          <td><p>Gets the parameter estimates from a geex object</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="get_corrections-methods.html">get_corrections</a></code> </p>
+          </td>
+          <td><p>Gets the corrections from a geex object</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-key-s-classes" class="hasAnchor"><a href="#section-key-s-classes" class="anchor"></a>Key S4 Classes</h2>
             <p class="section-desc"></p>
           </th>
         </tr>
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="binomial_integrand.html">binomial_integrand</a></code> </p>
+            <p><code><a href="m_estimation_basis-class.html">m_estimation_basis-class</a></code> </p>
           </td>
-          <td><p>glmer Objective Function for Logistic-Normal Likelihood</p></td>
+          <td><p>m_estimation_basis S4 class</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="check_array.html">check_array</a></code> </p>
+            <p><code><a href="geex_control-class.html">geex_control-class</a></code> </p>
           </td>
-          <td><p>Check an array object</p></td>
+          <td><p>geex_control S4 class</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="check_corrections.html">check_corrections</a></code> </p>
+            <p><code><a href="sandwich_components-class.html">sandwich_components-class</a></code> </p>
           </td>
-          <td><p>Check that a list of corrections conforms to geex standards</p></td>
+          <td><p>sandwich_components S4 class</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="check_eeFUN.html">check_eeFUN</a></code> </p>
+            <p><code><a href="geex-class.html">geex-class</a></code> </p>
           </td>
-          <td><p>Check an eeFUN object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="check_GFUN.html">check_GFUN</a></code> </p>
-          </td>
-          <td><p>Check value of estimating eqations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="compute_eeroot.html">compute_eeroot</a></code> </p>
-          </td>
-          <td><p>Compute roots for a set of estimating equations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="compute_matrices.html">compute_matrices</a></code> </p>
-          </td>
-          <td><p>Compute component matrices for covariance matrix</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="compute_sigma.html">compute_sigma</a></code> </p>
-          </td>
-          <td><p>Compute covariance matrix for set of estimating equations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="create_GFUN.html">create_GFUN</a></code> </p>
-          </td>
-          <td><p>Creates a function that sums over psi functions</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="create_psi.html">create_psi</a></code> </p>
-          </td>
-          <td><p>Creates list of psi functions</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="df_correction_1.html">df_correction_1</a></code> </p>
-          </td>
-          <td><p>Estimate Fay's degrees of freedom corrections 1</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="df_correction_2.html">df_correction_2</a></code> </p>
-          </td>
-          <td><p>Estimate Fay's degrees of freedom correction 2</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="df_correction_prep.html">df_correction_prep</a></code> </p>
-          </td>
-          <td><p>Preparations for Fay's degrees of freedom corrections</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="estimate_df.html">estimate_df</a></code> </p>
-          </td>
-          <td><p>Estimate Fay's degrees of freedom corrections</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="estimate_equations.html">estimate_equations</a></code> </p>
-          </td>
-          <td><p>Estimate parameters and their covariance from a set of estimating equations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fay_bias_correction_partial.html">fay_bias_correction_partial</a></code> </p>
-          </td>
-          <td><p>Compute the matrices necessary for Fay's bias correction</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fay_bias_correction.html">fay_bias_correction</a></code> </p>
-          </td>
-          <td><p>Estimate Fay's bias correction</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="fay_df_correction.html">fay_df_correction</a></code> </p>
-          </td>
-          <td><p>Fay's degrees of freedom corrections</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="geexex.html">geexex</a></code> </p>
-          </td>
-          <td><p>Dataset used to illustrate Stefanski and Boos examples.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="get_design_matrix.html">get_design_matrix</a></code> </p>
-          </td>
-          <td><p>Get a matrix of fixed effects from a model object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="get_fixed_formula.html">get_fixed_formula</a></code> </p>
-          </td>
-          <td><p>Get the RHS formula from a model object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="get_response_formula.html">get_response_formula</a></code> </p>
-          </td>
-          <td><p>Get the LHS formula from a model object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="get_response.html">get_response</a></code> </p>
-          </td>
-          <td><p>Get a vector of responses from a model object</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="make_corrections.html">make_corrections</a></code> </p>
-          </td>
-          <td><p>Make corrections to basic sandwich estimators</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="make_eefun.geeglm.html">make_eefun</a></code> </p>
-          </td>
-          <td><p>geeglm Estimating Equations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="make_eefun.glm.html">make_eefun</a></code> </p>
-          </td>
-          <td><p>glm Estimating Equations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="make_eefun.merMod.html">make_eefun</a></code> </p>
-          </td>
-          <td><p>glmer Estimating Equations</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="make_eefun.html">make_eefun</a></code> </p>
-          </td>
-          <td><p>Make Estimating Equation functions</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="objFun_glmerMod_binomial.html">objFun_glmerMod_binomial</a></code> </p>
-          </td>
-          <td><p>Objective Function for Logistic-Normal Likelihood</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="objFun_merMod.html">objFun_merMod</a></code> </p>
-          </td>
-          <td><p>Objective Function for merMod object</p></td>
+          <td><p>geex S4 class</p></td>
         </tr>
       </tbody>
       </table>
@@ -285,7 +203,10 @@
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#section-m-estimation">M-estimation</a></li>
+      <li><a href="#section-finite-sample-corrections">Finite sample corrections</a></li>
+      <li><a href="#section-utilities">Utilities</a></li>
+      <li><a href="#section-key-s-classes">Key S4 Classes</a></li>
     </ul>
   </div>
 </div>

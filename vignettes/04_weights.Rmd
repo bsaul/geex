@@ -1,0 +1,82 @@
+---
+title: "Speeding computations using weights in `geex`"
+author: "Bradley Saul"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using weights in geex}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Motivation
+
+A user had a case of estimating parameters based on a dataset that contained only categorical predictors. The data can be represented either as one row per individual or one row per group defined by unique combinations of categories. In this example, I show how computations in `geex` can be massively sped up using the latter data representation and the `weights` option in `estimate_equation`.
+
+## Data
+
+The following code generates two datasets: `data1` has one row per unit and `data2` has one row per unique combination of the categorical varibles.
+
+```{r}
+library(geex)
+library(dplyr)
+set.seed(42)
+n <- 1000
+
+data1 <- data_frame(
+  ID = 1:n,
+  Y_tau = rbinom(n,1,0.2),
+  S_star = rbinom(n,1,0.6),
+  Y = rbinom(n,1,0.4),
+  Z = rbinom(n,1,0.5))
+
+data2 <- data1 %>% group_by(Y_tau, S_star, Y, Z) %>% count()
+```
+
+## Estimating equations
+
+This is the estimating equation that the user provided as an example. I have no idea what the target parameters represent, but it nicely illustrates the point.
+
+```{r}
+example <- function(data) {
+  function(theta) {
+    with(data, 
+         c( (1 - Y_tau)*(1 -Z )*(Y - theta[1]),
+            (1-Y_tau)*Z*(Y-theta[2]),
+             theta[3] - theta[2]*theta[1]))
+  }
+}
+```
+
+## Computation time
+
+The timing to find point and variance estimates is compared:
+```{r}
+system.time({
+results1 <- m_estimate(
+  estFUN = example,
+  data  = data1,
+  root_control = setup_root_solver(start = c(.5, .5, .5))
+)})
+
+system.time({
+  results2 <- m_estimate(
+  estFUN = example,
+  data  = data2,
+  weights = data2$n,
+  root_control = setup_root_solver(start = c(.5, .5, .5))
+)})
+```
+
+The latter option is clearly preferred.
+
+## Results comparison
+
+And the results are basically identical:
+```{r}
+roots(results1)
+roots(results2)
+
+vcov(results1)
+vcov(results2)
+```

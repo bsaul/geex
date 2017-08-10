@@ -57,7 +57,8 @@ Note that `geex` does most of this work internally.
 
 ```{r}
 eefun <- function(data, lme4model){
-  make_eefun(model = lme4model, data = data)
+  f <- grab_psiFUN(lme4model, data = data)
+  function(theta) f(theta)
 }
 
 splitdt <- split(d, f = d$id)
@@ -86,6 +87,28 @@ No.
 As another check, how does the observed loglihood compare to `lme4::glmer`?
 
 ```{r}
+# geex internal functions objFun_glmerMod_binomial and binomial integrand copied
+# here since they are not exported
+objFun_glmerMod_binomial <- function(parms, response, xmatrix, linkinv)
+{
+  log(stats::integrate(binomial_integrand, lower = -Inf, upper = Inf,
+                parms    = parms,
+                response = response,
+                xmatrix  = xmatrix,
+                linkinv  = linkinv)$value)
+
+}
+
+binomial_integrand <- function(b, response, xmatrix, parms, linkinv){
+  if(class(xmatrix) != 'matrix'){
+    xmatrix <- as.matrix(xmatrix)
+  }
+  pr  <- linkinv( drop(outer(xmatrix %*% parms[-length(parms)], b, '+') ) )
+  hh  <- stats::dbinom(response, 1, prob = pr)
+  hha <- apply(hh, 2, prod)
+  hha * stats::dnorm(b, mean = 0, sd = parms[length(parms)])
+}
+
 # Compute the per-unit contribution the loglihood
 objFun <- lapply(splitdt, function(dt){
   X <- cbind(1, dt$x)
@@ -98,25 +121,26 @@ logLik(fit)
 
 Not bad.
 
-What happens if instead of using $\hat{\theta}_{glmer}$ to compute the scores we use estimated parameters obtained from the finding the roots of the score functions as they are defined within the `make_eefun` function?
+What happens if instead of using $\hat{\theta}_{glmer}$ to compute the scores we use estimated parameters obtained from the finding the roots of the score functions as they are defined within the `grab_eeFUN` function?
 
 NOTE: the evaluation of `estimate_equations` is slow!
 
-```{r}
-attempt <- estimate_equations(
-  eeFUN = eefun,
+```{r, echo = TRUE, eval=FALSE}
+# NOT run to speed creation of documentation
+attempt <- m_estimate(
+  estFUN = eefun,
   data  = d,
   units = 'id',
-  rootFUN_control = list(start = theta_hat), # start root finding at lme4's beta hat.
+  root_control = setup_rootFUN(start = theta_hat), # start root finding at lme4's beta hat.
   compute_vcov = FALSE,
-  outer_eeargs = list(lme4model = fit)
+  outer_args = list(lme4model = fit)
 )
 
 ## parameter estimates obtained from geex
 attempt
 
 psi_eval2 <- lapply(psi, function(f){
-  f(attempt$estimates)
+  f(roots(attempt))
 })
 
 colSums(matrix(unlist(psi_eval2), ncol = 3, byrow  = TRUE))

@@ -1,0 +1,168 @@
+---
+title: "Finite sample correction API in `geex`"
+author: "Bradley Saul"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Finite sample correction API}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+references:
+- id: stefanski2002
+  author:
+  - family: Stefanski
+    given: Len A.  
+  - family: Boos
+    given: Dennis D.
+  container-title: The calculus of M-estimation
+  type: article-journal
+  URL: 'http://www.jstor.org/stable/3087324'
+  DOI: 10.1198/000313002753631330
+  journal: The American Statistician
+  issued:
+    year: 2002 
+  volume: 56
+  number: 1
+  pages: 29-38
+- id: fay2001
+  author:
+  - family: Fay
+    given: Michael P.
+  - family: Graubard
+    given: Barry I.
+  container-title: Small-Sample Adjustments for Wald-Type Tests Using Sandwich Estimators
+  journal: Biometrics
+  type: article-journal
+  volume: 57
+  number: 4
+  pages: 1198-1206
+  issued:
+    year: 2001
+---
+
+## Introduction
+
+The empirical sandwich variance estimator is known to underestimate $V(\theta)$ in small samples [@fay2001]. Particularly in the context of GEE, [many authors](https://bsaul.github.io/geex/articles/articles/mestimation_bib.html) have proposed corrections that modify components of $\hat{\Sigma}$ and/or by assuming $\hat{\theta}$ follows a $t$ (or $F$), as opposed to Normal, distribution with some estimated degrees of freedom. Many of the proposed corrections somehow modify a combination of the $A_i$, $A_m$, $B_i$, or $B_m$ matrices. 
+
+`geex` provides an API that allows users to specify functions that utilize these matrices to form corrections. A finite sample correction function at a minimum takes the argument `components`, which is an object of class `sandwich_components`. For example,
+
+```{r, echo = TRUE, eval=FALSE}
+correct_by_nothing <- function(components){
+  A <- grab_bread(components)
+  B <- grab_meat(components)
+  compute_sigma(A = A, B = B)
+}
+```
+
+is a correctly formed function that does no corrections. Additional arguments may also be specified, as shown in the example. 
+
+## Corrections included with `geex`
+
+The `geex` package includes the bias correction and degrees of freedom corrections proposed by @fay2001 in the `correct_by_fay_bias` and `correct_by_fay_df` functions respectively. The following demonstrates the construction and use of the bias correction. @fay2001 proposed the modified variance estimator $\hat{\Sigma}^{bc}(b) = A_m^{-1} B_m^{bc}(b) \{A_m^{-1}\}^{\intercal}/m$, where:
+
+\begin{equation}
+\label{eq:bc}
+B^{bc}_m(b) = \sum_{i = 1}^m H_i(b) B_i H_i(b)^{\intercal},
+\end{equation}
+
+\begin{equation}
+\label{eq:H}
+H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
+\end{equation}
+
+\noindent and $W_{jj}$ is the $(j, j)$ element of a matrix $W$. When $\{A_i A\}_{jj}$ is close to 1, the adjustment to $\hat{\Sigma}^{bc}(b)$ may be extreme, and the constant $b$ is chosen by the analyst to limit over adjustments. 
+
+## Bias correction example
+
+The bias corrected estimator $\hat{\Sigma}^{bc}(b)$ can be implemented in `geex` by the following function:
+
+```{r, echo = TRUE}
+bias_correction <- function(components, b){
+  A <- grab_bread(components)
+  A_i <- grab_bread_list(components)
+  B_i <- grab_meat_list(components)
+  Ainv <- solve(A)
+
+  H_i <- lapply(A_i, function(m){
+    diag( (1 - pmin(b, diag(m %*% Ainv) ) )^(-0.5) )
+  })
+
+  Bbc_i <- lapply(seq_along(B_i), function(i){
+    H_i[[i]] %*% B_i[[i]] %*% H_i[[i]]
+  })
+  Bbc   <- apply(simplify2array(Bbc_i), 1:2, sum)
+
+  compute_sigma(A = A, B = Bbc)
+}
+```
+
+The `compute_sigma` function simply computes $A^{-1} B \{A^{-1}\}^{\intercal}$. Note that `geex` computes $A_m$ and $B_m$ as the sums of $A_i$ and $B_i$ rather than the means, hence the appropriate function in the `apply` call is `sum` and not `mean`. To use this bias correction, the `estimate_equations` function accepts a named list of corrections to perform. Each element of the list is also a list with two elements: `correctFUN`, the correction function; and `correctFUN_control`, a list of arguments passed to the `correctFUN` besides `A`, `A_i`, `B`, and `B_i`. 
+
+## Comparision to saws package
+
+Here we compare the `geex` implementation of GEE with an exchangeable correlation matrix to Fay's `saws` package. 
+
+The estimating functions are:
+
+\begin{equation}
+\label{gee}
+\sum_{i= 1}^m \psi(\mathbf{Y}_i, \mathbf{X}_i, \beta) = \sum_{i = 1}^m \mathbf{D}_i^{\intercal} \mathbf{V}_i^{-1} (\mathbf{Y}_i - \mathbf{\mu}(\beta)) = 0
+\end{equation}
+
+\noindent where $\mathbf{D}_i = \partial \mathbf{\mu}/\partial \mathbf{\beta}$. The covariance matrix is modeled by $\mathbf{V}_i = \phi \mathbf{A}_i^{0.5} \mathbf{R}(\alpha) \mathbf{A}_i^{0.5}$. The matrix $\mathbf{R}(\alpha)$ is the "working" correlation matrix, which in this example is an exchangeable matrix with off diagonal elements $\alpha$. The matrix $\mathbf{A}_i$ is a diagonal matrix with elements containing the variance functions of $\mu$. The equations in \eqref{gee} can be translated into an `eeFUN` as:
+
+```{r FAY1_eefun, echo = TRUE}
+gee_eefun <- function(data, formula, family){
+  X <- model.matrix(object = formula, data = data)
+  Y <- model.response(model.frame(formula = formula, data = data))
+  n <- nrow(X)
+  function(theta, alpha, psi){
+    mu  <- family$linkinv(X %*% theta)
+    Dt  <- t(X) %*% diag(as.numeric(mu), nrow = n)
+    A   <- diag(as.numeric(family$variance(mu)), nrow = n)
+    R   <- matrix(alpha, nrow = n, ncol = n)
+    diag(R) <- 1
+    V   <- psi * (sqrt(A) %*% R %*% sqrt(A))
+    Dt %*% solve(V) %*% (Y - mu)
+  }
+}
+```
+
+This `eeFUN` treats the correlation parameter $\alpha$ and scale parameter $\phi$ as fixed, though some estimation algorithms use an iterative procedure that alternates between estimating $\beta$ and these parameters. By customizing the root finding function, such an algorithm could be implemented using `geex` [see `vignette("geex_root_solvers")` for more information]. 
+
+We use this example to compare covariance estimates obtained from the `gee` function, so root finding computations are turned off. The `gee` $\beta$ estimates are used instead. Estimates for $\alpha$ and $\phi$ are also extracted from the `gee` results in `estimate_equations`. This example shows that an `eeFUN` can accept additional arguments to be passed to either the outer (data) function or the inner (theta) function. Unlike previous examples, the independent units are the types of wool, which is set in `estimate_equations` by the `units` argument. 
+
+```{r setup_gee, echo = TRUE, message = FALSE, results = 'hide'}
+g <- gee::gee(breaks~tension, id=wool, data=warpbreaks, corstr="exchangeable")
+guo <- saws::geeUOmega(g)
+```
+
+
+```{r correction_run, echo = TRUE}
+library(geex)
+results <- m_estimate(
+  estFUN = gee_eefun, data  = warpbreaks, 
+  units = 'wool', roots = coef(g), compute_roots = FALSE,
+  outer_args = list(formula = breaks ~ tension, 
+                      family  = gaussian()),
+  inner_args = list(alpha   = g$working.correlation[1,2], 
+                      psi     = g$scale), 
+  corrections = list(
+   bias_correction_.1 = correction(bias_correction, b = .1),
+   bias_correction_.3 = correction(bias_correction, b = .3))) 
+```
+
+In the `geex` output, the item `corrections` contains a list of the results of computing each item in the `corrections_list`. Comparing the `geex` results to the results of the `saws::geeUOmega` function, the maximum difference in the results for any of corrected estimated covariance matrices is `r format(max(saws::saws(guo, method = 'd4', bound  = 0.1)$V - get_corrections(results)[[1]], saws::saws(guo, method = 'd4', bound  = 0.3)$V - get_corrections(results)[[2]]), digits = 2)`. 
+
+```{r correction_comparison, echo = FALSE, results = 'hide'}
+saws::saws(guo, method = 'd1')$V 
+vcov(results)
+
+saws::saws(guo, method = 'd4', bound  = 0.1)$V
+get_corrections(results)[[1]]
+
+saws::saws(guo, method = 'd4', bound  = 0.3)$V
+get_corrections(results)[[2]]
+```
+
+## References

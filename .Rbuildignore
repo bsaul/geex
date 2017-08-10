@@ -3,5 +3,8 @@
 ^.*scratch.*$
 ^.*manuscript.*$
 ^docs$
-^README.md$
-^NEWS.md$
+^README\.md$
+^CODE_OF_CONDUCT\.md$
+^CONTRIBUTING\.md$
+^\.travis\.yml$
+^_pkgdown\.yaml$

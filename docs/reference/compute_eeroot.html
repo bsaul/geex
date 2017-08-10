@@ -63,7 +63,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -79,7 +84,8 @@
     </div>
 
     
-    <p>Compute roots for a set of estimating equations</p>
+    <p>Using the <code>rootFUN</code> specified by the user (defaults to <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code>),
+this function estimates the roots of the equations: $$G_m = sum_i psi(O_i, \hat{\theta}) = 0$$</p>
     
 
     <pre class="usage"><span class='fu'>compute_eeroot</span>(<span class='no'>geex_list</span>, <span class='kw'>rootFUN</span> <span class='kw'>=</span> <span class='kw'>rootSolve</span><span class='kw'>::</span><span class='no'>multiroot</span>,
@@ -108,7 +114,8 @@ function</p></td>
     </tr>
     <tr>
       <th>approxFUN</th>
-      <td><p>a function that approximates the inner function of <code>eeFUN</code></p></td>
+      <td><p>a function that approximates the inner function of <code>eeFUN</code>.
+(EXPERIMENTAL).</p></td>
     </tr>
     <tr>
       <th>approxFUN_control</th>
@@ -118,7 +125,14 @@ function</p></td>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>the output of the <code>rootsolver</code> function</p>
+    <p>the output of the <code>rootFUN</code> function</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This is primilary an internal function used within <code><a href='estimate_equations.html'>estimate_equations</a></code>,
+but it is exported for use in debugging and development.</p>
+<p>For an example of how to use a different <code>rootFUN</code>,
+see the root solver vignette, <code>NA</code>.</p>
     
 
   </div>
@@ -128,6 +142,8 @@ function</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
           </ul>
 
   </div>

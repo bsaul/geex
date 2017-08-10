@@ -1,7 +1,7 @@
 Package: geex
 Type: Package
 Title: A Framework for Estimating Equations
-Version: 0.3.0
+Version: 1.0.0
 Authors@R: c(person("Bradley", "Saul", role = c("aut", "cre"),
                     email = "bradleysaul@gmail.com"),
              person("Brian", "Barkley", role = c("ctb")))
@@ -18,7 +18,8 @@ Imports:
     Matrix (>= 1.2-6),
     rootSolve (>= 1.6.6),
     numDeriv (>= 2014.2-1),
-    lme4 (>= 1.1-12)
+    lme4 (>= 1.1-12),
+    methods (>= 3.3)
 Suggests:
     testthat,
     knitr,
@@ -26,7 +27,17 @@ Suggests:
     moments,
     sandwich,
     inferference,
-    xtable
+    xtable,
+    AER,
+    ICSNP,
+    MASS,
+    gee, 
+    ivpack,
+    saws,
+    rmarkdown,
+    geepack
+URL: https://bsaul.github.io/geex/, https://github.com/bsaul/geex
+BugReports: https://github.com/bsaul/geex/issues
 License: MIT + file LICENSE
 LazyData: TRUE
 VignetteBuilder: knitr

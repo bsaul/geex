@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>A note on lme4 models • geex</title>
-<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
 <script src="../../jquery.sticky-kit.min.js"></script><script src="../../pkgdown.js"></script><!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -16,7 +16,7 @@
 </head>
 <body>
     <div class="container template-vignette">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -29,16 +29,26 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
+  <a href="../../index.html">Home</a>
+</li>
+<li>
   <a href="../../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../../articles/index.html">Articles</a>
+  <a href="../../articles/index.html">Vignettes</a>
 </li>
 <li>
   <a href="../../news/index.html">News</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/bsaul/geex">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -119,7 +129,8 @@ fit &lt;-<span class="st"> </span>lme4::<span class="kw">glmer</span>(y~x+(<span
 <a href="#computing-score-equations" class="anchor"></a>Computing score equations</h2>
 <p>Note that <code>geex</code> does most of this work internally.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eefun &lt;-<span class="st"> </span>function(data, lme4model){
-  <span class="kw"><a href="../../reference/make_eefun.html">make_eefun</a></span>(<span class="dt">model =</span> lme4model, <span class="dt">data =</span> data)
+  f &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/grab_psiFUN.html">grab_psiFUN</a></span>(lme4model, <span class="dt">data =</span> data)
+  function(theta) <span class="kw">f</span>(theta)
 }
 
 splitdt &lt;-<span class="st"> </span><span class="kw">split</span>(d, <span class="dt">f =</span> d$id)
@@ -140,10 +151,32 @@ psi_eval &lt;-<span class="st"> </span><span class="kw">lapply</span>(psi, funct
 <pre><code>## [1] -0.34256462  0.01407301  2.63530185</code></pre>
 <p>No.</p>
 <p>As another check, how does the observed loglihood compare to <code>lme4::glmer</code>?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Compute the per-unit contribution the loglihood</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># geex internal functions objFun_glmerMod_binomial and binomial integrand copied</span>
+<span class="co"># here since they are not exported</span>
+objFun_glmerMod_binomial &lt;-<span class="st"> </span>function(parms, response, xmatrix, linkinv)
+{
+  <span class="kw">log</span>(stats::<span class="kw">integrate</span>(binomial_integrand, <span class="dt">lower =</span> -<span class="ot">Inf</span>, <span class="dt">upper =</span> <span class="ot">Inf</span>,
+                <span class="dt">parms    =</span> parms,
+                <span class="dt">response =</span> response,
+                <span class="dt">xmatrix  =</span> xmatrix,
+                <span class="dt">linkinv  =</span> linkinv)$value)
+
+}
+
+binomial_integrand &lt;-<span class="st"> </span>function(b, response, xmatrix, parms, linkinv){
+  if(<span class="kw">class</span>(xmatrix) !=<span class="st"> 'matrix'</span>){
+    xmatrix &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(xmatrix)
+  }
+  pr  &lt;-<span class="st"> </span><span class="kw">linkinv</span>( <span class="kw">drop</span>(<span class="kw">outer</span>(xmatrix %*%<span class="st"> </span>parms[-<span class="kw">length</span>(parms)], b, <span class="st">'+'</span>) ) )
+  hh  &lt;-<span class="st"> </span>stats::<span class="kw">dbinom</span>(response, <span class="dv">1</span>, <span class="dt">prob =</span> pr)
+  hha &lt;-<span class="st"> </span><span class="kw">apply</span>(hh, <span class="dv">2</span>, prod)
+  hha *<span class="st"> </span>stats::<span class="kw">dnorm</span>(b, <span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">sd =</span> parms[<span class="kw">length</span>(parms)])
+}
+
+<span class="co"># Compute the per-unit contribution the loglihood</span>
 objFun &lt;-<span class="st"> </span><span class="kw">lapply</span>(splitdt, function(dt){
   X &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="dv">1</span>, dt$x)
-  <span class="kw"><a href="../../reference/objFun_glmerMod_binomial.html">objFun_glmerMod_binomial</a></span>(<span class="dt">parms =</span> theta_hat, <span class="dt">response =</span> dt$y, <span class="dt">xmatrix =</span> X, <span class="dt">linkinv =</span> plogis )
+  <span class="kw">objFun_glmerMod_binomial</span>(<span class="dt">parms =</span> theta_hat, <span class="dt">response =</span> dt$y, <span class="dt">xmatrix =</span> X, <span class="dt">linkinv =</span> plogis )
 })
 
 <span class="kw">sum</span>(<span class="kw">unlist</span>(objFun))</code></pre></div>
@@ -151,28 +184,26 @@ objFun &lt;-<span class="st"> </span><span class="kw">lapply</span>(splitdt, fun
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">logLik</span>(fit)</code></pre></div>
 <pre><code>## 'log Lik.' -397.0352 (df=3)</code></pre>
 <p>Not bad.</p>
-<p>What happens if instead of using <span class="math inline">\(\hat{\theta}_{glmer}\)</span> to compute the scores we use estimated parameters obtained from the finding the roots of the score functions as they are defined within the <code>make_eefun</code> function?</p>
+<p>What happens if instead of using <span class="math inline">\(\hat{\theta}_{glmer}\)</span> to compute the scores we use estimated parameters obtained from the finding the roots of the score functions as they are defined within the <code>grab_eeFUN</code> function?</p>
 <p>NOTE: the evaluation of <code>estimate_equations</code> is slow!</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">attempt &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/estimate_equations.html">estimate_equations</a></span>(
-  <span class="dt">eeFUN =</span> eefun,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># NOT run to speed creation of documentation</span>
+attempt &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN =</span> eefun,
   <span class="dt">data  =</span> d,
   <span class="dt">units =</span> <span class="st">'id'</span>,
-  <span class="dt">rootFUN_control =</span> <span class="kw">list</span>(<span class="dt">start =</span> theta_hat), <span class="co"># start root finding at lme4's beta hat.</span>
+  <span class="dt">root_control =</span> <span class="kw">setup_rootFUN</span>(<span class="dt">start =</span> theta_hat), <span class="co"># start root finding at lme4's beta hat.</span>
   <span class="dt">compute_vcov =</span> <span class="ot">FALSE</span>,
-  <span class="dt">outer_eeargs =</span> <span class="kw">list</span>(<span class="dt">lme4model =</span> fit)
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">lme4model =</span> fit)
 )
 
 ## parameter estimates obtained from geex
-attempt</code></pre></div>
-<pre><code>## $estimates
-##                beta1                beta2 theta.id.(Intercept) 
-##            1.9214803            1.8311554            0.8405534</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">psi_eval2 &lt;-<span class="st"> </span><span class="kw">lapply</span>(psi, function(f){
-  <span class="kw">f</span>(attempt$estimates)
+attempt
+
+psi_eval2 &lt;-<span class="st"> </span><span class="kw">lapply</span>(psi, function(f){
+  <span class="kw">f</span>(<span class="kw"><a href="../../reference/roots-methods.html">roots</a></span>(attempt))
 })
 
 <span class="kw">colSums</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(psi_eval2), <span class="dt">ncol =</span> <span class="dv">3</span>, <span class="dt">byrow  =</span> <span class="ot">TRUE</span>))</code></pre></div>
-<pre><code>## [1] -1.038515e-08 -1.403750e-07 -3.932024e-07</code></pre>
 <p>Ah! That looks much better.</p>
 </div>
 </div>
