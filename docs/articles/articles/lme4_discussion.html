@@ -91,7 +91,7 @@ x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(m*n)
 b &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rnorm</span>(n), <span class="dt">each=</span>m)
 y &lt;-<span class="st"> </span><span class="kw">rbinom</span>(m*n, <span class="dv">1</span>, <span class="kw">plogis</span>(<span class="kw">cbind</span>(<span class="dv">1</span>, x) %*%<span class="st"> </span>beta +<span class="st"> </span>b))
 d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(y,x,id) </code></pre></div>
-<p><span class="math inline">\(\theta\)</span> can be estimated from the <code>lme4::glmer</code> function.</p>
+<p><span class="math inline">\(\theta\)</span> can be estimated from the <code><a href="http://www.rdocumentation.org/packages/lme4/topics/glmer">lme4::glmer</a></code> function.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#fit logistic-normal random effects model</span>
 fit &lt;-<span class="st"> </span>lme4::<span class="kw">glmer</span>(y~x+(<span class="dv">1</span>|id), <span class="dt">family=</span>binomial, <span class="dt">data=</span>d)
 <span class="kw">print</span>(<span class="kw">summary</span>(fit))</code></pre></div>
@@ -150,7 +150,7 @@ psi_eval &lt;-<span class="st"> </span><span class="kw">lapply</span>(psi, funct
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">colSums</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(psi_eval), <span class="dt">ncol =</span> <span class="dv">3</span>, <span class="dt">byrow  =</span> <span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>## [1] -0.34256462  0.01407301  2.63530185</code></pre>
 <p>No.</p>
-<p>As another check, how does the observed loglihood compare to <code>lme4::glmer</code>?</p>
+<p>As another check, how does the observed loglihood compare to <code><a href="http://www.rdocumentation.org/packages/lme4/topics/glmer">lme4::glmer</a></code>?</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># geex internal functions objFun_glmerMod_binomial and binomial integrand copied</span>
 <span class="co"># here since they are not exported</span>
 objFun_glmerMod_binomial &lt;-<span class="st"> </span>function(parms, response, xmatrix, linkinv)

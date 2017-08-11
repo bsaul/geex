@@ -181,7 +181,7 @@ and/or the empirical sandwich variance estimator.</p>
 <p>The root finding algorithm defaults to <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code> to
 estimate roots though the solver algorithm can be specified in the <code>rootFUN</code>
 argument. Starting values for <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code> are passed via the
-<code>root_control</code> argument. See <code>NA</code>
+<code>root_control</code> argument. See <code><a href='https://cran.rstudio.com/web/packages/geex/vignettes/v03_root_solvers.html'>vignette("v03_root_solvers", package = "geex")</a></code>
 for information on customizing the root solver function.</p>
 <p>To compute only the covariance matrix, set <code>compute_roots = FALSE</code> and pass
 estimates of \(\theta\) via the <code>roots</code> argument.</p>
@@ -190,26 +190,56 @@ the data.frame  into independent units is specified by the <code>units</code> ar
 This argument defaults to <code>NULL</code>, in which case the number of units equals
 the number of rows in the data.frame.</p>
 <p>For information on the finite-sample corrections, refer to the finite sample
-correction API vignette: <code>NA</code></p>
+correction API vignette: <code><a href='https://cran.rstudio.com/web/packages/geex/vignettes/v05_finite_sample_corrections.html'>vignette("v05_finite_sample_corrections", package = "geex")</a></code></p>
     
     <h2 class="hasAnchor" id="writing-an-estfun"><a class="anchor" href="#writing-an-estfun"></a>Writing an estFUN</h2>
 
     
     <h3>Description</h3>
-    An <code>estFUN</code> is a function that takes in *unit* level data plus possible
-whose first argument is <code>theta</code>. See the examples below or the package
-vignettes for more information.
+    An <code>estFUN</code> is a function representing \(\psi\). <span class="pkg">geex</span> works
+by breaking \(\psi\) into two parts:
+    <ul>
+<li><p>the "outer" part of the <code>estFUN</code> which manipulates <code>data</code> and
+<code>outer_args</code> and returns an</p></li>
+<li><p>"inner" function of <code>theta</code> and <code>inner_args</code>. Internally, this
+"inner" function is called <code>psiFUN</code>.</p></li>
+</ul>
+    In pseudo-code this looks like:
+<pre>
+function(data, &lt;&lt;outer_args&gt;&gt;){
+  O &lt;- manipulate(data, &lt;&lt;outer_args&gt;&gt;)
+  function(theta, &lt;&lt;inner_args&gt;&gt;){
+    map(O, to = theta, and = &lt;&lt;inner_args&gt;&gt;)
+  }
+}</pre>
+    See the examples below or the package vignettes to see an <code>estFUN</code>
+in action.
+    Importantly, the <code>data</code> used in an <code>estFUN</code> is *unit* level data,
+which may be single rows in a data.frame or block of rows for clustered data.
     <h3>Additional arguments</h3>
     Additional arguments may be passed to both the inner and outer function of the
 <code>estFUN</code>. Elements in an <code>outer_args</code> list are passed to the outer
 function; any elements of the <code>inner_args</code> list are passed to the inner
-function. For an example, see the finite sample correction vignette [<code>NA</code>].
+function. For an example, see the finite sample correction vignette [<code><a href='https://cran.rstudio.com/web/packages/geex/vignettes/v05_finite_sample_corrections.html'>
+vignette("v05_finite_sample_corrections", package = "geex")</a></code>].
+    
+    <h2 class="hasAnchor" id="setting-up-root-control"><a class="anchor" href="#setting-up-root-control"></a>Setting up root_control</h2>
+
+    
+    <p>To estimate roots of the estimating functions, <span class="pkg">geex</span> uses the <span class="pkg">rootSolve</span>
+<code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code> function by default, which requires starting
+values. The <code>root_control</code> argument expects a <code><a href='root_control-class.html'>root_control</a></code>
+object, which the utility function <code><a href='setup_root_control.html'>setup_root_control</a></code> aids in
+creating. For example, <code><a href='setup_root_control.html'>setup_root_control(start = 4)</a></code> creates a
+<code><a href='root_control-class.html'>root_control</a></code> setting the starting value to 4. In general,
+the dimension of <code>start</code> must the same as <code>theta</code> in the inner
+<code>estFUN</code>.</p>
     
     <h2 class="hasAnchor" id="using-weights"><a class="anchor" href="#using-weights"></a>Using weights</h2>
 
     
     <p>In some situations, use of weights can massively speed computations. Refer
-to <code>NA</code> for an example.</p>
+to <code><a href='https://cran.rstudio.com/web/packages/geex/vignettes/v04_weights.html'>vignette("v04_weights", package = "geex")</a></code> for an example.</p>
     
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
@@ -229,7 +259,7 @@ The American Statistician, 56(1), 29-38.</p>
 <span class='fu'>m_estimate</span>(
  <span class='kw'>estFUN</span> <span class='kw'>=</span> <span class='no'>ex_eeFUN</span>,
  <span class='kw'>data</span>  <span class='kw'>=</span> <span class='no'>geexex</span>,
- <span class='kw'>root_control</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_solver.html'>setup_root_solver</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>1</span>)))</div><div class='output co'>#&gt; M-estimation results based on the estimating function:
+ <span class='kw'>root_control</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_control.html'>setup_root_control</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>1</span>)))</div><div class='output co'>#&gt; M-estimation results based on the estimating function:
 #&gt; {
 #&gt;     function(theta) {
 #&gt;         with(data, c(Y1 - theta[1], (Y1 - theta[1])^2 - theta[2]))
@@ -243,11 +273,14 @@ The American Statistician, 56(1), 29-38.</p>
 #&gt;            [,1]       [,2]
 #&gt; [1,] 0.10041239 0.03667969
 #&gt; [2,] 0.03667969 2.49219638</div><div class='input'>
+<span class='co'># compare to the mean() and variance() functions</span>
+<span class='fu'>mean</span>(<span class='no'>geexex</span>$<span class='no'>Y1</span>)</div><div class='output co'>#&gt; [1] 5.044563</div><div class='input'><span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='fu'>nrow</span>(<span class='no'>geexex</span>)
+<span class='fu'>var</span>(<span class='no'>geexex</span>$<span class='no'>Y1</span>) * (<span class='no'>n</span> - <span class='fl'>1</span>)/<span class='no'>n</span></div><div class='output co'>#&gt; [1] 10.04124</div><div class='input'>
 <span class='co'># A simple linear model for regressing X1 and X2 on Y4</span>
 <span class='no'>lm_eefun</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>data</span>){
  <span class='no'>X</span> <span class='kw'>&lt;-</span> <span class='fu'>cbind</span>(<span class='fl'>1</span>, <span class='no'>data</span>$<span class='no'>X1</span>, <span class='no'>data</span>$<span class='no'>X2</span>)
  <span class='no'>Y</span> <span class='kw'>&lt;-</span> <span class='no'>data</span>$<span class='no'>Y4</span>
-  <span class='kw'>function</span>(<span class='no'>theta</span>){
+ <span class='kw'>function</span>(<span class='no'>theta</span>){
     <span class='fu'>t</span>(<span class='no'>X</span>) <span class='kw'>%*%</span> (<span class='no'>Y</span> - <span class='no'>X</span> <span class='kw'>%*%</span> <span class='no'>theta</span>)
    }
  }
@@ -255,7 +288,7 @@ The American Statistician, 56(1), 29-38.</p>
 <span class='fu'>m_estimate</span>(
  <span class='kw'>estFUN</span> <span class='kw'>=</span> <span class='no'>lm_eefun</span>,
  <span class='kw'>data</span>  <span class='kw'>=</span> <span class='no'>geexex</span>,
- <span class='kw'>root_control</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_solver.html'>setup_root_solver</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>)))</div><div class='output co'>#&gt; M-estimation results based on the estimating function:
+ <span class='kw'>root_control</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_control.html'>setup_root_control</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>)))</div><div class='output co'>#&gt; M-estimation results based on the estimating function:
 #&gt; {
 #&gt;     X &lt;- cbind(1, data$X1, data$X2)
 #&gt;     Y &lt;- data$Y4
@@ -272,7 +305,27 @@ The American Statistician, 56(1), 29-38.</p>
 #&gt; [1,]  0.053446050 -0.0085998270 -0.0117461490
 #&gt; [2,] -0.008599827  0.0018120535 -0.0001770491
 #&gt; [3,] -0.011746149 -0.0001770491  0.0403839561</div><div class='input'>
-</div></pre>
+<span class='co'># Compare to lm() results</span>
+<span class='fu'>summary</span>(<span class='fu'>lm</span>(<span class='no'>Y4</span> ~ <span class='no'>X1</span> + <span class='no'>X2</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>geexex</span>))</div><div class='output co'>#&gt; 
+#&gt; Call:
+#&gt; lm(formula = Y4 ~ X1 + X2, data = geexex)
+#&gt; 
+#&gt; Residuals:
+#&gt;      Min       1Q   Median       3Q      Max 
+#&gt; -2.17429 -0.59391 -0.05797  0.64161  2.71283 
+#&gt; 
+#&gt; Coefficients:
+#&gt;             Estimate Std. Error t value Pr(&gt;|t|)   
+#&gt; (Intercept) -0.04061    0.26683  -0.152  0.87934   
+#&gt; X1           0.14435    0.04477   3.224  0.00172 **
+#&gt; X2           0.35437    0.20492   1.729  0.08693 . 
+#&gt; ---
+#&gt; Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#&gt; 
+#&gt; Residual standard error: 1.023 on 97 degrees of freedom
+#&gt; Multiple R-squared:  0.1165,	Adjusted R-squared:  0.0983 
+#&gt; F-statistic: 6.396 on 2 and 97 DF,  p-value: 0.002458
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -284,6 +337,8 @@ The American Statistician, 56(1), 29-38.</p>
       <li><a href="#details">Details</a></li>
 
       <li><a href="#writing-an-estfun">Writing an estFUN</a></li>
+
+      <li><a href="#setting-up-root-control">Setting up root_control</a></li>
 
       <li><a href="#using-weights">Using weights</a></li>
 

@@ -8,7 +8,7 @@ reference:
        The core functions of geex
     contents:
        - m_estimate
-       - setup_root_solver
+       - setup_root_control
   - title: "Finite sample corrections"
     desc: >
        Functions for performing small sample corrections
@@ -50,14 +50,14 @@ articles:
     desc: >
       Vignettes on using geex
     contents:
-    - 00_geex_intro
-    - 01_additional_examples
-    - 02_sandwich_comparison
-    - 03_root_solvers
-    - 04_weights
-    - 05_finite_sample_corrections
-    - 06_causal_example
-    - 07_geex_design
+    - v00_geex_intro
+    - v01_additional_examples
+    - v02_sandwich_comparison
+    - v03_root_solvers
+    - v04_weights
+    - v05_finite_sample_corrections
+    - v06_causal_example
+    - v07_geex_design
   - title: "Articles"
     desc: >
       Other articles about using geex
