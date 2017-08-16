@@ -33,7 +33,6 @@ reference:
 
 navbar:
   title: "geex"
-  type: inverse
   left:
     - text: "Home"
       href: index.html
