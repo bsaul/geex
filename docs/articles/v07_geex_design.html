@@ -63,58 +63,202 @@
       <h1>The design and structure of geex</h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-08-16</h4>
+            <h4 class="date">2017-08-18</h4>
           </div>
 
     
     
 <div class="contents">
-<p><em>Under construction</em></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
-<span class="kw">library</span>(dplyr)
-
-myee &lt;-<span class="st"> </span>function(data){
-  function(theta){
-    <span class="kw">c</span>(data$Y1 -<span class="st"> </span>theta[<span class="dv">1</span>],
-      (data$Y1 -<span class="st"> </span>theta[<span class="dv">1</span>])^<span class="dv">2</span> -<span class="st"> </span>theta[<span class="dv">2</span>])
+<blockquote>
+<p>The details below are for those interested in how geex is organized. It is not necessary for using geex.</p>
+</blockquote>
+<div id="the-estimating-function" class="section level2">
+<h2 class="hasAnchor">
+<a href="#the-estimating-function" class="anchor"></a>The Estimating Function</h2>
+<p>The design of <code>geex</code> starts with the key to M-estimation, the estimating function:</p>
+<p><span class="math display">\[
+\psi(O_i, \theta) .
+\]</span></p>
+<p><code>geex</code> composes <span class="math inline">\(\psi\)</span> with two R functions: the “outer” <code>estFUN</code> and the “inner” <code>psiFUN</code>. In pseudocode, <span class="math inline">\(\psi(O_i, \theta) =\)</span>:</p>
+<pre><code>estFUN &lt;- function(O_i){
+  psiFUN &lt;- function(theta){
+     psi(O_i, theta)
   }
-}
+  return(psiFUN)
+}</code></pre>
+<p>The reason for composing the <span class="math inline">\(\psi\)</span> function in this way is that in order to do estimation (finding roots) and inference (computing the empirical sandwich variance estimator), <span class="math inline">\(\psi\)</span> needs to be function of <span class="math inline">\(\theta\)</span>. M-estimation theory gives the following instructions:</p>
+<ul>
+<li>To estimate <span class="math inline">\(\hat{\theta}\)</span>, we need to find roots of <span class="math inline">\(G_m = \sum_i \psi(O_i, \theta) = 0\)</span>.</li>
+<li>To estimate the empirical sandwich variance estimator, we need two quantities for each unit: <span class="math inline">\(A_i = - (\partial \psi(O_i, \theta)/\partial \theta)|_{\theta = \hat{\theta}}\)</span> and <span class="math inline">\(B_i = \psi(O_i, \hat{\theta})\psi(O_i, \theta)^{\intercal}\)</span>.</li>
+</ul>
+<p>With <span class="math inline">\(\hat{\theta}\)</span> in hand, the quantity <span class="math inline">\(B_i\)</span> is simple to compute. The computational challenges of M-estimation, then, are finding roots of <span class="math inline">\(G_m\)</span> and calculating the derivative <span class="math inline">\(A_i\)</span>. By composing <span class="math inline">\(\psi\)</span> of two functions in <code>geex</code>, one can first do all the manipulations of <span class="math inline">\(O_i\)</span> (data) that are independent of <span class="math inline">\(\theta\)</span>. In a sense, <code>estFUN</code> “fixes” the data so that numerical routines only need deal with <span class="math inline">\(\theta\)</span> in <code>psiFUN</code>.</p>
+</div>
+<div id="m-estimation-basis" class="section level2">
+<h2 class="hasAnchor">
+<a href="#m-estimation-basis" class="anchor"></a>M-estimation basis</h2>
+<p>Before describing the mechanics of how <code>geex</code> finding roots of <span class="math inline">\(G_m\)</span> and computes derivatives of <span class="math inline">\(\psi\)</span>, let’s look at the <code>m_estimation_basis</code> <code>S4</code> object which forms the basis of all computations in <code>geex</code>.</p>
+<p>An <code>m_estimation_basis</code> object, at a minimum needs two objects: an <code>estFUN</code> and a <code>data.frame</code>. Let’s use a simple <code>estFUN</code> that estimates the mean and variance of <code>Y1</code> in the <code>geexex</code> dataset.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
+<span class="kw">library</span>(dplyr)</code></pre></div>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myee &lt;-<span class="st"> </span>function(data){
+  Y1 &lt;-<span class="st"> </span>data$Y1
+  function(theta){
+    <span class="kw">c</span>(Y1 -<span class="st"> </span>theta[<span class="dv">1</span>],
+      (Y1 -<span class="st"> </span>theta[<span class="dv">1</span>])^<span class="dv">2</span> -<span class="st"> </span>theta[<span class="dv">2</span>])
+  }
+}</code></pre></div>
+<p>Now we can create a basis:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mybasis &lt;-<span class="st"> </span><span class="kw">new</span>(<span class="st">"m_estimation_basis"</span>,
+               <span class="dt">.estFUN =</span> myee,
+               <span class="dt">.data   =</span> geexex)</code></pre></div>
+<p>And look at what this object contains:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">slotNames</span>(mybasis)</code></pre></div>
+<pre><code>## [1] ".data"        ".units"       ".weights"     ".psiFUN_list"
+## [5] ".GFUN"        ".control"     ".estFUN"      ".outer_args" 
+## [9] ".inner_args"</code></pre>
+<p>Two slots are worth examining. First, <code>.psiFUN_list</code> is a <code>list</code> of <code>function</code>s:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mybasis@.psiFUN_list[<span class="dv">1</span>:<span class="dv">2</span>]</code></pre></div>
+<pre><code>## $`1`
+## function (theta) 
+## {
+##     c(Y1 - theta[1], (Y1 - theta[1])^2 - theta[2])
+## }
+## &lt;environment: 0x7fca74bf6ad8&gt;
+## 
+## $`2`
+## function (theta) 
+## {
+##     c(Y1 - theta[1], (Y1 - theta[1])^2 - theta[2])
+## }
+## &lt;bytecode: 0x7fca76f69110&gt;
+## &lt;environment: 0x7fca74be4350&gt;</code></pre>
+<p>This object is essentially equivalent to:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m &lt;-<span class="st"> </span><span class="kw">nrow</span>(geexex)
+<span class="kw">lapply</span>(<span class="kw">split</span>(geexex, <span class="dt">f =</span> <span class="dv">1</span>:m), function(O_i){
+  <span class="kw">myee</span>(O_i)
+})</code></pre></div>
+<p>From this list of functions, we can compute <span class="math inline">\(A_i\)</span>, and by summing across the list, form <span class="math inline">\(G_m\)</span>. The latter is found in:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mybasis@.GFUN</code></pre></div>
+<pre><code>## function(theta){
+##       psii &lt;- lapply(psi_list, function(psi) {
+##         do.call(psi, args = append(list(theta = theta), object@.inner_args))
+##       })
+## 
+##       compute_sum_of_list(psii, object@.weights)
+##     }
+## &lt;environment: 0x7fca76e999f0&gt;</code></pre>
+</div>
+<div id="finding-roots" class="section level2">
+<h2 class="hasAnchor">
+<a href="#finding-roots" class="anchor"></a>Finding roots</h2>
+<p>Now that we have <span class="math inline">\(G_m\)</span> as a function of <code>theta</code>, we can found its roots using a root-finding algorithm such as <code><a href="http://www.rdocumentation.org/packages/rootSolve/topics/multiroot">rootSolve::multiroot</a></code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rootSolve::<span class="kw">multiroot</span>(
+  <span class="dt">f =</span> mybasis@.GFUN, 
+  <span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))</code></pre></div>
+<pre><code>## $root
+## [1]  5.044563 10.041239
+## 
+## $f.root
+## [1] -2.131628e-14  4.654055e-13
+## 
+## $iter
+## [1] 4
+## 
+## $estim.precis
+## [1] 2.433609e-13</code></pre>
+<p>Within <code>geex</code> this is done with the <code>estimate_GFUN_roots</code> function. To illustrate, I first need to update the <code>.control</code> slot in <code>mybasis</code> with starting values for <code>multiroot</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mycontrol &lt;-<span class="st"> </span><span class="kw">new</span>(<span class="st">'geex_control'</span>, <span class="dt">.root =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)))
+mybasis@.control &lt;-<span class="st"> </span>mycontrol
+roots &lt;-<span class="st"> </span>mybasis %&gt;%
+<span class="st">  </span><span class="kw"><a href="../reference/estimate_GFUN_roots.html">estimate_GFUN_roots</a></span>()
+roots</code></pre></div>
+<pre><code>## $root
+## [1]  5.044563 10.041239
+## 
+## $f.root
+## [1] -2.131628e-14 -2.238210e-13
+## 
+## $iter
+## [1] 4
+## 
+## $estim.precis
+## [1] 1.225686e-13</code></pre>
+<p>Note that is bad form to assign <code>S4</code> slot with <code>someS4object@aslot &lt;- something</code>, but I do so here because I have not created a generic function for setting the <code>.control</code> slot.</p>
+</div>
+<div id="computing-the-empirical-sandwich-variance-estimator" class="section level2">
+<h2 class="hasAnchor">
+<a href="#computing-the-empirical-sandwich-variance-estimator" class="anchor"></a>Computing the Empirical Sandwich Variance Estimator</h2>
+<p>In the last section, we found <span class="math inline">\(\hat{\theta}\)</span>, which we now use to compute the <span class="math inline">\(A_i\)</span> and <span class="math inline">\(B_i\)</span> matrices.</p>
+<p><code>geex</code> uses the <code><a href="http://www.rdocumentation.org/packages/numDeriv/topics/jacobian">numDeriv::jacobian</a></code> function to numerically evaluate derivatives. For example, <span class="math inline">\(A_1 = - (\partial \psi(O_1, \theta)/\partial \theta)|_{\theta = \hat{\theta}}\)</span> for this example is:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">-numDeriv::<span class="kw">jacobian</span>(<span class="dt">func =</span> mybasis@.psiFUN_list[[<span class="dv">1</span>]], <span class="dt">x =</span> roots$root)</code></pre></div>
+<pre><code>##           [,1] [,2]
+## [1,]  1.000000    0
+## [2,] -2.752514    1</code></pre>
+<p><code>geex</code> performs this operation for each <span class="math inline">\(i = 1, \dots, m\)</span> to yield a list of <span class="math inline">\(A_i\)</span> matrices. Then summing across this list yields <span class="math inline">\(A = \sum_i A_i\)</span>. The <code>estimate_sandwich_matrices</code> function computes the list of <span class="math inline">\(A_i\)</span>, <span class="math inline">\(B_i\)</span> and <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mats &lt;-<span class="st"> </span>mybasis %&gt;%
+<span class="st">  </span><span class="kw"><a href="../reference/estimate_sandwich_matrices.html">estimate_sandwich_matrices</a></span>(<span class="dt">.theta =</span> roots$root) 
 
-mybasis &lt;-<span class="st"> </span><span class="kw"><a href="../reference/create_basis.html">create_basis</a></span>(
-               <span class="dt">estFUN =</span> myee,
-               <span class="dt">data   =</span> geexex)
-
-mybasis %&gt;%
-<span class="st">  </span><span class="kw"><a href="../reference/create_GFUN-methods.html">create_GFUN</a></span>() %&gt;%
-<span class="st">  </span><span class="kw"><a href="../reference/estimate_GFUN_roots.html">estimate_GFUN_roots</a></span>(<span class="dt">.root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)))
-
-mybasis %&gt;%
-<span class="st">  </span><span class="kw"><a href="../reference/estimate_sandwich_matrices.html">estimate_sandwich_matrices</a></span>(<span class="dt">.theta =</span> <span class="kw">c</span>(<span class="fl">5.04</span>, <span class="fl">10.04</span>)) 
-
-mybasis %&gt;%
-<span class="st">  </span><span class="kw"><a href="../reference/estimate_sandwich_matrices.html">estimate_sandwich_matrices</a></span>(<span class="dt">.theta =</span> <span class="kw">c</span>(<span class="fl">5.04</span>, <span class="fl">10.04</span>)) %&gt;%
-<span class="st">  </span>{<span class="kw"><a href="../reference/compute_sigma.html">compute_sigma</a></span>(<span class="dt">A =</span> <span class="kw"><a href="../reference/grab_bread-methods.html">grab_bread</a></span>(.), <span class="dt">B =</span> <span class="kw"><a href="../reference/grab_meat-methods.html">grab_meat</a></span>(.))}
-
-mybasis %&gt;%
-<span class="st">  </span><span class="kw"><a href="../reference/estimate_sandwich_matrices.html">estimate_sandwich_matrices</a></span>(<span class="dt">.theta =</span> <span class="kw">c</span>(<span class="fl">5.04</span>))
-
-mybasis %&gt;%
-<span class="st">  </span><span class="kw"><a href="../reference/estimate_sandwich_matrices.html">estimate_sandwich_matrices</a></span>(<span class="dt">.theta =</span> <span class="kw">c</span>(<span class="fl">5.04</span>, <span class="fl">10.04</span>)) %&gt;%
-<span class="st">  </span><span class="kw"><a href="../reference/correct_by.html">correct_by</a></span>(<span class="dt">.correct_control =</span>  <span class="kw"><a href="../reference/correction.html">correction</a></span>(fay_bias_correction, <span class="dt">b =</span> .<span class="dv">75</span>))
-
-test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
+<span class="co"># Compare to the numDeriv computation above</span>
+<span class="kw"><a href="../reference/grab_bread_list-methods.html">grab_bread_list</a></span>(mats)[[<span class="dv">1</span>]]</code></pre></div>
+<pre><code>##           [,1] [,2]
+## [1,]  1.000000    0
+## [2,] -2.752514    1</code></pre>
+<p>Finally, computing <span class="math inline">\(\hat{\Sigma} = A^{-1} B (A^{-1})^{\intercal}\)</span> is accomplished with the <code>compute_sigma</code> function.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mats %&gt;%
+<span class="st">  </span>{<span class="kw"><a href="../reference/compute_sigma.html">compute_sigma</a></span>(<span class="dt">A =</span> <span class="kw"><a href="../reference/grab_bread-methods.html">grab_bread</a></span>(.), <span class="dt">B =</span> <span class="kw"><a href="../reference/grab_meat-methods.html">grab_meat</a></span>(.))}</code></pre></div>
+<pre><code>##            [,1]       [,2]
+## [1,] 0.10041239 0.03667969
+## [2,] 0.03667969 2.49219638</code></pre>
+</div>
+<div id="m-estimation-with-m_estimate" class="section level2">
+<h2 class="hasAnchor">
+<a href="#m-estimation-with-m_estimate" class="anchor"></a>M-estimation with <code>m_estimate</code>
+</h2>
+<p>All of the operations described above are wrapped and packaged in the <code>m_estimate</code> function:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> myee,
-  <span class="dt">data =</span> geexex,
-  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))
-)
-
-<span class="kw">vcov</span>(test)
-
-test</code></pre></div>
+  <span class="dt">data   =</span> geexex,
+  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))
+)</code></pre></div>
+<pre><code>## M-estimation results based on the estimating function:
+## {
+##     Y1 &lt;- data$Y1
+##     function(theta) {
+##         c(Y1 - theta[1], (Y1 - theta[1])^2 - theta[2])
+##     }
+## }
+## 
+## Estimates:
+## [1]  5.044563 10.041239
+## 
+## Covariance:
+##            [,1]       [,2]
+## [1,] 0.10041239 0.03667969
+## [2,] 0.03667969 2.49219638</code></pre>
+</div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+        <div id="tocnav">
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#the-estimating-function">The Estimating Function</a></li>
+      <li><a href="#m-estimation-basis">M-estimation basis</a></li>
+      <li><a href="#finding-roots">Finding roots</a></li>
+      <li><a href="#computing-the-empirical-sandwich-variance-estimator">Computing the Empirical Sandwich Variance Estimator</a></li>
+      <li><a href="#m-estimation-with-m_estimate">M-estimation with <code>m_estimate</code></a></li>
+      </ul>
+</div>
       </div>
 
 </div>

@@ -71,6 +71,67 @@
 <div id="do-everything-not-involving-theta-outside-of-the-psifun" class="section level2">
 <h2 class="hasAnchor">
 <a href="#do-everything-not-involving-theta-outside-of-the-psifun" class="anchor"></a>Do everything not involving theta outside of the psiFUN</h2>
+<p>The following example compares two <code>estFUN</code>s. The first performs manipulations of <code>data</code> outside of the “inner” <code>psiFUN</code> function. The second performs the manipulations within the returned <code>psiFUN</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">glm_eefun1 &lt;-<span class="st"> </span>function(data, model){
+  f &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/grab_psiFUN.html">grab_psiFUN</a></span>(model, data)
+  function(theta){
+    <span class="kw">f</span>(theta)
+  }
+}
+
+glm_eefun2 &lt;-<span class="st"> </span>function(data, model){
+  function(theta){
+    f &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/grab_psiFUN.html">grab_psiFUN</a></span>(model, data)
+    <span class="kw">f</span>(theta)
+  }
+}</code></pre></div>
+<p>Now, compare the speed:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
+<span class="kw">library</span>(geepack, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)
+<span class="kw">data</span>(<span class="st">"ohio"</span>)
+
+test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<span class="st"> </span>age, <span class="dt">data =</span> ohio,
+                     <span class="dt">family =</span> <span class="kw">binomial</span>(<span class="dt">link =</span> <span class="st">"logit"</span>))
+
+<span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
+  glm_eefun1,
+  <span class="dt">data =</span> ohio,
+  <span class="dt">units =</span> <span class="st">'id'</span>,
+  <span class="dt">root_control  =</span> <span class="kw"><a href="../../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">coef</span>(test_binomial)),
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
+<pre><code>##    user  system elapsed 
+##   1.867   0.025   1.896</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
+  glm_eefun2,
+  <span class="dt">data =</span> ohio,
+  <span class="dt">units =</span> <span class="st">'id'</span>,
+  <span class="dt">root_control  =</span> <span class="kw"><a href="../../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">coef</span>(test_binomial)),
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
+<pre><code>##    user  system elapsed 
+##  15.185   0.080  15.301</code></pre>
+</div>
+<div id="use-method-simple-for-computing-numerical-derivatives" class="section level2">
+<h2 class="hasAnchor">
+<a href="#use-method-simple-for-computing-numerical-derivatives" class="anchor"></a>Use <code>method = "simple"</code> for computing numerical derivatives</h2>
+<p>The default for the function <code><a href="http://www.rdocumentation.org/packages/numDeriv/topics/jacobian">numDeriv::jacobian</a></code> uses the “Richardson” method for computing numerical derivatives, which requires multiple evaluations of each <code>psiFUN</code>. The “simple” method is much faster, though less accurate. See the <code><a href="http://www.rdocumentation.org/packages/numDeriv/topics/jacobian">numDeriv::jacobian</a></code> help page for further options.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The default uses method = 'Richardson`</span>
+<span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN =</span> glm_eefun1, <span class="dt">data =</span> ohio, <span class="dt">units =</span> <span class="st">"id"</span>,
+  <span class="dt">roots =</span> <span class="kw">coef</span>(test_binomial),
+  <span class="dt">compute_roots =</span> <span class="ot">FALSE</span>,
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
+<pre><code>##    user  system elapsed 
+##   1.514   0.008   1.524</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using method = "simple"</span>
+<span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
+  <span class="dt">estFUN =</span> glm_eefun1, <span class="dt">data =</span> ohio, <span class="dt">units =</span> <span class="st">"id"</span>,
+  <span class="dt">roots =</span> <span class="kw">coef</span>(test_binomial),
+  <span class="dt">compute_roots =</span> <span class="ot">FALSE</span>,
+  <span class="dt">deriv_control =</span> <span class="kw">new</span>(<span class="st">"deriv_control"</span>, 
+                      <span class="dt">.options =</span> <span class="kw">list</span>(<span class="dt">method =</span> <span class="st">"simple"</span>)),
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
+<pre><code>##    user  system elapsed 
+##   0.841   0.012   0.854</code></pre>
 </div>
 </div>
   </div>
@@ -81,6 +142,7 @@
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#do-everything-not-involving-theta-outside-of-the-psifun">Do everything not involving theta outside of the psiFUN</a></li>
+      <li><a href="#use-method-simple-for-computing-numerical-derivatives">Use <code>method = "simple"</code> for computing numerical derivatives</a></li>
       </ul>
 </div>
       </div>
