@@ -7,17 +7,11 @@ output: html_document
 
 ## Do everything not involving theta outside of the psiFUN
 
-```{r setup, include=FALSE}
-library(geex)
-library(geepack, quietly = TRUE)
-data('ohio')
-
-test_binomial <- glm(resp ~ age, data = ohio,
-                     weights = rep(2, nrow(ohio)),
-                     family = binomial(link = 'logit'))
+The following example compares two `estFUN`s. The first performs manipulations of `data` outside of the "inner" `psiFUN` function. The second performs the manipulations within the returned `psiFUN`.
+```{r}
 
 glm_eefun1 <- function(data, model){
-  f <- grab_psiFUN(model, data, weights = 2)
+  f <- grab_psiFUN(model, data)
   function(theta){
     f(theta)
   }
@@ -25,21 +19,56 @@ glm_eefun1 <- function(data, model){
 
 glm_eefun2 <- function(data, model){
   function(theta){
-    f <- grab_psiFUN(model, data, weights = 2)
+    f <- grab_psiFUN(model, data)
     f(theta)
   }
 }
+```
 
-system.time(m_estimate(glm_eefun1,
-                data = ohio,
-                units = 'id',
-                root_control  = new('root_control', .options = list(start = c(-1.7, -.11))),
-                outer_args = list(model = test_binomial)))
+Now, compare the speed:
 
-system.time(m_estimate(glm_eefun2,
-                       data = ohio,
-                       units = 'id',
-                       root_control  = new('root_control', .options = list(start = c(-1.7, -.11))),
-                       outer_args = list(model = test_binomial)))
+```{r setup}
+library(geex)
+library(geepack, quietly = TRUE)
+data("ohio")
+
+test_binomial <- glm(resp ~ age, data = ohio,
+                     family = binomial(link = "logit"))
+
+system.time(m_estimate(
+  glm_eefun1,
+  data = ohio,
+  units = 'id',
+  root_control  = setup_root_control(start = coef(test_binomial)),
+  outer_args = list(model = test_binomial)))
+
+system.time(m_estimate(
+  glm_eefun2,
+  data = ohio,
+  units = 'id',
+  root_control  = setup_root_control(start = coef(test_binomial)),
+  outer_args = list(model = test_binomial)))
+```
+
+## Use `method = "simple"` for computing numerical derivatives
+
+The default for the function `numDeriv::jacobian` uses the "Richardson" method for computing numerical derivatives, which requires multiple evaluations of each `psiFUN`. The "simple" method is much faster, though less accurate. See the `numDeriv::jacobian` help page for further options.
+
+```{r}
+# The default uses method = 'Richardson`
+system.time(m_estimate(
+  estFUN = glm_eefun1, data = ohio, units = "id",
+  roots = coef(test_binomial),
+  compute_roots = FALSE,
+  outer_args = list(model = test_binomial)))
+
+# Using method = "simple"
+system.time(m_estimate(
+  estFUN = glm_eefun1, data = ohio, units = "id",
+  roots = coef(test_binomial),
+  compute_roots = FALSE,
+  deriv_control = new("deriv_control", 
+                      .options = list(method = "simple")),
+  outer_args = list(model = test_binomial)))
 ```
 
