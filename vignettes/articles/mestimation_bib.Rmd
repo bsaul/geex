@@ -43,10 +43,14 @@ Paul, S., & Zhang, X. (2014). [Small sample GEE estimation of regression paramet
 
 Teerenstra, S., Lu, B., Preisser, J. S., Van Achterberg, T., & Borm, G. F. (2010). Sample size considerations for GEE analyses of three-level cluster randomized trials. Biometrics, 66(4), 1230-1237.
 
-## Software
+## Software (mostly GEE specific)
 
 Carey, V. J., Lumley, T., & Ripley, B. D. (2012). [gee: Generalized estimation equation solver](http://CRAN.R-project.org/package=gee). R Package Version, 4-13.
 
 Halekoh, U., Hojsgaard, S., & Yan, J. (2006). [The R package geepack for generalized estimating equations](https://www.jstatsoft.org/article/view/v015i02). Journal of Statistical Software, 15(2), 1-11.
 
 McDaniel, L. S., Henderson, N. C., and Rathouz, P. J. (2013). [Fast pure R implementation of GEE: application of the Matrix package](https://journal.r-project.org/archive/2013/RJ-2013-017/RJ-2013-017.pdf). The R Journal, 5/1:181--187
+
+In SAS, see the ![`proc gee`](https://support.sas.com/documentation/onlinedoc/stat/141/gee.pdf) and `proc genmod` procedures.
+
+In STATA, see the ![`xtgee`](http://www.stata.com/features/generalized-estimating-equations/) function.
