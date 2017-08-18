@@ -22,14 +22,6 @@ reference:
        - starts_with("vcov")
        - starts_with("coef")
        - get_corrections
-  - title: "Key S4 Classes"
-    desc: >
-       Important S4 classes used within geex
-    contents:
-       - m_estimation_basis-class
-       - geex_control-class
-       - sandwich_components-class
-       - geex-class
 
 navbar:
   title: "geex"
@@ -49,7 +41,7 @@ navbar:
 articles:
   - title: "Vignettes"
     desc: >
-      Vignettes on using geex
+      Tutorials on using geex
     contents:
     - v00_geex_intro
     - v01_additional_examples
