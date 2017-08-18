@@ -9,48 +9,140 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-*Under construction*
+> The details below are for those interested in how geex is organized. It is not necessary for using geex. 
 
-```{r setup, eval = FALSE}
+## The Estimating Function
+
+The design of `geex` starts with the key to M-estimation, the estimating function:
+
+\[
+\psi(O_i, \theta) .
+\]
+
+`geex` composes $\psi$ with two R functions: the "outer" `estFUN` and the "inner" `psiFUN`. In pseudocode, $\psi(O_i, \theta) =$:
+
+```
+estFUN <- function(O_i){
+  psiFUN <- function(theta){
+     psi(O_i, theta)
+  }
+  return(psiFUN)
+}
+```
+
+The reason for composing the $\psi$ function in this way is that in order to do estimation (finding roots) and inference (computing the empirical sandwich variance estimator), $\psi$ needs to be function of $\theta$. M-estimation theory gives the following instructions:
+
+* To estimate $\hat{\theta}$, we need to find roots of $G_m = \sum_i \psi(O_i, \theta) = 0$. 
+* To estimate the empirical sandwich variance estimator, we need two quantities for each unit: $A_i = - (\partial \psi(O_i, \theta)/\partial \theta)|_{\theta = \hat{\theta}}$ and $B_i = \psi(O_i, \hat{\theta})\psi(O_i, \theta)^{\intercal}$.
+
+With $\hat{\theta}$ in hand, the quantity $B_i$ is simple to compute. The computational challenges of M-estimation, then, are finding roots of $G_m$ and calculating the derivative $A_i$. By composing $\psi$ of two functions in `geex`, one can first do all the manipulations of $O_i$ (data) that are independent of $\theta$. In a sense, `estFUN` "fixes" the data so that numerical routines only need deal with $\theta$ in `psiFUN`.
+
+## M-estimation basis
+
+Before describing the mechanics of how `geex` finding roots of $G_m$ and computes derivatives of $\psi$, let's look at the `m_estimation_basis` `S4` object which forms the basis of all computations in `geex`.
+
+An `m_estimation_basis` object, at a minimum needs two objects: an `estFUN` and a `data.frame`. Let's use a simple `estFUN` that estimates the mean and variance of `Y1` in the `geexex` dataset.
+
+```{r}
 library(geex)
 library(dplyr)
 
 myee <- function(data){
+  Y1 <- data$Y1
   function(theta){
-    c(data$Y1 - theta[1],
-      (data$Y1 - theta[1])^2 - theta[2])
+    c(Y1 - theta[1],
+      (Y1 - theta[1])^2 - theta[2])
   }
 }
+```
 
-mybasis <- create_basis(
-               estFUN = myee,
-               data   = geexex)
+Now we can create a basis:
+```{r}
+mybasis <- new("m_estimation_basis",
+               .estFUN = myee,
+               .data   = geexex)
+```
 
-mybasis %>%
-  create_GFUN() %>%
-  estimate_GFUN_roots(.root_control = setup_root_control(start = c(1, 1)))
+And look at what this object contains:
+```{r}
+slotNames(mybasis)
+```
 
-mybasis %>%
-  estimate_sandwich_matrices(.theta = c(5.04, 10.04)) 
+Two slots are worth examining. First, `.psiFUN_list` is a `list` of `function`s:
+```{r}
+mybasis@.psiFUN_list[1:2]
+```
 
-mybasis %>%
-  estimate_sandwich_matrices(.theta = c(5.04, 10.04)) %>%
+This object is essentially equivalent to:
+```{r, eval=FALSE}
+m <- nrow(geexex)
+lapply(split(geexex, f = 1:m), function(O_i){
+  myee(O_i)
+})
+```
+
+From this list of functions, we can compute $A_i$, and by summing across the list, form $G_m$. The latter is found in:
+```{r}
+mybasis@.GFUN
+```
+
+## Finding roots
+
+Now that we have $G_m$ as a function of `theta`, we can found its roots using a root-finding algorithm such as `rootSolve::multiroot`:
+
+```{r}
+rootSolve::multiroot(
+  f = mybasis@.GFUN, 
+  start = c(0, 0))
+```
+
+Within `geex` this is done with the `estimate_GFUN_roots` function. To illustrate, I first need to update the `.control` slot in `mybasis` with starting values for `multiroot`. 
+```{r setup}
+mycontrol <- new('geex_control', .root = setup_root_control(start = c(1, 1)))
+mybasis@.control <- mycontrol
+roots <- mybasis %>%
+  estimate_GFUN_roots()
+roots
+```
+
+Note that is bad form to assign `S4` slot with `someS4object@aslot <- something`, but I do so here because I have not created a generic function for setting the `.control` slot.
+
+## Computing the Empirical Sandwich Variance Estimator
+
+In the last section, we found $\hat{\theta}$, which we now use to compute the $A_i$ and $B_i$ matrices. 
+
+`geex` uses the `numDeriv::jacobian` function to numerically evaluate derivatives. For example, $A_1 = - (\partial \psi(O_1, \theta)/\partial \theta)|_{\theta = \hat{\theta}}$ for this example is:
+
+```{r}
+-numDeriv::jacobian(func = mybasis@.psiFUN_list[[1]], x = roots$root)
+```
+
+`geex` performs this operation for each $i = 1, \dots, m$ to yield a list of $A_i$ matrices. Then summing across this list yields $A = \sum_i A_i$. The `estimate_sandwich_matrices` function computes the list of $A_i$, $B_i$ and $A$ and $B$:
+
+```{r}
+mats <- mybasis %>%
+  estimate_sandwich_matrices(.theta = roots$root) 
+
+# Compare to the numDeriv computation above
+grab_bread_list(mats)[[1]]
+```
+
+Finally, computing $\hat{\Sigma} = A^{-1} B (A^{-1})^{\intercal}$ is accomplished with the `compute_sigma` function.
+
+```{r}
+mats %>%
   {compute_sigma(A = grab_bread(.), B = grab_meat(.))}
+```
 
-mybasis %>%
-  estimate_sandwich_matrices(.theta = c(5.04))
+## M-estimation with `m_estimate`
 
-mybasis %>%
-  estimate_sandwich_matrices(.theta = c(5.04, 10.04)) %>%
-  correct_by(.correct_control =  correction(fay_bias_correction, b = .75))
+All of the operations described above are wrapped and packaged in the `m_estimate` function:
 
-test <- m_estimate(
+```{r}
+m_estimate(
   estFUN = myee,
-  data = geexex,
-  root_control = setup_root_control(start = c(1,1))
+  data   = geexex,
+  root_control = setup_root_control(start = c(0, 0))
 )
 
-vcov(test)
-
-test
 ```
