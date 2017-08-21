@@ -294,13 +294,37 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
+#' Setup a basic_control object
+#'
+#' @param type one of \code{c("deriv", "approx", "root")}
+#' @param FUN a function
+#' @param ... arguments passed to \code{FUN}
+#' @return a \code{\linkS4class{basic_control}} object
+#' @export
+#------------------------------------------------------------------------------#
+
+setup_control <- function(type, FUN, ...){
+  if(!(type %in% c("deriv", "approx", "root"))){
+    stop("type must be one of deriv, approx, root")
+  }
+  dots <- list(...)
+  hold <- call('new')
+  hold[['Class']] <- paste0(type, "_control")
+  if(!missing(FUN)){
+    hold[[".FUN"]] <- FUN
+  }
+  if(length(dots) > 0){
+    hold[[".options"]] <- dots
+  }
+
+  eval(hold)
+}
+
+#------------------------------------------------------------------------------#
 #' Setup a root_control object
 #'
-#' @param FUN a root finding function whose first argument must be named \code{f}.
-#' Defaults to \code{\link[rootSolve]{multiroot}}
 #' @param roots_name a character string identifying the object containing the
-#' roots in the output of \code{FUN}. Defaults to \code{"root"}
-#' @param ... arguments passed to \code{FUN}
+#' @inheritParams setup_control
 #' @return a \code{\linkS4class{root_control}} object
 #' @examples
 #' # Setup the default
@@ -317,20 +341,16 @@ setClass(
 #------------------------------------------------------------------------------#
 
 setup_root_control <- function(FUN, roots_name, ...){
-  dots <- list(...)
-  hold <- call('new')
-  hold[['Class']] <- "root_control"
-  if(!missing(FUN)){
-    hold[[".FUN"]] <- FUN
-  }
-  if(length(dots) > 0){
-    hold[[".options"]] <- dots
-  }
+  hold <- setup_control(
+    type = "root",
+    FUN  = FUN,
+    ...  = ...)
+
   if(!missing(roots_name)){
-    hold[[".object_name"]] <- roots_name
+    hold@.object_name <- roots_name
   }
 
-  eval(hold)
+  hold
 }
 
 #------------------------------------------------------------------------------#
@@ -354,6 +374,18 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
+#' Setup a deriv_control object
+#'
+#' @inheritParams setup_control
+#' @return a \code{\linkS4class{deriv_control}} object
+#' @export
+#------------------------------------------------------------------------------#
+
+setup_deriv_control <- function(FUN, ...){
+  setup_control(type = "deriv", FUN  = FUN, ...  = ...)
+}
+
+#------------------------------------------------------------------------------#
 #' approx_control S4 class
 #'
 #' EXPERIMENTAL. See example 7 in \code{vignette("01_additional_examples", package = "geex")}
@@ -368,6 +400,18 @@ setClass(
   Class = "approx_control",
   contains = "basic_control"
 )
+
+#------------------------------------------------------------------------------#
+#' Setup an approx _control object
+#'
+#' @inheritParams setup_control
+#' @return a \code{\linkS4class{approx_control}} object
+#' @export
+#------------------------------------------------------------------------------#
+
+setup_approx_control <- function(FUN, ...){
+  setup_control(type = "approx", FUN  = FUN, ...  = ...)
+}
 
 #------------------------------------------------------------------------------#
 #' correct_control S4 class
@@ -694,6 +738,7 @@ setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data
 #------------------------------------------------------------------------------#
 #' geex S4 class
 #'
+#' @slot call the \code{m_estimate} call
 #' @slot basis a \code{\linkS4class{m_estimation_basis}} object
 #' @slot rootFUN_results the results of call to the root finding algorithm function
 #' @slot sandwich_components a \code{\linkS4class{sandwich_components}} object
@@ -706,7 +751,8 @@ setMethod("grab_basis_data", "m_estimation_basis", function(object) object@.data
 
 setClass(
   Class = "geex",
-  slots = c(basis           = "m_estimation_basis",
+  slots = c(call            = "call",
+            basis           = "m_estimation_basis",
             rootFUN_results = "ANY",
             sandwich_components = "sandwich_components",
             GFUN            = "function",
