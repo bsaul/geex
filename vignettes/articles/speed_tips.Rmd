@@ -35,19 +35,14 @@ data("ohio")
 test_binomial <- glm(resp ~ age, data = ohio,
                      family = binomial(link = "logit"))
 
-system.time(m_estimate(
+system.time({test <- m_estimate(
   glm_eefun1,
   data = ohio,
   units = 'id',
   root_control  = setup_root_control(start = coef(test_binomial)),
-  outer_args = list(model = test_binomial)))
+  outer_args = list(model = test_binomial))})
 
-system.time(m_estimate(
-  glm_eefun2,
-  data = ohio,
-  units = 'id',
-  root_control  = setup_root_control(start = coef(test_binomial)),
-  outer_args = list(model = test_binomial)))
+system.time(update(test, estFUN = glm_eefun2))
 ```
 
 ## Use `method = "simple"` for computing numerical derivatives
@@ -56,19 +51,14 @@ The default for the function `numDeriv::jacobian` uses the "Richardson" method f
 
 ```{r}
 # The default uses method = 'Richardson`
-system.time(m_estimate(
+system.time({test <- m_estimate(
   estFUN = glm_eefun1, data = ohio, units = "id",
   roots = coef(test_binomial),
   compute_roots = FALSE,
-  outer_args = list(model = test_binomial)))
+  outer_args = list(model = test_binomial))})
 
 # Using method = "simple"
-system.time(m_estimate(
-  estFUN = glm_eefun1, data = ohio, units = "id",
-  roots = coef(test_binomial),
-  compute_roots = FALSE,
-  deriv_control = new("deriv_control", 
-                      .options = list(method = "simple")),
-  outer_args = list(model = test_binomial)))
+system.time(update(test, 
+          deriv_control = setup_deriv_control(method = "simple")))
 ```
 

@@ -272,9 +272,8 @@ estimates <- m_estimate(
   estFUN = SB7_estFUN, 
   data  = geexex, 
   root_control = setup_root_control(start = 4.7),
-  approx_control  = new("approx_control", 
-                        .FUN = spline_approx,
-                        .options = list(eval_theta = seq(3, 6, by = .05))))
+  approx_control  = setup_approx_control(FUN = spline_approx,
+                                      eval_theta = seq(3, 6, by = .05)))
 ```
 
 A comparison of the variance is not obvious, so no comparison is made.
