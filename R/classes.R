@@ -788,7 +788,6 @@ setMethod(
     invisible(NULL)
   })
 
-
 #------------------------------------------------------------------------------#
 #' Gets the variance-covariance matrix from a geex object
 #'
