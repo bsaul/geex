@@ -93,45 +93,35 @@ glm_eefun2 &lt;-<span class="st"> </span>function(data, model){
 test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<span class="st"> </span>age, <span class="dt">data =</span> ohio,
                      <span class="dt">family =</span> <span class="kw">binomial</span>(<span class="dt">link =</span> <span class="st">"logit"</span>))
 
-<span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
+<span class="kw">system.time</span>({test &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
   glm_eefun1,
   <span class="dt">data =</span> ohio,
   <span class="dt">units =</span> <span class="st">'id'</span>,
   <span class="dt">root_control  =</span> <span class="kw"><a href="../../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">coef</span>(test_binomial)),
-  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial))})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.999   0.031   2.040</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
-  glm_eefun2,
-  <span class="dt">data =</span> ohio,
-  <span class="dt">units =</span> <span class="st">'id'</span>,
-  <span class="dt">root_control  =</span> <span class="kw"><a href="../../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">coef</span>(test_binomial)),
-  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
+##   1.868   0.021   1.897</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(<span class="kw">update</span>(test, <span class="dt">estFUN =</span> glm_eefun2))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##  15.890   0.107  16.040</code></pre>
+##  15.427   0.116  15.605</code></pre>
 </div>
 <div id="use-method-simple-for-computing-numerical-derivatives" class="section level2">
 <h2 class="hasAnchor">
 <a href="#use-method-simple-for-computing-numerical-derivatives" class="anchor"></a>Use <code>method = "simple"</code> for computing numerical derivatives</h2>
 <p>The default for the function <code><a href="http://www.rdocumentation.org/packages/numDeriv/topics/jacobian">numDeriv::jacobian</a></code> uses the “Richardson” method for computing numerical derivatives, which requires multiple evaluations of each <code>psiFUN</code>. The “simple” method is much faster, though less accurate. See the <code><a href="http://www.rdocumentation.org/packages/numDeriv/topics/jacobian">numDeriv::jacobian</a></code> help page for further options.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The default uses method = 'Richardson`</span>
-<span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
+<span class="kw">system.time</span>({test &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> glm_eefun1, <span class="dt">data =</span> ohio, <span class="dt">units =</span> <span class="st">"id"</span>,
   <span class="dt">roots =</span> <span class="kw">coef</span>(test_binomial),
   <span class="dt">compute_roots =</span> <span class="ot">FALSE</span>,
-  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial))})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.571   0.009   1.583</code></pre>
+##   1.566   0.009   1.580</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using method = "simple"</span>
-<span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
-  <span class="dt">estFUN =</span> glm_eefun1, <span class="dt">data =</span> ohio, <span class="dt">units =</span> <span class="st">"id"</span>,
-  <span class="dt">roots =</span> <span class="kw">coef</span>(test_binomial),
-  <span class="dt">compute_roots =</span> <span class="ot">FALSE</span>,
-  <span class="dt">deriv_control =</span> <span class="kw">new</span>(<span class="st">"deriv_control"</span>, 
-                      <span class="dt">.options =</span> <span class="kw">list</span>(<span class="dt">method =</span> <span class="st">"simple"</span>)),
-  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
+<span class="kw">system.time</span>(<span class="kw">update</span>(test, 
+          <span class="dt">deriv_control =</span> <span class="kw"><a href="../../reference/setup_deriv_control.html">setup_deriv_control</a></span>(<span class="dt">method =</span> <span class="st">"simple"</span>)))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.868   0.011   0.879</code></pre>
+##   0.828   0.004   0.835</code></pre>
 </div>
 </div>
   </div>

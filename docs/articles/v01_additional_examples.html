@@ -82,7 +82,7 @@
 <div id="example-4-instrumental-variables" class="section level3">
 <h3 class="hasAnchor">
 <a href="#example-4-instrumental-variables" class="anchor"></a>Example 4: Instrumental variables</h3>
-<p>Example 4 calculates an instumental variable estimator. The variables (<span class="math inline">\(Y_3, W^1, Z^1\)</span>) are observed according to:</p>
+<p>Example 4 calculates an instumental variable estimator. The variables (<span class="math inline">\(Y_3, W_1, Z_1\)</span>) are observed according to:</p>
 <p><span class="math display">\[
 Y_{3i} = \alpha + \beta X_{1i} + \sigma_{\epsilon}\epsilon_{1, i}
 \]</span></p>
@@ -97,8 +97,8 @@ Z_{1i} = \gamma + \delta X_{1i} + \sigma_{\tau}\epsilon_{3, i}.
 <p><span class="math display">\[
 \psi(Y_{3i}, Z_{1i}, W_{1i}, \mathbf{\theta}) = 
 \begin{pmatrix}
-\theta_1 - T_i\\
-\theta_2 - W_i \\
+\theta_1 - Z_{1i} \\
+\theta_2 - W_{1i} \\
 (Y_{3i} - \theta_3 W_{1i})(\theta_2 - W_{1i}) \\
 (Y_{3i} - \theta_4 W_{1i})(\theta_1 - Z_{1i}) \\
 \end{pmatrix}
@@ -280,9 +280,8 @@ results</code></pre></div>
   <span class="dt">estFUN =</span> SB7_estFUN, 
   <span class="dt">data  =</span> geexex, 
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="fl">4.7</span>),
-  <span class="dt">approx_control  =</span> <span class="kw">new</span>(<span class="st">"approx_control"</span>, 
-                        <span class="dt">.FUN =</span> spline_approx,
-                        <span class="dt">.options =</span> <span class="kw">list</span>(<span class="dt">eval_theta =</span> <span class="kw">seq</span>(<span class="dv">3</span>, <span class="dv">6</span>, <span class="dt">by =</span> .<span class="dv">05</span>))))</code></pre></div>
+  <span class="dt">approx_control  =</span> <span class="kw"><a href="../reference/setup_approx_control.html">setup_approx_control</a></span>(<span class="dt">FUN =</span> spline_approx,
+                                      <span class="dt">eval_theta =</span> <span class="kw">seq</span>(<span class="dv">3</span>, <span class="dv">6</span>, <span class="dt">by =</span> .<span class="dv">05</span>)))</code></pre></div>
 <p>A comparison of the variance is not obvious, so no comparison is made.</p>
 <pre><code>## $geex
 ## $geex$parameters
@@ -369,14 +368,14 @@ D_i(\beta)\frac{Y_i - \mu_i(\beta)}{V_i(\beta) \tau}
 \end{pmatrix}
 \]</span></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB9_estFUN &lt;-<span class="st"> </span>function(data){
-  Yi &lt;-<span class="st"> </span>data$Y5
-  xi &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(Y4 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> data, <span class="dt">drop =</span> <span class="ot">FALSE</span>)
+  Y &lt;-<span class="st"> </span>data$Y5
+  X &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(Y5 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> data, <span class="dt">drop =</span> <span class="ot">FALSE</span>)
   function(theta){
-    lp &lt;-<span class="st"> </span>xi %*%<span class="st"> </span>theta
+    lp &lt;-<span class="st"> </span>X %*%<span class="st"> </span>theta
     mu &lt;-<span class="st"> </span><span class="kw">plogis</span>(lp)
-    D  &lt;-<span class="st"> </span><span class="kw">t</span>(xi) %*%<span class="st"> </span><span class="kw">dlogis</span>(lp)
+    D  &lt;-<span class="st"> </span><span class="kw">t</span>(X) %*%<span class="st"> </span><span class="kw">dlogis</span>(lp)
     V  &lt;-<span class="st"> </span>mu *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span>mu)
-    D %*%<span class="st"> </span><span class="kw">solve</span>(V) %*%<span class="st"> </span>(Yi -<span class="st"> </span>mu)
+    D %*%<span class="st"> </span><span class="kw">solve</span>(V) %*%<span class="st"> </span>(Y -<span class="st"> </span>mu)
   }
 }</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
