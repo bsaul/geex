@@ -41,7 +41,7 @@ references:
 
 ## Preliminaries
 
-This vignette implements examples from @stefanski2002 (SB). Examples 4-9 use the `geexex` data set. For information on how the data are generated, run `help('geexex')`.
+This vignette implements examples from and is meant to read with @stefanski2002 (SB). Examples 4-9 use the `geexex` data set. For information on how the data are generated, run `help('geexex')`.
 
 ```{r, echo = TRUE}
 library(geex)
@@ -181,9 +181,9 @@ results
 This example illustrates estimation with nonsmooth $\psi$ function for computing the @huber1964 estimator of the center of symmetric distributions. 
 
 \[
-\psi_k(Y^1_i, \theta) = 
+\psi_k(Y_{1i}, \theta) = 
 \begin{cases}
-(Y_{2i} - \theta)  & \text{when } |(Y_{1i} - \theta)| \leq k \\
+(Y_{1i} - \theta)  & \text{when } |(Y_{1i} - \theta)| \leq k \\
 k * sgn(Y_{1i} - \theta) &  \text{when } |(Y_{1i} - \theta)| > k\\
 \end{cases}
 \]
@@ -234,14 +234,16 @@ results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)
 results
 ```
 
-### Example 7: Sample quantiles (approximation of psi)
+### Example 7: Sample quantiles (approximation of $\psi$)
+
+*Approximation of $\psi$ with geex is EXPERIMENTAL.*
 
 Example 7 illustrates calculation of sample quantiles using M-estimation and approximation of the $\psi$ function.
 
 \[
-\psi(Y^1_i, \theta) = 
+\psi(Y_{1i}, \theta) = 
 \begin{pmatrix}
-0.5 - I(Y_{1i} \leq \hat{\theta}_1) \\
+0.5 - I(Y_{1i} \leq \theta_1) \\
 \end{pmatrix}
 \]
 
@@ -287,7 +289,7 @@ results
 
 ### Example 8: Robust regression
 
-Example 8 demonstrates robust regression for estimating $\beta$ from 100 observations generated from $Y_4 = 0.1 + 0.1 X^1_i + 0.5 X^2_i + \epsilon_i$, where $\epsilon_i \sim N(0, 1)$, $X_1$ is defined as above, and the first half of the observation have $X_{2i} = 1$ and the others have $X_{2i} = 0$. 
+Example 8 demonstrates robust regression for estimating $\beta$ from 100 observations generated from $Y_4 = 0.1 + 0.1 X_{1i} + 0.5 X_{2i} + \epsilon_i$, where $\epsilon_i \sim N(0, 1)$, $X_1$ is defined as above, and the first half of the observation have $X_{2i} = 1$ and the others have $X_{2i} = 0$. 
 
 \[
 \psi_k(Y_{4i}, \theta) = 
@@ -445,5 +447,6 @@ pnorm(coef(estimates)[1],
       lower.tail = FALSE)
 ```
 
+This example shows that the empircal sandwich variance estimator may be different from other sandwich variance estimators that make assumptions about the structure of the $A$ and $B$ matrices.
 
 ## References

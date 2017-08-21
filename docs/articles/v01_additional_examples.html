@@ -73,7 +73,7 @@
 <div id="preliminaries" class="section level2">
 <h2 class="hasAnchor">
 <a href="#preliminaries" class="anchor"></a>Preliminaries</h2>
-<p>This vignette implements examples from <span class="citation">Stefanski and Boos (2002)</span> (SB). Examples 4-9 use the <code>geexex</code> data set. For information on how the data are generated, run <code>help('geexex')</code>.</p>
+<p>This vignette implements examples from and is meant to read with <span class="citation">Stefanski and Boos (2002)</span> (SB). Examples 4-9 use the <code>geexex</code> data set. For information on how the data are generated, run <code>help('geexex')</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)</code></pre></div>
 </div>
 <div id="the-basic-approach" class="section level2">
@@ -197,9 +197,9 @@ Sigma_cls &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="
 <a href="#example-6-huber-center-of-symmetry-estimator" class="anchor"></a>Example 6: Huber center of symmetry estimator</h3>
 <p>This example illustrates estimation with nonsmooth <span class="math inline">\(\psi\)</span> function for computing the <span class="citation">Huber (1964)</span> estimator of the center of symmetric distributions.</p>
 <p><span class="math display">\[
-\psi_k(Y^1_i, \theta) = 
+\psi_k(Y_{1i}, \theta) = 
 \begin{cases}
-(Y_{2i} - \theta)  &amp; \text{when } |(Y_{1i} - \theta)| \leq k \\
+(Y_{1i} - \theta)  &amp; \text{when } |(Y_{1i} - \theta)| \leq k \\
 k * sgn(Y_{1i} - \theta) &amp;  \text{when } |(Y_{1i} - \theta)| &gt; k\\
 \end{cases}
 \]</span></p>
@@ -255,12 +255,13 @@ results</code></pre></div>
 </div>
 <div id="example-7-sample-quantiles-approximation-of-psi" class="section level3">
 <h3 class="hasAnchor">
-<a href="#example-7-sample-quantiles-approximation-of-psi" class="anchor"></a>Example 7: Sample quantiles (approximation of psi)</h3>
+<a href="#example-7-sample-quantiles-approximation-of-psi" class="anchor"></a>Example 7: Sample quantiles (approximation of <span class="math inline">\(\psi\)</span>)</h3>
+<p><em>Approximation of <span class="math inline">\(\psi\)</span> with geex is EXPERIMENTAL.</em></p>
 <p>Example 7 illustrates calculation of sample quantiles using M-estimation and approximation of the <span class="math inline">\(\psi\)</span> function.</p>
 <p><span class="math display">\[
-\psi(Y^1_i, \theta) = 
+\psi(Y_{1i}, \theta) = 
 \begin{pmatrix}
-0.5 - I(Y_{1i} \leq \hat{\theta}_1) \\
+0.5 - I(Y_{1i} \leq \theta_1) \\
 \end{pmatrix}
 \]</span></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB7_estFUN &lt;-<span class="st"> </span>function(data){
@@ -306,7 +307,7 @@ results</code></pre></div>
 <div id="example-8-robust-regression" class="section level3">
 <h3 class="hasAnchor">
 <a href="#example-8-robust-regression" class="anchor"></a>Example 8: Robust regression</h3>
-<p>Example 8 demonstrates robust regression for estimating <span class="math inline">\(\beta\)</span> from 100 observations generated from <span class="math inline">\(Y_4 = 0.1 + 0.1 X^1_i + 0.5 X^2_i + \epsilon_i\)</span>, where <span class="math inline">\(\epsilon_i \sim N(0, 1)\)</span>, <span class="math inline">\(X_1\)</span> is defined as above, and the first half of the observation have <span class="math inline">\(X_{2i} = 1\)</span> and the others have <span class="math inline">\(X_{2i} = 0\)</span>.</p>
+<p>Example 8 demonstrates robust regression for estimating <span class="math inline">\(\beta\)</span> from 100 observations generated from <span class="math inline">\(Y_4 = 0.1 + 0.1 X_{1i} + 0.5 X_{2i} + \epsilon_i\)</span>, where <span class="math inline">\(\epsilon_i \sim N(0, 1)\)</span>, <span class="math inline">\(X_1\)</span> is defined as above, and the first half of the observation have <span class="math inline">\(X_{2i} = 1\)</span> and the others have <span class="math inline">\(X_{2i} = 0\)</span>.</p>
 <p><span class="math display">\[
 \psi_k(Y_{4i}, \theta) = 
 \begin{pmatrix}
@@ -467,6 +468,7 @@ V11_hat</code></pre></div>
       <span class="dt">sd =</span> <span class="kw">sqrt</span>(<span class="kw">vcov</span>(estimates)[<span class="dv">1</span>, <span class="dv">1</span>]),
       <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <pre><code>## [1] 0.1078138</code></pre>
+<p>This example shows that the empircal sandwich variance estimator may be different from other sandwich variance estimators that make assumptions about the structure of the <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> matrices.</p>
 </div>
 </div>
 <div id="references" class="section level2 unnumbered">
