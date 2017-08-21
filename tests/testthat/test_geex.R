@@ -38,7 +38,7 @@ gbasis_good <- new('m_estimation_basis',
 gbasis_bad <- new('m_estimation_basis',
                    .estFUN = test_eefun2,
                    .data   = geexex)
-create_GFUN(gbasis_good)
+# create_GFUN(gbasis_good)
 test_that("estimate_GFUN_roots is working", {
   expect_is(gbasis_good, 'm_estimation_basis')
   expect_silent({gtest <- create_GFUN(gbasis_good)})
