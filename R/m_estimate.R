@@ -167,8 +167,9 @@ m_estimate <- function(estFUN,
                        deriv_control,
                        root_control,
                        approx_control){
-
+  call    <- match.call()
   control <- methods::new('geex_control')
+
   if(!missing(deriv_control)){
     set_control(control, 'deriv') <- deriv_control
   }
@@ -190,6 +191,7 @@ m_estimate <- function(estFUN,
 
   out <- methods::new('geex',
                       basis           = basis)
+  out@call <- call
   ## Checks/Warnings ##
   if(is.null(roots) & !compute_roots){
     stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
