@@ -67,7 +67,7 @@ and
 Z_{1i} = \gamma + \delta X_{1i} + \sigma_{\tau}\epsilon_{3, i}.
 \]
 
-$Y_3$ is a linear function of a latent variable $X_1$, whose coefficient $\beta$ is of interest. $W_1$ is a measurement of the unobserved $X_1$, and $Z_1$ is an instrumental variable for $X_1$. The instrumental variable estimator is $\hat{\beta}_{IV}$ is the ratio of least squares regression slopes of $Y_3$ on $Z_1$ and $Y_3$ and $W_1$. The $\psi$ function in Table \ref{ex4} includes this estimator as $\hat{\theta}_4 = \hat{\beta}_{IV}$. In the example data, 100 observations are generated where $X_1 \sim \Gamma(\text{shape} = 5, \text{rate} = 1)$, $\alpha = 2$, $\beta = 3$, $\gamma = 2$, $\delta = 1.5$, $\sigma_{\epsilon} = \sigma_{\tau} = 1$, $\sigma_U = .25$, and $\epsilon_{\cdot, i} \sim N(0,1)$. 
+$Y_3$ is a linear function of a latent variable $X_1$, whose coefficient $\beta$ is of interest. $W_1$ is a measurement of the unobserved $X_1$, and $Z_1$ is an instrumental variable for $X_1$. The instrumental variable estimator is $\hat{\beta}_{IV}$ is the ratio of least squares regression slopes of $Y_3$ on $Z_1$ and $Y_3$ and $W_1$. The $\psi$ function below includes this estimator as $\hat{\theta}_4 = \hat{\beta}_{IV}$. In the example data, 100 observations are generated where $X_1 \sim \Gamma(\text{shape} = 5, \text{rate} = 1)$, $\alpha = 2$, $\beta = 3$, $\gamma = 2$, $\delta = 1.5$, $\sigma_{\epsilon} = \sigma_{\tau} = 1$, $\sigma_U = .25$, and $\epsilon_{\cdot, i} \sim N(0,1)$. 
 
 \[
 \psi(Y_{3i}, Z_{1i}, W_{1i}, \mathbf{\theta}) = 
@@ -256,7 +256,7 @@ SB7_estFUN <- function(data){
 }
 ```
 
-Note that $\psi$ is not differentiable; however, `geex` includes the ability to approximate the $\psi$ function via the `approxFUN` and `approxFUN_options` options. `approxFUN` must be a function that takes in the $\psi$ function, modifies it, and returns a function of `theta`. For this example, I approximate $\psi$ with a spline function. The `eval_theta` argument is used to modify the basis of the spline.
+Note that $\psi$ is not differentiable; however, `geex` includes the ability to approximate the $\psi$ function via an `approx_control` object. The `FUN` in an `approx_control` must be a function that takes in the $\psi$ function, modifies it, and returns a function of `theta`. For this example, I approximate $\psi$ with a spline function. The `eval_theta` argument is used to modify the basis of the spline.
 
 ```{r approx}
 spline_approx <- function(psi, eval_theta){

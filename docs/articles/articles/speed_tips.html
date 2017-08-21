@@ -100,10 +100,10 @@ test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<s
   <span class="dt">root_control  =</span> <span class="kw"><a href="../../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">coef</span>(test_binomial)),
   <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial))})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.868   0.021   1.897</code></pre>
+##   1.902   0.022   1.931</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(<span class="kw">update</span>(test, <span class="dt">estFUN =</span> glm_eefun2))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##  15.427   0.116  15.605</code></pre>
+##  16.175   0.157  16.438</code></pre>
 </div>
 <div id="use-method-simple-for-computing-numerical-derivatives" class="section level2">
 <h2 class="hasAnchor">
@@ -116,12 +116,12 @@ test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<s
   <span class="dt">compute_roots =</span> <span class="ot">FALSE</span>,
   <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial))})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.566   0.009   1.580</code></pre>
+##   1.594   0.009   1.611</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using method = "simple"</span>
 <span class="kw">system.time</span>(<span class="kw">update</span>(test, 
           <span class="dt">deriv_control =</span> <span class="kw"><a href="../../reference/setup_deriv_control.html">setup_deriv_control</a></span>(<span class="dt">method =</span> <span class="st">"simple"</span>)))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.828   0.004   0.835</code></pre>
+##   0.969   0.009   1.056</code></pre>
 </div>
 </div>
   </div>
