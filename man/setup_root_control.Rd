@@ -7,11 +7,9 @@
 setup_root_control(FUN, roots_name, ...)
 }
 \arguments{
-\item{FUN}{a root finding function whose first argument must be named \code{f}.
-Defaults to \code{\link[rootSolve]{multiroot}}}
+\item{FUN}{a function}
 
-\item{roots_name}{a character string identifying the object containing the
-roots in the output of \code{FUN}. Defaults to \code{"root"}}
+\item{roots_name}{a character string identifying the object containing the}
 
 \item{...}{arguments passed to \code{FUN}}
 }

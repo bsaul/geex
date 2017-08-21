@@ -10,6 +10,8 @@ geex S4 class
 \section{Slots}{
 
 \describe{
+\item{\code{call}}{the \code{m_estimate} call}
+
 \item{\code{basis}}{a \code{\linkS4class{m_estimation_basis}} object}
 
 \item{\code{rootFUN_results}}{the results of call to the root finding algorithm function}
