@@ -51,42 +51,42 @@ library(geex)
 
 ### Example 4: Instrumental variables
 
-Example 4 calculates an instumental variable estimator. The variables ($Y^3, W^1, Z^1$) are observed according to:
+Example 4 calculates an instumental variable estimator. The variables ($Y_3, W^1, Z^1$) are observed according to:
 
 \[
-Y^3_i = \alpha + \beta X^1_i + \sigma_{\epsilon}\epsilon_{1, i}
+Y_{3i} = \alpha + \beta X_{1i} + \sigma_{\epsilon}\epsilon_{1, i}
 \]
 
 \[
-W^1_i =\beta X^1_i + \sigma_{U}\epsilon_{2, i}
+W_{1i} =\beta X_{1i} + \sigma_{U}\epsilon_{2, i}
 \]
 
 and 
 
 \[
-Z^1_i = \gamma + \delta X^1_i + \sigma_{\tau}\epsilon_{3, i}.
+Z_{1i} = \gamma + \delta X_{1i} + \sigma_{\tau}\epsilon_{3, i}.
 \]
 
-$Y^3$ is a linear function of a latent variable $X^1$, whose coefficient $\beta$ is of interest. $W^1$ is a measurement of the unobserved $X^1$, and $Z^1$ is an instrumental variable for $X^1$. The instrumental variable estimator is $\hat{\beta}_{IV}$ is the ratio of least squares regression slopes of $Y^3$ on $Z^1$ and $Y^3$ and $W^1$. The $\psi$ function in Table \ref{ex4} includes this estimator as $\hat{\theta}_4 = \hat{\beta}_{IV}$. In the example data, 100 observations are generated where $X^1 \sim \Gamma(\text{shape} = 5, \text{rate} = 1)$, $\alpha = 2$, $\beta = 3$, $\gamma = 2$, $\delta = 1.5$, $\sigma_{\epsilon} = \sigma_{\tau} = 1$, $\sigma_U = .25$, and $\epsilon_{\cdot, i} \sim N(0,1)$. 
+$Y_3$ is a linear function of a latent variable $X_1$, whose coefficient $\beta$ is of interest. $W_1$ is a measurement of the unobserved $X_1$, and $Z_1$ is an instrumental variable for $X_1$. The instrumental variable estimator is $\hat{\beta}_{IV}$ is the ratio of least squares regression slopes of $Y_3$ on $Z_1$ and $Y_3$ and $W_1$. The $\psi$ function in Table \ref{ex4} includes this estimator as $\hat{\theta}_4 = \hat{\beta}_{IV}$. In the example data, 100 observations are generated where $X_1 \sim \Gamma(\text{shape} = 5, \text{rate} = 1)$, $\alpha = 2$, $\beta = 3$, $\gamma = 2$, $\delta = 1.5$, $\sigma_{\epsilon} = \sigma_{\tau} = 1$, $\sigma_U = .25$, and $\epsilon_{\cdot, i} \sim N(0,1)$. 
 
 \[
-\psi(Y^3_i, Z^1_i, W^1_i, \mathbf{\theta}) = 
+\psi(Y_{3i}, Z_{1i}, W_{1i}, \mathbf{\theta}) = 
 \begin{pmatrix}
 \theta_1 - T_i\\
 \theta_2 - W_i \\
-(Y^3_i - \theta_3 W^1_i)(\theta_2 - W^1_i) \\
-(Y^3_i - \theta_4 W^1_i)(\theta_1 - Z^1_i) \\
+(Y_{3i} - \theta_3 W_{1i})(\theta_2 - W_{1i}) \\
+(Y_{3i} - \theta_4 W_{1i})(\theta_1 - Z_{1i}) \\
 \end{pmatrix}
 \]
 
 ```{r SB4_estFUN, echo = TRUE}
 SB4_estFUN <- function(data){
+  Z1 <- data$Z1; W1 <- data$W1; Y3 <- data$Y3
   function(theta){
-    with(data,
       c(theta[1] - Z1,
         theta[2] - W1,
         (Y3 - (theta[3] * W1)) * (theta[2] - W1),
-        (Y3 - (theta[4] * W1)) * (theta[1] - Z1))
+        (Y3 - (theta[4] * W1)) * (theta[1] - Z1)
     )
   }
 }
@@ -120,9 +120,9 @@ sqrt(vcov(estimates)[4, 4])
 This example shows the link between the influence curves and the Hodges-Lehman estimator.
 
 \[
-\psi(Y^2_i, \theta) = 
+\psi(Y_{2i}, \theta) = 
 \begin{pmatrix}
-IC_{\hat{\theta}_{HL}}(Y^2; \theta_0) - (\theta_1 - \theta_0) \\
+IC_{\hat{\theta}_{HL}}(Y_2; \theta_0) - (\theta_1 - \theta_0) \\
 \end{pmatrix}
 \]
 
@@ -183,15 +183,16 @@ This example illustrates estimation with nonsmooth $\psi$ function for computing
 \[
 \psi_k(Y^1_i, \theta) = 
 \begin{cases}
-(Y^2_i - \theta)  & \text{when } |(Y^1_i - \theta)| \leq k \\
-k * sgn(Y^1_i - \theta) &  \text{when } |(Y^1_i - \theta)| > k\\
+(Y_{2i} - \theta)  & \text{when } |(Y_{1i} - \theta)| \leq k \\
+k * sgn(Y_{1i} - \theta) &  \text{when } |(Y_{1i} - \theta)| > k\\
 \end{cases}
 \]
 
 ```{r SB6_estFUN, echo = TRUE}
 SB6_estFUN <- function(data, k = 1.5){
+  Y1 <- data$Y1
   function(theta){
-    x <- data$Y1 - theta[1]
+    x <- Y1 - theta[1]
     if(abs(x) <= k) x else sign(x) * k
   }
 }
@@ -240,14 +241,15 @@ Example 7 illustrates calculation of sample quantiles using M-estimation and app
 \[
 \psi(Y^1_i, \theta) = 
 \begin{pmatrix}
-0.5 - I(Y^1_i \leq \hat{\theta}_1) \\
+0.5 - I(Y_{1i} \leq \hat{\theta}_1) \\
 \end{pmatrix}
 \]
 
 ```{r SB7_estFUN, echo = TRUE}
 SB7_estFUN <- function(data){
+  Y1 <- data$Y1
   function(theta){
-    0.5  - (data$Y1 <= theta[1])
+    0.5  - (Y1 <= theta[1])
   }
 }
 ```
@@ -285,12 +287,12 @@ results
 
 ### Example 8: Robust regression
 
-Example 8 demonstrates robust regression for estimating $\beta$ from 100 observations generated from $Y^4 = 0.1 + 0.1 X^1_i + 0.5 X^2_i + \epsilon_i$, where $\epsilon_i \sim N(0, 1)$, $X_1$ is defined as above, and the first half of the observation have $X^2_i = 1$ and the others have $X^2_i = 0$. 
+Example 8 demonstrates robust regression for estimating $\beta$ from 100 observations generated from $Y_4 = 0.1 + 0.1 X^1_i + 0.5 X^2_i + \epsilon_i$, where $\epsilon_i \sim N(0, 1)$, $X_1$ is defined as above, and the first half of the observation have $X_{2i} = 1$ and the others have $X_{2i} = 0$. 
 
 \[
-\psi_k(Y^4_i, \theta) = 
+\psi_k(Y_{4i}, \theta) = 
 \begin{pmatrix}
-\psi_k(Y^4_i - \mathbf{x}_i^T \beta) \mathbf{x}_i
+\psi_k(Y_{4i} - \mathbf{x}_i^T \beta) \mathbf{x}_i
 \end{pmatrix}
 \]
 

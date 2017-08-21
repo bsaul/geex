@@ -100,7 +100,7 @@ test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<s
   <span class="dt">root_control  =</span> <span class="kw"><a href="../../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">coef</span>(test_binomial)),
   <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.867   0.025   1.896</code></pre>
+##   1.775   0.022   1.803</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
   glm_eefun2,
   <span class="dt">data =</span> ohio,
@@ -108,7 +108,7 @@ test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<s
   <span class="dt">root_control  =</span> <span class="kw"><a href="../../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">coef</span>(test_binomial)),
   <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##  15.185   0.080  15.301</code></pre>
+##  14.438   0.043  14.486</code></pre>
 </div>
 <div id="use-method-simple-for-computing-numerical-derivatives" class="section level2">
 <h2 class="hasAnchor">
@@ -121,7 +121,7 @@ test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<s
   <span class="dt">compute_roots =</span> <span class="ot">FALSE</span>,
   <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.514   0.008   1.524</code></pre>
+##   1.453   0.005   1.460</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using method = "simple"</span>
 <span class="kw">system.time</span>(<span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> glm_eefun1, <span class="dt">data =</span> ohio, <span class="dt">units =</span> <span class="st">"id"</span>,
@@ -131,7 +131,7 @@ test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<s
                       <span class="dt">.options =</span> <span class="kw">list</span>(<span class="dt">method =</span> <span class="st">"simple"</span>)),
   <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial)))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.841   0.012   0.854</code></pre>
+##   0.818   0.011   0.829</code></pre>
 </div>
 </div>
   </div>

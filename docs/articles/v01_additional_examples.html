@@ -64,7 +64,7 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-08-18</h4>
+            <h4 class="date">2017-08-21</h4>
           </div>
 
     
@@ -82,34 +82,34 @@
 <div id="example-4-instrumental-variables" class="section level3">
 <h3 class="hasAnchor">
 <a href="#example-4-instrumental-variables" class="anchor"></a>Example 4: Instrumental variables</h3>
-<p>Example 4 calculates an instumental variable estimator. The variables (<span class="math inline">\(Y^3, W^1, Z^1\)</span>) are observed according to:</p>
+<p>Example 4 calculates an instumental variable estimator. The variables (<span class="math inline">\(Y_3, W^1, Z^1\)</span>) are observed according to:</p>
 <p><span class="math display">\[
-Y^3_i = \alpha + \beta X^1_i + \sigma_{\epsilon}\epsilon_{1, i}
+Y_{3i} = \alpha + \beta X_{1i} + \sigma_{\epsilon}\epsilon_{1, i}
 \]</span></p>
 <p><span class="math display">\[
-W^1_i =\beta X^1_i + \sigma_{U}\epsilon_{2, i}
+W_{1i} =\beta X_{1i} + \sigma_{U}\epsilon_{2, i}
 \]</span></p>
 <p>and</p>
 <p><span class="math display">\[
-Z^1_i = \gamma + \delta X^1_i + \sigma_{\tau}\epsilon_{3, i}.
+Z_{1i} = \gamma + \delta X_{1i} + \sigma_{\tau}\epsilon_{3, i}.
 \]</span></p>
-<p><span class="math inline">\(Y^3\)</span> is a linear function of a latent variable <span class="math inline">\(X^1\)</span>, whose coefficient <span class="math inline">\(\beta\)</span> is of interest. <span class="math inline">\(W^1\)</span> is a measurement of the unobserved <span class="math inline">\(X^1\)</span>, and <span class="math inline">\(Z^1\)</span> is an instrumental variable for <span class="math inline">\(X^1\)</span>. The instrumental variable estimator is <span class="math inline">\(\hat{\beta}_{IV}\)</span> is the ratio of least squares regression slopes of <span class="math inline">\(Y^3\)</span> on <span class="math inline">\(Z^1\)</span> and <span class="math inline">\(Y^3\)</span> and <span class="math inline">\(W^1\)</span>. The <span class="math inline">\(\psi\)</span> function in Table  includes this estimator as <span class="math inline">\(\hat{\theta}_4 = \hat{\beta}_{IV}\)</span>. In the example data, 100 observations are generated where <span class="math inline">\(X^1 \sim \Gamma(\text{shape} = 5, \text{rate} = 1)\)</span>, <span class="math inline">\(\alpha = 2\)</span>, <span class="math inline">\(\beta = 3\)</span>, <span class="math inline">\(\gamma = 2\)</span>, <span class="math inline">\(\delta = 1.5\)</span>, <span class="math inline">\(\sigma_{\epsilon} = \sigma_{\tau} = 1\)</span>, <span class="math inline">\(\sigma_U = .25\)</span>, and <span class="math inline">\(\epsilon_{\cdot, i} \sim N(0,1)\)</span>.</p>
+<p><span class="math inline">\(Y_3\)</span> is a linear function of a latent variable <span class="math inline">\(X_1\)</span>, whose coefficient <span class="math inline">\(\beta\)</span> is of interest. <span class="math inline">\(W_1\)</span> is a measurement of the unobserved <span class="math inline">\(X_1\)</span>, and <span class="math inline">\(Z_1\)</span> is an instrumental variable for <span class="math inline">\(X_1\)</span>. The instrumental variable estimator is <span class="math inline">\(\hat{\beta}_{IV}\)</span> is the ratio of least squares regression slopes of <span class="math inline">\(Y_3\)</span> on <span class="math inline">\(Z_1\)</span> and <span class="math inline">\(Y_3\)</span> and <span class="math inline">\(W_1\)</span>. The <span class="math inline">\(\psi\)</span> function in Table  includes this estimator as <span class="math inline">\(\hat{\theta}_4 = \hat{\beta}_{IV}\)</span>. In the example data, 100 observations are generated where <span class="math inline">\(X_1 \sim \Gamma(\text{shape} = 5, \text{rate} = 1)\)</span>, <span class="math inline">\(\alpha = 2\)</span>, <span class="math inline">\(\beta = 3\)</span>, <span class="math inline">\(\gamma = 2\)</span>, <span class="math inline">\(\delta = 1.5\)</span>, <span class="math inline">\(\sigma_{\epsilon} = \sigma_{\tau} = 1\)</span>, <span class="math inline">\(\sigma_U = .25\)</span>, and <span class="math inline">\(\epsilon_{\cdot, i} \sim N(0,1)\)</span>.</p>
 <p><span class="math display">\[
-\psi(Y^3_i, Z^1_i, W^1_i, \mathbf{\theta}) = 
+\psi(Y_{3i}, Z_{1i}, W_{1i}, \mathbf{\theta}) = 
 \begin{pmatrix}
 \theta_1 - T_i\\
 \theta_2 - W_i \\
-(Y^3_i - \theta_3 W^1_i)(\theta_2 - W^1_i) \\
-(Y^3_i - \theta_4 W^1_i)(\theta_1 - Z^1_i) \\
+(Y_{3i} - \theta_3 W_{1i})(\theta_2 - W_{1i}) \\
+(Y_{3i} - \theta_4 W_{1i})(\theta_1 - Z_{1i}) \\
 \end{pmatrix}
 \]</span></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB4_estFUN &lt;-<span class="st"> </span>function(data){
+  Z1 &lt;-<span class="st"> </span>data$Z1; W1 &lt;-<span class="st"> </span>data$W1; Y3 &lt;-<span class="st"> </span>data$Y3
   function(theta){
-    <span class="kw">with</span>(data,
       <span class="kw">c</span>(theta[<span class="dv">1</span>] -<span class="st"> </span>Z1,
         theta[<span class="dv">2</span>] -<span class="st"> </span>W1,
         (Y3 -<span class="st"> </span>(theta[<span class="dv">3</span>] *<span class="st"> </span>W1)) *<span class="st"> </span>(theta[<span class="dv">2</span>] -<span class="st"> </span>W1),
-        (Y3 -<span class="st"> </span>(theta[<span class="dv">4</span>] *<span class="st"> </span>W1)) *<span class="st"> </span>(theta[<span class="dv">1</span>] -<span class="st"> </span>Z1))
+        (Y3 -<span class="st"> </span>(theta[<span class="dv">4</span>] *<span class="st"> </span>W1)) *<span class="st"> </span>(theta[<span class="dv">1</span>] -<span class="st"> </span>Z1)
     )
   }
 }</code></pre></div>
@@ -139,9 +139,9 @@ iv_se &lt;-<span class="st"> </span>ivpack::<span class="kw">cluster.robust.se</
 <a href="#example-5-hodges-lehmann-estimator" class="anchor"></a>Example 5: Hodges-Lehmann estimator</h3>
 <p>This example shows the link between the influence curves and the Hodges-Lehman estimator.</p>
 <p><span class="math display">\[
-\psi(Y^2_i, \theta) = 
+\psi(Y_{2i}, \theta) = 
 \begin{pmatrix}
-IC_{\hat{\theta}_{HL}}(Y^2; \theta_0) - (\theta_1 - \theta_0) \\
+IC_{\hat{\theta}_{HL}}(Y_2; \theta_0) - (\theta_1 - \theta_0) \\
 \end{pmatrix}
 \]</span></p>
 <p>The functions used in <code>SB5_estFUN</code> are defined below:</p>
@@ -199,13 +199,14 @@ Sigma_cls &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="
 <p><span class="math display">\[
 \psi_k(Y^1_i, \theta) = 
 \begin{cases}
-(Y^2_i - \theta)  &amp; \text{when } |(Y^1_i - \theta)| \leq k \\
-k * sgn(Y^1_i - \theta) &amp;  \text{when } |(Y^1_i - \theta)| &gt; k\\
+(Y_{2i} - \theta)  &amp; \text{when } |(Y_{1i} - \theta)| \leq k \\
+k * sgn(Y_{1i} - \theta) &amp;  \text{when } |(Y_{1i} - \theta)| &gt; k\\
 \end{cases}
 \]</span></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB6_estFUN &lt;-<span class="st"> </span>function(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
+  Y1 &lt;-<span class="st"> </span>data$Y1
   function(theta){
-    x &lt;-<span class="st"> </span>data$Y1 -<span class="st"> </span>theta[<span class="dv">1</span>]
+    x &lt;-<span class="st"> </span>Y1 -<span class="st"> </span>theta[<span class="dv">1</span>]
     if(<span class="kw">abs</span>(x) &lt;=<span class="st"> </span>k) x else <span class="kw">sign</span>(x) *<span class="st"> </span>k
   }
 }</code></pre></div>
@@ -259,12 +260,13 @@ results</code></pre></div>
 <p><span class="math display">\[
 \psi(Y^1_i, \theta) = 
 \begin{pmatrix}
-0.5 - I(Y^1_i \leq \hat{\theta}_1) \\
+0.5 - I(Y_{1i} \leq \hat{\theta}_1) \\
 \end{pmatrix}
 \]</span></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB7_estFUN &lt;-<span class="st"> </span>function(data){
+  Y1 &lt;-<span class="st"> </span>data$Y1
   function(theta){
-    <span class="fl">0.5</span>  -<span class="st"> </span>(data$Y1 &lt;=<span class="st"> </span>theta[<span class="dv">1</span>])
+    <span class="fl">0.5</span>  -<span class="st"> </span>(Y1 &lt;=<span class="st"> </span>theta[<span class="dv">1</span>])
   }
 }</code></pre></div>
 <p>Note that <span class="math inline">\(\psi\)</span> is not differentiable; however, <code>geex</code> includes the ability to approximate the <span class="math inline">\(\psi\)</span> function via the <code>approxFUN</code> and <code>approxFUN_options</code> options. <code>approxFUN</code> must be a function that takes in the <span class="math inline">\(\psi\)</span> function, modifies it, and returns a function of <code>theta</code>. For this example, I approximate <span class="math inline">\(\psi\)</span> with a spline function. The <code>eval_theta</code> argument is used to modify the basis of the spline.</p>
@@ -304,11 +306,11 @@ results</code></pre></div>
 <div id="example-8-robust-regression" class="section level3">
 <h3 class="hasAnchor">
 <a href="#example-8-robust-regression" class="anchor"></a>Example 8: Robust regression</h3>
-<p>Example 8 demonstrates robust regression for estimating <span class="math inline">\(\beta\)</span> from 100 observations generated from <span class="math inline">\(Y^4 = 0.1 + 0.1 X^1_i + 0.5 X^2_i + \epsilon_i\)</span>, where <span class="math inline">\(\epsilon_i \sim N(0, 1)\)</span>, <span class="math inline">\(X_1\)</span> is defined as above, and the first half of the observation have <span class="math inline">\(X^2_i = 1\)</span> and the others have <span class="math inline">\(X^2_i = 0\)</span>.</p>
+<p>Example 8 demonstrates robust regression for estimating <span class="math inline">\(\beta\)</span> from 100 observations generated from <span class="math inline">\(Y_4 = 0.1 + 0.1 X^1_i + 0.5 X^2_i + \epsilon_i\)</span>, where <span class="math inline">\(\epsilon_i \sim N(0, 1)\)</span>, <span class="math inline">\(X_1\)</span> is defined as above, and the first half of the observation have <span class="math inline">\(X_{2i} = 1\)</span> and the others have <span class="math inline">\(X_{2i} = 0\)</span>.</p>
 <p><span class="math display">\[
-\psi_k(Y^4_i, \theta) = 
+\psi_k(Y_{4i}, \theta) = 
 \begin{pmatrix}
-\psi_k(Y^4_i - \mathbf{x}_i^T \beta) \mathbf{x}_i
+\psi_k(Y_{4i} - \mathbf{x}_i^T \beta) \mathbf{x}_i
 \end{pmatrix}
 \]</span></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">psi_k &lt;-<span class="st"> </span>function(x, <span class="dt">k =</span> <span class="fl">1.345</span>){
