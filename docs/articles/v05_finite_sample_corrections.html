@@ -64,7 +64,7 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-08-21</h4>
+            <h4 class="date">2017-08-23</h4>
           </div>
 
     
@@ -93,9 +93,9 @@ B^{bc}_m(b) = \sum_{i = 1}^m H_i(b) B_i H_i(b)^{\intercal},
 \end{equation}\]</span>
 <span class="math display">\[\begin{equation}
 \label{eq:H}
-H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
+H_i(b) = \{1 - \min(b, \{A_i A^{-1}\}_{jj}) \}^{-1/2},
 \end{equation}\]</span>
-<p>and <span class="math inline">\(W_{jj}\)</span> is the <span class="math inline">\((j, j)\)</span> element of a matrix <span class="math inline">\(W\)</span>. When <span class="math inline">\(\{A_i A\}_{jj}\)</span> is close to 1, the adjustment to <span class="math inline">\(\hat{\Sigma}^{bc}(b)\)</span> may be extreme, and the constant <span class="math inline">\(b\)</span> is chosen by the analyst to limit over adjustments.</p>
+<p>and <span class="math inline">\(W_{jj}\)</span> is the <span class="math inline">\((j, j)\)</span> element of a matrix <span class="math inline">\(W\)</span>. When <span class="math inline">\(\{A_i A^{-1}\}_{jj}\)</span> is close to 1, the adjustment to <span class="math inline">\(\hat{\Sigma}^{bc}(b)\)</span> may be extreme, and the constant <span class="math inline">\(b\)</span> is chosen by the analyst to limit over adjustments.</p>
 </div>
 <div id="bias-correction-example" class="section level2">
 <h2 class="hasAnchor">
@@ -118,7 +118,7 @@ H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
 
   <span class="kw"><a href="../reference/compute_sigma.html">compute_sigma</a></span>(<span class="dt">A =</span> A, <span class="dt">B =</span> Bbc)
 }</code></pre></div>
-<p>The <code>compute_sigma</code> function simply computes <span class="math inline">\(A^{-1} B \{A^{-1}\}^{\intercal}\)</span>. Note that <code>geex</code> computes <span class="math inline">\(A_m\)</span> and <span class="math inline">\(B_m\)</span> as the sums of <span class="math inline">\(A_i\)</span> and <span class="math inline">\(B_i\)</span> rather than the means, hence the appropriate function in the <code>apply</code> call is <code>sum</code> and not <code>mean</code>. To use this bias correction, the <code>estimate_equations</code> function accepts a named list of corrections to perform. Each element of the list is also a list with two elements: <code>correctFUN</code>, the correction function; and <code>correctFUN_control</code>, a list of arguments passed to the <code>correctFUN</code> besides <code>A</code>, <code>A_i</code>, <code>B</code>, and <code>B_i</code>.</p>
+<p>The <code>compute_sigma</code> function simply computes <span class="math inline">\(A^{-1} B \{A^{-1}\}^{\intercal}\)</span>. Note that <code>geex</code> computes <span class="math inline">\(A_m\)</span> and <span class="math inline">\(B_m\)</span> as the sums of <span class="math inline">\(A_i\)</span> and <span class="math inline">\(B_i\)</span> rather than the means, hence the appropriate function in the <code>apply</code> call is <code>sum</code> and not <code>mean</code>. To use this bias correction, the <code>m_estimate</code> function accepts a named list of corrections to perform. Each element of the list is also a list with two elements: <code>correctFUN</code>, the correction function; and <code>correctFUN_control</code>, a list of arguments passed to the <code>correctFUN</code> besides <code>A</code>, <code>A_i</code>, <code>B</code>, and <code>B_i</code>.</p>
 </div>
 <div id="comparision-to-saws-package" class="section level2">
 <h2 class="hasAnchor">
@@ -145,7 +145,7 @@ H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
   }
 }</code></pre></div>
 <p>This <code>eeFUN</code> treats the correlation parameter <span class="math inline">\(\alpha\)</span> and scale parameter <span class="math inline">\(\phi\)</span> as fixed, though some estimation algorithms use an iterative procedure that alternates between estimating <span class="math inline">\(\beta\)</span> and these parameters. By customizing the root finding function, such an algorithm could be implemented using <code>geex</code> [see <code>vignette("geex_root_solvers")</code> for more information].</p>
-<p>We use this example to compare covariance estimates obtained from the <code>gee</code> function, so root finding computations are turned off. The <code>gee</code> <span class="math inline">\(\beta\)</span> estimates are used instead. Estimates for <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\phi\)</span> are also extracted from the <code>gee</code> results in <code>estimate_equations</code>. This example shows that an <code>eeFUN</code> can accept additional arguments to be passed to either the outer (data) function or the inner (theta) function. Unlike previous examples, the independent units are the types of wool, which is set in <code>estimate_equations</code> by the <code>units</code> argument.</p>
+<p>We use this example to compare covariance estimates obtained from the <code>gee</code> function, so root finding computations are turned off. The <code>gee</code> <span class="math inline">\(\beta\)</span> estimates are used instead. Estimates for <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\phi\)</span> are also extracted from the <code>gee</code> results in <code>m_estimate</code>. This example shows that an <code>eeFUN</code> can accept additional arguments to be passed to either the outer (data) function or the inner (theta) function. Unlike previous examples, the independent units are the types of wool, which is set in <code>m_estimate</code> by the <code>units</code> argument.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">g &lt;-<span class="st"> </span>gee::<span class="kw">gee</span>(breaks~tension, <span class="dt">id=</span>wool, <span class="dt">data=</span>warpbreaks, <span class="dt">corstr=</span><span class="st">"exchangeable"</span>)
 guo &lt;-<span class="st"> </span>saws::<span class="kw">geeUOmega</span>(g)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)

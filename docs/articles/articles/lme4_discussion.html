@@ -185,7 +185,7 @@ objFun &lt;-<span class="st"> </span><span class="kw">lapply</span>(splitdt, fun
 <pre><code>## 'log Lik.' -397.0352 (df=3)</code></pre>
 <p>Not bad.</p>
 <p>What happens if instead of using <span class="math inline">\(\hat{\theta}_{glmer}\)</span> to compute the scores we use estimated parameters obtained from the finding the roots of the score functions as they are defined within the <code>grab_eeFUN</code> function?</p>
-<p>NOTE: the evaluation of <code>estimate_equations</code> is slow!</p>
+<p>NOTE: the evaluation of <code>m_estimate</code> is slow!</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># NOT run to speed creation of documentation</span>
 attempt &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> eefun,
