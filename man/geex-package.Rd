@@ -47,8 +47,8 @@ are left to the user to implement or confirm.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://bsaul.github.io/geex/}
   \item \url{https://github.com/bsaul/geex}
+  \item \url{https://bsaul.github.io/geex/}
   \item Report bugs at \url{https://github.com/bsaul/geex/issues}
 }
 
