@@ -67,10 +67,10 @@ B^{bc}_m(b) = \sum_{i = 1}^m H_i(b) B_i H_i(b)^{\intercal},
 
 \begin{equation}
 \label{eq:H}
-H_i(b) = \{1 - \min(b, \{A_i A\}_{jj}) \}^{-1/2},
+H_i(b) = \{1 - \min(b, \{A_i A^{-1}\}_{jj}) \}^{-1/2},
 \end{equation}
 
-\noindent and $W_{jj}$ is the $(j, j)$ element of a matrix $W$. When $\{A_i A\}_{jj}$ is close to 1, the adjustment to $\hat{\Sigma}^{bc}(b)$ may be extreme, and the constant $b$ is chosen by the analyst to limit over adjustments. 
+\noindent and $W_{jj}$ is the $(j, j)$ element of a matrix $W$. When $\{A_i A^{-1}\}_{jj}$ is close to 1, the adjustment to $\hat{\Sigma}^{bc}(b)$ may be extreme, and the constant $b$ is chosen by the analyst to limit over adjustments. 
 
 ## Bias correction example
 
@@ -96,7 +96,7 @@ bias_correction <- function(components, b){
 }
 ```
 
-The `compute_sigma` function simply computes $A^{-1} B \{A^{-1}\}^{\intercal}$. Note that `geex` computes $A_m$ and $B_m$ as the sums of $A_i$ and $B_i$ rather than the means, hence the appropriate function in the `apply` call is `sum` and not `mean`. To use this bias correction, the `estimate_equations` function accepts a named list of corrections to perform. Each element of the list is also a list with two elements: `correctFUN`, the correction function; and `correctFUN_control`, a list of arguments passed to the `correctFUN` besides `A`, `A_i`, `B`, and `B_i`. 
+The `compute_sigma` function simply computes $A^{-1} B \{A^{-1}\}^{\intercal}$. Note that `geex` computes $A_m$ and $B_m$ as the sums of $A_i$ and $B_i$ rather than the means, hence the appropriate function in the `apply` call is `sum` and not `mean`. To use this bias correction, the `m_estimate` function accepts a named list of corrections to perform. Each element of the list is also a list with two elements: `correctFUN`, the correction function; and `correctFUN_control`, a list of arguments passed to the `correctFUN` besides `A`, `A_i`, `B`, and `B_i`. 
 
 ## Comparision to saws package
 
@@ -130,7 +130,7 @@ gee_eefun <- function(data, formula, family){
 
 This `eeFUN` treats the correlation parameter $\alpha$ and scale parameter $\phi$ as fixed, though some estimation algorithms use an iterative procedure that alternates between estimating $\beta$ and these parameters. By customizing the root finding function, such an algorithm could be implemented using `geex` [see `vignette("geex_root_solvers")` for more information]. 
 
-We use this example to compare covariance estimates obtained from the `gee` function, so root finding computations are turned off. The `gee` $\beta$ estimates are used instead. Estimates for $\alpha$ and $\phi$ are also extracted from the `gee` results in `estimate_equations`. This example shows that an `eeFUN` can accept additional arguments to be passed to either the outer (data) function or the inner (theta) function. Unlike previous examples, the independent units are the types of wool, which is set in `estimate_equations` by the `units` argument. 
+We use this example to compare covariance estimates obtained from the `gee` function, so root finding computations are turned off. The `gee` $\beta$ estimates are used instead. Estimates for $\alpha$ and $\phi$ are also extracted from the `gee` results in `m_estimate`. This example shows that an `eeFUN` can accept additional arguments to be passed to either the outer (data) function or the inner (theta) function. Unlike previous examples, the independent units are the types of wool, which is set in `m_estimate` by the `units` argument. 
 
 ```{r setup_gee, echo = TRUE, message = FALSE, results = 'hide'}
 g <- gee::gee(breaks~tension, id=wool, data=warpbreaks, corstr="exchangeable")

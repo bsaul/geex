@@ -51,6 +51,6 @@ Halekoh, U., Hojsgaard, S., & Yan, J. (2006). [The R package geepack for general
 
 McDaniel, L. S., Henderson, N. C., and Rathouz, P. J. (2013). [Fast pure R implementation of GEE: application of the Matrix package](https://journal.r-project.org/archive/2013/RJ-2013-017/RJ-2013-017.pdf). The R Journal, 5/1:181--187
 
-In SAS, see the ![`proc gee`](https://support.sas.com/documentation/onlinedoc/stat/141/gee.pdf) and `proc genmod` procedures.
+In SAS, see the [`proc gee`](https://support.sas.com/documentation/onlinedoc/stat/141/gee.pdf) and `proc genmod` procedures.
 
-In STATA, see the ![`xtgee`](http://www.stata.com/features/generalized-estimating-equations/) function.
+In STATA, see the [`xtgee`](http://www.stata.com/features/generalized-estimating-equations/) function.

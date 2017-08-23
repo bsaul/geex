@@ -123,7 +123,7 @@ Not bad.
 
 What happens if instead of using $\hat{\theta}_{glmer}$ to compute the scores we use estimated parameters obtained from the finding the roots of the score functions as they are defined within the `grab_eeFUN` function?
 
-NOTE: the evaluation of `estimate_equations` is slow!
+NOTE: the evaluation of `m_estimate` is slow!
 
 ```{r, echo = TRUE, eval=FALSE}
 # NOT run to speed creation of documentation

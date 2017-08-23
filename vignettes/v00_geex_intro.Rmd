@@ -7,6 +7,23 @@ vignette: >
   %\VignetteIndexEntry{Introduction to geex}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+references:
+- id: stefanski2002
+  author:
+  - family: Stefanski
+    given: Len A.  
+  - family: Boos
+    given: Dennis D.
+  container-title: The calculus of M-estimation
+  type: article-journal
+  URL: 'http://www.jstor.org/stable/3087324'
+  DOI: 10.1198/000313002753631330
+  journal: The American Statistician
+  issued:
+    year: 2002 
+  volume: 56
+  number: 1
+  pages: 29-38
 ---
 
 ```{r, echo = FALSE, message = FALSE, warning=FALSE}
@@ -15,279 +32,245 @@ library(knitr)
 opts_knit$set(progress = TRUE, verbose = TRUE)
 ```
 
-M-estimation theory provides a framework for asympotic properties of estimators that are solutions to estimating equations. Regression methods such as Generalized Linear Models (GLM) and Generalized Estimating Equations (GEE) fit in this framework.  Countless R packages implement specific applications of estimating equations. A common reason to use M-estimation is to compute the empirical sandwich variance estimator - an asymptotically Normal and "robust" covariance. Many packages compute this variance estimator automatically, and packages such as `sandwich` take the output of other modeling methods to compute this variance estimate. 
+## From M-estimation math to code
 
-`geex` aims to be provide a more general framework that any modelling method can use to compute point and variance estimates for parameters that are solutions to estimating equations. The basic idea:
+In the basic set-up, M-estimation applies to estimators of the $p \times 1$ parameter $\theta=(\theta_1, \theta_2, \dots, \theta_p)^{\intercal}$ which can be obtained as solutions to an equation of the form
 
-* Analyst provides three things: (1) data, (2) instructions on how to split the data into independent units and (3) a function that takes unit-level data and returns a function in terms of parameters.
-* `geex` computes point estimates and variance estimates for the parameters.
+\begin{equation}
+\label{eq:psi}
+\sum_{i = 1}^m \psi(O_i, \theta) = 0,
+\end{equation}
 
-## Basic Setup
+\noindent where $O_1, \ldots, O_m$ are $m$ independent and identically distributed (iid) random variables, and the function $\psi$ returns a vector of length $p$ and does not depend on $i$ or $m$ [@stefanski2002, hereafter SB]. See SB for the case where the $O_i$ are independent but not necessarily identically distributed. The roots of (1) are referred to as M-estimators and denoted by $\hat \theta$. M-estimators can be solved for analytically in some cases or computed numerically in general. Under certain regularity conditions, the asymptotic properties of $\hat{\theta}$ can be derived from Taylor series approximations, the law of large numbers, and the central limit theorem. In brief, let $\theta_0$ be the true parameter value defined by $\int \psi(o, \theta_0) dF(o) = 0$, where $F$ is the distribution function of $O$. Let $\dot{\psi}(o, \theta) = {\partial \psi(O_i, \theta)/\partial \theta}^{\intercal}$, $A(\theta_0) = E[-\dot{\psi}(O_1, \theta_0)]$, and $B(\theta_0) = E[\psi(O_1, \theta_0)\psi(O_1, \theta_0)^{\intercal}]$. Then under suitable regularity assumptions, $\hat{\theta}$ is consistent and asymptotically Normal, i.e., 
 
-I mostly follow the notation of Stefanski and Boos. I tried to keep notation in the code similar to mathematical notation.
+\begin{equation*}
+\label{eq:variance}
+\sqrt{m}(\hat{\theta} - \theta_0) \overset{d}{\to} N(0, V(\theta_0))  \text{ as } m \to \infty,
+\end{equation*}
 
-Suppose we have $m$ independent or nearly independent units of observations.
+\noindent where $V(\theta_0) = A(\theta_0)^{-1} B(\theta_0)  \{A(\theta_0)^{-1} \}^{\intercal}$. The sandwich form of $V(\theta_0)$ suggests several possible large sample variance estimators. For some problems, the analytic form of $V(\theta_0)$ can be derived and estimators of $\theta_0$ and other unknowns simply plugged into $V(\theta_0)$. 
+Alternatively, $V(\theta_0)$ can be consistently estimated by the empirical sandwich variance estimator, where the expectations in $A(\theta)$ and $B(\theta)$ are replaced with their empirical counterparts. Let $A_i = - \dot{\psi}(O_i, \theta)|_{\theta = \hat{\theta}}$, $A_m = m^{-1} \sum_{i = 1}^m A_i$, $B_i = \psi(O_i, \hat{\theta}) \psi(O_i, \hat{\theta})^{\intercal}$, and $B_m = m^{-1} \sum_{i = 1}^m B_i$. The empirical sandwich estimator of the variance of $\hat{\theta}$ is:
 
-\[
-\sum_{i = 1}^m \psi(O_i, \theta) = 0
-\]
+\begin{equation}
+\label{eq:esve}
+\hat{\Sigma} = A_m^{-1} B_m \{A_m^{-1}\}^{\intercal}/m .
+\end{equation}
 
-Where $\psi$ is vector of length $p$ corresponding to the number of parameters in $\theta$.
+The `geex` package provides an application programming interface (API) for carrying out M-estimation. The analyst provides a function, called `estFUN`, corresponding to $\psi(O_i, \theta)$ that maps data $O_i$ to a function of $\theta$. Numerical derivatives approximate $\dot{\psi}$ so that evaluating $\hat{\Sigma}$ is entirely a computational exercise. No analytic derivations are required from the analyst. 
 
-For notational ease, let $\psi(O_i, \theta) = \psi_i$ Let:
-\[
-A_i = - \frac{\partial \psi(O_i, \theta)}{\partial \theta}
-\]
-
-\[
-A = \sum_{i = 1}^m A_i
-\]
-
-\[
-B_i = \psi_i \psi_i^T
-\]
+Consider estimating the population mean $\theta = E[Y_i]$ using the sample mean $\hat{\theta} = m^{-1} \sum_{i=1}^m Y_i$ of $m$ iid random variables $Y_1, \dots, Y_m$. The estimator $\hat{\theta}$  can be expressed as the solution to the following estimating equation:
 
 \[
-B = \sum_{i = 1}^m B_i
-\]
+\sum_{i = 1}^m (Y_i - \theta) = 0.
+\] 
 
-\[
-\Sigma = A^{-1} B \{A^{-1}\}^T
-\]
+\noindent which is equivalent to solving \eqref{eq:psi} where $O_i = Y_i$ and $\psi(O_i, \theta) = Y_i - \theta$. An `estFUN` is a translation of $\psi$ into a function whose first argument is `data` and returns a function whose first argument is `theta`.  An `estFUN` corresponding to the estimating equation for the sample mean of $Y$ is:
 
-
-## Stefanski \& Boos example 1
-
-
-```{r SB1_setup, echo=FALSE}
-n  <- 100
-mu <- 5
-sigma <- 2
-dt <- data.frame(Y = rnorm(n, mean = mu, sd = sigma), id = 1:n)
 ```
+meanFUN <- function(data){ function(theta){ data$Y - theta } } .
+``` 
 
-Example 1 illustrates calculation of sample mean and variance using estimating equations. I generate a data set with `r n` observations drawn from a Normal(`r mu`, `r sigma`) distribution. 
+If an estimator fits into the above framework, then the user need only specify `estFUN`. No other programming is required to obtain point and variance estimates. The remaining sections provide examples of translating $\psi$ into an `estFUN`.
 
-We translate the estimating equations for the mean and variance:
+## Calculus of M-estimation Examples
+
+The three examples of M-estimation from SB are presented here for demonstration. For these examples, the data are $O_i = \{Y_{1i}, Y_{2i}\}$ where $Y_1 \sim N(5, 16)$ and $Y_2 \sim N(2, 1)$ for $m = 100$ and are included in the `geexex` dataset. 
+
+### Example 1: Sample moments
+
+The first example estimates the population mean ($\theta_1$) and variance ($\theta_2$) of $Y_1$. The solution to the estimating equations below are the sample mean $\hat{\theta}_1 = m^{-1} \sum_{i = 1}^m Y_{1i}$ and sample variance $\hat{\theta}_2 = m^{-1} \sum_{i = 1}^m (Y_{1i} - \hat{\theta}_1)^2$.
+
 
 \[
-\psi(Y_i, \theta) = 
-\begin{pmatrix}
-Y_i - \theta_1 \\
-(Y_i - \theta_1)^2 - \theta_2
-\end{pmatrix}
+\psi(Y_{1i}, \theta) = 
+ \begin{pmatrix}
+  Y_{1i} - \theta_1 \\
+  (Y_{1i} - \theta_1)^2 - \theta_2
+ \end{pmatrix}
 \]
 
-into an `estFUN`:
-
-```{r SB1_estFUN, echo=TRUE, results='hide'}
-SB1_estFUN <- function(data){
+```{r SB1_estfun, echo=TRUE, results='hide'}
+SB1_estfun <- function(data){
+  Y1 <- data$Y1
   function(theta){
-    with(data,
-      c(Y - theta[1],
-       (Y - theta[1])^2 - theta[2] )
-    )
+      c(Y1 - theta[1],
+       (Y1 - theta[1])^2 - theta[2])
   }
 }
 ```
 
-With the `estFUN` function prepared, it is passed to `m_estimate` along with the data, a character string naming the variable that identifies groups within the dataset, and starting values for the root finder.
+The primary `geex` function is `m_estimate`, which requires two inputs: `estFUN` (the $\psi$ function), `data` (the data frame containing $O_i$ for $i = 1, \dots, m$). The package defaults to `rootSolve::multiroot` or estimating roots of \eqref{eq:psi}, though the solver algorithm can be specified in the `root_control` argument. Starting values for `rootSolve::multiroot` are passed via the `root_control` argument; e.g., 
 
-```{r SB1_run, echo=TRUE}
-estimates <- m_estimate(
-  estFUN = SB1_estFUN, 
-  data  = dt,
-  root_control = setup_root_control(start = c(1,1)))
+```{r SB1_run, echo=TRUE, eval=TRUE, message=FALSE}
+library(geex)
+results <- m_estimate(
+    estFUN = SB1_estfun, 
+    data   = geexex,
+    root_control = setup_root_control(start = c(1,1)))
 ```
 
-```{r SB1_clsform, echo=FALSE}
-## Compare to closed form ##
-
+```{r SB1_clsform, echo=TRUE, eval = TRUE}
+n <- nrow(geexex)
 A <- diag(1, nrow = 2)
 
-B <- with(dt, {
-  Ybar <- mean(Y)
-  B11 <- mean( (Y - Ybar)^2 )
-  B12 <- mean( (Y - Ybar) * ((Y - Ybar)^2 - B11) )
-  B22 <- mean( ((Y - Ybar)^2 - B11)^2 )
+B <- with(geexex, {
+  Ybar <- mean(Y1)
+  B11 <- mean( (Y1 - Ybar)^2 )
+  B12 <- mean( (Y1 - Ybar) * ((Y1 - Ybar)^2 - B11) )
+  B22 <- mean( ((Y1 - Ybar)^2 - B11)^2 )
   matrix(
     c(B11, B12,
       B12, B22), nrow = 2
   )
 })
 
-## closed form roots
-# note that var() divides by n - 1, not n
-theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = var(Y) * (n() - 1)/ n() )
+# closed form roots
+theta_cls <- c(mean(geexex$Y1),
+               # since var() divides by n - 1, not n
+               var(geexex$Y1) * (n - 1)/ n ) 
 
-# closed form
+# closed form sigma
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
+
+comparison <- list(geex = list(estimates = coef(results), vcov = vcov(results)), 
+                   cls  = list(estimates = theta_cls, vcov = Sigma_cls))
 ```
+
+The `m_estimate` function returns an object of the `S4` class `geex`, which contains an `estimates` slot and `vcov` slot for $\hat{\theta}$ and $\hat{\Sigma}$, respectively. These slots can be accessed by the functions `coef` (or `roots`) and `vcov`. The point estimates obtained for $\theta_1$ and $\theta_2$ are analogous to the base R functions `mean` and `var` (after multiplying by $m-1/m$ for the latter). SB gave a closed form for $A(\theta_0)$ (an identity matrix) and $B(\theta_0)$ (not shown here) and suggest plugging in sample moments to compute $B(\hat{\theta})$. The point and variance estimates using both `geex` and the analytic solutions are shown below}. The maximum absolute difference between either the point or variance estimates is `r format(max(abs(comparison$geex$estimates - comparison$cls$estimates), abs(comparison$geex$vcov - comparison$cls$vcov)), digits = 1)`, thus demonstrating excellent agreement between the numerical results obtained from `geex` and the closed form solutions for this set of estimating equations and data. 
 
 ```{r SB1_results, echo = FALSE}
-results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
-                cls = list(parameters = theta_cls, vcov = Sigma_cls))
-results
+comparison
 ```
 
+### Example 2: Ratio estimator
 
+This example calculates a ratio estimator and illustrates the delta method via M-estimation. The estimating equations target the means of $Y_1$ and $Y_2$, labelled $\theta_1$ and $\theta_2$, as well as the estimand $\theta_3 = \theta_1/ \theta_2$.  
 
-## Stefanski \& Boos example 2
-
-```{r SB2_setup, echo=FALSE}
-n  <- 100
-muY <- 5
-sigmaY <- 2
-muX <- 2
-sigmaX <- 0.2
-dt <- data.frame(Y  = rnorm(n, mean = muY, sd = sigmaY), 
-                 X  = rnorm(n, mean = muX, sd = sigmaX),
-                 id = 1:n)
-```
-
-Example 2 illustrates calculation of a ratio estimator. I generate a data set with `r n` observations where $Y \sim N$(`r muY`, `r sigmaY`) and $X \sim N$(`r muX`, `r sigmaX`).
-
-Estimating equations:
 \[
-\psi(Y_i, \theta) = 
+\psi(Y_{1i}, Y_{2i}, \theta) = 
 \begin{pmatrix}
-Y_i - \theta_1 \\
-X_i - \theta_2 \\
+Y_{1i} - \theta_1 \\
+Y_{2i} - \theta_2 \\
 \theta_1 - \theta_3\theta_2
 \end{pmatrix}
 \]
 
-Corresponding `estFUN`:
-```{r SB2_estFUN, echo = TRUE}
-SB2_estFUN <- function(data){
+\noindent The solution to \eqref{eq:psi} for this $\psi$ function yields $\hat{\theta}_3 = \bar{Y}_1 / \bar{Y}_2$, where $\bar{Y}_j$ denotes the sample mean of $Y_{j1}, \ldots,Y_{jm}$ for $j=1,2$.
+
+```{r SB2_eefun, echo = TRUE}
+SB2_estfun <- function(data){
+  Y1 <- data$Y1; Y2 <- data$Y2
   function(theta){
-    with(data,
-      c(Y - theta[1],
-        X - theta[2],
-        theta[1] - (theta[3] * theta[2]) )
+      c(Y1 - theta[1],
+        Y2 - theta[2],
+        theta[1] - (theta[3] * theta[2]) 
     )
   }
 }
 ```
 
-```{r SB2_run, echo = TRUE}
-estimates <- m_estimate(
-  estFUN = SB2_estFUN, 
-  data  = dt, 
-  root_control = setup_root_control(start = c(1, 1, 1)))
+```{r SB2_run, echo = TRUE, message = FALSE}
+results <- m_estimate(
+    estFUN = SB2_estfun, 
+    data  = geexex, 
+    root_control = setup_root_control(start = c(1, 1, 1)))
 ```
 
-```{r SB2_clsform, echo = FALSE}
-## Compare to closed form ##
-
-A <- with(dt, {
+```{r SB2_clsform, echo = TRUE}
+# Comparison to an analytically derived sanwich estimator
+A <- with(geexex, {
  matrix(
   c(1 , 0, 0,
     0 , 1, 0,
-    -1, mean(Y)/mean(X), mean(X)),
+    -1, mean(Y1)/mean(Y2), mean(Y2)),
   byrow = TRUE, nrow = 3)
 })
 
-B <- with(dt, {
+B <- with(geexex, {
   matrix(
-    c(var(Y)   , cov(Y, X), 0,
-      cov(Y, X), var(X)   , 0,
+    c(var(Y1)   , cov(Y1, Y2), 0,
+      cov(Y1, Y2), var(Y2)   , 0,
       0, 0, 0),
     byrow = TRUE, nrow = 3)
 })
 
 ## closed form roots
-theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = mean(X), p3 = p1/p2)
-
+theta_cls <- c(mean(geexex$Y1), mean(geexex$Y2))
+theta_cls[3] <- theta_cls[1]/theta_cls[2]
 ## closed form covariance
-Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
+Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / nrow(geexex)
+comparison <- list(geex = list(estimates = coef(results), vcov = vcov(results)), 
+                   cls  = list(estimates = theta_cls, vcov = Sigma_cls))
 ```
 
-```{r SB2_results, echo = FALSE}
-results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
-                cls = list(parameters = theta_cls, vcov = Sigma_cls))
-results
+SB gave closed form expressions for $A(\theta_0)$ and $B(\theta_0)$, into which we plug in appropriate estimates for the matrix components and compare to the results from `geex`. The point estimates again show excellent agreement (maximum absolute difference `r format(max(abs(comparison$geex$estimates - comparison$cls$estimates)), digits = 2)`), while the covariance estimates differ by the third decimal (maximum absolute difference `r format(max(abs(comparison$geex$vcov - comparison$cls$vcov)), scientific = TRUE, digits = 2)`). 
+
+```{r SB2_results, echo = TRUE}
+comparison
 ```
 
-## Stefanski \& Boos example 3
+### Example 3: Delta method continued
 
-```{r SB3_setup, echo=FALSE}
-n  <- 100
-mu <- 5
-sigma <- 4
-set.seed(100) # running into issue where sqrt(theta2) and log(theta2) return NaN for some seeds
-dt <- data.frame(Y  = rnorm(n, mean = mu, sd = sigma), 
-                 id = 1:n)
-```
+This example extends Example 1 to again illustrate the delta method. The estimating equations target not only the mean ($\theta_1$) and variance ($\theta_2$) of $Y_1$, but also the standard deviation ($\theta_3$) and the log of the variance ($\theta_4$) of $Y_1$.
 
-Example 3 illustrates calculation of a ratio estimator. I generate a data set with `r n` observations where $Y \sim N$(`r mu`, `r sigma`). 
-
-Estimating equations:
 \[
-\psi(Y_i, \theta) = 
+\psi(Y_{1i}, \mathbf{\theta}) = 
 \begin{pmatrix}
-Y_i - \theta_1 \\
-X_i - \theta_2 \\
+Y_{1i} - \theta_1 \\
+(Y_{1i} - \theta_1)^2 - \theta_2 \\
 \sqrt{\theta_2} - \theta_3 \\
-log(\theta_2) - \theta_4
+\log(\theta_2) - \theta_4
 \end{pmatrix}
 \]
 
-Corresponding `estFUN`:
-```{r SB3_estFUN, echo = TRUE}
-SB3_estFUN <- function(data){
+```{r SB3_eefun, echo = TRUE, warning = FALSE, message=FALSE}
+SB3_estfun <- function(data){
+  Y1 <- data$Y1
   function(theta){
-    with(data,
-      c(Y - theta[1],
-       (Y - theta[1])^2 - theta[2],
+      c(Y1 - theta[1],
+       (Y1 - theta[1])^2 - theta[2],
        sqrt(theta[2]) - theta[3],
        log(theta[2]) - theta[4])
-    )
   }
 }
 ```
 
-```{r SB3_run, echo = TRUE}
-estimates <- m_estimate(
-  estFUN= SB3_estFUN, 
-  data  = dt,
-  root_control = setup_root_control(start = c(1, 1, 1, 1)))
+```{r SB3_run, echo = FALSE, message=FALSE}
+results <- m_estimate(
+   estFUN= SB3_estfun, 
+   data  = geexex,
+   root_control = setup_root_control(start = rep(2, 4, 4, 4)))
 ```
 
-```{r SB3_clsform, echo = FALSE}
+```{r SB3_clsform, echo = TRUE}
 ## closed form roots
-theta_cls <- dplyr::summarize(dt, p1 = mean(Y), p2 = sum((Y - p1)^2)/n(), p3 = sqrt(p2), p4 = log(p2))
+theta_cls <- numeric(4)
+theta_cls[1] <- mean(geexex$Y1)
+theta_cls[2] <- sum((geexex$Y1 - theta_cls[1])^2)/nrow(geexex)
+theta_cls[3] <- sqrt(theta_cls[2])
+theta_cls[4] <- log(theta_cls[2])
 
 ## Compare to closed form ##
-theta2 <- theta_cls$p2
-mu3 <- moments::moment(dt$Y, order = 3, central = TRUE)
-mu4 <- moments::moment(dt$Y, order = 4, central = TRUE)
-# A <- matrix(c(1, 0, 0, 0,
-#               0, 1, 0, 0,
-#               0, -1/(2 * sqrt(theta2)), 1, 0,
-#               0, -1/theta2, 0, 1), 
-#             byrow = TRUE, nrow = 4)
-# B <- matrix(c(1/theta2, mu3/(2 * theta2^3), 0, 0,
-#               mu3/(2 * theta2^3), (mu4 - theta2^2)/(4 * theta2^4), 0, 0,
-#               0, 0, 0, 0,
-#               0, 0, 0, 0),
-#             byrow = TRUE, nrow = 4)
-
+theta2 <- theta_cls[2]
+mu3 <- moments::moment(geexex$Y1, order = 3, central = TRUE)
+mu4 <- moments::moment(geexex$Y1, order = 4, central = TRUE)
 ## closed form covariance
 Sigma_cls <- matrix(
   c(theta2, mu3, mu3/(2*sqrt(theta2)), mu3/theta2,
     mu3, mu4 - theta2^2, (mu4 - theta2^2)/(2*sqrt(theta2)), (mu4 - theta2^2)/theta2,
     mu3/(2 * sqrt(theta2)), (mu4 - theta2^2)/(2*sqrt(theta2)), (mu4 - theta2^2)/(4*theta2), (mu4 - theta2^2)/(2*theta2^(3/2)),
     mu3/theta2, (mu4 - theta2^2)/theta2, (mu4 - theta2^2)/(2*theta2^(3/2)), (mu4/theta2^2) - 1) ,
-  nrow = 4, byrow = TRUE) / n
+  nrow = 4, byrow = TRUE) / nrow(geexex)
 ## closed form covariance
 # Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
+comparison <- list(geex = list(estimates = coef(results), vcov = vcov(results)), 
+                   cls  = list(estimates = theta_cls, vcov = Sigma_cls))
 ```
 
+SB again provided a closed form for $A(\theta_0)$ and $B(\theta_0)$, which we compare to the `geex` results. The maximum absolute difference between `geex` and the closed form estimates for both the parameters and the covariance is `r format(max(abs(comparison$geex$estimates - comparison$cls$estimates), abs(comparison$geex$vcov - comparison$cls$vcov)), digits = 2)`. 
 
 ```{r SB3_results, echo = FALSE}
-results <- list(geex = list(parameters = coef(estimates), vcov = vcov(estimates)), 
-                cls = list(parameters = theta_cls, vcov = Sigma_cls))
-results
+comparison
 ```
 
+# References
