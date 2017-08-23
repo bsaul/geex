@@ -36,7 +36,7 @@ Suggests:
     rmarkdown,
     geepack,
     covr
-URL: https://bsaul.github.io/geex/, https://github.com/bsaul/geex
+URL: https://github.com/bsaul/geex, https://bsaul.github.io/geex/
 BugReports: https://github.com/bsaul/geex/issues
 License: MIT + file LICENSE
 LazyData: TRUE
