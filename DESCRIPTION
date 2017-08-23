@@ -1,7 +1,7 @@
 Package: geex
 Type: Package
 Title: An API for M-estimation
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(person("Bradley", "Saul", role = c("aut", "cre"),
                     email = "bradleysaul@gmail.com"),
              person("Brian", "Barkley", role = c("ctb")))
@@ -12,7 +12,7 @@ Description: Provides a general, flexible framework for estimating parameters
     equations (i.e., M-estimation). Also provides an API to compute finite-sample
     variance corrections.
 Depends:
-    R (>= 3.1)
+    R (>= 3.3)
 Imports:
     Matrix (>= 1.2-6),
     rootSolve (>= 1.6.6),

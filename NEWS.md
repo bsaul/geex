@@ -1,3 +1,7 @@
+# geex 1.0.2
+
+* requires R >= 3.3
+
 # geex 1.0.1
 
 * add a `call` slot to the S4 `geex` object. Now the `update` function can be used to update elements of an `m_estimate` call.
