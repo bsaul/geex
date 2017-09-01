@@ -1,6 +1,6 @@
 Package: geex
 Type: Package
-Title: An API for M-estimation
+Title: An API for M-Estimation
 Version: 1.0.2
 Authors@R: c(person("Bradley", "Saul", role = c("aut", "cre"),
                     email = "bradleysaul@gmail.com"),
