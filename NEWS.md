@@ -16,7 +16,7 @@
 
 # geex 0.3.0
 
-* adds a `weights` argument to `estimate_equations` for faster computations with grouped data. See the [weights vignette](https://bsaul.github.io/geex/docs/articles/weights.html) for a demonstration.
+* adds a `weights` argument to `estimate_equations` for faster computations with grouped data. See the [weights vignette](https://bsaul.github.io/geex/articles/v04_weights.html) for a demonstration.
 
 # geex 0.2.2
 
