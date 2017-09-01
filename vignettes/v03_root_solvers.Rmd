@@ -15,7 +15,7 @@ library(geex)
 
 ## Choice of `rootFUN`
 
-By default, `geex` uses the [`rootSolve::multiroot`](https://cran.r-project.org/web/packages/rootSolve/rootSolve.pdf) function for finding roots of a set of estimating equations when `compute_roots = TRUE` in `m_estimate()`. However, a user can choose a different root find find algorithm via the `root_control` argument.
+By default, `geex` uses the [`rootSolve::multiroot`](https://cran.r-project.org/package=rootSolve) function for finding roots of a set of estimating equations when `compute_roots = TRUE` in `m_estimate()`. However, a user can choose a different root find find algorithm via the `root_control` argument.
 
 For example, consider the following `estFUN` which is Huber's estimator for the center of symmetric distributions [@stefanski2002; example 6]. This example was chosen because it has a single root, so that the `stats::uniroot` function can be used to find the roots.
 ```{r SB6_estFUN, echo = TRUE}

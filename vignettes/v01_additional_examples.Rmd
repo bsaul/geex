@@ -99,7 +99,7 @@ estimates <- m_estimate(
   root_control = setup_root_control(start = c(1, 1, 1, 1)))
 ```
 
-The R packages [`AER`](https://cran.r-project.org/web/packages/AER/index.html) and [`ivpack`](https://cran.r-project.org/web/packages/ivpack/index.html) can compute the IV estimator and sandwich variance estimators respectively, which is done below for comparison.  
+The R packages [`AER`](https://cran.r-project.org/package=AER) and [`ivpack`](https://cran.r-project.org/package=ivpack) can compute the IV estimator and sandwich variance estimators respectively, which is done below for comparison.  
 
 ```{r SB4_clsform, echo = TRUE, message = FALSE, results = 'hide'}
 ivfit <- AER::ivreg(Y3 ~ W1 | Z1, data = geexex)
@@ -161,7 +161,7 @@ estimates <- m_estimate(
   root_control = setup_root_control(start = 2))
 ```
 
-The `hc.loc` of the [`ICSNP`](https://cran.r-project.org/web/packages/ICSNP/index.html) package computes the Hodges-Lehman estimator and SB gave closed form estimators for the variance.
+The `hc.loc` of the [`ICSNP`](https://cran.r-project.org/package=ICSNP) package computes the Hodges-Lehman estimator and SB gave closed form estimators for the variance.
 
 ```{r SB5_clsform, echo = TRUE}
 theta_cls <- ICSNP::hl.loc(geexex$Y2)
@@ -205,7 +205,7 @@ estimates <- m_estimate(
   root_control = setup_root_control(start = 3))
 ```
 
-The point estimate from `geex` is compared to the estimate obtained from the `huber` function in the [`MASS`](https://cran.r-project.org/web/packages/MASS/index.html) package. The variance estimate is compared to an estimator suggested by SB: $A_m = \sum_i [-\psi'(Y_i - \hat{\theta})]/m$ and $B_m = \sum_i \psi_k^2(Y_i - \hat{\theta})/m$, where $\psi_k'$ is the derivative of $\psi$ where is exists.
+The point estimate from `geex` is compared to the estimate obtained from the `huber` function in the [`MASS`](https://cran.r-project.org/package=MASS) package. The variance estimate is compared to an estimator suggested by SB: $A_m = \sum_i [-\psi'(Y_i - \hat{\theta})]/m$ and $B_m = \sum_i \psi_k^2(Y_i - \hat{\theta})/m$, where $\psi_k'$ is the derivative of $\psi$ where is exists.
 
 ```{r SB6_clsform, echo = TRUE}
 theta_cls <- MASS::huber(geexex$Y1, k = 1.5, tol = 1e-10)$mu
