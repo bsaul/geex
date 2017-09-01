@@ -64,7 +64,7 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-08-23</h4>
+            <h4 class="date">2017-09-01</h4>
           </div>
 
     
@@ -74,7 +74,7 @@
 <h2 class="hasAnchor">
 <a href="#choice-of-rootfun" class="anchor"></a>Choice of <code>rootFUN</code>
 </h2>
-<p>By default, <code>geex</code> uses the <a href="https://cran.r-project.org/web/packages/rootSolve/rootSolve.pdf"><code><a href="http://www.rdocumentation.org/packages/rootSolve/topics/multiroot">rootSolve::multiroot</a></code></a> function for finding roots of a set of estimating equations when <code>compute_roots = TRUE</code> in <code><a href="../reference/m_estimate.html">m_estimate()</a></code>. However, a user can choose a different root find find algorithm via the <code>root_control</code> argument.</p>
+<p>By default, <code>geex</code> uses the <a href="https://cran.r-project.org/package=rootSolve"><code><a href="http://www.rdocumentation.org/packages/rootSolve/topics/multiroot">rootSolve::multiroot</a></code></a> function for finding roots of a set of estimating equations when <code>compute_roots = TRUE</code> in <code><a href="../reference/m_estimate.html">m_estimate()</a></code>. However, a user can choose a different root find find algorithm via the <code>root_control</code> argument.</p>
 <p>For example, consider the following <code>estFUN</code> which is Huber’s estimator for the center of symmetric distributions [<span class="citation">@stefanski2002</span>; example 6]. This example was chosen because it has a single root, so that the <code><a href="http://www.rdocumentation.org/packages/stats/topics/uniroot">stats::uniroot</a></code> function can be used to find the roots.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myefun &lt;-<span class="st"> </span>function(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
   function(theta){
