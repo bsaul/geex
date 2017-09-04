@@ -21,6 +21,27 @@
 #' @param .basis an object of class \code{\linkS4class{m_estimation_basis}}
 #' @return the output of the \code{rootFUN} function
 #' @export
+#' @examples
+#'
+#' myee <- function(data){
+#'   function(theta){
+#'     c(data$Y1 - theta[1],
+#'      (data$Y1 - theta[1])^2 - theta[2])
+#'    }
+#'  }
+#'
+#' # Start with a basic basis
+#' mybasis <- create_basis(
+#'   estFUN = myee,
+#'   data   = geexex)
+#'
+#' # Add a control for the root solver
+#' mycontrol <- new('geex_control', .root = setup_root_control(start = c(1, 1)))
+#' mybasis@.control <- mycontrol
+#'
+#' # Now estimate roots of GFUN
+#' roots <- estimate_GFUN_roots(mybasis)
+#' roots
 #'
 #------------------------------------------------------------------------------#
 
@@ -61,6 +82,23 @@ estimate_GFUN_roots <- function(.basis){
 #'
 #' @export
 #' @references Stefanski, L. A., & Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.
+#' @examples
+#'
+#' myee <- function(data){
+#'   function(theta){
+#'     c(data$Y1 - theta[1],
+#'      (data$Y1 - theta[1])^2 - theta[2])
+#'    }
+#'  }
+#'
+#' # Start with a basic basis
+#' mybasis <- create_basis(
+#'   estFUN = myee,
+#'   data   = geexex)
+#'
+#' # Now estimate sandwich matrices
+#' estimate_sandwich_matrices(
+#'  mybasis, c(mean(geexex$Y1), var(geexex$Y1)))
 #------------------------------------------------------------------------------#
 
 estimate_sandwich_matrices <- function(.basis, .theta){

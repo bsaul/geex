@@ -39,7 +39,8 @@ make_corrections <- function(components, corrections){
 #' @param .correct_control an object of class \code{\linkS4class{correct_control}}
 #'
 #' @return the result of \code{.FUN} in \code{.correct_control}.
-#' @seealso fay_bias_correction fay_df_correction
+#' @seealso \code{\link{fay_bias_correction}} and \code{\link{fay_df_correction}}
+#' for corrections provided by \code{geex}
 #' @examples
 #' myee <- function(data){
 #'    function(theta){
@@ -62,7 +63,6 @@ correct_by <- function(.components, .correct_control){
   do.call(f, args = append(list(components = .components), opts))
 }
 
-
 #------------------------------------------------------------------------------#
 #' Creates a correct_control object
 #'
@@ -70,8 +70,9 @@ correct_by <- function(.components, .correct_control){
 #' first argument
 #' @param ... additional arguments passed to \code{FUN}
 #' @return a \code{\linkS4class{correct_control}} object
-
 #' @export
+#' @examples
+#' correction(FUN = fay_bias_correction, b = 0.75)
 #------------------------------------------------------------------------------#
 
 correction <- function(FUN, ...){
@@ -94,6 +95,25 @@ correction <- function(FUN, ...){
 #' @references Fay, M. P., & Graubard, B. I. (2001). Small-Sample adjustments for
 #' Wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
 #' @export
+#' @examples
+#' # This example demonstrates usage of the corrections, not a meaningful application
+#' myee <- function(data){
+#'  function(theta){
+#'    c(data$Y1 - theta[1],
+#'    (data$Y1 - theta[1])^2 - theta[2])
+#'   }
+#' }
+#'
+#' results <- m_estimate(
+#'    estFUN = myee,
+#'    data = geexex,
+#'    root_control = setup_root_control(start = c(1,1)),
+#'    corrections  = list(
+#'      bias_correction_.1 = correction(fay_bias_correction, b = .1),
+#'      bias_correction_.3 = correction(fay_bias_correction, b = .3))
+#'    )
+#'
+#' get_corrections(results)
 #------------------------------------------------------------------------------#
 
 fay_bias_correction <- function(components, b = 0.75){
@@ -116,6 +136,28 @@ fay_bias_correction <- function(components, b = 0.75){
 #' Wald-type tests using sandwich estimators. Biometrics, 57(4), 1198-1206
 #' @return a scalar corresponding to the estimated degrees of freedom
 #' @export
+#' @examples
+#'
+#' # This example demonstrates usage of the corrections, not a meaningful application
+#' myee <- function(data){
+#'  function(theta){
+#'    c(data$Y1 - theta[1],
+#'    (data$Y1 - theta[1])^2 - theta[2])
+#'   }
+#' }
+#'
+#' results <- m_estimate(
+#'    estFUN = myee,
+#'    data = geexex,
+#'    root_control = setup_root_control(start = c(1,1)),
+#'    corrections  = list(
+#'      df_correction1 = correction(fay_df_correction,
+#'                         b = .75, L = c(0, 1), version = 1 ),
+#'      df_correction2 = correction(fay_df_correction,
+#'                         b = .75, L = c(0, 1), version = 2 ))
+#'    )
+#'
+#' get_corrections(results)
 #------------------------------------------------------------------------------#
 
 fay_df_correction <- function(components, b = .75, L, version){

@@ -19,6 +19,10 @@
 #'
 #' @return the \code{matrix} \code{Ainv \%*\% B \%*\% t(Ainv)}
 #' @export
+#' @examples
+#' A <- diag(2, nrow = 2, ncol = 2)
+#' B <- matrix(4, nrow = 2, ncol = 2)
+#' compute_sigma(A = A, B = B)
 #------------------------------------------------------------------------------#
 
 compute_sigma <- function(A, B){

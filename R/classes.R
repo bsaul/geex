@@ -133,7 +133,8 @@ setClass(
 #------------------------------------------------------------------------------#
 #' Shows the sandwich_components S4 class
 #'
-#' @param object a \code{\linkS4class{sandwich_components}} object
+#' @param object a \code{\linkS4class{sandwich_components}},
+#' \code{\linkS4class{m_estimation_basis}}, or \code{\linkS4class{geex}} object
 #' @rdname show-methods
 #' @aliases show,sandwich_components,sandwich_components-method
 #' @export
@@ -158,6 +159,20 @@ setMethod(
 #' @docType methods
 #' @rdname grab_bread-methods
 #' @export
+#' @examples
+#' myee <- function(data){
+#'  function(theta){
+#'    c(data$Y1 - theta[1],
+#'    (data$Y1 - theta[1])^2 - theta[2])
+#'   }
+#' }
+#'
+#' results <- m_estimate(
+#'    estFUN = myee,
+#'    data = geexex,
+#'    root_control = setup_root_control(start = c(1,1)))
+#'
+#' grab_bread(results@sandwich_components)
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_bread",function(object){standardGeneric("grab_bread")})
@@ -179,6 +194,20 @@ setMethod(
 #' @docType methods
 #' @rdname grab_bread_list-methods
 #' @export
+#' @examples
+#' myee <- function(data){
+#'  function(theta){
+#'    c(data$Y1 - theta[1],
+#'    (data$Y1 - theta[1])^2 - theta[2])
+#'   }
+#' }
+#'
+#' results <- m_estimate(
+#'    estFUN = myee,
+#'    data = geexex,
+#'    root_control = setup_root_control(start = c(1,1)))
+#'
+#' head(grab_bread_list(results@sandwich_components))
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_bread_list",function(object){standardGeneric ("grab_bread_list")})
@@ -200,6 +229,20 @@ setMethod(
 #' @docType methods
 #' @rdname grab_meat-methods
 #' @export
+#' @examples
+#' myee <- function(data){
+#'  function(theta){
+#'    c(data$Y1 - theta[1],
+#'    (data$Y1 - theta[1])^2 - theta[2])
+#'   }
+#' }
+#'
+#' results <- m_estimate(
+#'    estFUN = myee,
+#'    data = geexex,
+#'    root_control = setup_root_control(start = c(1,1)))
+#'
+#' grab_meat_list(results@sandwich_components)
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_meat",function(object){standardGeneric ("grab_meat")})
@@ -221,6 +264,20 @@ setMethod(
 #' @docType methods
 #' @rdname grab_meat_list-methods
 #' @export
+#' @examples
+#' myee <- function(data){
+#'  function(theta){
+#'    c(data$Y1 - theta[1],
+#'    (data$Y1 - theta[1])^2 - theta[2])
+#'   }
+#' }
+#'
+#' results <- m_estimate(
+#'    estFUN = myee,
+#'    data = geexex,
+#'    root_control = setup_root_control(start = c(1,1)))
+#'
+#' head(grab_meat_list(results@sandwich_components))
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_meat_list",function(object){standardGeneric ("grab_meat_list")})
@@ -247,8 +304,8 @@ setMethod(
 #'
 #' @slot .FUN a function
 #' @slot .options a list of options passed to \code{.FUN}
-#' @seealso root_control deriv_control approx_control
-#'
+#' @seealso \code{\link{root_control-class}}, \code{\link{deriv_control-class}}
+#' \code{\link{approx_control-class}}
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -300,6 +357,8 @@ setClass(
 #' @param FUN a function
 #' @param ... arguments passed to \code{FUN}
 #' @return a \code{\linkS4class{basic_control}} object
+#' @seealso \code{\link{setup_root_control}}, \code{\link{setup_deriv_control}},
+#' \code{\link{setup_approx_control}}
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -379,6 +438,9 @@ setClass(
 #' @inheritParams setup_control
 #' @return a \code{\linkS4class{deriv_control}} object
 #' @export
+#' @examples
+#' setup_deriv_control() # default
+#' setup_deriv_control(method = "simple") # will speed up computations
 #------------------------------------------------------------------------------#
 
 setup_deriv_control <- function(FUN, ...){
@@ -402,15 +464,18 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
-#' Setup an approx _control object
+#' Setup an approx_control object
 #'
 #' @inheritParams setup_control
 #' @return a \code{\linkS4class{approx_control}} object
 #' @export
+#' @examples
+#' # For usage, see example 7 in
+#' \dontrun{vignette("01_additional_examples", package = "geex")}
 #------------------------------------------------------------------------------#
 
 setup_approx_control <- function(FUN, ...){
-  setup_control(type = "approx", FUN  = FUN, ...  = ...)
+  setup_control(type = "approx", FUN  = FUN, ... = ...)
 }
 
 #------------------------------------------------------------------------------#
@@ -438,36 +503,34 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
-#' Extracts the \code{.options} slot from a \code{\linkS4class{basic_control}} object
-#'
-#' @param object a \code{\linkS4class{basic_control}} object
-#' @param ... additional arguments passed to other methods
-#' @docType methods
-#' @rdname grab_options-methods
-#' @export
+# Extracts the \code{.options} slot from a \code{\linkS4class{basic_control}} object
+#
+# @param object a \code{\linkS4class{basic_control}} object
+# @param ... additional arguments passed to other methods
+# @docType methods
+# @rdname grab_options-methods
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_options", function(object, ...) standardGeneric("grab_options"))
 
-#' @rdname grab_options-methods
-#' @aliases grab_options,basic_control,basic_control-method
+# @rdname grab_options-methods
+# @aliases grab_options,basic_control,basic_control-method
 
 setMethod("grab_options", "basic_control", function(object) object@.options)
 
 #------------------------------------------------------------------------------#
-#' Extracts the \code{.FUN} slot from a \code{\linkS4class{basic_control}} object
-#'
-#' @param object a \code{\linkS4class{basic_control}} object
-#' @param ... additional arguments passed to other methods
-#' @docType methods
-#' @rdname grab_FUN-methods
-#' @export
+# Extracts the \code{.FUN} slot from a \code{\linkS4class{basic_control}} object
+#
+# @param object a \code{\linkS4class{basic_control}} object
+# @param ... additional arguments passed to other methods
+# @docType methods
+# @rdname grab_FUN-methods
 #------------------------------------------------------------------------------#
 
 setGeneric("grab_FUN", function(object, ...) standardGeneric("grab_FUN"))
 
-#' @rdname grab_FUN-methods
-#' @aliases grab_FUN,basic_control,basic_control-method
+# @rdname grab_FUN-methods
+# @aliases grab_FUN,basic_control,basic_control-method
 
 setMethod("grab_FUN", "basic_control", function(object) object@.FUN)
 
@@ -491,15 +554,15 @@ setClass(
 )
 
 #------------------------------------------------------------------------------#
-#' Extracts functions from a \code{\linkS4class{geex_control}} object
-#'
-#' @param slot name of the slot from which to grab the function. One of "deriv",
-#' "approx", or "root"
-#'
-#' @rdname grab_FUN-methods
-#' @aliases grab_FUN,geex_control,geex_control-method
-#'
-#' @export
+# Extracts functions from a \code{\linkS4class{geex_control}} object
+#
+# @param slot name of the slot from which to grab the function. One of "deriv",
+# "approx", or "root"
+#
+# @rdname grab_FUN-methods
+# @aliases grab_FUN,geex_control,geex_control-method
+#
+# @export
 #------------------------------------------------------------------------------#
 setMethod("grab_FUN", "geex_control", function(object, slot) {
   switch(slot,
@@ -509,14 +572,14 @@ setMethod("grab_FUN", "geex_control", function(object, slot) {
 })
 
 #------------------------------------------------------------------------------#
-#' Extracts options from a \code{\linkS4class{geex_control}} object
-#'
-#' @param slot name of the slot from which to grab the function. One of "deriv",
-#' "approx", or "root"
-#' @rdname grab_options-methods
-#' @aliases grab_options,geex_control,geex_control-method
-#'
-#' @export
+# Extracts options from a \code{\linkS4class{geex_control}} object
+#
+# @param slot name of the slot from which to grab the function. One of "deriv",
+# "approx", or "root"
+# @rdname grab_options-methods
+# @aliases grab_options,geex_control,geex_control-method
+#
+# @export
 #------------------------------------------------------------------------------#
 setMethod("grab_options", "geex_control", function(object, slot) {
   switch(slot,
@@ -700,7 +763,6 @@ setMethod(
 #------------------------------------------------------------------------------#
 #' Shows the m_estimation_basis
 #'
-#'# @param object a \code{\linkS4class{m_estimation_basis}} object
 #' @rdname show-methods
 #' @aliases show,m_estimation_basis,m_estimation_basis-method
 #' @export
@@ -764,7 +826,6 @@ setClass(
 #------------------------------------------------------------------------------#
 #' Shows the geex object
 #'
-#'# @param object a \code{\linkS4class{geex}} object
 #' @rdname show-methods
 #' @aliases show,geex,geex-method
 #' @export
@@ -795,6 +856,20 @@ setMethod(
 #' @rdname vcov-methods
 #' @aliases vcov,geex,geex-method
 #' @export
+#' @examples
+#' ex_eeFUN <- function(data){
+#'  function(theta){
+#'    with(data,
+#'     c(Y1 - theta[1],
+#'      (Y1 - theta[1])^2 - theta[2] ))
+#' }}
+#'
+#' results <- m_estimate(
+#'  estFUN = ex_eeFUN,
+#'  data  = geexex,
+#'  root_control = setup_root_control(start = c(1,1)))
+#'
+#' vcov(results)
 #------------------------------------------------------------------------------#
 
 setMethod(
@@ -811,6 +886,20 @@ setMethod(
 #' @rdname coef-methods
 #' @aliases coef,geex,geex-method
 #' @export
+#' @examples
+#' ex_eeFUN <- function(data){
+#'  function(theta){
+#'    with(data,
+#'     c(Y1 - theta[1],
+#'      (Y1 - theta[1])^2 - theta[2] ))
+#' }}
+#'
+#' results <- m_estimate(
+#'  estFUN = ex_eeFUN,
+#'  data  = geexex,
+#'  root_control = setup_root_control(start = c(1,1)))
+#'
+#' coef(results)
 #------------------------------------------------------------------------------#
 
 setMethod(
@@ -828,6 +917,20 @@ setMethod(
 #' @docType methods
 #' @rdname roots-methods
 #' @export
+#' @examples
+#' ex_eeFUN <- function(data){
+#'  function(theta){
+#'    with(data,
+#'     c(Y1 - theta[1],
+#'      (Y1 - theta[1])^2 - theta[2] ))
+#' }}
+#'
+#' results <- m_estimate(
+#'  estFUN = ex_eeFUN,
+#'  data  = geexex,
+#'  root_control = setup_root_control(start = c(1,1)))
+#'
+#' roots(results)
 #------------------------------------------------------------------------------#
 
 setGeneric("roots", function(object, ...) standardGeneric("roots"))
@@ -850,6 +953,24 @@ setMethod(
 #' @docType methods
 #' @rdname get_corrections-methods
 #' @export
+#' @examples
+#' myee <- function(data){
+#'  function(theta){
+#'    c(data$Y1 - theta[1],
+#'    (data$Y1 - theta[1])^2 - theta[2])
+#'   }
+#' }
+#'
+#' results <- m_estimate(
+#'    estFUN = myee,
+#'    data = geexex,
+#'    root_control = setup_root_control(start = c(1,1)),
+#'    corrections  = list(
+#'      bias_correction_.1 = correction(fay_bias_correction, b = .1),
+#'      bias_correction_.3 = correction(fay_bias_correction, b = .3))
+#'    )
+#'
+#' get_corrections(results)
 #------------------------------------------------------------------------------#
 
 setGeneric("get_corrections", function(object, ...) standardGeneric("get_corrections"))
@@ -865,4 +986,24 @@ setMethod(
     } else {
       object@corrections
     }
+  })
+
+#' @rdname grab_psiFUN_list-methods
+#' @aliases grab_psiFUN_list,geex,geex-method
+
+setMethod(
+  f = "grab_psiFUN_list",
+  signature = "geex",
+  function(object){
+    return(object@sandwich_components@.psiFUN_list)
+  })
+
+#' @rdname grab_GFUN-methods
+#' @aliases grab_GFUN,geex,geex-method
+
+setMethod(
+  f = "grab_GFUN",
+  signature = "geex",
+  function(object){
+    return(object@basis@.GFUN)
   })
