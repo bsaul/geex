@@ -1,16 +1,17 @@
 Package: geex
 Type: Package
 Title: An API for M-Estimation
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: c(person("Bradley", "Saul", role = c("aut", "cre"),
                     email = "bradleysaul@gmail.com"),
              person("Brian", "Barkley", role = c("ctb")))
 Author: Bradley Saul [aut, cre], Brian Barkley [ctb]
 Maintainer: Bradley Saul <bradleysaul@gmail.com>
-Description: Provides a general, flexible framework for estimating parameters 
-    and empirical sandwich variance estimator from a set of unbiased estimating 
-    equations (i.e., M-estimation). Also provides an API to compute finite-sample
-    variance corrections.
+Description: Provides a general, flexible framework for estimating parameters
+    and empirical sandwich variance estimator from a set of unbiased estimating
+    equations (i.e., M-estimation in the vein of Stefanski & Boos (2002)
+    <doi:10.1198/000313002753631330>). Also provides an API to compute finite-sample
+    variance corrections. 
 Depends:
     R (>= 3.3)
 Imports:

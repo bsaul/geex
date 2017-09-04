@@ -128,6 +128,31 @@ numerically approximated by the function defined in <code><a href='deriv_control
     <p>Stefanski, L. A., &amp; Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='no'>myee</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>data</span>){
+  <span class='kw'>function</span>(<span class='no'>theta</span>){
+    <span class='fu'>c</span>(<span class='no'>data</span>$<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>],
+     (<span class='no'>data</span>$<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>])^<span class='fl'>2</span> - <span class='no'>theta</span>[<span class='fl'>2</span>])
+   }
+ }
+
+<span class='co'># Start with a basic basis</span>
+<span class='no'>mybasis</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='create_basis.html'>create_basis</a></span>(
+  <span class='kw'>estFUN</span> <span class='kw'>=</span> <span class='no'>myee</span>,
+  <span class='kw'>data</span>   <span class='kw'>=</span> <span class='no'>geexex</span>)
+
+<span class='co'># Now estimate sandwich matrices</span>
+<span class='fu'>estimate_sandwich_matrices</span>(
+ <span class='no'>mybasis</span>, <span class='fu'>c</span>(<span class='fu'>mean</span>(<span class='no'>geexex</span>$<span class='no'>Y1</span>), <span class='fu'>var</span>(<span class='no'>geexex</span>$<span class='no'>Y1</span>)))</div><div class='output co'>#&gt; An object of class sandwich_components
+#&gt; A (bread matrix):
+#&gt;               [,1] [,2]
+#&gt; [1,]  1.000000e+02    0
+#&gt; [2,] -1.586615e-10  100
+#&gt; B (meat matrix):
+#&gt;           [,1]       [,2]
+#&gt; [1,] 1004.1239   366.7969
+#&gt; [2,]  366.7969 24922.9925</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -139,7 +164,9 @@ numerically approximated by the function defined in <code><a href='deriv_control
       <li><a href="#details">Details</a></li>
 
       <li><a href="#references">References</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

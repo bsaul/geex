@@ -110,6 +110,32 @@
     <p>a <code><a href='deriv_control-class.html'>deriv_control</a></code> object</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>setup_deriv_control</span>() <span class='co'># default</span></div><div class='output co'>#&gt; An object of class "deriv_control"
+#&gt; Slot ".FUN":
+#&gt; function (func, x, method = "Richardson", side = NULL, method.args = list(), 
+#&gt;     ...) 
+#&gt; UseMethod("jacobian")
+#&gt; &lt;bytecode: 0x1032afa30&gt;
+#&gt; &lt;environment: namespace:numDeriv&gt;
+#&gt; 
+#&gt; Slot ".options":
+#&gt; $method
+#&gt; [1] "Richardson"
+#&gt; 
+#&gt; </div><div class='input'><span class='fu'>setup_deriv_control</span>(<span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"simple"</span>) <span class='co'># will speed up computations</span></div><div class='output co'>#&gt; An object of class "deriv_control"
+#&gt; Slot ".FUN":
+#&gt; function (func, x, method = "Richardson", side = NULL, method.args = list(), 
+#&gt;     ...) 
+#&gt; UseMethod("jacobian")
+#&gt; &lt;bytecode: 0x1032afa30&gt;
+#&gt; &lt;environment: namespace:numDeriv&gt;
+#&gt; 
+#&gt; Slot ".options":
+#&gt; $method
+#&gt; [1] "simple"
+#&gt; 
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -117,7 +143,9 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

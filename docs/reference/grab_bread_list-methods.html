@@ -105,12 +105,57 @@
     </table>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>myee</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>data</span>){
+ <span class='kw'>function</span>(<span class='no'>theta</span>){
+   <span class='fu'>c</span>(<span class='no'>data</span>$<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>],
+   (<span class='no'>data</span>$<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>])^<span class='fl'>2</span> - <span class='no'>theta</span>[<span class='fl'>2</span>])
+  }
+}
+
+<span class='no'>results</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='m_estimate.html'>m_estimate</a></span>(
+   <span class='kw'>estFUN</span> <span class='kw'>=</span> <span class='no'>myee</span>,
+   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>geexex</span>,
+   <span class='kw'>root_control</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_control.html'>setup_root_control</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>1</span>)))
+
+<span class='fu'>head</span>(<span class='fu'>grab_bread_list</span>(<span class='no'>results</span>@<span class='kw'>sandwich_components</span>))</div><div class='output co'>#&gt; $`1`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -2.752514    1
+#&gt; 
+#&gt; $`2`
+#&gt;          [,1] [,2]
+#&gt; [1,]  1.00000    0
+#&gt; [2,] 10.81578    1
+#&gt; 
+#&gt; $`3`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.842305    1
+#&gt; 
+#&gt; $`4`
+#&gt;          [,1] [,2]
+#&gt; [1,] 1.000000    0
+#&gt; [2,] 6.653878    1
+#&gt; 
+#&gt; $`5`
+#&gt;           [,1] [,2]
+#&gt; [1,]   1.00000    0
+#&gt; [2,] -11.75308    1
+#&gt; 
+#&gt; $`6`
+#&gt;           [,1] [,2]
+#&gt; [1,]  1.000000    0
+#&gt; [2,] -3.291574    1
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+            
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

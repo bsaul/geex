@@ -1,3 +1,7 @@
+# geex 1.0.3
+
+* adds basic examples for most functions, though to be sure, the vignettes provide more useful examples.
+
 # geex 1.0.2
 
 * requires R >= 3.3

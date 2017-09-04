@@ -127,6 +127,32 @@ that takes parameters as its first argument</p></td>
     <p>Either <code>data</code> or <code>split_data</code> must be provided</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>myee</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>data</span>){
+   <span class='kw'>function</span>(<span class='no'>theta</span>){
+    <span class='fu'>c</span>(<span class='no'>data</span>$<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>],
+     (<span class='no'>data</span>$<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>])^<span class='fl'>2</span> - <span class='no'>theta</span>[<span class='fl'>2</span>])
+   }
+ }
+<span class='no'>mybasis</span> <span class='kw'>&lt;-</span> <span class='fu'>create_basis</span>(
+   <span class='kw'>estFUN</span> <span class='kw'>=</span> <span class='no'>myee</span>,
+   <span class='kw'>data</span>   <span class='kw'>=</span> <span class='no'>geexex</span>)
+<span class='no'>mybasis</span></div><div class='output co'>#&gt; An object of class m_estimation_basis
+#&gt; psi: 
+#&gt; {
+#&gt;     function(theta) {
+#&gt;         c(data$Y1 - theta[1], (data$Y1 - theta[1])^2 - theta[2])
+#&gt;     }
+#&gt; }
+#&gt; Data:
+#&gt;           Y1        Y2       X1       Y3       W1        Z1 X2         Y4 Y5
+#&gt; 1  3.6683066 2.0281718 4.949316 16.34576 4.823768  8.921782  0 0.09273926  1
+#&gt; 2 10.4524548 1.6432966 7.851962 25.68742 7.884845 13.909474  0 1.01672736  1
+#&gt; 3  3.1234106 2.8526264 4.729075 16.10831 4.709346  9.014695  0 0.49399039  0
+#&gt; 4  8.3715025 2.5133652 2.564395 10.57997 2.786091  6.733378  0 1.24322433  0
+#&gt; 5 -0.8319749 3.0182030 4.782347 16.46401 4.811590  9.290492  0 0.69520599  1
+#&gt; 6  3.3987763 0.9785209 5.335713 18.32577 5.415370 10.322199  0 0.95220138  1
+#&gt; Units:  </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -136,7 +162,9 @@ that takes parameters as its first argument</p></td>
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

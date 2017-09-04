@@ -115,6 +115,39 @@ but it is exported for use in debugging and development.</p>
 see the root solver vignette, <code>vignette('geex_root_solvers', package = 'geex')</code>.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='no'>myee</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>data</span>){
+  <span class='kw'>function</span>(<span class='no'>theta</span>){
+    <span class='fu'>c</span>(<span class='no'>data</span>$<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>],
+     (<span class='no'>data</span>$<span class='no'>Y1</span> - <span class='no'>theta</span>[<span class='fl'>1</span>])^<span class='fl'>2</span> - <span class='no'>theta</span>[<span class='fl'>2</span>])
+   }
+ }
+
+<span class='co'># Start with a basic basis</span>
+<span class='no'>mybasis</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='create_basis.html'>create_basis</a></span>(
+  <span class='kw'>estFUN</span> <span class='kw'>=</span> <span class='no'>myee</span>,
+  <span class='kw'>data</span>   <span class='kw'>=</span> <span class='no'>geexex</span>)
+
+<span class='co'># Add a control for the root solver</span>
+<span class='no'>mycontrol</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>'geex_control'</span>, <span class='kw'>.root</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_control.html'>setup_root_control</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>1</span>)))
+<span class='no'>mybasis</span>@<span class='kw'>.control</span> <span class='kw'>&lt;-</span> <span class='no'>mycontrol</span>
+
+<span class='co'># Now estimate roots of GFUN</span>
+<span class='no'>roots</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_GFUN_roots</span>(<span class='no'>mybasis</span>)
+<span class='no'>roots</span></div><div class='output co'>#&gt; $root
+#&gt; [1]  5.044563 10.041239
+#&gt; 
+#&gt; $f.root
+#&gt; [1] -2.131628e-14 -2.238210e-13
+#&gt; 
+#&gt; $iter
+#&gt; [1] 4
+#&gt; 
+#&gt; $estim.precis
+#&gt; [1] 1.225686e-13
+#&gt; </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -124,7 +157,9 @@ see the root solver vignette, <code>vignette('geex_root_solvers', package = 'gee
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

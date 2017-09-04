@@ -115,6 +115,12 @@ provided \(A\) and \(B\) matrices.</p>
     <p>the <code>matrix</code> <code>Ainv %*% B %*% t(Ainv)</code></p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>A</span> <span class='kw'>&lt;-</span> <span class='fu'>diag</span>(<span class='fl'>2</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='no'>B</span> <span class='kw'>&lt;-</span> <span class='fu'>matrix</span>(<span class='fl'>4</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='fu'>compute_sigma</span>(<span class='kw'>A</span> <span class='kw'>=</span> <span class='no'>A</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>)</div><div class='output co'>#&gt;      [,1] [,2]
+#&gt; [1,]    1    1
+#&gt; [2,]    1    1</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -122,7 +128,9 @@ provided \(A\) and \(B\) matrices.</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>
