@@ -38,5 +38,6 @@ correct_by(mats,
    .correct_control =  correction(fay_bias_correction, b = .75))
 }
 \seealso{
-fay_bias_correction fay_df_correction
+\code{\link{fay_bias_correction}} and \code{\link{fay_df_correction}}
+for corrections provided by \code{geex}
 }

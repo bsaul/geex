@@ -18,3 +18,6 @@ a \code{\linkS4class{correct_control}} object
 \description{
 Creates a correct_control object
 }
+\examples{
+correction(FUN = fay_bias_correction, b = 0.75)
+}

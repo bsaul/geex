@@ -12,3 +12,7 @@ grab_response_formula(model)
 \description{
 Grab the LHS formula from a model object
 }
+\examples{
+fit <- lm(Sepal.Width ~ Petal.Width, data = iris)
+grab_response_formula(fit)
+}

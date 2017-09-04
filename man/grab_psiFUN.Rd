@@ -39,3 +39,45 @@ Grab estimating functions from a model object
 \item \code{merMod}: Create estimating equation function from a \code{merMod} object
 }}
 
+\examples{
+
+\dontrun{
+library(geepack)
+data('ohio')
+
+glmfit  <- glm(resp ~ age, data = ohio,
+               family = binomial(link = "logit"))
+geefit  <- geeglm(resp ~ age, data = ohio, id = id,
+                  family = binomial(link = "logit"))
+glmmfit <- glmer(resp ~ age + (1|id), data = ohio,
+                 family = binomial(link = "logit"))
+example_ee <- function(data, model){
+ f <- grab_psiFUN(model, data)
+ function(theta){
+  f(theta)
+ }
+}
+
+m_estimate(
+  estFUN = example_ee,
+  data = ohio,
+  compute_roots = FALSE,
+  units = 'id',
+  roots = coef(glmfit),
+  outer_args = list(model = glmfit))
+m_estimate(
+  estFUN = example_ee,
+  data = ohio,
+  compute_roots = FALSE,
+  units = 'id',
+  roots = coef(geefit),
+  outer_args = list(model = geefit))
+m_estimate(
+  estFUN = example_ee,
+  data = ohio,
+  compute_roots = FALSE,
+  units = 'id',
+  roots = unlist(getME(glmmfit, c('beta', 'theta'))),
+  outer_args = list(model = glmmfit))
+ }
+}

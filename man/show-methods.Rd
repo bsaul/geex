@@ -17,12 +17,13 @@
 \S4method{show}{geex}(object)
 }
 \arguments{
-\item{object}{a \code{\linkS4class{sandwich_components}} object}
+\item{object}{a \code{\linkS4class{sandwich_components}},
+\code{\linkS4class{m_estimation_basis}}, or \code{\linkS4class{geex}} object}
 }
 \description{
 Shows the sandwich_components S4 class
 
-# @param object a \code{\linkS4class{m_estimation_basis}} object
+Shows the m_estimation_basis
 
-# @param object a \code{\linkS4class{geex}} object
+Shows the geex object
 }

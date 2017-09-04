@@ -22,3 +22,8 @@ the \code{matrix} \code{Ainv \%*\% B \%*\% t(Ainv)}
 Computes \eqn{\Sigma = A^{-1} B (A^{-1})^T }{\Sigma = A^{-1} B (A^{-1})^T} with
 provided \eqn{A}{A} and \eqn{B}{B} matrices.
 }
+\examples{
+A <- diag(2, nrow = 2, ncol = 2)
+B <- matrix(4, nrow = 2, ncol = 2)
+compute_sigma(A = A, B = B)
+}

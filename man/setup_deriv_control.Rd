@@ -17,3 +17,7 @@ a \code{\linkS4class{deriv_control}} object
 \description{
 Setup a deriv_control object
 }
+\examples{
+setup_deriv_control() # default
+setup_deriv_control(method = "simple") # will speed up computations
+}

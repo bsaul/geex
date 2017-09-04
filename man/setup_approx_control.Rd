@@ -2,7 +2,7 @@
 % Please edit documentation in R/classes.R
 \name{setup_approx_control}
 \alias{setup_approx_control}
-\title{Setup an approx _control object}
+\title{Setup an approx_control object}
 \usage{
 setup_approx_control(FUN, ...)
 }
@@ -15,5 +15,9 @@ setup_approx_control(FUN, ...)
 a \code{\linkS4class{approx_control}} object
 }
 \description{
-Setup an approx _control object
+Setup an approx_control object
+}
+\examples{
+# For usage, see example 7 in
+\dontrun{vignette("01_additional_examples", package = "geex")}
 }

@@ -12,3 +12,7 @@ grab_fixed_formula(model)
 \description{
 Grab the RHS formula from a model object
 }
+\examples{
+fit <- lm(Sepal.Width ~ Petal.Width, data = iris)
+grab_fixed_formula(fit)
+}

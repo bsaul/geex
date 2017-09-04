@@ -17,5 +17,6 @@ function
 }}
 
 \seealso{
-root_control deriv_control approx_control
+\code{\link{root_control-class}}, \code{\link{deriv_control-class}}
+\code{\link{approx_control-class}}
 }

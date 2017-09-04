@@ -36,6 +36,24 @@ numerically approximated by the function defined in \code{\linkS4class{deriv_con
 
 Note that \eqn{A =  \sum_i A_i}{A =  \sum_i A_i} and not \eqn{\sum_i A_i/m}{A =  \sum_i A_i/m}, and the same for \eqn{B}{B}.
 }
+\examples{
+
+myee <- function(data){
+  function(theta){
+    c(data$Y1 - theta[1],
+     (data$Y1 - theta[1])^2 - theta[2])
+   }
+ }
+
+# Start with a basic basis
+mybasis <- create_basis(
+  estFUN = myee,
+  data   = geexex)
+
+# Now estimate sandwich matrices
+estimate_sandwich_matrices(
+ mybasis, c(mean(geexex$Y1), var(geexex$Y1)))
+}
 \references{
 Stefanski, L. A., & Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.
 }

@@ -27,3 +27,15 @@ Creates an m_estimation_basis object
 \details{
 Either \code{data} or \code{split_data} must be provided
 }
+\examples{
+myee <- function(data){
+   function(theta){
+    c(data$Y1 - theta[1],
+     (data$Y1 - theta[1])^2 - theta[2])
+   }
+ }
+mybasis <- create_basis(
+   estFUN = myee,
+   data   = geexex)
+mybasis
+}

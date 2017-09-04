@@ -25,3 +25,18 @@ for each unit. That is, this function evaluates the outer function in
 \code{estFUN} for each independent unit and a returns the inner function in
 \code{estFUN}.
 }
+\examples{
+myee <- function(data){
+   function(theta){
+    c(data$Y1 - theta[1],
+     (data$Y1 - theta[1])^2 - theta[2])
+   }
+ }
+mybasis <- create_basis(
+   estFUN = myee,
+   data   = geexex)
+psi_list <- grab_psiFUN_list(create_psiFUN_list(mybasis))
+
+# A list of functions
+head(psi_list)
+}

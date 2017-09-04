@@ -19,3 +19,7 @@ a \code{\linkS4class{basic_control}} object
 \description{
 Setup a basic_control object
 }
+\seealso{
+\code{\link{setup_root_control}}, \code{\link{setup_deriv_control}},
+\code{\link{setup_approx_control}}
+}

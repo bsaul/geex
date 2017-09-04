@@ -5,11 +5,15 @@
 \alias{grab_GFUN}
 \alias{grab_GFUN,m_estimation_basis-method}
 \alias{grab_GFUN,m_estimation_basis,m_estimation_basis-method}
+\alias{grab_GFUN,geex-method}
+\alias{grab_GFUN,geex,geex-method}
 \title{Gets the .psi_list slot in a m_estimation_basis}
 \usage{
 grab_GFUN(object)
 
 \S4method{grab_GFUN}{m_estimation_basis}(object)
+
+\S4method{grab_GFUN}{geex}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{m_estimation_basis}} object}

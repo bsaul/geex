@@ -17,3 +17,18 @@ grab_meat(object)
 \description{
 Gets the .B (meat matrix) slot
 }
+\examples{
+myee <- function(data){
+ function(theta){
+   c(data$Y1 - theta[1],
+   (data$Y1 - theta[1])^2 - theta[2])
+  }
+}
+
+results <- m_estimate(
+   estFUN = myee,
+   data = geexex,
+   root_control = setup_root_control(start = c(1,1)))
+
+grab_meat_list(results@sandwich_components)
+}
