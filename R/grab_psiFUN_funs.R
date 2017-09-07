@@ -96,6 +96,7 @@ grab_psiFUN.glm <- function(object, data, weights = 1, ...){
       V <- phi * diag(1, nrow = n, ncol = n)
     } else if(family_link == 'binomial_logit'){
       D <- apply(X, 2, function(x) x * exp(lp)/((1+exp(lp))^2) )
+      if (n==1) { D <- t(D) } ## apply will undesireably coerce to vector
       V <- phi * diag(f * (1 - f), ncol = length(f) )/length(f)
     }
 
