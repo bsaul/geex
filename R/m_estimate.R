@@ -194,7 +194,7 @@ m_estimate <- function(estFUN,
   out@call <- call
   ## Checks/Warnings ##
   if(is.null(roots) & !compute_roots){
-    stop('If findroots = FALSE, estimates for the roots must be specified in the roots argument.')
+    stop('If compute_roots = FALSE, estimates for the roots must be specified in the roots argument.')
   }
 
   ## Compute estimating equation roots ##
