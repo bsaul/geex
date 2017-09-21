@@ -63,46 +63,42 @@ grab_psiFUN <- function(object, ...){
 
 
 #' @inheritParams grab_psiFUN
-#' @param weights a scalar or vector of weight values
 #' @describeIn grab_psiFUN Create estimating equation function from a \code{glm} object
 #' @export
 
-grab_psiFUN.glm <- function(object, data, weights = 1, ...){
+grab_psiFUN.glm <- function(object, data, ...){
+  ### TODO: handle GLM objects with weights
 
   X  <- stats::model.matrix(object$formula, data = data)
   Y  <- as.numeric(stats::model.frame(grab_response_formula(object), data = data)[[1]])
   n  <- length(Y)
   p  <- length(stats::coef(object))
   phi    <- as.numeric(summary(object)$dispersion[1])
-  W      <- weights
   family <- object$family$family
   link   <- object$family$link
   invlnk <- object$family$linkinv
-  family_link <- paste(family, link, sep = '_')
-
-  stopifnot(length(W) == 1 | length(W) == n)
-  if(length(W) == 1){
-    W <- rep(W, n)
-  }
+  varfun <- object$family$variance
 
   function(theta){
-    lp <- X %*% theta # linear predictor
-    f  <- as.numeric(invlnk(lp))  # fitted values
+    lp <- drop(X %*% theta) # linear predictor
+    f  <- invlnk(lp)  # fitted values
     r  <- Y - f       # residuals
-
+    V  <- phi * diag(varfun(f), nrow = n, ncol = n)
     ### TODO: this is cludgy and needs to be reworked to be more general
-    if(family_link == 'gaussian_identity'){
+    # The D matrix could be functionized and used in the grab_psiFUN.geeglm
+    # function as well
+    if(link == "identity"){
       D <- X
-      V <- phi * diag(1, nrow = n, ncol = n)
-    } else if(family_link == 'binomial_logit'){
-      xlp <- exp(lp)/((1+exp(lp))^2)
+    } else if(link == "logit"){
+      xlp <- stats::dlogis(lp)
       D <- apply(X, 2, function(x) x * xlp)
       # if (n==1) { D <- t(D) } ## apply will undesireably coerce to vector
       if (!is.matrix(D)) { D <- matrix(D, nrow=1) } ## apply will undesireably coerce to vector
-      V <- phi * diag(f * (1 - f), ncol = length(f) )/length(f)
+    } else {
+      stop("grab_psiFUN.glm not yet implemented for this link")
     }
 
-    t(D) %*% solve(V) %*% diag(W, nrow = n, ncol = n) %*% (r)
+    t(D) %*% solve(V) %*% (r)
   }
 }
 
@@ -125,23 +121,24 @@ grab_psiFUN.geeglm <- function(object, data, ...){
   family <- object$family$family
   link   <- object$family$link
   invlnk <- object$family$linkinv
-  family_link <- paste(family, link, sep = '_')
-
+  varfun <- object$family$variance
+  # family_link <- paste(family, link, sep = '_')
 
   function(theta){
-    lp <- X %*% theta # linear predictor
-    f  <- as.numeric(invlnk(lp))  # fitted values
+    lp <- drop(X %*% theta) # linear predictor
+    f  <- invlnk(lp)  # fitted values
     r  <- Y - f       # residuals
-
+    V  <- phi * diag(varfun(f), nrow = n, ncol = n)
     ### TODO: this is cludgy and needs to be reworked to be more general
     ### TODO: how to handle weights
-    if(family_link == 'gaussian_identity'){
+    if(link == "identity"){
       D <- X
-      V <- phi * diag(1, nrow = n, ncol = n)
-    } else if(family_link == 'binomial_logit'){
+    } else if(link == "logit"){
       D <- apply(X, 2, function(x) x * exp(lp)/((1+exp(lp))^2) )
-      V <- phi * diag(f * (1 - f), ncol = length(f) )/length(f)
+    } else {
+      stop("grab_psiFUN.glm not yet implemented for this link")
     }
+
     t(D) %*% solve(V) %*% (r)
   }
 }

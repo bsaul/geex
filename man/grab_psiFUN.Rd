@@ -10,7 +10,7 @@
 \usage{
 grab_psiFUN(object, ...)
 
-\method{grab_psiFUN}{glm}(object, data, weights = 1, ...)
+\method{grab_psiFUN}{glm}(object, data, ...)
 
 \method{grab_psiFUN}{geeglm}(object, data, ...)
 
@@ -22,8 +22,6 @@ grab_psiFUN(object, ...)
 \item{...}{additonal arguments passed to other methods}
 
 \item{data}{the data to use for the estimating function}
-
-\item{weights}{a scalar or vector of weight values}
 
 \item{numderiv_opts}{a list of arguments passed to \code{numDeriv::grad}}
 }
