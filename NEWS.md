@@ -1,6 +1,7 @@
 # geex 1.0.4
 
-* fixes issue when using `glm` objects and non-grouped data.
+* fixes issue when using `grab_psiFUN` for `glm` objects and non-grouped data.
+* removes option to use weights with `grab_psiFUN`, as it was not clear that was implemented correctly.
 
 # geex 1.0.3
 
