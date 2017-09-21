@@ -2,6 +2,7 @@ context("Test extraction model eefun utilies for glm objects")
 library(geepack, quietly = TRUE)
 library(sandwich, quietly = TRUE)
 data('ohio')
+ohio$row_num <- 1:nrow(ohio)
 
 test_binomial <- glm(resp ~ age, data = ohio,
                      weights = rep(2, nrow(ohio)),
@@ -39,4 +40,30 @@ test_that("estimate equations obtains correct values for parameters and standard
   Sig <- (bbread %*% mmeat %*% t(bbread))/n
 
   expect_equal(Sig, x@vcov, tolerance = 1e-5, check.attributes = FALSE)
+})
+
+test_that("estimate equations obtains correct values for parameters and standard errors under rowwise conditions", {
+  x <- m_estimate(glm_eefun,
+                  data = ohio,
+                  units = 'row_num',
+                  root_control  = new('root_control', .options = list(start = c(-1.7, -.11))),
+                  outer_args = list(model = test_binomial))
+  expect_equivalent(x@estimates, coef(test_binomial))
+
+  x2 <- m_estimate(glm_eefun,
+                  data = ohio,
+                  # units = 'row_num',
+                  root_control  = new('root_control', .options = list(start = c(-1.7, -.11))),
+                  outer_args = list(model = test_binomial))
+  expect_equivalent(x2@estimates, coef(test_binomial))
+
+  # Form sandwich estimator "by hand" with the help of sandwich
+  psi <- apply(estfun(test_binomial), 2, function(x) tapply(x, test_binomial$data[['row_num']], sum))
+  n <- length(unique(test_binomial$data[['row_num']]))
+  mmeat <- crossprod(as.matrix(psi))/n
+  bbread <- vcov(test_binomial) * n
+  Sig <- (bbread %*% mmeat %*% t(bbread))/n
+
+  expect_equal(Sig, x@vcov, tolerance = 1e-5, check.attributes = FALSE)
+  expect_equal(Sig, x2@vcov, tolerance = 1e-5, check.attributes = FALSE)
 })

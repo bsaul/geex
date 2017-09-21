@@ -1,3 +1,7 @@
+# geex 1.0.4
+
+* fixes issue when using `glm` objects and non-grouped data.
+
 # geex 1.0.3
 
 * adds basic examples for most functions, though to be sure, the vignettes provide more useful examples.
