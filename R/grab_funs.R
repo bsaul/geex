@@ -81,6 +81,13 @@ grab_design_matrix <- function(data, rhs_formula, ...){
 #'
 #' @param model a model object such as \code{lm}, \code{glm}, \code{merMod}
 #' @export
+#'
+#' @return A named list of character vectors that provides the fentire set of
+#' levels that each factor predictor in \code{model} will take on. This is
+#' hopefully identical to what the \code{xlev} argument to
+#' \code{link[stats]{model.frame}} desires. When \code{model} has no factors
+#' as predictors, then an empty list is returned.
+#'
 #' @examples
 #' \donotrun{
 #'   geex::grab_design_matrix(
