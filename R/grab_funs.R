@@ -58,7 +58,7 @@ grab_response_formula <- function(model){
 #'
 #' @param rhs_formula the right hand side of a model formula
 #' @param data the data from which to extract the matrix
-#' @param ... Can be used to pass \code{xlev} to \code{\link[stats]{mode}}
+#' @param ... Can be used to pass \code{xlev} to \code{\link[stats]{model.frame}}
 #' @export
 #' @examples
 #' # Create a "desigm" matrix for the first ten rows of iris data
@@ -89,7 +89,7 @@ grab_design_matrix <- function(data, rhs_formula, ...){
 #' as predictors, then an empty list is returned.
 #'
 #' @examples
-#' \donotrun{
+#' \dontrun{
 #'   geex::grab_design_matrix(
 #'     data = data,
 #'     rhs_formula = geex::grab_fixed_formula(model),
@@ -105,7 +105,7 @@ grab_design_matrix <- function(data, rhs_formula, ...){
 #------------------------------------------------------------------------------#
 grab_design_levels <- function(model){
 
-  full_model_frame <- model.frame(model)
+  full_model_frame <- stats::model.frame(model)
   data_classes <- attr(attr(full_model_frame, "terms"), "dataClasses")
   var_names <- names(data_classes)
 

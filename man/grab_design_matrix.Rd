@@ -11,7 +11,7 @@ grab_design_matrix(data, rhs_formula, ...)
 
 \item{rhs_formula}{the right hand side of a model formula}
 
-\item{...}{Can be used to pass \code{xlev} to \code{\link[stats]{mode}}}
+\item{...}{Can be used to pass \code{xlev} to \code{\link[stats]{model.frame}}}
 }
 \description{
 Grab a matrix of fixed effects from a model object
