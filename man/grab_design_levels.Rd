@@ -21,7 +21,7 @@ Useful when splitting data later, used with \code{\link{grab_design_matrix}}
 or especially when calling \code{\link{grab_psiFUN}} from within an eeFun.
 }
 \examples{
-\\donotrun{
+\dontrun{
   geex::grab_design_matrix(
     data = data,
     rhs_formula = geex::grab_fixed_formula(model),
