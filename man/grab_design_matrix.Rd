@@ -4,12 +4,14 @@
 \alias{grab_design_matrix}
 \title{Grab a matrix of fixed effects from a model object}
 \usage{
-grab_design_matrix(data, rhs_formula)
+grab_design_matrix(data, rhs_formula, ...)
 }
 \arguments{
 \item{data}{the data from which to extract the matrix}
 
 \item{rhs_formula}{the right hand side of a model formula}
+
+\item{...}{Can be used to pass \code{xlev} to \code{\link[stats]{model.frame}}}
 }
 \description{
 Grab a matrix of fixed effects from a model object
