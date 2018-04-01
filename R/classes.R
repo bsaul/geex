@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------#
-# define S4 Classes and methods used within geex #
+# define S4 Classes and methods used on these classes within geex #
 #------------------------------------------------------------------------------#
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
@@ -1007,3 +1007,38 @@ setMethod(
   function(object){
     return(object@basis@.GFUN)
   })
+
+#------------------------------------------------------------------------------#
+#' Extract the number observations
+#'
+#' @param object a \code{\linkS4class{geex}} object
+#' @export
+#' @examples
+#' \dontrun{
+#' library(geepack)
+#' data('ohio')
+#'
+#' glmfit  <- glm(resp ~ age, data = ohio,
+#'               family = binomial(link = "logit"))
+#' z  <- m_estimate(
+#'   estFUN = example_ee,
+#'   data = ohio,
+#'   compute_roots = FALSE,
+#'   units = 'id',
+#'   roots = coef(glmfit),
+#'   outer_args = list(model = glmfit))
+#'
+#' nobs(z)
+#' }
+#------------------------------------------------------------------------------#
+setMethod(
+  f         = "nobs",
+  signature = "geex",
+  function(object){
+    if(length(object@basis@.units) == 0){
+      nrow(object@basis@.data)
+    } else {
+      length(unique(object@basis@.data[[object@basis@.units]]))
+    }
+  }
+)
