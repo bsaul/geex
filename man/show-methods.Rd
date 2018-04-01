@@ -8,6 +8,8 @@
 \alias{show,m_estimation_basis,m_estimation_basis-method}
 \alias{show,geex-method}
 \alias{show,geex,geex-method}
+\alias{show,geex-summary-method}
+\alias{show,geex-summary,geex-summary-method}
 \title{Shows the sandwich_components S4 class}
 \usage{
 \S4method{show}{sandwich_components}(object)
@@ -15,6 +17,8 @@
 \S4method{show}{m_estimation_basis}(object)
 
 \S4method{show}{geex}(object)
+
+\S4method{show}{`geex-summary`}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{sandwich_components}},
@@ -26,4 +30,6 @@ Shows the sandwich_components S4 class
 Shows the m_estimation_basis
 
 Shows the geex object
+
+Shows the geex-summary object
 }

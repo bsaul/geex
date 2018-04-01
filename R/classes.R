@@ -849,6 +849,110 @@ setMethod(
     invisible(NULL)
   })
 
+
+#------------------------------------------------------------------------------#
+#' geex summary object
+#'
+#' @slot basis a \code{\linkS4class{m_estimation_basis}} object
+#' @slot corrections a \code{list} of correction performed on \code{sandwich_components}
+#' @slot estimates a \code{numeric} vector of parameter estimates
+#' @slot vcov the empirical sandwich variance \code{matrix}
+#' @export
+#------------------------------------------------------------------------------#
+
+setClass(
+  Class = "geex-summary",
+  slots = c(estFUN          = "function",
+            outer_args      = "list",
+            inner_args      = "list",
+            data            = "data.frame",
+            weights         = "numeric",
+            nobs            = "numeric",
+            units           = "character",
+            corrections     = "list",
+            estimates       = "numeric",
+            vcov            = "matrix"))
+
+#------------------------------------------------------------------------------#
+#' Object Summaries
+#'
+#' @param object a \code{\linkS4class{geex}} object
+#' @param keep_data keep the original data or not
+#' @param keep_args keep the \code{outer_args} and \code{inner_args} passed to \code{estFUN} or not
+#' @rdname summary-methods
+#' @export
+#' @examples
+#' \dontrun{
+#' library(geepack)
+#' data('ohio')
+#' glmfit  <- glm(resp ~ age, data = ohio,
+#'               family = binomial(link = "logit"))
+#' example_ee <- function(data, model){
+#'   f <- grab_psiFUN(model, data)
+#'   function(theta){
+#'     f(theta)
+#'   }
+#' }
+#' z  <- m_estimate(
+#' estFUN = example_ee,
+#' data = ohio,
+#' compute_roots = FALSE,
+#' units = 'id',
+#' roots = coef(glmfit),
+#' outer_args = list(model = glmfit))
+#'
+#' object.size(z)
+#' object.size(summary(z))
+#' object.size(summary(z, keep_data = FALSE))
+#' object.size(summary(z, keep_data = FALSE, keep_args = FALSE))
+#' }
+#------------------------------------------------------------------------------#
+
+setMethod(
+  f         = "summary",
+  signature = "geex",
+  function(object, keep_data = TRUE, keep_args = TRUE){
+    new("geex-summary",
+        estFUN      = object@basis@.estFUN,
+        outer_args  = if(keep_args) object@basis@.outer_args else list(),
+        inner_args  = if(keep_args) object@basis@.inner_args else list(),
+        data        = if(keep_data) object@basis@.data else data.frame(),
+        units       = object@basis@.units,
+        weights     = object@basis@.weights,
+        nobs        = nobs(object),
+        corrections = object@corrections,
+        estimates   = object@estimates,
+        vcov        = object@vcov)
+  }
+)
+
+#------------------------------------------------------------------------------#
+#' Shows the geex-summary object
+#'
+#' @rdname show-methods
+#' @aliases show,geex-summary,geex-summary-method
+#' @export
+#------------------------------------------------------------------------------#
+
+setMethod(
+  "show",
+  signature = "geex-summary",
+  definition = function(object) {
+    cat("M-estimation results based on the estimating function:\n", sep = "")
+    print(body(object@estFUN))
+    cat("\nEstimates:\n")
+    print(object@estimates)
+    cat("\nCovariance:\n")
+    print(object@vcov)
+    if(length(object@corrections) > 0){
+      cat("The results include", length(object@corrections),
+          "covariance corrections")
+    }
+
+    invisible(NULL)
+  })
+
+
 #------------------------------------------------------------------------------#
 #' Gets the variance-covariance matrix from a geex object
 #'
@@ -870,7 +974,6 @@ setMethod(
 #'  root_control = setup_root_control(start = c(1,1)))
 #'
 #' vcov(results)
-#------------------------------------------------------------------------------#
 
 setMethod(
   "vcov",
@@ -878,6 +981,19 @@ setMethod(
   definition = function(object) {
     object@vcov
   })
+
+#' @rdname vcov-methods
+#' @aliases vcov,geex-summary,geex-summary-method
+#' @export
+
+setMethod(
+  "vcov",
+  signature = "geex-summary",
+  definition = function(object) {
+    object@vcov
+  })
+
+#------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
 #' Gets the parameter estimates from a geex object
@@ -900,7 +1016,6 @@ setMethod(
 #'  root_control = setup_root_control(start = c(1,1)))
 #'
 #' coef(results)
-#------------------------------------------------------------------------------#
 
 setMethod(
   "coef",
@@ -908,6 +1023,18 @@ setMethod(
   definition = function(object) {
     object@estimates
   })
+
+#' @rdname coef-methods
+#' @export
+
+setMethod(
+  "coef",
+  signature = "geex-summary",
+  definition = function(object) {
+    object@estimates
+  })
+#------------------------------------------------------------------------------#
+
 
 #------------------------------------------------------------------------------#
 #' Gets the parameter estimates matrix from a geex object
@@ -941,6 +1068,16 @@ setGeneric("roots", function(object, ...) standardGeneric("roots"))
 setMethod(
   "roots",
   signature = "geex",
+  definition = function(object) {
+    object@estimates
+  })
+
+#' @rdname roots-methods
+#' @aliases roots,geex,geex-method
+
+setMethod(
+  "roots",
+  signature = "geex-summary",
   definition = function(object) {
     object@estimates
   })
@@ -988,6 +1125,20 @@ setMethod(
     }
   })
 
+#' @rdname get_corrections-methods
+#' @export
+
+setMethod(
+  "get_corrections",
+  signature = "geex-summary",
+  definition = function(object) {
+    if(length(object@corrections) == 0){
+      "No corrections were performed on this object"
+    } else {
+      object@corrections
+    }
+  })
+
 #' @rdname grab_psiFUN_list-methods
 #' @aliases grab_psiFUN_list,geex,geex-method
 
@@ -1012,6 +1163,8 @@ setMethod(
 #' Extract the number observations
 #'
 #' @param object a \code{\linkS4class{geex}} object
+#' @rdname nobs-methods
+#' @aliases nobs,geex,geex-method
 #' @export
 #' @examples
 #' \dontrun{
@@ -1030,7 +1183,7 @@ setMethod(
 #'
 #' nobs(z)
 #' }
-#------------------------------------------------------------------------------#
+
 setMethod(
   f         = "nobs",
   signature = "geex",
@@ -1042,3 +1195,18 @@ setMethod(
     }
   }
 )
+
+#' @rdname nobs-methods
+#' @aliases nobs,geex-summary,geex-summary-method
+#' @export
+
+setMethod(
+  f         = "nobs",
+  signature = "geex-summary",
+  function(object){
+    object@nobs
+  }
+)
+
+#------------------------------------------------------------------------------#
+
