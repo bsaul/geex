@@ -1210,3 +1210,33 @@ setMethod(
 
 #------------------------------------------------------------------------------#
 
+#------------------------------------------------------------------------------#
+#' Extract Model weights
+#'
+#' @param object a \code{\linkS4class{geex}} object
+#' @rdname weights-methods
+#' @aliases weights,geex,geex-method
+#' @export
+
+setMethod(
+  f         = "weights",
+  signature = "geex",
+  function(object){
+    object@basis@.weights
+  }
+)
+
+#' @rdname weights-methods
+#' @aliases weights,geex-summary,geex-summary-method
+#' @export
+
+setMethod(
+  f         = "weights",
+  signature = "geex-summary",
+  function(object){
+    object@weights
+  }
+)
+
+#------------------------------------------------------------------------------#
+
