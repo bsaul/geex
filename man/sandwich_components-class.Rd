@@ -17,5 +17,7 @@ sandwich_components S4 class
 \item{\code{.B}}{the "meat" matrix}
 
 \item{\code{.B_i}}{a list of "meat" matrices per unit}
+
+\item{\code{.ee_i}}{a list of observed estimating function values per unit}
 }}
 
