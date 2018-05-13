@@ -108,15 +108,17 @@ setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
 #' @slot .A_i a list of "bread" matrices per unit
 #' @slot .B the "meat" matrix
 #' @slot .B_i a list of "meat" matrices per unit
+#' @slot .ee_i a list of observed estimating function values per unit
 #'
 #' @export
 #------------------------------------------------------------------------------#
 setClass(
   Class = "sandwich_components",
-  slots = c(.A   = 'matrix',
-            .A_i = 'list',
-            .B   = 'matrix',
-            .B_i = 'list'),
+  slots = c(.A    = 'matrix',
+            .A_i  = 'list',
+            .B    = 'matrix',
+            .B_i  = 'list',
+            .ee_i = 'list'),
   validity = function(object){
     A_dims <- dim(object@.A)
     B_dims <- dim(object@.B)
@@ -291,6 +293,44 @@ setMethod(
   function(object){
     return(object@.B_i)
   })
+
+
+#------------------------------------------------------------------------------#
+#' Gets the .ee_i (observed estimating function) slot
+#'
+#' @param object a \code{\linkS4class{sandwich_components}} object
+#' @docType methods
+#' @rdname grab_ee-methods
+#' @export
+#' @examples
+#' myee <- function(data){
+#'  function(theta){
+#'    c(data$Y1 - theta[1],
+#'    (data$Y1 - theta[1])^2 - theta[2])
+#'   }
+#' }
+#'
+#' results <- m_estimate(
+#'    estFUN = myee,
+#'    data = geexex,
+#'    root_control = setup_root_control(start = c(1,1)))
+#'
+#' grab_ee_list(results@sandwich_components)
+#------------------------------------------------------------------------------#
+
+
+setGeneric("grab_ee_list",function(object){standardGeneric ("grab_ee_list")})
+
+#' @rdname grab_meat_list-methods
+#' @aliases grab_meat_list,sandwich_components,sandwich_components-method
+
+setMethod(
+  f = "grab_ee_list",
+  signature = "sandwich_components",
+  function(object){
+    return(object@.ee_i)
+  })
+
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 ## control classes ####
