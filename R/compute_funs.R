@@ -31,10 +31,11 @@ compute_sigma <- function(A, B){
 }
 
 #------------------------------------------------------------------------------#
-# Compute the sum of  a list of matrices to sum
-#
-# @param l a list of matrices
-# @param w a numeric vector of weights
+#' Compute the sum of  a list of matrices to sum
+#'
+#' @param l a list of matrices
+#' @param w a numeric vector of weights
+#' @export
 #------------------------------------------------------------------------------#
 
 compute_sum_of_list <- function(.l, .w = numeric(0)){
