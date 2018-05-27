@@ -7,9 +7,9 @@
 compute_sum_of_list(.l, .w = numeric(0))
 }
 \arguments{
-\item{l}{a list of matrices}
+\item{.l}{a list of matrices}
 
-\item{w}{a numeric vector of weights}
+\item{.w}{a numeric vector of weights}
 }
 \description{
 Compute the sum of  a list of matrices to sum
