@@ -90,7 +90,7 @@
     <p>Grab a matrix of fixed effects from a model object</p>
     
 
-    <pre class="usage"><span class='fu'>grab_design_matrix</span>(<span class='no'>data</span>, <span class='no'>rhs_formula</span>)</pre>
+    <pre class="usage"><span class='fu'>grab_design_matrix</span>(<span class='no'>data</span>, <span class='no'>rhs_formula</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -102,6 +102,10 @@
     <tr>
       <th>rhs_formula</th>
       <td><p>the right hand side of a model formula</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Can be used to pass <code>xlev</code> to <code><a href='http://www.rdocumentation.org/packages/stats/topics/model.frame'>model.frame</a></code></p></td>
     </tr>
     </table>
     

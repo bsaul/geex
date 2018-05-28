@@ -64,7 +64,7 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-09-04</h4>
+            <h4 class="date">2018-05-28</h4>
           </div>
 
     
@@ -76,10 +76,10 @@
 </h2>
 <p>By default, <code>geex</code> uses the <a href="https://cran.r-project.org/package=rootSolve"><code><a href="http://www.rdocumentation.org/packages/rootSolve/topics/multiroot">rootSolve::multiroot</a></code></a> function for finding roots of a set of estimating equations when <code>compute_roots = TRUE</code> in <code><a href="../reference/m_estimate.html">m_estimate()</a></code>. However, a user can choose a different root find find algorithm via the <code>root_control</code> argument.</p>
 <p>For example, consider the following <code>estFUN</code> which is Huber’s estimator for the center of symmetric distributions [<span class="citation">@stefanski2002</span>; example 6]. This example was chosen because it has a single root, so that the <code><a href="http://www.rdocumentation.org/packages/stats/topics/uniroot">stats::uniroot</a></code> function can be used to find the roots.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myefun &lt;-<span class="st"> </span>function(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
-  function(theta){
-    x &lt;-<span class="st"> </span>data$Y1 -<span class="st"> </span>theta[<span class="dv">1</span>]
-    if(<span class="kw">abs</span>(x) &lt;=<span class="st"> </span>k) x else <span class="kw">sign</span>(x) *<span class="st"> </span>k
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myefun &lt;-<span class="st"> </span><span class="cf">function</span>(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
+  <span class="cf">function</span>(theta){
+    x &lt;-<span class="st"> </span>data<span class="op">$</span>Y1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>]
+    <span class="cf">if</span>(<span class="kw">abs</span>(x) <span class="op">&lt;=</span><span class="st"> </span>k) x <span class="cf">else</span> <span class="kw">sign</span>(x) <span class="op">*</span><span class="st"> </span>k
   }
 }</code></pre></div>
 <p>Internally, <code>estFUN</code> is used to build <span class="math inline">\(G_m = \sum_{i = 1}^m \psi(O_i, \theta)\)</span> or in psuedo-code <code>f = sum(inner_estFUN(theta))</code>. <code>f</code> is passed to the root finding function along with options in the <code>root_control</code> arguments. For example, <code>multiroot</code> requires <code>f</code> and <code>start</code> (starting values for the algorithm:</p>
@@ -91,9 +91,9 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">uniroot_results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> myefun, 
   <span class="dt">data  =</span> geexex,
-  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(stats::uniroot, <span class="dt">interval =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">10</span>)))</code></pre></div>
+  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(stats<span class="op">::</span>uniroot, <span class="dt">interval =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">10</span>)))</code></pre></div>
 <p>Comparing results:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(multiroot_results) -<span class="st"> </span><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(uniroot_results)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(multiroot_results) <span class="op">-</span><span class="st"> </span><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(uniroot_results)</code></pre></div>
 <pre><code>## [1] 6.244845e-07</code></pre>
 <p>They are basically the same, but this may not be true depending <code>f</code> and the options given to the root finder.</p>
 </div>

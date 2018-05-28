@@ -64,53 +64,110 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-09-04</h4>
+            <h4 class="date">2018-05-28</h4>
           </div>
 
     
     
 <div class="contents">
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
+<span class="kw">library</span>(inferference)
+<span class="kw">library</span>(dplyr)</code></pre></div>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div id="estimating-a-propensity-score-vs-treating-propensity-as-known" class="section level2">
+<h2 class="hasAnchor">
+<a href="#estimating-a-propensity-score-vs-treating-propensity-as-known" class="anchor"></a>Estimating a propensity score vs. treating propensity as known</h2>
+<p>TODO: describe what’s going on here</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n &lt;-<span class="st"> </span><span class="dv">1000</span>
+x &lt;-<span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/reexports.html">data_frame</a></span>(
+  <span class="dt">A  =</span> <span class="kw">rbinom</span>(n, <span class="dv">1</span>, .<span class="dv">2</span>),
+  <span class="dt">Y0 =</span> <span class="kw">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">1</span>),
+  <span class="dt">Y1 =</span> <span class="kw">rnorm</span>(n, <span class="dv">2</span> <span class="op">*</span><span class="st"> </span>A, <span class="dv">1</span>),
+  <span class="dt">Y =</span> (A<span class="op">*</span>Y1) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>A)<span class="op">*</span>Y0)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ipw_estFUN &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  A &lt;-<span class="st"> </span>data<span class="op">$</span>A
+  Y &lt;-<span class="st"> </span>data<span class="op">$</span>Y
+  <span class="cf">function</span>(theta, phat){
+    ipw0 &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>theta[<span class="dv">1</span>]
+    ipw1 &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>theta[<span class="dv">2</span>]
+    
+    <span class="co"># Estimating functions #</span>
+    <span class="kw">c</span>( (<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>A) <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>],
+      A <span class="op">-</span><span class="st"> </span>theta[<span class="dv">2</span>],
+      
+      <span class="co"># Estimating IP weight</span>
+      Y<span class="op">*</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>A)<span class="op">*</span>ipw0 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">3</span>],
+      Y<span class="op">*</span>(A)<span class="op">*</span>ipw1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">4</span>],  
+      
+      <span class="co"># Treating IP weight as known</span>
+      Y<span class="op">*</span>A<span class="op">/</span>phat <span class="op">-</span><span class="st"> </span>theta[<span class="dv">5</span>]
+      )
+  }
+}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">phat &lt;-<span class="st"> </span><span class="kw">mean</span>(x<span class="op">$</span>A)
+out &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(ipw_estFUN,
+           <span class="dt">data =</span> x,
+           <span class="dt">inner_args =</span> <span class="kw">list</span>(<span class="dt">phat =</span> phat),
+           <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Comparing point estimates
+<span class="kw">all.equal</span>(<span class="kw">mean</span>(x<span class="op">$</span>Y <span class="op">*</span><span class="st"> </span>x<span class="op">$</span>A<span class="op">/</span>phat), <span class="kw">coef</span>(out)[<span class="dv">4</span>]) </code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(phat, <span class="kw">coef</span>(out)[<span class="dv">2</span>]) </code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Comparing variance estimates
+geex_vcov &lt;-<span class="st"> </span><span class="kw">diag</span>(<span class="kw">vcov</span>(out)) <span class="op">*</span><span class="st"> </span>n
+
+<span class="co"># estimates match treating propensity as known</span>
+<span class="kw">all.equal</span>(<span class="kw">var</span>(x<span class="op">$</span>Y <span class="op">*</span><span class="st"> </span>x<span class="op">$</span>A<span class="op">/</span>phat) <span class="op">*</span><span class="st"> </span>(n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)<span class="op">/</span>n, geex_vcov[<span class="dv">5</span>])</code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># estimates match using influence function approach</span>
+y &lt;-<span class="st"> </span>x<span class="op">$</span>Y <span class="op">*</span><span class="st"> </span>x<span class="op">$</span>A<span class="op">/</span>phat <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(x<span class="op">$</span>Y <span class="op">*</span><span class="st"> </span>x<span class="op">$</span>A<span class="op">/</span>phat)
+z &lt;-<span class="st"> </span>(x<span class="op">$</span>A <span class="op">-</span><span class="st"> </span>phat) <span class="op">/</span><span class="st"> </span>(phat<span class="op">*</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>phat))
+<span class="kw">var</span>(y <span class="op">-</span><span class="st"> </span><span class="kw">predict</span>(<span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span>z))) <span class="op">-</span><span class="st"> </span>geex_vcov[<span class="dv">4</span>] <span class="co"># close</span></code></pre></div>
+<pre><code>## [1] 0.004617038</code></pre>
+</div>
 <div id="ipw-estimator-of-counterfactual-mean" class="section level2">
 <h2 class="hasAnchor">
 <a href="#ipw-estimator-of-counterfactual-mean" class="anchor"></a>IPW estimator of counterfactual mean</h2>
 <p>An example <span class="math inline">\(\psi\)</span> function written in <code>R</code>. This function computes the score functions for a GLM, plus two counterfactual means estimated by inverse probability weighting.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eefun &lt;-<span class="st"> </span>function(data, model, alpha){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eefun &lt;-<span class="st"> </span><span class="cf">function</span>(data, model, alpha){
   X &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(model, <span class="dt">data =</span> data)
   A &lt;-<span class="st"> </span><span class="kw">model.response</span>(<span class="kw">model.frame</span>(model, <span class="dt">data =</span> data))
-  Y &lt;-<span class="st"> </span>data$Y
+  Y &lt;-<span class="st"> </span>data<span class="op">$</span>Y
   
-  function(theta){
+  <span class="cf">function</span>(theta){
     p  &lt;-<span class="st"> </span><span class="kw">length</span>(theta)
     p1 &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">coef</span>(model))
-    lp  &lt;-<span class="st"> </span>X %*%<span class="st"> </span>theta[<span class="dv">1</span>:p1]
+    lp  &lt;-<span class="st"> </span>X <span class="op">%*%</span><span class="st"> </span>theta[<span class="dv">1</span><span class="op">:</span>p1]
     rho &lt;-<span class="st"> </span><span class="kw">plogis</span>(lp)
 
-    hh  &lt;-<span class="st"> </span>((rho/alpha)^A *<span class="st"> </span>((<span class="dv">1</span>-rho)/(<span class="dv">1</span>-alpha))^(<span class="dv">1</span> -<span class="st"> </span>A)) 
-    IPW &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="kw">exp</span>(<span class="kw">sum</span>(<span class="kw">log</span>(hh))))
+    hh  &lt;-<span class="st"> </span>((rho<span class="op">/</span>alpha)<span class="op">^</span>A <span class="op">*</span><span class="st"> </span>((<span class="dv">1</span><span class="op">-</span>rho)<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>alpha))<span class="op">^</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>A)) 
+    IPW &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>(<span class="kw">exp</span>(<span class="kw">sum</span>(<span class="kw">log</span>(hh))))
 
-    score_eqns &lt;-<span class="st"> </span><span class="kw">apply</span>(X, <span class="dv">2</span>, function(x) <span class="kw">sum</span>((A -<span class="st"> </span>rho) *<span class="st"> </span>x))
-    ce0 &lt;-<span class="st"> </span><span class="kw">mean</span>(Y *<span class="st"> </span>(A ==<span class="st"> </span><span class="dv">0</span>)) *<span class="st"> </span>IPW /<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span>alpha)
-    ce1 &lt;-<span class="st"> </span><span class="kw">mean</span>(Y *<span class="st"> </span>(A ==<span class="st"> </span><span class="dv">1</span>)) *<span class="st"> </span>IPW /<span class="st"> </span>(alpha)
+    score_eqns &lt;-<span class="st"> </span><span class="kw">apply</span>(X, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="kw">sum</span>((A <span class="op">-</span><span class="st"> </span>rho) <span class="op">*</span><span class="st"> </span>x))
+    ce0 &lt;-<span class="st"> </span><span class="kw">mean</span>(Y <span class="op">*</span><span class="st"> </span>(A <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)) <span class="op">*</span><span class="st"> </span>IPW <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>alpha)
+    ce1 &lt;-<span class="st"> </span><span class="kw">mean</span>(Y <span class="op">*</span><span class="st"> </span>(A <span class="op">==</span><span class="st"> </span><span class="dv">1</span>)) <span class="op">*</span><span class="st"> </span>IPW <span class="op">/</span><span class="st"> </span>(alpha)
     
     <span class="kw">c</span>(score_eqns,
-      ce0 -<span class="st"> </span>theta[p -<span class="st"> </span><span class="dv">1</span>],
-      ce1 -<span class="st"> </span>theta[p])
+      ce0 <span class="op">-</span><span class="st"> </span>theta[p <span class="op">-</span><span class="st"> </span><span class="dv">1</span>],
+      ce1 <span class="op">-</span><span class="st"> </span>theta[p])
   }
 }</code></pre></div>
 <p>Compare to what <code>inferference</code> gets.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
-<span class="kw">library</span>(inferference)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/inferference/topics/interference">interference</a></span>(
-  <span class="dt">formula =</span> Y |<span class="st"> </span>A ~<span class="st"> </span>X1 |<span class="st"> </span>group, 
+  <span class="dt">formula =</span> Y <span class="op">|</span><span class="st"> </span>A <span class="op">~</span><span class="st"> </span>X1 <span class="op">|</span><span class="st"> </span>group, 
   <span class="dt">data   =</span> vaccinesim,
   <span class="dt">model_method =</span> <span class="st">'glm'</span>,
-  <span class="dt">allocations =</span> <span class="kw">c</span>(.<span class="dv">35</span>, .<span class="dv">4</span>))</code></pre></div>
-<pre><code>## [1] "Calculating matrix of IP weights..."
-## [1] "Calculating array of IP weight derivatives..."
-## [1] "Calculating matrix of scores..."
-## [1] "Computing effect estimates..."
-## [1] "Interference complete"</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mglm &lt;-<span class="st"> </span><span class="kw">glm</span>(A ~<span class="st"> </span>X1, <span class="dt">data =</span> vaccinesim, <span class="dt">family =</span> binomial)
+  <span class="dt">allocations =</span> <span class="kw">c</span>(.<span class="dv">35</span>, .<span class="dv">4</span>))
+
+mglm &lt;-<span class="st"> </span><span class="kw">glm</span>(A <span class="op">~</span><span class="st"> </span>X1, <span class="dt">data =</span> vaccinesim, <span class="dt">family =</span> binomial)
 
 ce_estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> eefun,
@@ -124,20 +181,126 @@ ce_estimates &lt;-<span class="st"> </span><span class="kw"><a href="../referenc
 <pre><code>## (Intercept)          X1                         
 ## -0.36869683 -0.02037916  0.42186669  0.15507946</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Compare parameter estimates</span>
-<span class="kw"><a href="http://www.rdocumentation.org/packages/inferference/topics/direct_effect">direct_effect</a></span>(test, <span class="dt">allocation =</span> .<span class="dv">35</span>)$estimate</code></pre></div>
-<pre><code>## [1] 0.2667871</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(ce_estimates)[<span class="dv">3</span>] -<span class="st"> </span><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(ce_estimates)[<span class="dv">4</span>]</code></pre></div>
+<span class="kw"><a href="http://www.rdocumentation.org/packages/inferference/topics/direct_effect">direct_effect</a></span>(test, <span class="dt">allocation =</span> .<span class="dv">35</span>)<span class="op">$</span>estimate</code></pre></div>
+<pre><code>## [1] 0.2667872</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(ce_estimates)[<span class="dv">3</span>] <span class="op">-</span><span class="st"> </span><span class="kw"><a href="../reference/roots-methods.html">roots</a></span>(ce_estimates)[<span class="dv">4</span>]</code></pre></div>
 <pre><code>##           
 ## 0.2667872</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># conpare SE estimates</span>
-L &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, -<span class="dv">1</span>)
+L &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>)
 Sigma &lt;-<span class="st"> </span><span class="kw">vcov</span>(ce_estimates)
-<span class="kw">sqrt</span>(<span class="kw">t</span>(L) %*%<span class="st"> </span>Sigma %*%<span class="st"> </span>L)  <span class="co"># from GEEX</span></code></pre></div>
+<span class="kw">sqrt</span>(<span class="kw">t</span>(L) <span class="op">%*%</span><span class="st"> </span>Sigma <span class="op">%*%</span><span class="st"> </span>L)  <span class="co"># from GEEX</span></code></pre></div>
 <pre><code>##            [,1]
 ## [1,] 0.03716025</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="http://www.rdocumentation.org/packages/inferference/topics/direct_effect">direct_effect</a></span>(test, <span class="dt">allocation =</span> .<span class="dv">35</span>)$std.error <span class="co"># from inferference</span></code></pre></div>
-<pre><code>## [1] 0.02602315</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="http://www.rdocumentation.org/packages/inferference/topics/direct_effect">direct_effect</a></span>(test, <span class="dt">allocation =</span> .<span class="dv">35</span>)<span class="op">$</span>std.error <span class="co"># from inferference</span></code></pre></div>
+<pre><code>## [1] 0.02602316</code></pre>
 <p>I would expect them to be somewhat different, since <code>inferference</code> uses a slightly different variance estimator defined in the <a href="http://onlinelibrary.wiley.com/store/10.1111/biom.12184/asset/supinfo/biom12184-sm-0001-SuppData.pdf?v=1&amp;s=f54ecbc59e7600cd32e8f5c110d395f0a34b3fb8">web appendix of Perez-Heydrich et al (2014)</a>.</p>
+</div>
+<div id="doubly-robust-estimator" class="section level2">
+<h2 class="hasAnchor">
+<a href="#doubly-robust-estimator" class="anchor"></a>Doubly-Robust Estimator</h2>
+<p>Estimators of causal effects often have the form:</p>
+<span class="math display">\[\begin{equation}
+\label{eq:causal}
+\sum_{i = 1}^m \psi(O_i, \theta) = \sum_{i = 1}^m \begin{pmatrix} \psi(O_i, \nu) \\ \psi(O_i, \beta) \end{pmatrix} = 0,
+\end{equation}\]</span>
+<p>where <span class="math inline">\(\nu\)</span> are parameters in nuisance model(s), such as a propensity score model, and <span class="math inline">\(\beta\)</span> are the target causal parameters. Even when <span class="math inline">\(\nu\)</span> represent parameters in common statistical models, deriving a closed form for a sandwich variance estimator for <span class="math inline">\(\beta\)</span> based on Equation~ may involve tedious and error-prone derivative and matrix calculations <span class="citation">(e.g.; see the appendices of Lunceford and Davidian 2004, and @perez–heydrich2014assessing)</span>. In this example, we show how an analyst can avoid these calculations and compute the empirical sandwich variance estimator using <code>geex</code>.</p>
+<p><span class="citation">Lunceford and Davidian (2004)</span> review several estimators of causal effects from observational data. To demonstrate a more complicated estimator involving multiple nuisance models, we implement the doubly robust estimator:</p>
+<span class="math display">\[\begin{equation}
+\label{eq:dbr}
+\hat{\Delta}_{DR} = \sum_{i = 1}^m \frac{Z_iY_i - (Z_i - \hat{e}_i) m_1(X_i, \hat{\alpha}_1)}{\hat{e}_i} - \frac{(1 - Z_i)Y_i - (Z_i - \hat{e}_i) m_0(X_i, \hat{\alpha}_0)}{1 - \hat{e}_i}.
+\end{equation}\]</span>
+<p>This estimator targets the average causal effect, <span class="math inline">\(\Delta = \E[Y(1) - Y(0)]\)</span>, where <span class="math inline">\(Y(z)\)</span> is the potential outcome for an experimental unit had it been exposed to the level <span class="math inline">\(z\)</span> of the binary exposure variable <span class="math inline">\(Z\)</span>. The estimated propsensity score, <span class="math inline">\(\hat{e}_i\)</span>, is the estimated probability that unit <span class="math inline">\(i\)</span> received <span class="math inline">\(z = 1\)</span> and <span class="math inline">\(m_z(X_i, \hat{\alpha}_z)\)</span> are regression models for the outcome with baseline covariates <span class="math inline">\(X_i\)</span> and estimated paramaters <span class="math inline">\(\hat{\alpha}_z\)</span>. This estimator has the property that if either the propensity score models or the outcome models are correctly specified, then the solution to Equation~ will be a consistent and asymptotically Normal estimator of <span class="math inline">\(\Delta\)</span>.</p>
+<p>This estimator and its estimating equations can be translated into an <code>estFUN</code> as:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dr_estFUN &lt;-<span class="st"> </span><span class="cf">function</span>(data, models){
+  
+  Z &lt;-<span class="st"> </span>data<span class="op">$</span>Z
+  Y &lt;-<span class="st"> </span>data<span class="op">$</span>Y
+  
+  Xe &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_design_matrix.html">grab_design_matrix</a></span>(
+    data, <span class="dt">rhs_formula =</span> <span class="kw"><a href="../reference/grab_fixed_formula.html">grab_fixed_formula</a></span>(models<span class="op">$</span>e))
+  Xm0 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_design_matrix.html">grab_design_matrix</a></span>(
+    data, <span class="dt">rhs_formula =</span> <span class="kw"><a href="../reference/grab_fixed_formula.html">grab_fixed_formula</a></span>(models<span class="op">$</span>m0))
+  Xm1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_design_matrix.html">grab_design_matrix</a></span>(
+    data, <span class="dt">rhs_formula =</span> <span class="kw"><a href="../reference/grab_fixed_formula.html">grab_fixed_formula</a></span>(models<span class="op">$</span>m1))
+  
+  e_pos  &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="kw">ncol</span>(Xe)
+  m0_pos &lt;-<span class="st"> </span>(<span class="kw">max</span>(e_pos) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)<span class="op">:</span>(<span class="kw">max</span>(e_pos) <span class="op">+</span><span class="st"> </span><span class="kw">ncol</span>(Xm0))
+  m1_pos &lt;-<span class="st"> </span>(<span class="kw">max</span>(m0_pos) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)<span class="op">:</span>(<span class="kw">max</span>(m0_pos) <span class="op">+</span><span class="st"> </span><span class="kw">ncol</span>(Xm1))
+  
+  e_scores  &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_psiFUN.html">grab_psiFUN</a></span>(models<span class="op">$</span>e, data)
+  m0_scores &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_psiFUN.html">grab_psiFUN</a></span>(models<span class="op">$</span>m0, data)
+  m1_scores &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_psiFUN.html">grab_psiFUN</a></span>(models<span class="op">$</span>m1, data)
+  
+  <span class="cf">function</span>(theta){
+    e  &lt;-<span class="st"> </span><span class="kw">plogis</span>(Xe <span class="op">%*%</span><span class="st"> </span>theta[e_pos]) 
+    m0 &lt;-<span class="st"> </span>Xm0 <span class="op">%*%</span><span class="st"> </span>theta[m0_pos] 
+    m1 &lt;-<span class="st"> </span>Xm1 <span class="op">%*%</span><span class="st"> </span>theta[m1_pos] 
+    rd_hat &lt;-<span class="st"> </span>(Z<span class="op">*</span>Y <span class="op">-</span><span class="st"> </span>(Z <span class="op">-</span><span class="st"> </span>e) <span class="op">*</span><span class="st"> </span>m1)<span class="op">/</span>e <span class="op">-</span><span class="st"> </span>((<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>Z) <span class="op">*</span><span class="st"> </span>Y <span class="op">-</span><span class="st"> </span>(Z <span class="op">-</span><span class="st"> </span>e) <span class="op">*</span><span class="st"> </span>m0)<span class="op">/</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>e)
+    <span class="kw">c</span>(<span class="kw">e_scores</span>(theta[e_pos]),
+      <span class="kw">m0_scores</span>(theta[m0_pos]) <span class="op">*</span><span class="st"> </span>(Z <span class="op">==</span><span class="st"> </span><span class="dv">0</span>),
+      <span class="kw">m1_scores</span>(theta[m1_pos]) <span class="op">*</span><span class="st"> </span>(Z <span class="op">==</span><span class="st"> </span><span class="dv">1</span>),
+      rd_hat <span class="op">-</span><span class="st"> </span>theta[<span class="kw">length</span>(theta)])  
+  }
+}</code></pre></div>
+<p>This <code>estFUN</code> presumes that the user will pass a list containing fitted model objects for the three nuisance models: the propensity score model and one regression model for each treatment group. The functions <code>grab_design_matrix</code> and <code>grab_fixed_formula</code> are <code>geex</code> utilities for extracting relevant pieces of a model object. The function <code>grab_psiFUN</code> converts a fitted model object to an estimating function; for example, for a <code>glm</code> object, <code>grab_psiFUN</code> uses the  to create a <code>function</code> of <code>theta</code> corresponding to the generalized linear model score function. The <code>m_estimate</code> function can be wrapped in another function, wherein nuisance models are fit and passed to <code>m_estimate</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimate_dr &lt;-<span class="st"> </span><span class="cf">function</span>(data, propensity_formula, outcome_formula){
+  e_model  &lt;-<span class="st"> </span><span class="kw">glm</span>(propensity_formula, <span class="dt">data =</span> data, <span class="dt">family =</span> binomial)
+  m0_model &lt;-<span class="st"> </span><span class="kw">glm</span>(outcome_formula, <span class="dt">subset =</span> (Z <span class="op">==</span><span class="st"> </span><span class="dv">0</span>), <span class="dt">data =</span> data)
+  m1_model &lt;-<span class="st"> </span><span class="kw">glm</span>(outcome_formula, <span class="dt">subset =</span> (Z <span class="op">==</span><span class="st"> </span><span class="dv">1</span>), <span class="dt">data =</span> data)
+  models &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">e =</span> e_model, <span class="dt">m0 =</span> m0_model, <span class="dt">m1 =</span> m1_model)
+  nparms &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(models, <span class="cf">function</span>(x) <span class="kw">length</span>(<span class="kw">coef</span>(x))))) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>
+  
+  <span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
+    <span class="dt">estFUN =</span> dr_estFUN,
+    <span class="dt">data   =</span> data,
+    <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">rep</span>(<span class="dv">0</span>, nparms)),
+    <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">models =</span> models))
+}</code></pre></div>
+<p>The following code provides a function to replicate the simulation settings of <span class="citation">Lunceford and Davidian (2004)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(mvtnorm)
+tau_<span class="dv">0</span> &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)
+tau_<span class="dv">1</span> &lt;-<span class="st"> </span>tau_<span class="dv">0</span> <span class="op">*</span><span class="st"> </span><span class="op">-</span><span class="dv">1</span>
+Sigma_X3 &lt;-<span class="st"> </span><span class="kw">matrix</span>(
+   <span class="kw">c</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>,
+     <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>,
+     <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="dv">1</span>, <span class="fl">0.5</span>,
+     <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="dv">1</span>), <span class="dt">ncol =</span> <span class="dv">4</span>, <span class="dt">byrow =</span> <span class="ot">TRUE</span>)
+
+gen_data &lt;-<span class="st"> </span><span class="cf">function</span>(n, beta, nu, xi){
+  X3 &lt;-<span class="st"> </span><span class="kw">rbinom</span>(n, <span class="dv">1</span>, <span class="dt">prob =</span> <span class="fl">0.2</span>)
+  V3 &lt;-<span class="st"> </span><span class="kw">rbinom</span>(n, <span class="dv">1</span>, <span class="dt">prob =</span> (<span class="fl">0.75</span> <span class="op">*</span><span class="st"> </span>X3 <span class="op">+</span><span class="st"> </span>(<span class="fl">0.25</span> <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>X3))))
+  hold &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/mvtnorm/topics/Mvnorm">rmvnorm</a></span>(n,  <span class="dt">mean =</span> <span class="kw">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>), Sigma_X3)
+  <span class="kw">colnames</span>(hold) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">"X1"</span>, <span class="st">"V1"</span>, <span class="st">"X2"</span>, <span class="st">"V2"</span>)
+  hold &lt;-<span class="st"> </span><span class="kw">cbind</span>(hold, X3, V3)
+  hold &lt;-<span class="st"> </span><span class="kw">apply</span>(hold, <span class="dv">1</span>, <span class="cf">function</span>(x){
+    x[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>] &lt;-<span class="st"> </span>x[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>] <span class="op">+</span><span class="st"> </span>tau_<span class="dv">1</span><span class="op">^</span>(x[<span class="dv">5</span>])<span class="op">*</span>tau_<span class="dv">0</span><span class="op">^</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>x[<span class="dv">5</span>])
+    x})
+  hold &lt;-<span class="st"> </span><span class="kw">t</span>(hold)[, <span class="kw">c</span>(<span class="st">"X1"</span>, <span class="st">"X2"</span>, <span class="st">"X3"</span>, <span class="st">"V1"</span>, <span class="st">"V2"</span>, <span class="st">"V3"</span>)]
+  X &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="dt">Int =</span> <span class="dv">1</span>, hold)
+  Z &lt;-<span class="st"> </span><span class="kw">rbinom</span>(n, <span class="dv">1</span>, <span class="dt">prob =</span> <span class="kw">plogis</span>(X[, <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>] <span class="op">%*%</span><span class="st"> </span>beta))
+  X &lt;-<span class="st"> </span><span class="kw">cbind</span>(X[, <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>], Z, X[, <span class="dv">5</span><span class="op">:</span><span class="dv">7</span>])
+  <span class="kw">data.frame</span>(
+    <span class="dt">Y =</span> X <span class="op">%*%</span><span class="st"> </span><span class="kw">c</span>(nu, xi) <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(n), 
+    X[ , <span class="op">-</span><span class="dv">1</span>])
+}</code></pre></div>
+<p>To show that <code>estimate_dr</code> correctly computes <span class="math inline">\(\hat{\Delta}_{DR}\)</span>, the results from <code>geex</code> can be compared to computing <span class="math inline">\(\hat{\Delta}_{DR}\)</span> “by hand” for a simulated dataset.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt &lt;-<span class="st"> </span><span class="kw">gen_data</span>(<span class="dv">1000</span>, <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.6</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.6</span>), <span class="kw">c</span>(<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>), <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))
+geex_results &lt;-<span class="st"> </span><span class="kw">estimate_dr</span>(dt, Z <span class="op">~</span><span class="st"> </span>X1 <span class="op">+</span><span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span>X3, Y <span class="op">~</span><span class="st"> </span>X1 <span class="op">+</span><span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span>X3)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">e  &lt;-<span class="st"> </span><span class="kw">predict</span>(<span class="kw">glm</span>(Z <span class="op">~</span><span class="st"> </span>X1 <span class="op">+</span><span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span>X3, <span class="dt">data =</span> dt, <span class="dt">family =</span> <span class="st">"binomial"</span>),
+              <span class="dt">type =</span> <span class="st">"response"</span>)
+m0 &lt;-<span class="st"> </span><span class="kw">predict</span>(<span class="kw">glm</span>(Y <span class="op">~</span><span class="st"> </span>X1 <span class="op">+</span><span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span>X3, <span class="dt">data =</span> dt, <span class="dt">subset =</span> Z<span class="op">==</span><span class="dv">0</span>), <span class="dt">newdata =</span> dt)
+m1 &lt;-<span class="st"> </span><span class="kw">predict</span>(<span class="kw">glm</span>(Y <span class="op">~</span><span class="st"> </span>X1 <span class="op">+</span><span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span>X3, <span class="dt">data =</span> dt, <span class="dt">subset =</span> Z<span class="op">==</span><span class="dv">1</span>), <span class="dt">newdata =</span> dt)
+del_hat &lt;-<span class="st"> </span><span class="kw">with</span>(dt, <span class="kw">mean</span>( (Z <span class="op">*</span><span class="st"> </span>Y <span class="op">-</span><span class="st"> </span>(Z <span class="op">-</span><span class="st"> </span>e) <span class="op">*</span><span class="st"> </span>m1)<span class="op">/</span>e)) <span class="op">-</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">with</span>(dt, <span class="kw">mean</span>(((<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>Z) <span class="op">*</span><span class="st"> </span>Y <span class="op">-</span><span class="st"> </span>(Z <span class="op">-</span><span class="st"> </span>e) <span class="op">*</span><span class="st"> </span>m0)<span class="op">/</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>e)))</code></pre></div>
+<div id="refs" class="references">
+<div id="ref-lunceford2004stratification">
+<p>Lunceford, Jared K., and Marie Davidian. 2004. <em>Stratification and Weighting via the Propensity Score in Estimation of Causal Treatment Effects: A Comparative Study</em> 23.</p>
+</div>
+<div id="ref-perez-heydrich2014assessing">
+<p>Perez-Heydrich, Carolina, Michael G. Hudgens, M. Elizabeth Halloran, John D. Clemens, Mohammad Ali, and Michael E. Emch. 2014. <em>Assessing Effects of Cholera Vaccination in the Presence of Interference</em> 70.</p>
+</div>
+</div>
 </div>
 </div>
   </div>
@@ -147,7 +310,9 @@ Sigma &lt;-<span class="st"> </span><span class="kw">vcov</span>(ce_estimates)
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#ipw-estimator-of-counterfactual-mean">IPW estimator of counterfactual mean</a></li>
+<li><a href="#estimating-a-propensity-score-vs-treating-propensity-as-known">Estimating a propensity score vs. treating propensity as known</a></li>
+      <li><a href="#ipw-estimator-of-counterfactual-mean">IPW estimator of counterfactual mean</a></li>
+      <li><a href="#doubly-robust-estimator">Doubly-Robust Estimator</a></li>
       </ul>
 </div>
       </div>

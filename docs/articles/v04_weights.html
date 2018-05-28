@@ -64,7 +64,7 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-09-04</h4>
+            <h4 class="date">2018-05-28</h4>
           </div>
 
     
@@ -93,24 +93,24 @@
 n &lt;-<span class="st"> </span><span class="dv">1000</span>
 
 data1 &lt;-<span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/reexports.html">data_frame</a></span>(
-  <span class="dt">ID =</span> <span class="dv">1</span>:n,
+  <span class="dt">ID =</span> <span class="dv">1</span><span class="op">:</span>n,
   <span class="dt">Y_tau =</span> <span class="kw">rbinom</span>(n,<span class="dv">1</span>,<span class="fl">0.2</span>),
   <span class="dt">S_star =</span> <span class="kw">rbinom</span>(n,<span class="dv">1</span>,<span class="fl">0.6</span>),
   <span class="dt">Y =</span> <span class="kw">rbinom</span>(n,<span class="dv">1</span>,<span class="fl">0.4</span>),
   <span class="dt">Z =</span> <span class="kw">rbinom</span>(n,<span class="dv">1</span>,<span class="fl">0.5</span>))
 
-data2 &lt;-<span class="st"> </span>data1 %&gt;%<span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(Y_tau, S_star, Y, Z) %&gt;%<span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/tally.html">count</a></span>()</code></pre></div>
+data2 &lt;-<span class="st"> </span>data1 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span>(Y_tau, S_star, Y, Z) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/tally.html">count</a></span>()</code></pre></div>
 </div>
 <div id="estimating-equations" class="section level2">
 <h2 class="hasAnchor">
 <a href="#estimating-equations" class="anchor"></a>Estimating equations</h2>
 <p>This is the estimating equation that the user provided as an example. I have no idea what the target parameters represent, but it nicely illustrates the point.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">example &lt;-<span class="st"> </span>function(data) {
-  function(theta) {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">example &lt;-<span class="st"> </span><span class="cf">function</span>(data) {
+  <span class="cf">function</span>(theta) {
     <span class="kw">with</span>(data, 
-         <span class="kw">c</span>( (<span class="dv">1</span> -<span class="st"> </span>Y_tau)*(<span class="dv">1</span> -Z )*(Y -<span class="st"> </span>theta[<span class="dv">1</span>]),
-            (<span class="dv">1</span>-Y_tau)*Z*(Y-theta[<span class="dv">2</span>]),
-             theta[<span class="dv">3</span>] -<span class="st"> </span>theta[<span class="dv">2</span>]*theta[<span class="dv">1</span>]))
+         <span class="kw">c</span>( (<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>Y_tau)<span class="op">*</span>(<span class="dv">1</span> <span class="op">-</span>Z )<span class="op">*</span>(Y <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>]),
+            (<span class="dv">1</span><span class="op">-</span>Y_tau)<span class="op">*</span>Z<span class="op">*</span>(Y<span class="op">-</span>theta[<span class="dv">2</span>]),
+             theta[<span class="dv">3</span>] <span class="op">-</span><span class="st"> </span>theta[<span class="dv">2</span>]<span class="op">*</span>theta[<span class="dv">1</span>]))
   }
 }</code></pre></div>
 </div>
@@ -125,16 +125,16 @@ results1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>, .<span class="dv">5</span>))
 )})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.992   0.015   1.007</code></pre>
+##   1.097   0.012   1.111</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>({
   results2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> example,
   <span class="dt">data  =</span> data2,
-  <span class="dt">weights =</span> data2$n,
+  <span class="dt">weights =</span> data2<span class="op">$</span>n,
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>, .<span class="dv">5</span>))
 )})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.196   0.002   0.199</code></pre>
+##   0.208   0.006   0.214</code></pre>
 <p>The latter option is clearly preferred.</p>
 </div>
 <div id="results-comparison" class="section level2">

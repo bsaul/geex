@@ -64,7 +64,7 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-09-04</h4>
+            <h4 class="date">2018-05-28</h4>
           </div>
 
     
@@ -103,13 +103,13 @@ Z_{1i} = \gamma + \delta X_{1i} + \sigma_{\tau}\epsilon_{3, i}.
 (Y_{3i} - \theta_4 W_{1i})(\theta_1 - Z_{1i}) \\
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB4_estFUN &lt;-<span class="st"> </span>function(data){
-  Z1 &lt;-<span class="st"> </span>data$Z1; W1 &lt;-<span class="st"> </span>data$W1; Y3 &lt;-<span class="st"> </span>data$Y3
-  function(theta){
-      <span class="kw">c</span>(theta[<span class="dv">1</span>] -<span class="st"> </span>Z1,
-        theta[<span class="dv">2</span>] -<span class="st"> </span>W1,
-        (Y3 -<span class="st"> </span>(theta[<span class="dv">3</span>] *<span class="st"> </span>W1)) *<span class="st"> </span>(theta[<span class="dv">2</span>] -<span class="st"> </span>W1),
-        (Y3 -<span class="st"> </span>(theta[<span class="dv">4</span>] *<span class="st"> </span>W1)) *<span class="st"> </span>(theta[<span class="dv">1</span>] -<span class="st"> </span>Z1)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB4_estFUN &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  Z1 &lt;-<span class="st"> </span>data<span class="op">$</span>Z1; W1 &lt;-<span class="st"> </span>data<span class="op">$</span>W1; Y3 &lt;-<span class="st"> </span>data<span class="op">$</span>Y3
+  <span class="cf">function</span>(theta){
+      <span class="kw">c</span>(theta[<span class="dv">1</span>] <span class="op">-</span><span class="st"> </span>Z1,
+        theta[<span class="dv">2</span>] <span class="op">-</span><span class="st"> </span>W1,
+        (Y3 <span class="op">-</span><span class="st"> </span>(theta[<span class="dv">3</span>] <span class="op">*</span><span class="st"> </span>W1)) <span class="op">*</span><span class="st"> </span>(theta[<span class="dv">2</span>] <span class="op">-</span><span class="st"> </span>W1),
+        (Y3 <span class="op">-</span><span class="st"> </span>(theta[<span class="dv">4</span>] <span class="op">*</span><span class="st"> </span>W1)) <span class="op">*</span><span class="st"> </span>(theta[<span class="dv">1</span>] <span class="op">-</span><span class="st"> </span>Z1)
     )
   }
 }</code></pre></div>
@@ -118,8 +118,8 @@ Z_{1i} = \gamma + \delta X_{1i} + \sigma_{\tau}\epsilon_{3, i}.
   <span class="dt">data  =</span> geexex, 
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</code></pre></div>
 <p>The R packages <a href="https://cran.r-project.org/package=AER"><code>AER</code></a> and <a href="https://cran.r-project.org/package=ivpack"><code>ivpack</code></a> can compute the IV estimator and sandwich variance estimators respectively, which is done below for comparison.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ivfit &lt;-<span class="st"> </span>AER::<span class="kw">ivreg</span>(Y3 ~<span class="st"> </span>W1 |<span class="st"> </span>Z1, <span class="dt">data =</span> geexex)
-iv_se &lt;-<span class="st"> </span>ivpack::<span class="kw">cluster.robust.se</span>(ivfit, <span class="dt">clusterid =</span> <span class="dv">1</span>:<span class="kw">nrow</span>(geexex))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ivfit &lt;-<span class="st"> </span>AER<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/AER/topics/ivreg">ivreg</a></span>(Y3 <span class="op">~</span><span class="st"> </span>W1 <span class="op">|</span><span class="st"> </span>Z1, <span class="dt">data =</span> geexex)
+iv_se &lt;-<span class="st"> </span>ivpack<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/ivpack/topics/cluster.robust.se">cluster.robust.se</a></span>(ivfit, <span class="dt">clusterid =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(geexex))</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">coef</span>(ivfit)[<span class="dv">2</span>] </code></pre></div>
 <pre><code>##       W1 
 ## 3.041264</code></pre>
@@ -145,24 +145,24 @@ IC_{\hat{\theta}_{HL}}(Y_2; \theta_0) - (\theta_1 - \theta_0) \\
 \end{pmatrix}
 \]</span></p>
 <p>The functions used in <code>SB5_estFUN</code> are defined below:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">F0 &lt;-<span class="st"> </span>function(y, theta0, <span class="dt">distrFUN =</span> pnorm){
-  <span class="kw">distrFUN</span>(y -<span class="st"> </span>theta0, <span class="dt">mean =</span> <span class="dv">0</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">F0 &lt;-<span class="st"> </span><span class="cf">function</span>(y, theta0, <span class="dt">distrFUN =</span> pnorm){
+  <span class="kw">distrFUN</span>(y <span class="op">-</span><span class="st"> </span>theta0, <span class="dt">mean =</span> <span class="dv">0</span>)
 }
 
-f0 &lt;-<span class="st"> </span>function(y, densFUN){
+f0 &lt;-<span class="st"> </span><span class="cf">function</span>(y, densFUN){
   <span class="kw">densFUN</span>(y, <span class="dt">mean =</span> <span class="dv">0</span>)
 }
 
-integrand &lt;-<span class="st"> </span>function(y, <span class="dt">densFUN =</span> dnorm){
-  <span class="kw">f0</span>(y, <span class="dt">densFUN =</span> densFUN)^<span class="dv">2</span>
+integrand &lt;-<span class="st"> </span><span class="cf">function</span>(y, <span class="dt">densFUN =</span> dnorm){
+  <span class="kw">f0</span>(y, <span class="dt">densFUN =</span> densFUN)<span class="op">^</span><span class="dv">2</span>
 }
 
-IC_denom &lt;-<span class="st"> </span><span class="kw">integrate</span>(integrand, <span class="dt">lower =</span> -<span class="ot">Inf</span>, <span class="dt">upper =</span> <span class="ot">Inf</span>)$value</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB5_estFUN &lt;-<span class="st"> </span>function(data){
+IC_denom &lt;-<span class="st"> </span><span class="kw">integrate</span>(integrand, <span class="dt">lower =</span> <span class="op">-</span><span class="ot">Inf</span>, <span class="dt">upper =</span> <span class="ot">Inf</span>)<span class="op">$</span>value</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB5_estFUN &lt;-<span class="st"> </span><span class="cf">function</span>(data){
   Yi &lt;-<span class="st"> </span>data[[<span class="st">'Y2'</span>]]
-  function(theta){
+  <span class="cf">function</span>(theta){
 
-     (<span class="dv">1</span>/IC_denom) *<span class="st"> </span>(<span class="kw">F0</span>(Yi, theta[<span class="dv">1</span>]) -<span class="st"> </span><span class="fl">0.5</span>)
+     (<span class="dv">1</span><span class="op">/</span>IC_denom) <span class="op">*</span><span class="st"> </span>(<span class="kw">F0</span>(Yi, theta[<span class="dv">1</span>]) <span class="op">-</span><span class="st"> </span><span class="fl">0.5</span>)
   }
 }</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
@@ -170,8 +170,8 @@ IC_denom &lt;-<span class="st"> </span><span class="kw">integrate</span>(integra
   <span class="dt">data  =</span> geexex,
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="dv">2</span>))</code></pre></div>
 <p>The <code>hc.loc</code> of the <a href="https://cran.r-project.org/package=ICSNP"><code>ICSNP</code></a> package computes the Hodges-Lehman estimator and SB gave closed form estimators for the variance.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_cls &lt;-<span class="st"> </span>ICSNP::<span class="kw">hl.loc</span>(geexex$Y2)
-Sigma_cls &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="dv">12</span> *<span class="st"> </span>IC_denom^<span class="dv">2</span>) /<span class="st"> </span><span class="kw">nrow</span>(geexex)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_cls &lt;-<span class="st"> </span>ICSNP<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/ICSNP/topics/hl.loc">hl.loc</a></span>(geexex<span class="op">$</span>Y2)
+Sigma_cls &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>(<span class="dv">12</span> <span class="op">*</span><span class="st"> </span>IC_denom<span class="op">^</span><span class="dv">2</span>) <span class="op">/</span><span class="st"> </span><span class="kw">nrow</span>(geexex)</code></pre></div>
 <pre><code>## $geex
 ## $geex$parameters
 ## [1] 2.026376
@@ -203,11 +203,11 @@ Sigma_cls &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="
 k * sgn(Y_{1i} - \theta) &amp;  \text{when } |(Y_{1i} - \theta)| &gt; k\\
 \end{cases}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB6_estFUN &lt;-<span class="st"> </span>function(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
-  Y1 &lt;-<span class="st"> </span>data$Y1
-  function(theta){
-    x &lt;-<span class="st"> </span>Y1 -<span class="st"> </span>theta[<span class="dv">1</span>]
-    if(<span class="kw">abs</span>(x) &lt;=<span class="st"> </span>k) x else <span class="kw">sign</span>(x) *<span class="st"> </span>k
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB6_estFUN &lt;-<span class="st"> </span><span class="cf">function</span>(data, <span class="dt">k =</span> <span class="fl">1.5</span>){
+  Y1 &lt;-<span class="st"> </span>data<span class="op">$</span>Y1
+  <span class="cf">function</span>(theta){
+    x &lt;-<span class="st"> </span>Y1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>]
+    <span class="cf">if</span>(<span class="kw">abs</span>(x) <span class="op">&lt;=</span><span class="st"> </span>k) x <span class="cf">else</span> <span class="kw">sign</span>(x) <span class="op">*</span><span class="st"> </span>k
   }
 }</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
@@ -215,24 +215,24 @@ k * sgn(Y_{1i} - \theta) &amp;  \text{when } |(Y_{1i} - \theta)| &gt; k\\
   <span class="dt">data  =</span> geexex,
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="dv">3</span>))</code></pre></div>
 <p>The point estimate from <code>geex</code> is compared to the estimate obtained from the <code>huber</code> function in the <a href="https://cran.r-project.org/package=MASS"><code>MASS</code></a> package. The variance estimate is compared to an estimator suggested by SB: <span class="math inline">\(A_m = \sum_i [-\psi'(Y_i - \hat{\theta})]/m\)</span> and <span class="math inline">\(B_m = \sum_i \psi_k^2(Y_i - \hat{\theta})/m\)</span>, where <span class="math inline">\(\psi_k'\)</span> is the derivative of <span class="math inline">\(\psi\)</span> where is exists.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_cls &lt;-<span class="st"> </span>MASS::<span class="kw">huber</span>(geexex$Y1, <span class="dt">k =</span> <span class="fl">1.5</span>, <span class="dt">tol =</span> <span class="fl">1e-10</span>)$mu
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_cls &lt;-<span class="st"> </span>MASS<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/MASS/topics/huber">huber</a></span>(geexex<span class="op">$</span>Y1, <span class="dt">k =</span> <span class="fl">1.5</span>, <span class="dt">tol =</span> <span class="fl">1e-10</span>)<span class="op">$</span>mu
 
-psi_k &lt;-<span class="st"> </span>function(x, <span class="dt">k =</span> <span class="fl">1.5</span>){
-  if(<span class="kw">abs</span>(x) &lt;=<span class="st"> </span>k) x else <span class="kw">sign</span>(x) *<span class="st"> </span>k
+psi_k &lt;-<span class="st"> </span><span class="cf">function</span>(x, <span class="dt">k =</span> <span class="fl">1.5</span>){
+  <span class="cf">if</span>(<span class="kw">abs</span>(x) <span class="op">&lt;=</span><span class="st"> </span>k) x <span class="cf">else</span> <span class="kw">sign</span>(x) <span class="op">*</span><span class="st"> </span>k
 }
 
-A &lt;-<span class="st"> </span><span class="kw">mean</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(geexex$Y1, function(y){
-  x &lt;-<span class="st"> </span>y -<span class="st"> </span>theta_cls
-  -numDeriv::<span class="kw">grad</span>(psi_k, <span class="dt">x =</span> x)
+A &lt;-<span class="st"> </span><span class="kw">mean</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(geexex<span class="op">$</span>Y1, <span class="cf">function</span>(y){
+  x &lt;-<span class="st"> </span>y <span class="op">-</span><span class="st"> </span>theta_cls
+  <span class="op">-</span>numDeriv<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/numDeriv/topics/grad">grad</a></span>(psi_k, <span class="dt">x =</span> x)
 })))
 
-B &lt;-<span class="st"> </span><span class="kw">mean</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(geexex$Y1, function(y){
-  x &lt;-<span class="st"> </span>y -<span class="st"> </span>theta_cls
-  <span class="kw">psi_k</span>(<span class="dt">x =</span> x)^<span class="dv">2</span>
+B &lt;-<span class="st"> </span><span class="kw">mean</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(geexex<span class="op">$</span>Y1, <span class="cf">function</span>(y){
+  x &lt;-<span class="st"> </span>y <span class="op">-</span><span class="st"> </span>theta_cls
+  <span class="kw">psi_k</span>(<span class="dt">x =</span> x)<span class="op">^</span><span class="dv">2</span>
 })))
 
 ## closed form covariance
-Sigma_cls &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">1</span>/A *<span class="st"> </span>B *<span class="st"> </span><span class="dv">1</span>/A /<span class="st"> </span><span class="kw">nrow</span>(geexex))</code></pre></div>
+Sigma_cls &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">1</span><span class="op">/</span>A <span class="op">*</span><span class="st"> </span>B <span class="op">*</span><span class="st"> </span><span class="dv">1</span><span class="op">/</span>A <span class="op">/</span><span class="st"> </span><span class="kw">nrow</span>(geexex))</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> <span class="kw">coef</span>(estimates), <span class="dt">vcov =</span> <span class="kw">vcov</span>(estimates)), 
                 <span class="dt">cls =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> theta_cls, <span class="dt">vcov =</span> Sigma_cls))
 results</code></pre></div>
@@ -264,17 +264,17 @@ results</code></pre></div>
 0.5 - I(Y_{1i} \leq \theta_1) \\
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB7_estFUN &lt;-<span class="st"> </span>function(data){
-  Y1 &lt;-<span class="st"> </span>data$Y1
-  function(theta){
-    <span class="fl">0.5</span>  -<span class="st"> </span>(Y1 &lt;=<span class="st"> </span>theta[<span class="dv">1</span>])
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB7_estFUN &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  Y1 &lt;-<span class="st"> </span>data<span class="op">$</span>Y1
+  <span class="cf">function</span>(theta){
+    <span class="fl">0.5</span>  <span class="op">-</span><span class="st"> </span>(Y1 <span class="op">&lt;=</span><span class="st"> </span>theta[<span class="dv">1</span>])
   }
 }</code></pre></div>
 <p>Note that <span class="math inline">\(\psi\)</span> is not differentiable; however, <code>geex</code> includes the ability to approximate the <span class="math inline">\(\psi\)</span> function via an <code>approx_control</code> object. The <code>FUN</code> in an <code>approx_control</code> must be a function that takes in the <span class="math inline">\(\psi\)</span> function, modifies it, and returns a function of <code>theta</code>. For this example, I approximate <span class="math inline">\(\psi\)</span> with a spline function. The <code>eval_theta</code> argument is used to modify the basis of the spline.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">spline_approx &lt;-<span class="st"> </span>function(psi, eval_theta){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">spline_approx &lt;-<span class="st"> </span><span class="cf">function</span>(psi, eval_theta){
   y &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(psi)(eval_theta)
   f &lt;-<span class="st"> </span><span class="kw">splinefun</span>(<span class="dt">x =</span> eval_theta, <span class="dt">y =</span> y)
-  function(theta) <span class="kw">f</span>(theta)
+  <span class="cf">function</span>(theta) <span class="kw">f</span>(theta)
 }</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> SB7_estFUN, 
@@ -313,23 +313,23 @@ results</code></pre></div>
 \psi_k(Y_{4i} - \mathbf{x}_i^T \beta) \mathbf{x}_i
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">psi_k &lt;-<span class="st"> </span>function(x, <span class="dt">k =</span> <span class="fl">1.345</span>){
-  if(<span class="kw">abs</span>(x) &lt;=<span class="st"> </span>k) x else <span class="kw">sign</span>(x) *<span class="st"> </span>k
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">psi_k &lt;-<span class="st"> </span><span class="cf">function</span>(x, <span class="dt">k =</span> <span class="fl">1.345</span>){
+  <span class="cf">if</span>(<span class="kw">abs</span>(x) <span class="op">&lt;=</span><span class="st"> </span>k) x <span class="cf">else</span> <span class="kw">sign</span>(x) <span class="op">*</span><span class="st"> </span>k
 }
 
-SB8_estFUN &lt;-<span class="st"> </span>function(data){
-  Yi &lt;-<span class="st"> </span>data$Y4
-  xi &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(Y4 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> data)
-  function(theta){
-    r &lt;-<span class="st"> </span>Yi -<span class="st"> </span>xi %*%<span class="st"> </span>theta
-    <span class="kw">c</span>(<span class="kw">psi_k</span>(r) %*%<span class="st"> </span>xi)
+SB8_estFUN &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  Yi &lt;-<span class="st"> </span>data<span class="op">$</span>Y4
+  xi &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(Y4 <span class="op">~</span><span class="st"> </span>X1 <span class="op">+</span><span class="st"> </span>X2, <span class="dt">data =</span> data)
+  <span class="cf">function</span>(theta){
+    r &lt;-<span class="st"> </span>Yi <span class="op">-</span><span class="st"> </span>xi <span class="op">%*%</span><span class="st"> </span>theta
+    <span class="kw">c</span>(<span class="kw">psi_k</span>(r) <span class="op">%*%</span><span class="st"> </span>xi)
   }
 }</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> SB8_estFUN, 
   <span class="dt">data  =</span> geexex,
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)))</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m &lt;-<span class="st"> </span>MASS::<span class="kw">rlm</span>(Y4 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> geexex, <span class="dt">method =</span> <span class="st">'M'</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m &lt;-<span class="st"> </span>MASS<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/MASS/topics/rlm">rlm</a></span>(Y4 <span class="op">~</span><span class="st"> </span>X1 <span class="op">+</span><span class="st"> </span>X2, <span class="dt">data =</span> geexex, <span class="dt">method =</span> <span class="st">'M'</span>)
 theta_cls &lt;-<span class="st"> </span><span class="kw">coef</span>(m)
 Sigma_cls &lt;-<span class="st"> </span><span class="kw">vcov</span>(m)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> <span class="kw">coef</span>(estimates), <span class="dt">vcov =</span> <span class="kw">vcov</span>(estimates)), 
@@ -367,15 +367,15 @@ results</code></pre></div>
 D_i(\beta)\frac{Y_i - \mu_i(\beta)}{V_i(\beta) \tau}
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB9_estFUN &lt;-<span class="st"> </span>function(data){
-  Y &lt;-<span class="st"> </span>data$Y5
-  X &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(Y5 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> data, <span class="dt">drop =</span> <span class="ot">FALSE</span>)
-  function(theta){
-    lp &lt;-<span class="st"> </span>X %*%<span class="st"> </span>theta
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB9_estFUN &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  Y &lt;-<span class="st"> </span>data<span class="op">$</span>Y5
+  X &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(Y5 <span class="op">~</span><span class="st"> </span>X1 <span class="op">+</span><span class="st"> </span>X2, <span class="dt">data =</span> data, <span class="dt">drop =</span> <span class="ot">FALSE</span>)
+  <span class="cf">function</span>(theta){
+    lp &lt;-<span class="st"> </span>X <span class="op">%*%</span><span class="st"> </span>theta
     mu &lt;-<span class="st"> </span><span class="kw">plogis</span>(lp)
-    D  &lt;-<span class="st"> </span><span class="kw">t</span>(X) %*%<span class="st"> </span><span class="kw">dlogis</span>(lp)
-    V  &lt;-<span class="st"> </span>mu *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span>mu)
-    D %*%<span class="st"> </span><span class="kw">solve</span>(V) %*%<span class="st"> </span>(Y -<span class="st"> </span>mu)
+    D  &lt;-<span class="st"> </span><span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span><span class="kw">dlogis</span>(lp)
+    V  &lt;-<span class="st"> </span>mu <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>mu)
+    D <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(V) <span class="op">%*%</span><span class="st"> </span>(Y <span class="op">-</span><span class="st"> </span>mu)
   }
 }</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
@@ -383,9 +383,9 @@ D_i(\beta)\frac{Y_i - \mu_i(\beta)}{V_i(\beta) \tau}
   <span class="dt">data  =</span> geexex, 
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">1</span>, .<span class="dv">1</span>, .<span class="dv">5</span>)))</code></pre></div>
 <p>Compare point estimates to <code>glm</code> coefficients and covariance matrix to <code>sandwich</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m9 &lt;-<span class="st"> </span><span class="kw">glm</span>(Y5 ~<span class="st"> </span>X1 +<span class="st"> </span>X2, <span class="dt">data =</span> geexex, <span class="dt">family =</span> <span class="kw">binomial</span>(<span class="dt">link =</span> <span class="st">'logit'</span>))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m9 &lt;-<span class="st"> </span><span class="kw">glm</span>(Y5 <span class="op">~</span><span class="st"> </span>X1 <span class="op">+</span><span class="st"> </span>X2, <span class="dt">data =</span> geexex, <span class="dt">family =</span> <span class="kw">binomial</span>(<span class="dt">link =</span> <span class="st">'logit'</span>))
 theta_cls &lt;-<span class="st"> </span><span class="kw">coef</span>(m9)
-Sigma_cls &lt;-<span class="st"> </span>sandwich::<span class="kw">sandwich</span>(m9)</code></pre></div>
+Sigma_cls &lt;-<span class="st"> </span>sandwich<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/sandwich/topics/sandwich">sandwich</a></span>(m9)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> <span class="kw">coef</span>(estimates), <span class="dt">vcov =</span> <span class="kw">vcov</span>(estimates)),  
                 <span class="dt">cls =</span> <span class="kw">list</span>(<span class="dt">parameters =</span> theta_cls, <span class="dt">vcov =</span> Sigma_cls))
 results</code></pre></div>
@@ -426,13 +426,13 @@ results</code></pre></div>
 Y_i - n_i \theta_2
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB10_estFUN &lt;-<span class="st"> </span>function(data){
-  Y &lt;-<span class="st"> </span>data$ft_made
-  n &lt;-<span class="st"> </span>data$ft_attp
-  function(theta){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB10_estFUN &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  Y &lt;-<span class="st"> </span>data<span class="op">$</span>ft_made
+  n &lt;-<span class="st"> </span>data<span class="op">$</span>ft_attp
+  <span class="cf">function</span>(theta){
     p &lt;-<span class="st"> </span>theta[<span class="dv">2</span>]
-    <span class="kw">c</span>(((Y -<span class="st"> </span>(n *<span class="st"> </span>p))^<span class="dv">2</span>)/(n *<span class="st"> </span>p *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span>p))  -<span class="st"> </span>theta[<span class="dv">1</span>], 
-      Y -<span class="st"> </span>n *<span class="st"> </span>p)
+    <span class="kw">c</span>(((Y <span class="op">-</span><span class="st"> </span>(n <span class="op">*</span><span class="st"> </span>p))<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>(n <span class="op">*</span><span class="st"> </span>p <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p))  <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>], 
+      Y <span class="op">-</span><span class="st"> </span>n <span class="op">*</span><span class="st"> </span>p)
   }
 }</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
@@ -440,19 +440,19 @@ Y_i - n_i \theta_2
   <span class="dt">data  =</span> shaq, 
   <span class="dt">units =</span> <span class="st">'game'</span>, 
   <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>)))</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">V11 &lt;-<span class="st"> </span>function(p) {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">V11 &lt;-<span class="st"> </span><span class="cf">function</span>(p) {
   k    &lt;-<span class="st"> </span><span class="kw">nrow</span>(shaq)
-  sumn &lt;-<span class="st"> </span><span class="kw">sum</span>(shaq$ft_attp)
-  sumn_inv &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="dv">1</span>/shaq$ft_attp)
-  term2_n  &lt;-<span class="st"> </span><span class="dv">1</span> -<span class="st"> </span>(<span class="dv">6</span> *<span class="st"> </span>p) +<span class="st"> </span>(<span class="dv">6</span> *<span class="st"> </span>p^<span class="dv">2</span>)
-  term2_d &lt;-<span class="st"> </span>p *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span>p) 
-  term2  &lt;-<span class="st"> </span>term2_n/term2_d
-  term3  &lt;-<span class="st"> </span>((<span class="dv">1</span> -<span class="st"> </span>(<span class="dv">2</span> *<span class="st"> </span>p))^<span class="dv">2</span>) /<span class="st"> </span>((sumn/k) *<span class="st"> </span>p *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span>p))
-  <span class="dv">2</span> +<span class="st"> </span>(term2 *<span class="st"> </span>(<span class="dv">1</span>/k) *<span class="st"> </span>sumn_inv) -<span class="st"> </span>term3
+  sumn &lt;-<span class="st"> </span><span class="kw">sum</span>(shaq<span class="op">$</span>ft_attp)
+  sumn_inv &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="dv">1</span><span class="op">/</span>shaq<span class="op">$</span>ft_attp)
+  term2_n  &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>(<span class="dv">6</span> <span class="op">*</span><span class="st"> </span>p) <span class="op">+</span><span class="st"> </span>(<span class="dv">6</span> <span class="op">*</span><span class="st"> </span>p<span class="op">^</span><span class="dv">2</span>)
+  term2_d &lt;-<span class="st"> </span>p <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p) 
+  term2  &lt;-<span class="st"> </span>term2_n<span class="op">/</span>term2_d
+  term3  &lt;-<span class="st"> </span>((<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>p))<span class="op">^</span><span class="dv">2</span>) <span class="op">/</span><span class="st"> </span>((sumn<span class="op">/</span>k) <span class="op">*</span><span class="st"> </span>p <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p))
+  <span class="dv">2</span> <span class="op">+</span><span class="st"> </span>(term2 <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span><span class="op">/</span>k) <span class="op">*</span><span class="st"> </span>sumn_inv) <span class="op">-</span><span class="st"> </span>term3
 }
 
-p_tilde &lt;-<span class="st"> </span><span class="kw">sum</span>(shaq$ft_made)/<span class="kw">sum</span>(shaq$ft_attp)
-V11_hat &lt;-<span class="st"> </span><span class="kw">V11</span>(p_tilde)/<span class="dv">23</span>
+p_tilde &lt;-<span class="st"> </span><span class="kw">sum</span>(shaq<span class="op">$</span>ft_made)<span class="op">/</span><span class="kw">sum</span>(shaq<span class="op">$</span>ft_attp)
+V11_hat &lt;-<span class="st"> </span><span class="kw">V11</span>(p_tilde)<span class="op">/</span><span class="dv">23</span>
 
 <span class="co"># Compare variance estimates</span>
 V11_hat</code></pre></div>
@@ -460,7 +460,7 @@ V11_hat</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">vcov</span>(estimates)[<span class="dv">1</span>, <span class="dv">1</span>]</code></pre></div>
 <pre><code>## [1] 0.1929791</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Note the differences in the p-values</span>
-<span class="kw">pnorm</span>(<span class="fl">35.51</span>/<span class="dv">23</span>, <span class="dt">mean  =</span> <span class="dv">1</span>, <span class="dt">sd =</span> <span class="kw">sqrt</span>(V11_hat), <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<span class="kw">pnorm</span>(<span class="fl">35.51</span><span class="op">/</span><span class="dv">23</span>, <span class="dt">mean  =</span> <span class="dv">1</span>, <span class="dt">sd =</span> <span class="kw">sqrt</span>(V11_hat), <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <pre><code>## [1] 0.02596785</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pnorm</span>(<span class="kw">coef</span>(estimates)[<span class="dv">1</span>], 
       <span class="dt">mean =</span> <span class="dv">1</span>, 

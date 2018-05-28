@@ -63,7 +63,7 @@
       <h1>The design and structure of geex</h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-09-04</h4>
+            <h4 class="date">2018-05-28</h4>
           </div>
 
     
@@ -108,11 +108,11 @@
 <pre><code>## The following objects are masked from 'package:base':
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myee &lt;-<span class="st"> </span>function(data){
-  Y1 &lt;-<span class="st"> </span>data$Y1
-  function(theta){
-    <span class="kw">c</span>(Y1 -<span class="st"> </span>theta[<span class="dv">1</span>],
-      (Y1 -<span class="st"> </span>theta[<span class="dv">1</span>])^<span class="dv">2</span> -<span class="st"> </span>theta[<span class="dv">2</span>])
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myee &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  Y1 &lt;-<span class="st"> </span>data<span class="op">$</span>Y1
+  <span class="cf">function</span>(theta){
+    <span class="kw">c</span>(Y1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>],
+      (Y1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>])<span class="op">^</span><span class="dv">2</span> <span class="op">-</span><span class="st"> </span>theta[<span class="dv">2</span>])
   }
 }</code></pre></div>
 <p>Now we can create a basis:</p>
@@ -125,28 +125,28 @@
 ## [5] ".GFUN"        ".control"     ".estFUN"      ".outer_args" 
 ## [9] ".inner_args"</code></pre>
 <p>Two slots are worth examining. First, <code>.psiFUN_list</code> is a <code>list</code> of <code>function</code>s:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mybasis@.psiFUN_list[<span class="dv">1</span>:<span class="dv">2</span>]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mybasis<span class="op">@</span>.psiFUN_list[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]</code></pre></div>
 <pre><code>## $`1`
 ## function (theta) 
 ## {
 ##     c(Y1 - theta[1], (Y1 - theta[1])^2 - theta[2])
 ## }
-## &lt;environment: 0x7f9dc883e718&gt;
+## &lt;environment: 0x7fe5261ffd90&gt;
 ## 
 ## $`2`
 ## function (theta) 
 ## {
 ##     c(Y1 - theta[1], (Y1 - theta[1])^2 - theta[2])
 ## }
-## &lt;bytecode: 0x7f9dc8a7da30&gt;
-## &lt;environment: 0x7f9dc88434e8&gt;</code></pre>
+## &lt;bytecode: 0x7fe52828e630&gt;
+## &lt;environment: 0x7fe52625d948&gt;</code></pre>
 <p>This object is essentially equivalent to:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m &lt;-<span class="st"> </span><span class="kw">nrow</span>(geexex)
-<span class="kw">lapply</span>(<span class="kw">split</span>(geexex, <span class="dt">f =</span> <span class="dv">1</span>:m), function(O_i){
+<span class="kw">lapply</span>(<span class="kw">split</span>(geexex, <span class="dt">f =</span> <span class="dv">1</span><span class="op">:</span>m), <span class="cf">function</span>(O_i){
   <span class="kw">myee</span>(O_i)
 })</code></pre></div>
 <p>From this list of functions, we can compute <span class="math inline">\(A_i\)</span>, and by summing across the list, form <span class="math inline">\(G_m\)</span>. The latter is found in:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mybasis@.GFUN</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mybasis<span class="op">@</span>.GFUN</code></pre></div>
 <pre><code>## function(theta){
 ##       psii &lt;- lapply(psi_list, function(psi) {
 ##         do.call(psi, args = append(list(theta = theta), object@.inner_args))
@@ -154,14 +154,14 @@
 ## 
 ##       compute_sum_of_list(psii, object@.weights)
 ##     }
-## &lt;environment: 0x7f9dc56a69f0&gt;</code></pre>
+## &lt;environment: 0x7fe523638148&gt;</code></pre>
 </div>
 <div id="finding-roots" class="section level2">
 <h2 class="hasAnchor">
 <a href="#finding-roots" class="anchor"></a>Finding roots</h2>
 <p>Now that we have <span class="math inline">\(G_m\)</span> as a function of <code>theta</code>, we can found its roots using a root-finding algorithm such as <code><a href="http://www.rdocumentation.org/packages/rootSolve/topics/multiroot">rootSolve::multiroot</a></code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rootSolve::<span class="kw">multiroot</span>(
-  <span class="dt">f =</span> mybasis@.GFUN, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rootSolve<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/rootSolve/topics/multiroot">multiroot</a></span>(
+  <span class="dt">f =</span> mybasis<span class="op">@</span>.GFUN, 
   <span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))</code></pre></div>
 <pre><code>## $root
 ## [1]  5.044563 10.041239
@@ -176,8 +176,8 @@
 ## [1] 2.433609e-13</code></pre>
 <p>Within <code>geex</code> this is done with the <code>estimate_GFUN_roots</code> function. To illustrate, I first need to update the <code>.control</code> slot in <code>mybasis</code> with starting values for <code>multiroot</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mycontrol &lt;-<span class="st"> </span><span class="kw">new</span>(<span class="st">'geex_control'</span>, <span class="dt">.root =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)))
-mybasis@.control &lt;-<span class="st"> </span>mycontrol
-roots &lt;-<span class="st"> </span>mybasis %&gt;%
+mybasis<span class="op">@</span>.control &lt;-<span class="st"> </span>mycontrol
+roots &lt;-<span class="st"> </span>mybasis <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="../reference/estimate_GFUN_roots.html">estimate_GFUN_roots</a></span>()
 roots</code></pre></div>
 <pre><code>## $root
@@ -198,13 +198,13 @@ roots</code></pre></div>
 <a href="#computing-the-empirical-sandwich-variance-estimator" class="anchor"></a>Computing the Empirical Sandwich Variance Estimator</h2>
 <p>In the last section, we found <span class="math inline">\(\hat{\theta}\)</span>, which we now use to compute the <span class="math inline">\(A_i\)</span> and <span class="math inline">\(B_i\)</span> matrices.</p>
 <p><code>geex</code> uses the <code><a href="http://www.rdocumentation.org/packages/numDeriv/topics/jacobian">numDeriv::jacobian</a></code> function to numerically evaluate derivatives. For example, <span class="math inline">\(A_1 = - (\partial \psi(O_1, \theta)/\partial \theta)|_{\theta = \hat{\theta}}\)</span> for this example is:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">-numDeriv::<span class="kw">jacobian</span>(<span class="dt">func =</span> mybasis@.psiFUN_list[[<span class="dv">1</span>]], <span class="dt">x =</span> roots$root)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="op">-</span>numDeriv<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/numDeriv/topics/jacobian">jacobian</a></span>(<span class="dt">func =</span> mybasis<span class="op">@</span>.psiFUN_list[[<span class="dv">1</span>]], <span class="dt">x =</span> roots<span class="op">$</span>root)</code></pre></div>
 <pre><code>##           [,1] [,2]
 ## [1,]  1.000000    0
 ## [2,] -2.752514    1</code></pre>
 <p><code>geex</code> performs this operation for each <span class="math inline">\(i = 1, \dots, m\)</span> to yield a list of <span class="math inline">\(A_i\)</span> matrices. Then summing across this list yields <span class="math inline">\(A = \sum_i A_i\)</span>. The <code>estimate_sandwich_matrices</code> function computes the list of <span class="math inline">\(A_i\)</span>, <span class="math inline">\(B_i\)</span> and <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mats &lt;-<span class="st"> </span>mybasis %&gt;%
-<span class="st">  </span><span class="kw"><a href="../reference/estimate_sandwich_matrices.html">estimate_sandwich_matrices</a></span>(<span class="dt">.theta =</span> roots$root) 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mats &lt;-<span class="st"> </span>mybasis <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="../reference/estimate_sandwich_matrices.html">estimate_sandwich_matrices</a></span>(<span class="dt">.theta =</span> roots<span class="op">$</span>root) 
 
 <span class="co"># Compare to the numDeriv computation above</span>
 <span class="kw"><a href="../reference/grab_bread_list-methods.html">grab_bread_list</a></span>(mats)[[<span class="dv">1</span>]]</code></pre></div>
@@ -212,7 +212,7 @@ roots</code></pre></div>
 ## [1,]  1.000000    0
 ## [2,] -2.752514    1</code></pre>
 <p>Finally, computing <span class="math inline">\(\hat{\Sigma} = A^{-1} B (A^{-1})^{\intercal}\)</span> is accomplished with the <code>compute_sigma</code> function.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mats %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mats <span class="op">%&gt;%</span>
 <span class="st">  </span>{<span class="kw"><a href="../reference/compute_sigma.html">compute_sigma</a></span>(<span class="dt">A =</span> <span class="kw"><a href="../reference/grab_bread-methods.html">grab_bread</a></span>(.), <span class="dt">B =</span> <span class="kw"><a href="../reference/grab_meat-methods.html">grab_meat</a></span>(.))}</code></pre></div>
 <pre><code>##            [,1]       [,2]
 ## [1,] 0.10041239 0.03667969
