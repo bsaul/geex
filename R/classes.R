@@ -893,7 +893,13 @@ setMethod(
 #------------------------------------------------------------------------------#
 #' geex summary object
 #'
-#' @slot basis a \code{\linkS4class{m_estimation_basis}} object
+#' @slot estFUN a \code{estimating-function}
+#' @slot outer_args the \code{list} arguments passed to the \code{m_estimate} call
+#' @slot inner_args the \code{list} arguments passed to the \code{m_estimate} call
+#' @slot data the \code{data.frame} passed to the \code{m_estimate} call
+#' @slot weights the \code{weights} passed to the \code{m_estimate} call
+#' @slot nobs the number of observational units used to compute the M-estimator
+#' @slot units the name of the variable identifying the observational units
 #' @slot corrections a \code{list} of correction performed on \code{sandwich_components}
 #' @slot estimates a \code{numeric} vector of parameter estimates
 #' @slot vcov the empirical sandwich variance \code{matrix}
@@ -952,7 +958,7 @@ setMethod(
   f         = "summary",
   signature = "geex",
   function(object, keep_data = TRUE, keep_args = TRUE){
-    new("geex-summary",
+    methods::new("geex-summary",
         estFUN      = object@basis@.estFUN,
         outer_args  = if(keep_args) object@basis@.outer_args else list(),
         inner_args  = if(keep_args) object@basis@.inner_args else list(),

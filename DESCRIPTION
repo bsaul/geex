@@ -36,7 +36,8 @@ Suggests:
     saws,
     rmarkdown,
     geepack,
-    covr
+    covr,
+    mvtnorm
 URL: https://github.com/bsaul/geex, https://bsaul.github.io/geex/
 BugReports: https://github.com/bsaul/geex/issues
 License: MIT + file LICENSE

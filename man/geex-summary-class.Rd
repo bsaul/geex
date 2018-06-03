@@ -10,7 +10,19 @@ geex summary object
 \section{Slots}{
 
 \describe{
-\item{\code{basis}}{a \code{\linkS4class{m_estimation_basis}} object}
+\item{\code{estFUN}}{a \code{estimating-function}}
+
+\item{\code{outer_args}}{the \code{list} arguments passed to the \code{m_estimate} call}
+
+\item{\code{inner_args}}{the \code{list} arguments passed to the \code{m_estimate} call}
+
+\item{\code{data}}{the \code{data.frame} passed to the \code{m_estimate} call}
+
+\item{\code{weights}}{the \code{weights} passed to the \code{m_estimate} call}
+
+\item{\code{nobs}}{the number of observational units used to compute the M-estimator}
+
+\item{\code{units}}{the name of the variable identifying the observational units}
 
 \item{\code{corrections}}{a \code{list} of correction performed on \code{sandwich_components}}
 
