@@ -84,7 +84,7 @@ test_that("m_estimation computations are working", {
 
   expect_is(estimates_2, 'geex')
 
-  expect_is(summary(estimates_2), 'geex-summary')
+  expect_is(summary(estimates_2), 'geex_summary')
   expect_output(print(summary(estimates_2)))
 
 })
