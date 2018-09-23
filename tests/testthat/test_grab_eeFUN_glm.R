@@ -36,6 +36,9 @@ test_that("estimate equations obtains correct values for parameters and standard
                   outer_args = list(model = test_binomial_logit))
   expect_equivalent(x@estimates, coef(test_binomial_logit))
 
+  # Check nobs()
+  expect_equal(nobs(x), 537)
+
   # Form sandwich estimator "by hand" with the help of sandwich
   psi <- apply(estfun(test_binomial_logit), 2, function(x) tapply(x, test_binomial_logit$data[['id']], sum))
   n <- length(unique(test_binomial_logit$data[['id']]))

@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------#
-# define S4 Classes and methods used within geex #
+# define S4 Classes and methods used on these classes within geex #
 #------------------------------------------------------------------------------#
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
@@ -108,15 +108,17 @@ setMethod("grab_estFUN", "estimating_function", function(object) object@.estFUN)
 #' @slot .A_i a list of "bread" matrices per unit
 #' @slot .B the "meat" matrix
 #' @slot .B_i a list of "meat" matrices per unit
+#' @slot .ee_i a list of observed estimating function values per unit
 #'
 #' @export
 #------------------------------------------------------------------------------#
 setClass(
   Class = "sandwich_components",
-  slots = c(.A   = 'matrix',
-            .A_i = 'list',
-            .B   = 'matrix',
-            .B_i = 'list'),
+  slots = c(.A    = 'matrix',
+            .A_i  = 'list',
+            .B    = 'matrix',
+            .B_i  = 'list',
+            .ee_i = 'list'),
   validity = function(object){
     A_dims <- dim(object@.A)
     B_dims <- dim(object@.B)
@@ -130,15 +132,23 @@ setClass(
   }
 )
 
+
 #------------------------------------------------------------------------------#
+#' Show (print) the S4 geex classes
+#'
+#' @param object the object to print
+#' @docType methods
+#' @rdname show-methods
+#' @export
+
+setGeneric("show",function(object){standardGeneric("show")})
+
 #' Shows the sandwich_components S4 class
 #'
-#' @param object a \code{\linkS4class{sandwich_components}},
 #' \code{\linkS4class{m_estimation_basis}}, or \code{\linkS4class{geex}} object
 #' @rdname show-methods
 #' @aliases show,sandwich_components,sandwich_components-method
 #' @export
-#------------------------------------------------------------------------------#
 
 setMethod(
   "show",
@@ -291,6 +301,44 @@ setMethod(
   function(object){
     return(object@.B_i)
   })
+
+
+#------------------------------------------------------------------------------#
+#' Gets the .ee_i (observed estimating function) slot
+#'
+#' @param object a \code{\linkS4class{sandwich_components}} object
+#' @docType methods
+#' @rdname grab_ee-methods
+#' @export
+#' @examples
+#' myee <- function(data){
+#'  function(theta){
+#'    c(data$Y1 - theta[1],
+#'    (data$Y1 - theta[1])^2 - theta[2])
+#'   }
+#' }
+#'
+#' results <- m_estimate(
+#'    estFUN = myee,
+#'    data = geexex,
+#'    root_control = setup_root_control(start = c(1,1)))
+#'
+#' grab_ee_list(results@sandwich_components)
+#------------------------------------------------------------------------------#
+
+
+setGeneric("grab_ee_list",function(object){standardGeneric ("grab_ee_list")})
+
+#' @rdname grab_meat_list-methods
+#' @aliases grab_meat_list,sandwich_components,sandwich_components-method
+
+setMethod(
+  f = "grab_ee_list",
+  signature = "sandwich_components",
+  function(object){
+    return(object@.ee_i)
+  })
+
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 ## control classes ####
@@ -849,6 +897,116 @@ setMethod(
     invisible(NULL)
   })
 
+
+#------------------------------------------------------------------------------#
+#' geex summary object
+#'
+#' @slot estFUN a \code{estimating-function}
+#' @slot outer_args the \code{list} arguments passed to the \code{m_estimate} call
+#' @slot inner_args the \code{list} arguments passed to the \code{m_estimate} call
+#' @slot data the \code{data.frame} passed to the \code{m_estimate} call
+#' @slot weights the \code{weights} passed to the \code{m_estimate} call
+#' @slot nobs the number of observational units used to compute the M-estimator
+#' @slot units the name of the variable identifying the observational units
+#' @slot corrections a \code{list} of correction performed on \code{sandwich_components}
+#' @slot estimates a \code{numeric} vector of parameter estimates
+#' @slot vcov the empirical sandwich variance \code{matrix}
+#' @export
+#------------------------------------------------------------------------------#
+
+setClass(
+  Class = "geex_summary",
+  slots = c(estFUN          = "function",
+            outer_args      = "list",
+            inner_args      = "list",
+            data            = "data.frame",
+            weights         = "numeric",
+            nobs            = "numeric",
+            units           = "character",
+            corrections     = "list",
+            estimates       = "numeric",
+            vcov            = "matrix"))
+
+#------------------------------------------------------------------------------#
+#' Object Summaries
+#'
+#' @param object a \code{\linkS4class{geex}} object
+#' @param keep_data keep the original data or not
+#' @param keep_args keep the \code{outer_args} and \code{inner_args} passed to \code{estFUN} or not
+#' @rdname summary-methods
+#' @export
+#' @examples
+#' \dontrun{
+#' library(geepack)
+#' data('ohio')
+#' glmfit  <- glm(resp ~ age, data = ohio,
+#'               family = binomial(link = "logit"))
+#' example_ee <- function(data, model){
+#'   f <- grab_psiFUN(model, data)
+#'   function(theta){
+#'     f(theta)
+#'   }
+#' }
+#' z  <- m_estimate(
+#' estFUN = example_ee,
+#' data = ohio,
+#' compute_roots = FALSE,
+#' units = 'id',
+#' roots = coef(glmfit),
+#' outer_args = list(model = glmfit))
+#'
+#' object.size(z)
+#' object.size(summary(z))
+#' object.size(summary(z, keep_data = FALSE))
+#' object.size(summary(z, keep_data = FALSE, keep_args = FALSE))
+#' }
+#------------------------------------------------------------------------------#
+
+setMethod(
+  f         = "summary",
+  signature = "geex",
+  function(object, keep_data = TRUE, keep_args = TRUE){
+    methods::new("geex_summary",
+        estFUN      = object@basis@.estFUN,
+        outer_args  = if(keep_args) object@basis@.outer_args else list(),
+        inner_args  = if(keep_args) object@basis@.inner_args else list(),
+        data        = if(keep_data) object@basis@.data else data.frame(),
+        units       = object@basis@.units,
+        weights     = object@basis@.weights,
+        nobs        = nobs(object),
+        corrections = object@corrections,
+        estimates   = object@estimates,
+        vcov        = object@vcov)
+  }
+)
+
+#------------------------------------------------------------------------------#
+#' Shows the geex_summary object
+#'
+#' @rdname show-methods
+#' @aliases show,geex_summary,geex_summary-method
+#' @export
+#------------------------------------------------------------------------------#
+
+setMethod(
+  "show",
+  signature = "geex_summary",
+  definition = function(object) {
+    cat("M-estimation results based on the estimating function:\n", sep = "")
+    print(body(object@estFUN))
+    cat("\nEstimates:\n")
+    print(object@estimates)
+    cat("\nCovariance:\n")
+    print(object@vcov)
+    if(length(object@corrections) > 0){
+      cat("The results include", length(object@corrections),
+          "covariance corrections")
+    }
+
+    invisible(NULL)
+  })
+
+
 #------------------------------------------------------------------------------#
 #' Gets the variance-covariance matrix from a geex object
 #'
@@ -870,7 +1028,6 @@ setMethod(
 #'  root_control = setup_root_control(start = c(1,1)))
 #'
 #' vcov(results)
-#------------------------------------------------------------------------------#
 
 setMethod(
   "vcov",
@@ -878,6 +1035,19 @@ setMethod(
   definition = function(object) {
     object@vcov
   })
+
+#' @rdname vcov-methods
+#' @aliases vcov,geex_summary,geex_summary-method
+#' @export
+
+setMethod(
+  "vcov",
+  signature = "geex_summary",
+  definition = function(object) {
+    object@vcov
+  })
+
+#------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
 #' Gets the parameter estimates from a geex object
@@ -900,7 +1070,6 @@ setMethod(
 #'  root_control = setup_root_control(start = c(1,1)))
 #'
 #' coef(results)
-#------------------------------------------------------------------------------#
 
 setMethod(
   "coef",
@@ -908,6 +1077,19 @@ setMethod(
   definition = function(object) {
     object@estimates
   })
+
+#' @rdname coef-methods
+#' @aliases coef,geex_summary-method
+#' @export
+
+setMethod(
+  "coef",
+  signature = "geex_summary",
+  definition = function(object) {
+    object@estimates
+  })
+#------------------------------------------------------------------------------#
+
 
 #------------------------------------------------------------------------------#
 #' Gets the parameter estimates matrix from a geex object
@@ -941,6 +1123,16 @@ setGeneric("roots", function(object, ...) standardGeneric("roots"))
 setMethod(
   "roots",
   signature = "geex",
+  definition = function(object) {
+    object@estimates
+  })
+
+#' @rdname roots-methods
+#' @aliases roots,geex,geex-method
+
+setMethod(
+  "roots",
+  signature = "geex_summary",
   definition = function(object) {
     object@estimates
   })
@@ -988,6 +1180,20 @@ setMethod(
     }
   })
 
+#' @rdname get_corrections-methods
+#' @export
+
+setMethod(
+  "get_corrections",
+  signature = "geex_summary",
+  definition = function(object) {
+    if(length(object@corrections) == 0){
+      "No corrections were performed on this object"
+    } else {
+      object@corrections
+    }
+  })
+
 #' @rdname grab_psiFUN_list-methods
 #' @aliases grab_psiFUN_list,geex,geex-method
 
@@ -1007,3 +1213,85 @@ setMethod(
   function(object){
     return(object@basis@.GFUN)
   })
+
+#------------------------------------------------------------------------------#
+#' Extract the number observations
+#'
+#' @param object a \code{\linkS4class{geex}} object
+#' @rdname nobs-methods
+#' @aliases nobs,geex,geex-method
+#' @export
+#' @examples
+#' \dontrun{
+#' library(geepack)
+#' data('ohio')
+#'
+#' glmfit  <- glm(resp ~ age, data = ohio,
+#'               family = binomial(link = "logit"))
+#' z  <- m_estimate(
+#'   estFUN = example_ee,
+#'   data = ohio,
+#'   compute_roots = FALSE,
+#'   units = 'id',
+#'   roots = coef(glmfit),
+#'   outer_args = list(model = glmfit))
+#'
+#' nobs(z)
+#' }
+
+setMethod(
+  f         = "nobs",
+  signature = "geex",
+  function(object){
+    if(length(object@basis@.units) == 0){
+      nrow(object@basis@.data)
+    } else {
+      length(unique(object@basis@.data[[object@basis@.units]]))
+    }
+  }
+)
+
+#' @rdname nobs-methods
+#' @aliases nobs,geex_summary,geex_summary-method
+#' @export
+
+setMethod(
+  f         = "nobs",
+  signature = "geex_summary",
+  function(object){
+    object@nobs
+  }
+)
+
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+#' Extract Model weights
+#'
+#' @param object a \code{\linkS4class{geex}} object
+#' @rdname weights-methods
+#' @aliases weights,geex,geex-method
+#' @export
+
+setMethod(
+  f         = "weights",
+  signature = "geex",
+  function(object){
+    object@basis@.weights
+  }
+)
+
+#' @rdname weights-methods
+#' @aliases weights,geex_summary,geex_summary-method
+#' @export
+
+setMethod(
+  f         = "weights",
+  signature = "geex_summary",
+  function(object){
+    object@weights
+  }
+)
+
+#------------------------------------------------------------------------------#
+

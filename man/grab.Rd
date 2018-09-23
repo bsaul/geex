@@ -19,5 +19,6 @@ Grab something from an object
 }
 \seealso{
 \code{\link{grab_response}}, \code{\link{grab_design_matrix}},
-\code{\link{grab_response_formula}}, \code{\link{grab_fixed_formula}}
+\code{\link{grab_response_formula}}, \code{\link{grab_fixed_formula}},
+\code{\link{grab_design_levels}}
 }

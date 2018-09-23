@@ -5,11 +5,14 @@
 \alias{get_corrections}
 \alias{get_corrections,geex-method}
 \alias{get_corrections,m_estimation_basis,m_estimation_basis-method}
+\alias{get_corrections,geex_summary-method}
 \title{Gets the corrections from a geex object}
 \usage{
 get_corrections(object, ...)
 
 \S4method{get_corrections}{geex}(object)
+
+\S4method{get_corrections}{geex_summary}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{geex}} object}

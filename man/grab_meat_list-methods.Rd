@@ -5,11 +5,15 @@
 \alias{grab_meat_list}
 \alias{grab_meat_list,sandwich_components-method}
 \alias{grab_meat_list,sandwich_components,sandwich_components-method}
+\alias{grab_ee_list,sandwich_components-method}
+\alias{grab_meat_list,sandwich_components,sandwich_components-method}
 \title{Gets the .B_i (list of bread matrices) slot}
 \usage{
 grab_meat_list(object)
 
 \S4method{grab_meat_list}{sandwich_components}(object)
+
+\S4method{grab_ee_list}{sandwich_components}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{sandwich_components}} object}

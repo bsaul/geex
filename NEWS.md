@@ -1,3 +1,15 @@
+# geex 1.0.11
+
+* renames the `geex-summary` class to `geex_summary`
+* adds `ee_i` (observed estimating function values) to the component object
+* various other bug fixes
+
+# geex 1.0.5
+
+* Added `grab_design_levels` to find all factor-levels in a design matrix. This output can then be passed to the `xlev` arg in `model.matrix` or more importantly through `grab_psiFun` for the models. This fixes issue 41. 
+   - Notably, if this seems to work well, then perhaps `grab_design_levels` could be added to the body of `grab_psiFun` to automatically handle this issue.
+* Edited `binomial_integrand` to hopefully handle singleton groups better. It will now attempt to coerce back to a one-row matrix before calling `apply`.
+
 # geex 1.0.4
 
 * fixes issue when using `grab_psiFUN` for `glm` objects and non-grouped data.

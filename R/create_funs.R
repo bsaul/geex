@@ -19,7 +19,6 @@
 #' mybasis <- create_basis(
 #'    estFUN = myee,
 #'    data   = geexex)
-#' mybasis
 #------------------------------------------------------------------------------#
 
 create_basis <- function(estFUN, data, units, outer_args, inner_args){

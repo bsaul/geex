@@ -18,13 +18,25 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
+
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
+<meta property="og:title" content="Creates an m_estimation_basis object — create_basis" />
+
+<meta property="og:description" content="Creates an m_estimation_basis object" />
+<meta name="twitter:card" content="summary" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +59,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">geex</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">geex</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.0.11</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -73,6 +89,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -80,19 +97,23 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Creates an m_estimation_basis object</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bsaul/geex/blob/master/R/create_funs.R'><code>R/create_funs.R</code></a></small>
+    <div class="hidden name"><code>create_basis.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Creates an m_estimation_basis object</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>create_basis</span>(<span class='no'>estFUN</span>, <span class='no'>data</span>, <span class='no'>units</span>, <span class='no'>outer_args</span>, <span class='no'>inner_args</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -136,23 +157,7 @@ that takes parameters as its first argument</p></td>
  }
 <span class='no'>mybasis</span> <span class='kw'>&lt;-</span> <span class='fu'>create_basis</span>(
    <span class='kw'>estFUN</span> <span class='kw'>=</span> <span class='no'>myee</span>,
-   <span class='kw'>data</span>   <span class='kw'>=</span> <span class='no'>geexex</span>)
-<span class='no'>mybasis</span></div><div class='output co'>#&gt; An object of class m_estimation_basis
-#&gt; psi: 
-#&gt; {
-#&gt;     function(theta) {
-#&gt;         c(data$Y1 - theta[1], (data$Y1 - theta[1])^2 - theta[2])
-#&gt;     }
-#&gt; }
-#&gt; Data:
-#&gt;           Y1        Y2       X1       Y3       W1        Z1 X2         Y4 Y5
-#&gt; 1  3.6683066 2.0281718 4.949316 16.34576 4.823768  8.921782  0 0.09273926  1
-#&gt; 2 10.4524548 1.6432966 7.851962 25.68742 7.884845 13.909474  0 1.01672736  1
-#&gt; 3  3.1234106 2.8526264 4.729075 16.10831 4.709346  9.014695  0 0.49399039  0
-#&gt; 4  8.3715025 2.5133652 2.564395 10.57997 2.786091  6.733378  0 1.24322433  0
-#&gt; 5 -0.8319749 3.0182030 4.782347 16.46401 4.811590  9.290492  0 0.69520599  1
-#&gt; 6  3.3987763 0.9785209 5.335713 18.32577 5.415370 10.322199  0 0.95220138  1
-#&gt; Units:  </div></pre>
+   <span class='kw'>data</span>   <span class='kw'>=</span> <span class='no'>geexex</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -175,11 +180,14 @@ that takes parameters as its first argument</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+

@@ -5,9 +5,114 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Estimating causal parameters using geex}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+references:
+- id: lunceford2004stratification
+  author:
+  - family: Lunceford
+    given: Jared K.
+  - family: Davidian
+    given: Marie
+  container-title: "Stratification and weighting via the propensity score in estimation of causal treatment effects: a comparative study"
+  type: article-journal
+  journal: Statistics in Medicine
+  issued:
+    year: 2004  
+  volume: 23
+  number: 19
+  pages: 2937-2960
+- id: perez-heydrich2014assessing
+  author:
+  - family : Perez-Heydrich
+    given  : Carolina
+  - family : Hudgens
+    given  : Michael G.
+  - family : Halloran
+    given  : M. Elizabeth
+  - family : Clemens
+    given  : John D.
+  - family : Ali
+    given  : Mohammad
+  - family : Emch
+    given  : Michael E.
+  container-title: Assessing effects of cholera vaccination in the presence of interference
+  type: article-journal
+  journal: Biometrics
+  issued:
+    year: 2014  
+  volume: 70
+  number: 3
+  pages: 731-741
 ---
+
+```{r packages, echo =TRUE}
+library(geex)
+library(inferference)
+library(dplyr)
+```
+
+## Estimating a propensity score vs. treating propensity as known
+
+TODO: describe what's going on here
+```{r simulated_data, echo = TRUE}
+n <- 1000
+x <- data_frame(
+  A  = rbinom(n, 1, .2),
+  Y0 = rnorm(n, 0, 1),
+  Y1 = rnorm(n, 2 * A, 1),
+  Y = (A*Y1) + (1 - A)*Y0)
+```
+
+```{r ipw_estfun, echo = TRUE}
+ipw_estFUN <- function(data){
+  A <- data$A
+  Y <- data$Y
+  function(theta, phat){
+    ipw0 <- 1/theta[1]
+    ipw1 <- 1/theta[2]
+    
+    # Estimating functions #
+    c( (1 - A) - theta[1],
+      A - theta[2],
+      
+      # Estimating IP weight
+      Y*(1 - A)*ipw0 - theta[3],
+      Y*(A)*ipw1 - theta[4],  
+      
+      # Treating IP weight as known
+      Y*A/phat - theta[5]
+      )
+  }
+}
+```
+
+```{r ipw_estimation, echo = TRUE}
+phat <- mean(x$A)
+out <- m_estimate(ipw_estFUN,
+           data = x,
+           inner_args = list(phat = phat),
+           root_control = setup_root_control(start = c(.5, .5, 0, 0, 0)))
+```
+
+```{r ipw_comparison, echo = TRUE}
+## Comparing point estimates
+all.equal(mean(x$Y * x$A/phat), coef(out)[4]) 
+all.equal(phat, coef(out)[2]) 
+
+## Comparing variance estimates
+geex_vcov <- diag(vcov(out)) * n
+
+# estimates match treating propensity as known
+all.equal(var(x$Y * x$A/phat) * (n - 1)/n, geex_vcov[5])
+
+# estimates match using influence function approach
+y <- x$Y * x$A/phat - mean(x$Y * x$A/phat)
+z <- (x$A - phat) / (phat*(1 - phat))
+var(y - predict(lm(y ~ z))) - geex_vcov[4] # close
+```
 
 ## IPW estimator of counterfactual mean
 
@@ -41,10 +146,6 @@ eefun <- function(data, model, alpha){
 
 Compare to what `inferference` gets.
 
-```{r packages, echo =TRUE}
-library(geex)
-library(inferference)
-```
 
 ```{r, echo = FALSE}
 if(packageVersion('inferference') < '0.5.0'){
@@ -84,3 +185,125 @@ direct_effect(test, allocation = .35)$std.error # from inferference
 
 
 I would expect them to be somewhat different, since `inferference` uses a slightly different variance estimator defined in the [web appendix of Perez-Heydrich et al (2014)](http://onlinelibrary.wiley.com/store/10.1111/biom.12184/asset/supinfo/biom12184-sm-0001-SuppData.pdf?v=1&s=f54ecbc59e7600cd32e8f5c110d395f0a34b3fb8).
+
+## Doubly-Robust Estimator
+
+Estimators of causal effects often have the form: 
+
+\begin{equation}
+\label{eq:causal}
+\sum_{i = 1}^m \psi(O_i, \theta) = \sum_{i = 1}^m \begin{pmatrix} \psi(O_i, \nu) \\ \psi(O_i, \beta) \end{pmatrix} = 0,
+\end{equation}
+
+\noindent where $\nu$ are parameters in nuisance model(s), such as a propensity score model, and $\beta$ are the target causal parameters. Even when $\nu$ represent parameters in common statistical models, deriving a closed form for a sandwich variance estimator for $\beta$ based on Equation~\ref{eq:causal} may involve tedious and error-prone derivative and matrix calculations [e.g.; see the appendices of @lunceford2004stratification and @perez-heydrich2014assessing]. In this example, we show how an analyst can avoid these calculations and compute the empirical sandwich variance estimator using `geex`. 
+
+@lunceford2004stratification review several estimators of causal effects from observational data. To demonstrate a more complicated estimator involving multiple nuisance models, we implement the doubly robust estimator:
+
+\begin{equation}
+\label{eq:dbr}
+\hat{\Delta}_{DR} = \sum_{i = 1}^m \frac{Z_iY_i - (Z_i - \hat{e}_i) m_1(X_i, \hat{\alpha}_1)}{\hat{e}_i} - \frac{(1 - Z_i)Y_i - (Z_i - \hat{e}_i) m_0(X_i, \hat{\alpha}_0)}{1 - \hat{e}_i}.
+\end{equation}
+
+This estimator targets the average causal effect, $\Delta = \E[Y(1) - Y(0)]$, where $Y(z)$ is the potential outcome for an experimental unit had it been exposed to the level $z$ of the binary exposure variable $Z$. The estimated propsensity score, $\hat{e}_i$, is the estimated probability that unit $i$ received $z = 1$ and $m_z(X_i, \hat{\alpha}_z)$ are regression models for the outcome with baseline covariates $X_i$ and estimated paramaters $\hat{\alpha}_z$. This estimator has the property that if either the propensity score models or the outcome models are correctly specified, then the solution to Equation~\ref{eq:dbr} will be a consistent and asymptotically Normal estimator of $\Delta$.
+
+This estimator and its estimating equations can be translated into an `estFUN` as:
+
+```{r dr_estfun, echo = TRUE}
+dr_estFUN <- function(data, models){
+  
+  Z <- data$Z
+  Y <- data$Y
+  
+  Xe <- grab_design_matrix(
+    data, rhs_formula = grab_fixed_formula(models$e))
+  Xm0 <- grab_design_matrix(
+    data, rhs_formula = grab_fixed_formula(models$m0))
+  Xm1 <- grab_design_matrix(
+    data, rhs_formula = grab_fixed_formula(models$m1))
+  
+  e_pos  <- 1:ncol(Xe)
+  m0_pos <- (max(e_pos) + 1):(max(e_pos) + ncol(Xm0))
+  m1_pos <- (max(m0_pos) + 1):(max(m0_pos) + ncol(Xm1))
+  
+  e_scores  <- grab_psiFUN(models$e, data)
+  m0_scores <- grab_psiFUN(models$m0, data)
+  m1_scores <- grab_psiFUN(models$m1, data)
+  
+  function(theta){
+    e  <- plogis(Xe %*% theta[e_pos]) 
+    m0 <- Xm0 %*% theta[m0_pos] 
+    m1 <- Xm1 %*% theta[m1_pos] 
+    rd_hat <- (Z*Y - (Z - e) * m1)/e - ((1 - Z) * Y - (Z - e) * m0)/(1 - e)
+    c(e_scores(theta[e_pos]),
+      m0_scores(theta[m0_pos]) * (Z == 0),
+      m1_scores(theta[m1_pos]) * (Z == 1),
+      rd_hat - theta[length(theta)])  
+  }
+}
+```
+
+\noindent This `estFUN` presumes that the user will pass a list containing fitted model objects for the three nuisance models: the propensity score model and one regression model for each treatment group. The functions `grab_design_matrix` and `grab_fixed_formula` are `geex` utilities for extracting relevant pieces of a model object. The function `grab_psiFUN` converts a fitted model object to an estimating function; for example, for a `glm` object, `grab_psiFUN` uses the \code{data} to create a `function` of `theta` corresponding to the generalized linear model score function. The `m_estimate` function can be wrapped in another function, wherein nuisance models are fit and passed to `m_estimate`. 
+
+```{r estimate_dr}
+estimate_dr <- function(data, propensity_formula, outcome_formula){
+  e_model  <- glm(propensity_formula, data = data, family = binomial)
+  m0_model <- glm(outcome_formula, subset = (Z == 0), data = data)
+  m1_model <- glm(outcome_formula, subset = (Z == 1), data = data)
+  models <- list(e = e_model, m0 = m0_model, m1 = m1_model)
+  nparms <- sum(unlist(lapply(models, function(x) length(coef(x))))) + 1
+  
+  m_estimate(
+    estFUN = dr_estFUN,
+    data   = data,
+    root_control = setup_root_control(start = rep(0, nparms)),
+    outer_args = list(models = models))
+}
+```
+
+The following code provides a function to replicate the simulation settings of @lunceford2004stratification.
+
+```{r lunceford_simulation, echo = TRUE}
+library(mvtnorm)
+tau_0 <- c(-1, -1, 1, 1)
+tau_1 <- tau_0 * -1
+Sigma_X3 <- matrix(
+   c(1, 0.5, -0.5, -0.5,
+     0.5, 1, -0.5, -0.5,
+     -0.5, -0.5, 1, 0.5,
+     -0.5, -0.5, 0.5, 1), ncol = 4, byrow = TRUE)
+
+gen_data <- function(n, beta, nu, xi){
+  X3 <- rbinom(n, 1, prob = 0.2)
+  V3 <- rbinom(n, 1, prob = (0.75 * X3 + (0.25 * (1 - X3))))
+  hold <- rmvnorm(n,  mean = rep(0, 4), Sigma_X3)
+  colnames(hold) <- c("X1", "V1", "X2", "V2")
+  hold <- cbind(hold, X3, V3)
+  hold <- apply(hold, 1, function(x){
+    x[1:4] <- x[1:4] + tau_1^(x[5])*tau_0^(1 - x[5])
+    x})
+  hold <- t(hold)[, c("X1", "X2", "X3", "V1", "V2", "V3")]
+  X <- cbind(Int = 1, hold)
+  Z <- rbinom(n, 1, prob = plogis(X[, 1:4] %*% beta))
+  X <- cbind(X[, 1:4], Z, X[, 5:7])
+  data.frame(
+    Y = X %*% c(nu, xi) + rnorm(n), 
+    X[ , -1])
+}
+
+```
+
+To show that `estimate_dr` correctly computes $\hat{\Delta}_{DR}$, the results from `geex` can be compared to computing $\hat{\Delta}_{DR}$ "by hand" for a simulated dataset.
+
+```{r dr_estimation}
+dt <- gen_data(1000, c(0, 0.6, -0.6, 0.6), c(0, -1, 1, -1, 2), c(-1, 1, 1))
+geex_results <- estimate_dr(dt, Z ~ X1 + X2 + X3, Y ~ X1 + X2 + X3)
+```
+
+```{r dr_byhand}
+e  <- predict(glm(Z ~ X1 + X2 + X3, data = dt, family = "binomial"),
+              type = "response")
+m0 <- predict(glm(Y ~ X1 + X2 + X3, data = dt, subset = Z==0), newdata = dt)
+m1 <- predict(glm(Y ~ X1 + X2 + X3, data = dt, subset = Z==1), newdata = dt)
+del_hat <- with(dt, mean( (Z * Y - (Z - e) * m1)/e)) - 
+  with(dt, mean(((1 - Z) * Y - (Z - e) * m0)/(1 - e)))
+```

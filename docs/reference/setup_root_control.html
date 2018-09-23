@@ -18,13 +18,25 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
+
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
+<meta property="og:title" content="Setup a root_control object — setup_root_control" />
+
+<meta property="og:description" content="Setup a root_control object" />
+<meta name="twitter:card" content="summary" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +59,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">geex</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">geex</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.0.11</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -73,6 +89,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -80,19 +97,23 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Setup a root_control object</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bsaul/geex/blob/master/R/classes.R'><code>R/classes.R</code></a></small>
+    <div class="hidden name"><code>setup_root_control.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Setup a root_control object</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>setup_root_control</span>(<span class='no'>FUN</span>, <span class='no'>roots_name</span>, <span class='no'>...</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -240,6 +261,7 @@
 #&gt;     names(x) &lt;- names(start)
 #&gt;     return(list(root = x, f.root = reffx, iter = i, estim.precis = precis[length(precis)]))
 #&gt; }
+#&gt; &lt;bytecode: 0x7fe2252cd308&gt;
 #&gt; &lt;environment: namespace:rootSolve&gt;
 #&gt; 
 #&gt; Slot ".options":
@@ -373,6 +395,7 @@
 #&gt;     names(x) &lt;- names(start)
 #&gt;     return(list(root = x, f.root = reffx, iter = i, estim.precis = precis[length(precis)]))
 #&gt; }
+#&gt; &lt;bytecode: 0x7fe2252cd308&gt;
 #&gt; &lt;environment: namespace:rootSolve&gt;
 #&gt; 
 #&gt; Slot ".options":
@@ -413,7 +436,7 @@
 #&gt;         if (trace) 
 #&gt;             cat(sprintf("search in [%g,%g]%s", lower, upper, 
 #&gt;                 if (trace &gt;= 2) 
-#&gt;                   "\\n"
+#&gt;                   "\n"
 #&gt;                 else " ... "))
 #&gt;         Delta &lt;- function(u) 0.01 * pmax(1e-04, abs(u))
 #&gt;         it &lt;- 0L
@@ -445,7 +468,7 @@
 #&gt;                   }
 #&gt;                 }
 #&gt;                 if (trace &gt;= 2) 
-#&gt;                   cat(sprintf(" .. modified lower,upper: (%15g,%15g)\\n", 
+#&gt;                   cat(sprintf(" .. modified lower,upper: (%15g,%15g)\n", 
 #&gt;                     lower, upper))
 #&gt;                 delta &lt;- 2 * delta
 #&gt;             }
@@ -458,7 +481,7 @@
 #&gt;                     it - 1), domain = NA)
 #&gt;                 f.lower &lt;- f(lower &lt;- lower - delta, ...)
 #&gt;                 if (trace &gt;= 2) 
-#&gt;                   cat(sprintf(" .. modified lower: %g\\n", lower))
+#&gt;                   cat(sprintf(" .. modified lower: %g\n", lower))
 #&gt;                 delta &lt;- 2 * delta
 #&gt;             }
 #&gt;             delta &lt;- Delta(upper)
@@ -468,12 +491,12 @@
 #&gt;                     it - 1), domain = NA)
 #&gt;                 f.upper &lt;- f(upper &lt;- upper + delta, ...)
 #&gt;                 if (trace &gt;= 2) 
-#&gt;                   cat(sprintf(" .. modified upper: %g\\n", upper))
+#&gt;                   cat(sprintf(" .. modified upper: %g\n", upper))
 #&gt;                 delta &lt;- 2 * delta
 #&gt;             }
 #&gt;         }
 #&gt;         if (trace &amp;&amp; trace &lt; 2) 
-#&gt;             cat(sprintf("extended to [%g, %g] in %d steps\\n", 
+#&gt;             cat(sprintf("extended to [%g, %g] in %d steps\n", 
 #&gt;                 lower, upper, it))
 #&gt;     }
 #&gt;     if (!isTRUE(as.vector(sign(f.lower) * sign(f.upper) &lt;= 0))) 
@@ -505,7 +528,7 @@
 #&gt;     list(root = val[1L], f.root = f(val[1L], ...), iter = iter, 
 #&gt;         init.it = it, estim.prec = val[3L])
 #&gt; }
-#&gt; &lt;bytecode: 0x107924cb0&gt;
+#&gt; &lt;bytecode: 0x7fe22a282a88&gt;
 #&gt; &lt;environment: namespace:stats&gt;
 #&gt; 
 #&gt; Slot ".options":
@@ -533,11 +556,14 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+

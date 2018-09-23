@@ -69,7 +69,7 @@ grab_psiFUN <- function(object, ...){
 grab_psiFUN.glm <- function(object, data, ...){
   ### TODO: handle GLM objects with weights
 
-  X  <- stats::model.matrix(object$formula, data = data)
+  X  <- stats::model.matrix(object$formula, data = data, ...)
   Y  <- as.numeric(stats::model.frame(grab_response_formula(object), data = data)[[1]])
   n  <- length(Y)
   p  <- length(stats::coef(object))
@@ -111,7 +111,7 @@ grab_psiFUN.geeglm <- function(object, data, ...){
     stop("only independence working correlation is supported at this time")
   }
 
-  X <- stats::model.matrix(object$formula, data = data)
+  X <- stats::model.matrix(object$formula, data = data, ...)
   # DO NOT use stats::model.matrix(geepack_obj, data = subdata)) -
   # returns entire model matrix, not just the subset
   Y  <- stats::model.response(stats::model.frame(object, data = data))
@@ -156,7 +156,7 @@ grab_psiFUN.merMod <- function(object, data, numderiv_opts = NULL,...)
   }
 
   fm     <- grab_fixed_formula(model = object)
-  X      <- grab_design_matrix(data = data, rhs_formula = fm)
+  X      <- grab_design_matrix(data = data, rhs_formula = fm, ...)
   Y      <- grab_response(data = data, formula = stats::formula(object))
   family <- object@resp$family
   lnkinv <- family$linkinv
@@ -208,11 +208,15 @@ objFun_glmerMod_binomial <- function(parms, response, xmatrix, linkinv)
 #------------------------------------------------------------------------------#
 
 binomial_integrand <- function(b, response, xmatrix, parms, linkinv){
-  if(class(xmatrix) != 'matrix'){
-    xmatrix <- as.matrix(xmatrix)
-  }
+  # if(class(xmatrix) != 'matrix'){
+  #   xmatrix <- as.matrix(xmatrix)
+  #   warning(paste("xmatrix was not a matrix but now it has dims", dim(xmatrix)))
+  # }
   pr  <- linkinv( drop(outer(xmatrix %*% parms[-length(parms)], b, '+') ) )
   hh  <- stats::dbinom(response, 1, prob = pr)
+  if (!is.matrix(hh)){
+    hh <- as.matrix(hh, ncol=1, nrow=length(hh))
+  }
   hha <- apply(hh, 2, prod)
   hha * stats::dnorm(b, mean = 0, sd = parms[length(parms)])
 }

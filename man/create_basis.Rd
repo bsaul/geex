@@ -37,5 +37,4 @@ myee <- function(data){
 mybasis <- create_basis(
    estFUN = myee,
    data   = geexex)
-mybasis
 }
