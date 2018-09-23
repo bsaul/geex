@@ -1,0 +1,16 @@
+pandoc: 2.2.1
+pkgdown: 1.1.0
+pkgdown_sha: ~
+articles:
+  lme4_discussion: articles/lme4_discussion.html
+  mestimation_bib: articles/mestimation_bib.html
+  speed_tips: articles/speed_tips.html
+  v00_geex_intro: v00_geex_intro.html
+  v01_additional_examples: v01_additional_examples.html
+  v02_sandwich_comparison: v02_sandwich_comparison.html
+  v03_root_solvers: v03_root_solvers.html
+  v04_weights: v04_weights.html
+  v05_finite_sample_corrections: v05_finite_sample_corrections.html
+  v06_causal_example: v06_causal_example.html
+  v07_geex_design: v07_geex_design.html
+

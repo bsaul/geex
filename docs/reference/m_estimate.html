@@ -18,13 +18,30 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
+
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
+<meta property="og:title" content="Estimate parameters and their covariance from a set of estimating equations — m_estimate" />
+
+<meta property="og:description" content="M-estimation theory provides a framework for asympotic properties of estimators
+that are solutions to estimating equations. Many R packages implement specific
+applications of estimating equations. geex aims to be provide a more general
+framework that any modelling method can use to compute point and variance estimates
+for parameters that are solutions to estimating equations of the form:
+$$\sum_i \psi(O_i, \hat{\theta}) = 0$$" />
+<meta name="twitter:card" content="summary" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +64,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">geex</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">geex</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.0.11</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -73,6 +94,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -80,12 +102,15 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Estimate parameters and their covariance from a set of estimating equations</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bsaul/geex/blob/master/R/m_estimate.R'><code>R/m_estimate.R</code></a></small>
+    <div class="hidden name"><code>m_estimate.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>M-estimation theory provides a framework for asympotic properties of estimators
 that are solutions to estimating equations. Many R packages implement specific
@@ -94,13 +119,14 @@ framework that any modelling method can use to compute point and variance estima
 for parameters that are solutions to estimating equations of the form:
 $$\sum_i \psi(O_i, \hat{\theta}) = 0$$</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>m_estimate</span>(<span class='no'>estFUN</span>, <span class='no'>data</span>, <span class='kw'>units</span> <span class='kw'>=</span> <span class='fu'>character</span>(<span class='fl'>0</span>), <span class='kw'>weights</span> <span class='kw'>=</span> <span class='fu'>numeric</span>(<span class='fl'>0</span>),
   <span class='kw'>outer_args</span> <span class='kw'>=</span> <span class='fu'>list</span>(), <span class='kw'>inner_args</span> <span class='kw'>=</span> <span class='fu'>list</span>(), <span class='kw'>roots</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>compute_roots</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>compute_vcov</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>corrections</span>, <span class='no'>deriv_control</span>,
   <span class='no'>root_control</span>, <span class='no'>approx_control</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -181,7 +207,7 @@ and/or the empirical sandwich variance estimator.</p>
 <p>The root finding algorithm defaults to <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code> to
 estimate roots though the solver algorithm can be specified in the <code>rootFUN</code>
 argument. Starting values for <code><a href='http://www.rdocumentation.org/packages/rootSolve/topics/multiroot'>multiroot</a></code> are passed via the
-<code>root_control</code> argument. See <code><a href='https://cran.rstudio.com/web/packages/geex/vignettes/v03_root_solvers.html'>vignette("v03_root_solvers", package = "geex")</a></code>
+<code>root_control</code> argument. See <code><a href='../articles/v03_root_solvers.html'>vignette("v03_root_solvers", package = "geex")</a></code>
 for information on customizing the root solver function.</p>
 <p>To compute only the covariance matrix, set <code>compute_roots = FALSE</code> and pass
 estimates of \(\theta\) via the <code>roots</code> argument.</p>
@@ -190,7 +216,7 @@ the data.frame  into independent units is specified by the <code>units</code> ar
 This argument defaults to <code>NULL</code>, in which case the number of units equals
 the number of rows in the data.frame.</p>
 <p>For information on the finite-sample corrections, refer to the finite sample
-correction API vignette: <code><a href='https://cran.rstudio.com/web/packages/geex/vignettes/v05_finite_sample_corrections.html'>vignette("v05_finite_sample_corrections", package = "geex")</a></code></p>
+correction API vignette: <code><a href='../articles/v05_finite_sample_corrections.html'>vignette("v05_finite_sample_corrections", package = "geex")</a></code></p>
     
     <h2 class="hasAnchor" id="writing-an-estfun"><a class="anchor" href="#writing-an-estfun"></a>Writing an estFUN</h2>
 
@@ -220,7 +246,7 @@ which may be single rows in a data.frame or block of rows for clustered data.
     Additional arguments may be passed to both the inner and outer function of the
 <code>estFUN</code>. Elements in an <code>outer_args</code> list are passed to the outer
 function; any elements of the <code>inner_args</code> list are passed to the inner
-function. For an example, see the finite sample correction vignette [<code><a href='https://cran.rstudio.com/web/packages/geex/vignettes/v05_finite_sample_corrections.html'>
+function. For an example, see the finite sample correction vignette [<code><a href='../articles/v05_finite_sample_corrections.html'>
 vignette("v05_finite_sample_corrections", package = "geex")</a></code>].
     
     <h2 class="hasAnchor" id="setting-up-root-control"><a class="anchor" href="#setting-up-root-control"></a>Setting up root_control</h2>
@@ -239,7 +265,7 @@ the dimension of <code>start</code> must the same as <code>theta</code> in the i
 
     
     <p>In some situations, use of weights can massively speed computations. Refer
-to <code><a href='https://cran.rstudio.com/web/packages/geex/vignettes/v04_weights.html'>vignette("v04_weights", package = "geex")</a></code> for an example.</p>
+to <code><a href='../articles/v04_weights.html'>vignette("v04_weights", package = "geex")</a></code> for an example.</p>
     
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
@@ -259,20 +285,69 @@ The American Statistician, 56(1), 29-38.</p>
 <span class='fu'>m_estimate</span>(
  <span class='kw'>estFUN</span> <span class='kw'>=</span> <span class='no'>ex_eeFUN</span>,
  <span class='kw'>data</span>  <span class='kw'>=</span> <span class='no'>geexex</span>,
- <span class='kw'>root_control</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_control.html'>setup_root_control</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>1</span>)))</div><div class='output co'>#&gt; M-estimation results based on the estimating function:
+ <span class='kw'>root_control</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_control.html'>setup_root_control</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>1</span>)))</div><div class='output co'>#&gt; An object of class "geex"
+#&gt; Slot "call":
+#&gt; m_estimate(estFUN = ex_eeFUN, data = geexex, root_control = setup_root_control(start = c(1, 
+#&gt;     1)))
+#&gt; 
+#&gt; Slot "basis":
+#&gt; An object of class m_estimation_basis
+#&gt; psi: 
 #&gt; {
 #&gt;     function(theta) {
 #&gt;         with(data, c(Y1 - theta[1], (Y1 - theta[1])^2 - theta[2]))
 #&gt;     }
 #&gt; }
-#&gt; 
-#&gt; Estimates:
+#&gt; Data:
+#&gt;           Y1        Y2       X1       Y3       W1        Z1 X2         Y4 Y5
+#&gt; 1  3.6683066 2.0281718 4.949316 16.34576 4.823768  8.921782  0 0.09273926  1
+#&gt; 2 10.4524548 1.6432966 7.851962 25.68742 7.884845 13.909474  0 1.01672736  1
+#&gt; 3  3.1234106 2.8526264 4.729075 16.10831 4.709346  9.014695  0 0.49399039  0
+#&gt; 4  8.3715025 2.5133652 2.564395 10.57997 2.786091  6.733378  0 1.24322433  0
+#&gt; 5 -0.8319749 3.0182030 4.782347 16.46401 4.811590  9.290492  0 0.69520599  1
+#&gt; 6  3.3987763 0.9785209 5.335713 18.32577 5.415370 10.322199  0 0.95220138  1
+#&gt; Units:  
+#&gt; Slot "rootFUN_results":
+#&gt; $root
 #&gt; [1]  5.044563 10.041239
 #&gt; 
-#&gt; Covariance:
+#&gt; $f.root
+#&gt; [1] -2.131628e-14 -2.238210e-13
+#&gt; 
+#&gt; $iter
+#&gt; [1] 4
+#&gt; 
+#&gt; $estim.precis
+#&gt; [1] 1.225686e-13
+#&gt; 
+#&gt; 
+#&gt; Slot "sandwich_components":
+#&gt; An object of class sandwich_components
+#&gt; A (bread matrix):
+#&gt;               [,1] [,2]
+#&gt; [1,]  1.000000e+02    0
+#&gt; [2,] -1.517693e-10  100
+#&gt; B (meat matrix):
+#&gt;           [,1]       [,2]
+#&gt; [1,] 1004.1239   366.7969
+#&gt; [2,]  366.7969 24921.9638
+#&gt; 
+#&gt; Slot "GFUN":
+#&gt; function () 
+#&gt; NULL
+#&gt; &lt;bytecode: 0x7fe22039f240&gt;
+#&gt; 
+#&gt; Slot "corrections":
+#&gt; list()
+#&gt; 
+#&gt; Slot "estimates":
+#&gt; [1]  5.044563 10.041239
+#&gt; 
+#&gt; Slot "vcov":
 #&gt;            [,1]       [,2]
 #&gt; [1,] 0.10041239 0.03667969
-#&gt; [2,] 0.03667969 2.49219638</div><div class='input'>
+#&gt; [2,] 0.03667969 2.49219638
+#&gt; </div><div class='input'>
 <span class='co'># compare to the mean() and variance() functions</span>
 <span class='fu'>mean</span>(<span class='no'>geexex</span>$<span class='no'>Y1</span>)</div><div class='output co'>#&gt; [1] 5.044563</div><div class='input'><span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='fu'>nrow</span>(<span class='no'>geexex</span>)
 <span class='fu'>var</span>(<span class='no'>geexex</span>$<span class='no'>Y1</span>) * (<span class='no'>n</span> - <span class='fl'>1</span>)/<span class='no'>n</span></div><div class='output co'>#&gt; [1] 10.04124</div><div class='input'>
@@ -288,7 +363,14 @@ The American Statistician, 56(1), 29-38.</p>
 <span class='fu'>m_estimate</span>(
  <span class='kw'>estFUN</span> <span class='kw'>=</span> <span class='no'>lm_eefun</span>,
  <span class='kw'>data</span>  <span class='kw'>=</span> <span class='no'>geexex</span>,
- <span class='kw'>root_control</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_control.html'>setup_root_control</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>)))</div><div class='output co'>#&gt; M-estimation results based on the estimating function:
+ <span class='kw'>root_control</span> <span class='kw'>=</span> <span class='fu'><a href='setup_root_control.html'>setup_root_control</a></span>(<span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>)))</div><div class='output co'>#&gt; An object of class "geex"
+#&gt; Slot "call":
+#&gt; m_estimate(estFUN = lm_eefun, data = geexex, root_control = setup_root_control(start = c(0, 
+#&gt;     0, 0)))
+#&gt; 
+#&gt; Slot "basis":
+#&gt; An object of class m_estimation_basis
+#&gt; psi: 
 #&gt; {
 #&gt;     X &lt;- cbind(1, data$X1, data$X2)
 #&gt;     Y &lt;- data$Y4
@@ -296,15 +378,62 @@ The American Statistician, 56(1), 29-38.</p>
 #&gt;         t(X) %*% (Y - X %*% theta)
 #&gt;     }
 #&gt; }
-#&gt; 
-#&gt; Estimates:
+#&gt; Data:
+#&gt;           Y1        Y2       X1       Y3       W1        Z1 X2         Y4 Y5
+#&gt; 1  3.6683066 2.0281718 4.949316 16.34576 4.823768  8.921782  0 0.09273926  1
+#&gt; 2 10.4524548 1.6432966 7.851962 25.68742 7.884845 13.909474  0 1.01672736  1
+#&gt; 3  3.1234106 2.8526264 4.729075 16.10831 4.709346  9.014695  0 0.49399039  0
+#&gt; 4  8.3715025 2.5133652 2.564395 10.57997 2.786091  6.733378  0 1.24322433  0
+#&gt; 5 -0.8319749 3.0182030 4.782347 16.46401 4.811590  9.290492  0 0.69520599  1
+#&gt; 6  3.3987763 0.9785209 5.335713 18.32577 5.415370 10.322199  0 0.95220138  1
+#&gt; Units:  
+#&gt; Slot "rootFUN_results":
+#&gt; $root
 #&gt; [1] -0.04061272  0.14435320  0.35436823
 #&gt; 
-#&gt; Covariance:
+#&gt; $f.root
+#&gt;              [,1]
+#&gt; [1,] 4.174439e-14
+#&gt; [2,] 8.970602e-14
+#&gt; [3,] 2.575717e-14
+#&gt; 
+#&gt; $iter
+#&gt; [1] 3
+#&gt; 
+#&gt; $estim.precis
+#&gt; [1] 5.240253e-14
+#&gt; 
+#&gt; 
+#&gt; Slot "sandwich_components":
+#&gt; An object of class sandwich_components
+#&gt; A (bread matrix):
+#&gt;         [,1]      [,2]     [,3]
+#&gt; [1,] 100.000  487.7690  50.0000
+#&gt; [2,] 487.769 2902.9210 237.3681
+#&gt; [3,]  50.000  237.3681  50.0000
+#&gt; B (meat matrix):
+#&gt;           [,1]      [,2]      [,3]
+#&gt; [1,] 101.49842  498.0078  69.60688
+#&gt; [2,] 498.00784 2943.3859 325.89676
+#&gt; [3,]  69.60688  325.8968  69.60688
+#&gt; 
+#&gt; Slot "GFUN":
+#&gt; function () 
+#&gt; NULL
+#&gt; &lt;bytecode: 0x7fe22039f240&gt;
+#&gt; 
+#&gt; Slot "corrections":
+#&gt; list()
+#&gt; 
+#&gt; Slot "estimates":
+#&gt; [1] -0.04061272  0.14435320  0.35436823
+#&gt; 
+#&gt; Slot "vcov":
 #&gt;              [,1]          [,2]          [,3]
 #&gt; [1,]  0.053446050 -0.0085998270 -0.0117461490
 #&gt; [2,] -0.008599827  0.0018120535 -0.0001770491
-#&gt; [3,] -0.011746149 -0.0001770491  0.0403839561</div><div class='input'>
+#&gt; [3,] -0.011746149 -0.0001770491  0.0403839561
+#&gt; </div><div class='input'>
 <span class='co'># Compare to lm() results</span>
 <span class='fu'>summary</span>(<span class='fu'>lm</span>(<span class='no'>Y4</span> ~ <span class='no'>X1</span> + <span class='no'>X2</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>geexex</span>))</div><div class='output co'>#&gt; 
 #&gt; Call:
@@ -356,11 +485,14 @@ The American Statistician, 56(1), 29-38.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+

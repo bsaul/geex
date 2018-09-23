@@ -1,3 +1,9 @@
+# geex 1.0.11
+
+* renames the `geex-summary` class to `geex_summary`
+* adds `ee_i` (observed estimating function values) to the component object
+* various other bug fixes
+
 # geex 1.0.5
 
 * Added `grab_design_levels` to find all factor-levels in a design matrix. This output can then be passed to the `xlev` arg in `model.matrix` or more importantly through `grab_psiFun` for the models. This fixes issue 41. 

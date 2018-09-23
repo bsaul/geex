@@ -18,13 +18,28 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
+
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
+<meta property="og:title" content="Creates list of psi functions — create_psiFUN_list" />
+
+<meta property="og:description" content="Creates the estimating function (\(\psi(O_i, \theta)\))
+for each unit. That is, this function evaluates the outer function in
+estFUN for each independent unit and a returns the inner function in
+estFUN." />
+<meta name="twitter:card" content="summary" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +62,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">geex</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">geex</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.0.11</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -73,6 +92,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -80,25 +100,29 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Creates list of psi functions</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bsaul/geex/blob/master/R/create_funs.R'><code>R/create_funs.R</code></a></small>
+    <div class="hidden name"><code>create_psiFUN_list-methods.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Creates the estimating function (\(\psi(O_i, \theta)\))
 for each unit. That is, this function evaluates the outer function in
 <code>estFUN</code> for each independent unit and a returns the inner function in
 <code>estFUN</code>.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>create_psiFUN_list</span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S4 method for m_estimation_basis</span>
 <span class='fu'>create_psiFUN_list</span>(<span class='no'>object</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -134,42 +158,42 @@ for each unit. That is, this function evaluates the outer function in
 #&gt; {
 #&gt;     c(data$Y1 - theta[1], (data$Y1 - theta[1])^2 - theta[2])
 #&gt; }
-#&gt; &lt;environment: 0x11f629060&gt;
+#&gt; &lt;environment: 0x7fe22ad20058&gt;
 #&gt; 
 #&gt; $`2`
 #&gt; function (theta) 
 #&gt; {
 #&gt;     c(data$Y1 - theta[1], (data$Y1 - theta[1])^2 - theta[2])
 #&gt; }
-#&gt; &lt;environment: 0x11e92b2e0&gt;
+#&gt; &lt;environment: 0x7fe22ad24170&gt;
 #&gt; 
 #&gt; $`3`
 #&gt; function (theta) 
 #&gt; {
 #&gt;     c(data$Y1 - theta[1], (data$Y1 - theta[1])^2 - theta[2])
 #&gt; }
-#&gt; &lt;environment: 0x11e8581c8&gt;
+#&gt; &lt;environment: 0x7fe22ad2c288&gt;
 #&gt; 
 #&gt; $`4`
 #&gt; function (theta) 
 #&gt; {
 #&gt;     c(data$Y1 - theta[1], (data$Y1 - theta[1])^2 - theta[2])
 #&gt; }
-#&gt; &lt;environment: 0x11ea49630&gt;
+#&gt; &lt;environment: 0x7fe22ad303a0&gt;
 #&gt; 
 #&gt; $`5`
 #&gt; function (theta) 
 #&gt; {
 #&gt;     c(data$Y1 - theta[1], (data$Y1 - theta[1])^2 - theta[2])
 #&gt; }
-#&gt; &lt;environment: 0x11ed29190&gt;
+#&gt; &lt;environment: 0x7fe22ad34448&gt;
 #&gt; 
 #&gt; $`6`
 #&gt; function (theta) 
 #&gt; {
 #&gt;     c(data$Y1 - theta[1], (data$Y1 - theta[1])^2 - theta[2])
 #&gt; }
-#&gt; &lt;environment: 0x1203f7478&gt;
+#&gt; &lt;environment: 0x7fe22ad3a560&gt;
 #&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -191,11 +215,14 @@ for each unit. That is, this function evaluates the outer function in
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+
