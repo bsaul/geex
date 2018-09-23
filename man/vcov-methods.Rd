@@ -4,9 +4,13 @@
 \name{vcov,geex-method}
 \alias{vcov,geex-method}
 \alias{vcov,geex,geex-method}
+\alias{vcov,geex-summary-method}
+\alias{vcov,geex-summary,geex-summary-method}
 \title{Gets the variance-covariance matrix from a geex object}
 \usage{
 \S4method{vcov}{geex}(object)
+
+\S4method{vcov}{`geex-summary`}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{geex}} object}

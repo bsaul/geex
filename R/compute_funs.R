@@ -31,10 +31,11 @@ compute_sigma <- function(A, B){
 }
 
 #------------------------------------------------------------------------------#
-# Compute the sum of  a list of matrices to sum
-#
-# @param l a list of matrices
-# @param w a numeric vector of weights
+#' Compute the sum of  a list of matrices to sum
+#'
+#' @param .l a list of matrices
+#' @param .w a numeric vector of weights
+#' @export
 #------------------------------------------------------------------------------#
 
 compute_sum_of_list <- function(.l, .w = numeric(0)){
@@ -45,4 +46,49 @@ compute_sum_of_list <- function(.l, .w = numeric(0)){
     Map(`*`, .l, .w)
   } else .l
   Reduce(`+`, M_i_pre)
+}
+
+#------------------------------------------------------------------------------#
+#' Compute the sum of  a list of matrices to sum
+#'
+#' @param .l a list of matrices
+#' @param .w a numeric vector of weights
+#' @param .wFUN a function of \code{i}, \code{j}, and (optionally) additional
+#' arguments
+#' @param ... additional arguments passed to \code{.wFUN}
+#'
+#' Either \code{.w} or \code{.wFUN} must be specified but not both.
+#'
+#' @importFrom methods formalArgs
+#' @export
+#------------------------------------------------------------------------------#
+
+compute_pairwise_sum_of_list <- function(.l, .w = NULL, .wFUN = NULL, ...){
+
+  use_w    <- !missing(.w)
+  use_wFUN <- !missing(.wFUN)
+
+  if((use_w && use_wFUN) || (!use_w && !use_wFUN)){
+    stop("Either a vector of weights (.w) or a function (.wFUN) must be specified and not both.")
+  }
+
+  if(use_w && (length(.l) != length(.w))){
+    stop("The length of the weight vector must equal the length of the list.")
+  }
+
+  if(use_wFUN && all(methods::formalArgs(.wFUN)[1:2] != c("i", "j"))){
+    stop("The first two arguments of .wFUN must be i and j.")
+  }
+
+  lapply(seq_along(.l), function(i){
+    lapply(seq_along(.l), function(j){
+      if(use_wFUN){
+        .w <- .wFUN(i, j, ...)
+      }
+      .w * tcrossprod(.l[[i]], .l[[j]])
+      # w * .l[[i]] %*% t(.l[[j]])
+    }) -> hold1
+    compute_sum_of_list(hold1)
+  }) -> hold2
+  compute_sum_of_list(hold2)
 }

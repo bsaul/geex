@@ -63,7 +63,7 @@
       <h1>A comparison of <code>geex</code> and sandwich for robust covariance estimation</h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-09-04</h4>
+            <h4 class="date">2018-05-28</h4>
           </div>
 
     
@@ -71,25 +71,25 @@
 <div class="contents">
 <p>This examples uses the <code>vaccinesim</code> dataset from the <code>inferference</code> package to compare the estimated covariance matrix obtained from <code>geex</code> and <code>sandwich</code>. An example <span class="math inline">\(\psi\)</span> function written in <code>R</code>.</p>
 <p>This function computes the score functions for a GLM.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eefun &lt;-<span class="st"> </span>function(data, model){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eefun &lt;-<span class="st"> </span><span class="cf">function</span>(data, model){
   X &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(model, <span class="dt">data =</span> data)
   Y &lt;-<span class="st"> </span><span class="kw">model.response</span>(<span class="kw">model.frame</span>(model, <span class="dt">data =</span> data))
-  function(theta){
-    lp  &lt;-<span class="st"> </span>X %*%<span class="st"> </span>theta
+  <span class="cf">function</span>(theta){
+    lp  &lt;-<span class="st"> </span>X <span class="op">%*%</span><span class="st"> </span>theta
     rho &lt;-<span class="st"> </span><span class="kw">plogis</span>(lp)
 
-    score_eqns &lt;-<span class="st"> </span><span class="kw">apply</span>(X, <span class="dv">2</span>, function(x) <span class="kw">sum</span>((Y -<span class="st"> </span>rho) *<span class="st"> </span>x))
+    score_eqns &lt;-<span class="st"> </span><span class="kw">apply</span>(X, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="kw">sum</span>((Y <span class="op">-</span><span class="st"> </span>rho) <span class="op">*</span><span class="st"> </span>x))
     score_eqns
   }
 }</code></pre></div>
 <p>Compare sandwich variance estimators to <code>sandwich</code> treating individuals as units:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
 <span class="kw">library</span>(inferference)
-mglm    &lt;-<span class="st"> </span><span class="kw">glm</span>(A ~<span class="st"> </span>X1, <span class="dt">data =</span> vaccinesim, <span class="dt">family =</span> binomial)
+mglm    &lt;-<span class="st"> </span><span class="kw">glm</span>(A <span class="op">~</span><span class="st"> </span>X1, <span class="dt">data =</span> vaccinesim, <span class="dt">family =</span> binomial)
 estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> eefun,
   <span class="dt">data =</span> vaccinesim,
-  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(-.<span class="dv">35</span>, <span class="dv">0</span>)),
+  <span class="dt">root_control =</span> <span class="kw"><a href="../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">c</span>(<span class="op">-</span>.<span class="dv">35</span>, <span class="dv">0</span>)),
   <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> mglm))
 
 <span class="co"># Compare point estimates</span>
@@ -103,7 +103,7 @@ estimates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m
 <pre><code>##               [,1]          [,2]
 ## [1,]  0.0028345579 -0.0007476536
 ## [2,] -0.0007476536  0.0003870030</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sandwich::<span class="kw">sandwich</span>(mglm)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sandwich<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/sandwich/topics/sandwich">sandwich</a></span>(mglm)</code></pre></div>
 <pre><code>##               (Intercept)            X1
 ## (Intercept)  0.0028345579 -0.0007476536
 ## X1          -0.0007476536  0.0003870030</code></pre>

@@ -118,14 +118,18 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 
   A <- compute_sum_of_list(A_i, w)
 
-  # Compute outer product of observed estimating eqns
-  B_i <- lapply(psi_list, function(ee) {
-    ee_val <- do.call(ee, args = append(list(theta = .theta), .basis@.inner_args))
-    ee_val %*% t(ee_val)
+  # Compute observed estimating function
+  ee_i <- lapply(psi_list, function(ee){
+    do.call(ee, args = append(list(theta = .theta), .basis@.inner_args))
+  })
+
+  # Compute outer product of observed estimating function
+  B_i <- lapply(ee_i, function(ee) {
+    ee %*% t(ee)
   })
 
   B <- compute_sum_of_list(B_i, w)
 
   methods::new('sandwich_components',
-      .A = A, .A_i = A_i, .B = B, .B_i = B_i)
+      .A = A, .A_i = A_i, .B = B, .B_i = B_i, .ee_i = ee_i)
 }

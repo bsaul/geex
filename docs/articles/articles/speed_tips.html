@@ -72,15 +72,15 @@
 <h2 class="hasAnchor">
 <a href="#do-everything-not-involving-theta-outside-of-the-psifun" class="anchor"></a>Do everything not involving theta outside of the psiFUN</h2>
 <p>The following example compares two <code>estFUN</code>s. The first performs manipulations of <code>data</code> outside of the “inner” <code>psiFUN</code> function. The second performs the manipulations within the returned <code>psiFUN</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">glm_eefun1 &lt;-<span class="st"> </span>function(data, model){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">glm_eefun1 &lt;-<span class="st"> </span><span class="cf">function</span>(data, model){
   f &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/grab_psiFUN.html">grab_psiFUN</a></span>(model, data)
-  function(theta){
+  <span class="cf">function</span>(theta){
     <span class="kw">f</span>(theta)
   }
 }
 
-glm_eefun2 &lt;-<span class="st"> </span>function(data, model){
-  function(theta){
+glm_eefun2 &lt;-<span class="st"> </span><span class="cf">function</span>(data, model){
+  <span class="cf">function</span>(theta){
     f &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/grab_psiFUN.html">grab_psiFUN</a></span>(model, data)
     <span class="kw">f</span>(theta)
   }
@@ -90,7 +90,7 @@ glm_eefun2 &lt;-<span class="st"> </span>function(data, model){
 <span class="kw">library</span>(geepack, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)
 <span class="kw">data</span>(<span class="st">"ohio"</span>)
 
-test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<span class="st"> </span>age, <span class="dt">data =</span> ohio,
+test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp <span class="op">~</span><span class="st"> </span>age, <span class="dt">data =</span> ohio,
                      <span class="dt">family =</span> <span class="kw">binomial</span>(<span class="dt">link =</span> <span class="st">"logit"</span>))
 
 <span class="kw">system.time</span>({test &lt;-<span class="st"> </span><span class="kw"><a href="../../reference/m_estimate.html">m_estimate</a></span>(
@@ -100,10 +100,10 @@ test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<s
   <span class="dt">root_control  =</span> <span class="kw"><a href="../../reference/setup_root_control.html">setup_root_control</a></span>(<span class="dt">start =</span> <span class="kw">coef</span>(test_binomial)),
   <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial))})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.959   0.027   1.993</code></pre>
+##   2.134   0.021   2.160</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(<span class="kw">update</span>(test, <span class="dt">estFUN =</span> glm_eefun2))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##  16.177   0.311  16.595</code></pre>
+##  16.341   0.106  16.537</code></pre>
 </div>
 <div id="use-method-simple-for-computing-numerical-derivatives" class="section level2">
 <h2 class="hasAnchor">
@@ -116,12 +116,12 @@ test_binomial &lt;-<span class="st"> </span><span class="kw">glm</span>(resp ~<s
   <span class="dt">compute_roots =</span> <span class="ot">FALSE</span>,
   <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">model =</span> test_binomial))})</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.670   0.018   1.695</code></pre>
+##   1.779   0.009   1.792</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using method = "simple"</span>
 <span class="kw">system.time</span>(<span class="kw">update</span>(test, 
           <span class="dt">deriv_control =</span> <span class="kw"><a href="../../reference/setup_deriv_control.html">setup_deriv_control</a></span>(<span class="dt">method =</span> <span class="st">"simple"</span>)))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.878   0.009   0.891</code></pre>
+##   0.893   0.008   0.903</code></pre>
 </div>
 </div>
   </div>

@@ -84,18 +84,23 @@ test_that("m_estimation computations are working", {
 
   expect_is(estimates_2, 'geex')
 
+  expect_is(summary(estimates_2), 'geex-summary')
+  expect_output(print(summary(estimates_2)))
+
 })
 
 
 test_that("m_estimation works when given outer and/or inner args", {
 
   # should work
-  expect_is(m_estimate(estFUN  = test_eefun3,
-                          data  = geexex,
-                          outer_args = list(psi = 2),
-                          inner_args = list(alpha = 3),
-                          root_control = setup_root_control(start = c(3, 3))),
-            'geex')
+  fit <- m_estimate(estFUN  = test_eefun3,
+                    data  = geexex,
+                    outer_args = list(psi = 2),
+                    inner_args = list(alpha = 3),
+                    root_control = setup_root_control(start = c(3, 3)))
+  expect_is(fit, 'geex')
+  # Check nobs()
+  expect_equal(nobs(fit), nrow(geexex))
 
   # should fail
   expect_error(m_estimate(estFUN  = test_eefun3,

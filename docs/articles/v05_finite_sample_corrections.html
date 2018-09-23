@@ -64,7 +64,7 @@
 </h1>
                         <h4 class="author">Bradley Saul</h4>
             
-            <h4 class="date">2017-09-04</h4>
+            <h4 class="date">2018-05-28</h4>
           </div>
 
     
@@ -75,7 +75,7 @@
 <a href="#introduction" class="anchor"></a>Introduction</h2>
 <p>The empirical sandwich variance estimator is known to underestimate <span class="math inline">\(V(\theta)\)</span> in small samples <span class="citation">(Fay and Graubard 2001)</span>. Particularly in the context of GEE, <a href="https://bsaul.github.io/geex/articles/articles/mestimation_bib.html">many authors</a> have proposed corrections that modify components of <span class="math inline">\(\hat{\Sigma}\)</span> and/or by assuming <span class="math inline">\(\hat{\theta}\)</span> follows a <span class="math inline">\(t\)</span> (or <span class="math inline">\(F\)</span>), as opposed to Normal, distribution with some estimated degrees of freedom. Many of the proposed corrections somehow modify a combination of the <span class="math inline">\(A_i\)</span>, <span class="math inline">\(A_m\)</span>, <span class="math inline">\(B_i\)</span>, or <span class="math inline">\(B_m\)</span> matrices.</p>
 <p><code>geex</code> provides an API that allows users to specify functions that utilize these matrices to form corrections. A finite sample correction function at a minimum takes the argument <code>components</code>, which is an object of class <code>sandwich_components</code>. For example,</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">correct_by_nothing &lt;-<span class="st"> </span>function(components){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">correct_by_nothing &lt;-<span class="st"> </span><span class="cf">function</span>(components){
   A &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_bread-methods.html">grab_bread</a></span>(components)
   B &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_meat-methods.html">grab_meat</a></span>(components)
   <span class="kw"><a href="../reference/compute_sigma.html">compute_sigma</a></span>(<span class="dt">A =</span> A, <span class="dt">B =</span> B)
@@ -101,20 +101,20 @@ H_i(b) = \{1 - \min(b, \{A_i A^{-1}\}_{jj}) \}^{-1/2},
 <h2 class="hasAnchor">
 <a href="#bias-correction-example" class="anchor"></a>Bias correction example</h2>
 <p>The bias corrected estimator <span class="math inline">\(\hat{\Sigma}^{bc}(b)\)</span> can be implemented in <code>geex</code> by the following function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bias_correction &lt;-<span class="st"> </span>function(components, b){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bias_correction &lt;-<span class="st"> </span><span class="cf">function</span>(components, b){
   A &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_bread-methods.html">grab_bread</a></span>(components)
   A_i &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_bread_list-methods.html">grab_bread_list</a></span>(components)
   B_i &lt;-<span class="st"> </span><span class="kw"><a href="../reference/grab_meat_list-methods.html">grab_meat_list</a></span>(components)
   Ainv &lt;-<span class="st"> </span><span class="kw">solve</span>(A)
 
-  H_i &lt;-<span class="st"> </span><span class="kw">lapply</span>(A_i, function(m){
-    <span class="kw">diag</span>( (<span class="dv">1</span> -<span class="st"> </span><span class="kw">pmin</span>(b, <span class="kw">diag</span>(m %*%<span class="st"> </span>Ainv) ) )^(-<span class="fl">0.5</span>) )
+  H_i &lt;-<span class="st"> </span><span class="kw">lapply</span>(A_i, <span class="cf">function</span>(m){
+    <span class="kw">diag</span>( (<span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">pmin</span>(b, <span class="kw">diag</span>(m <span class="op">%*%</span><span class="st"> </span>Ainv) ) )<span class="op">^</span>(<span class="op">-</span><span class="fl">0.5</span>) )
   })
 
-  Bbc_i &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="kw">seq_along</span>(B_i), function(i){
-    H_i[[i]] %*%<span class="st"> </span>B_i[[i]] %*%<span class="st"> </span>H_i[[i]]
+  Bbc_i &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="kw">seq_along</span>(B_i), <span class="cf">function</span>(i){
+    H_i[[i]] <span class="op">%*%</span><span class="st"> </span>B_i[[i]] <span class="op">%*%</span><span class="st"> </span>H_i[[i]]
   })
-  Bbc   &lt;-<span class="st"> </span><span class="kw">apply</span>(<span class="kw">simplify2array</span>(Bbc_i), <span class="dv">1</span>:<span class="dv">2</span>, sum)
+  Bbc   &lt;-<span class="st"> </span><span class="kw">apply</span>(<span class="kw">simplify2array</span>(Bbc_i), <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, sum)
 
   <span class="kw"><a href="../reference/compute_sigma.html">compute_sigma</a></span>(<span class="dt">A =</span> A, <span class="dt">B =</span> Bbc)
 }</code></pre></div>
@@ -130,32 +130,32 @@ H_i(b) = \{1 - \min(b, \{A_i A^{-1}\}_{jj}) \}^{-1/2},
 \sum_{i= 1}^m \psi(\mathbf{Y}_i, \mathbf{X}_i, \beta) = \sum_{i = 1}^m \mathbf{D}_i^{\intercal} \mathbf{V}_i^{-1} (\mathbf{Y}_i - \mathbf{\mu}(\beta)) = 0
 \end{equation}\]</span>
 <p>where <span class="math inline">\(\mathbf{D}_i = \partial \mathbf{\mu}/\partial \mathbf{\beta}\)</span>. The covariance matrix is modeled by <span class="math inline">\(\mathbf{V}_i = \phi \mathbf{A}_i^{0.5} \mathbf{R}(\alpha) \mathbf{A}_i^{0.5}\)</span>. The matrix <span class="math inline">\(\mathbf{R}(\alpha)\)</span> is the “working” correlation matrix, which in this example is an exchangeable matrix with off diagonal elements <span class="math inline">\(\alpha\)</span>. The matrix <span class="math inline">\(\mathbf{A}_i\)</span> is a diagonal matrix with elements containing the variance functions of <span class="math inline">\(\mu\)</span>. The equations in  can be translated into an <code>eeFUN</code> as:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gee_eefun &lt;-<span class="st"> </span>function(data, formula, family){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gee_eefun &lt;-<span class="st"> </span><span class="cf">function</span>(data, formula, family){
   X &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(<span class="dt">object =</span> formula, <span class="dt">data =</span> data)
   Y &lt;-<span class="st"> </span><span class="kw">model.response</span>(<span class="kw">model.frame</span>(<span class="dt">formula =</span> formula, <span class="dt">data =</span> data))
   n &lt;-<span class="st"> </span><span class="kw">nrow</span>(X)
-  function(theta, alpha, psi){
-    mu  &lt;-<span class="st"> </span>family$<span class="kw">linkinv</span>(X %*%<span class="st"> </span>theta)
-    Dt  &lt;-<span class="st"> </span><span class="kw">t</span>(X) %*%<span class="st"> </span><span class="kw">diag</span>(<span class="kw">as.numeric</span>(mu), <span class="dt">nrow =</span> n)
-    A   &lt;-<span class="st"> </span><span class="kw">diag</span>(<span class="kw">as.numeric</span>(family$<span class="kw">variance</span>(mu)), <span class="dt">nrow =</span> n)
+  <span class="cf">function</span>(theta, alpha, psi){
+    mu  &lt;-<span class="st"> </span>family<span class="op">$</span><span class="kw">linkinv</span>(X <span class="op">%*%</span><span class="st"> </span>theta)
+    Dt  &lt;-<span class="st"> </span><span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span><span class="kw">diag</span>(<span class="kw">as.numeric</span>(mu), <span class="dt">nrow =</span> n)
+    A   &lt;-<span class="st"> </span><span class="kw">diag</span>(<span class="kw">as.numeric</span>(family<span class="op">$</span><span class="kw">variance</span>(mu)), <span class="dt">nrow =</span> n)
     R   &lt;-<span class="st"> </span><span class="kw">matrix</span>(alpha, <span class="dt">nrow =</span> n, <span class="dt">ncol =</span> n)
     <span class="kw">diag</span>(R) &lt;-<span class="st"> </span><span class="dv">1</span>
-    V   &lt;-<span class="st"> </span>psi *<span class="st"> </span>(<span class="kw">sqrt</span>(A) %*%<span class="st"> </span>R %*%<span class="st"> </span><span class="kw">sqrt</span>(A))
-    Dt %*%<span class="st"> </span><span class="kw">solve</span>(V) %*%<span class="st"> </span>(Y -<span class="st"> </span>mu)
+    V   &lt;-<span class="st"> </span>psi <span class="op">*</span><span class="st"> </span>(<span class="kw">sqrt</span>(A) <span class="op">%*%</span><span class="st"> </span>R <span class="op">%*%</span><span class="st"> </span><span class="kw">sqrt</span>(A))
+    Dt <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(V) <span class="op">%*%</span><span class="st"> </span>(Y <span class="op">-</span><span class="st"> </span>mu)
   }
 }</code></pre></div>
 <p>This <code>eeFUN</code> treats the correlation parameter <span class="math inline">\(\alpha\)</span> and scale parameter <span class="math inline">\(\phi\)</span> as fixed, though some estimation algorithms use an iterative procedure that alternates between estimating <span class="math inline">\(\beta\)</span> and these parameters. By customizing the root finding function, such an algorithm could be implemented using <code>geex</code> [see <code>vignette("geex_root_solvers")</code> for more information].</p>
 <p>We use this example to compare covariance estimates obtained from the <code>gee</code> function, so root finding computations are turned off. The <code>gee</code> <span class="math inline">\(\beta\)</span> estimates are used instead. Estimates for <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\phi\)</span> are also extracted from the <code>gee</code> results in <code>m_estimate</code>. This example shows that an <code>eeFUN</code> can accept additional arguments to be passed to either the outer (data) function or the inner (theta) function. Unlike previous examples, the independent units are the types of wool, which is set in <code>m_estimate</code> by the <code>units</code> argument.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">g &lt;-<span class="st"> </span>gee::<span class="kw">gee</span>(breaks~tension, <span class="dt">id=</span>wool, <span class="dt">data=</span>warpbreaks, <span class="dt">corstr=</span><span class="st">"exchangeable"</span>)
-guo &lt;-<span class="st"> </span>saws::<span class="kw">geeUOmega</span>(g)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">g &lt;-<span class="st"> </span>gee<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/gee/topics/gee">gee</a></span>(breaks<span class="op">~</span>tension, <span class="dt">id=</span>wool, <span class="dt">data=</span>warpbreaks, <span class="dt">corstr=</span><span class="st">"exchangeable"</span>)
+guo &lt;-<span class="st"> </span>saws<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/saws/topics/geeUOmega">geeUOmega</a></span>(g)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(geex)
 results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m_estimate.html">m_estimate</a></span>(
   <span class="dt">estFUN =</span> gee_eefun, <span class="dt">data  =</span> warpbreaks, 
   <span class="dt">units =</span> <span class="st">'wool'</span>, <span class="dt">roots =</span> <span class="kw">coef</span>(g), <span class="dt">compute_roots =</span> <span class="ot">FALSE</span>,
-  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">formula =</span> breaks ~<span class="st"> </span>tension, 
+  <span class="dt">outer_args =</span> <span class="kw">list</span>(<span class="dt">formula =</span> breaks <span class="op">~</span><span class="st"> </span>tension, 
                       <span class="dt">family  =</span> <span class="kw">gaussian</span>()),
-  <span class="dt">inner_args =</span> <span class="kw">list</span>(<span class="dt">alpha   =</span> g$working.correlation[<span class="dv">1</span>,<span class="dv">2</span>], 
-                      <span class="dt">psi     =</span> g$scale), 
+  <span class="dt">inner_args =</span> <span class="kw">list</span>(<span class="dt">alpha   =</span> g<span class="op">$</span>working.correlation[<span class="dv">1</span>,<span class="dv">2</span>], 
+                      <span class="dt">psi     =</span> g<span class="op">$</span>scale), 
   <span class="dt">corrections =</span> <span class="kw">list</span>(
    <span class="dt">bias_correction_.1 =</span> <span class="kw"><a href="../reference/correction.html">correction</a></span>(bias_correction, <span class="dt">b =</span> .<span class="dv">1</span>),
    <span class="dt">bias_correction_.3 =</span> <span class="kw"><a href="../reference/correction.html">correction</a></span>(bias_correction, <span class="dt">b =</span> .<span class="dv">3</span>))) </code></pre></div>

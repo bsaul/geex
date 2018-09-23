@@ -64,7 +64,7 @@
 </h1>
                         <h4 class="author">B. Saul</h4>
             
-            <h4 class="date">2017-09-04</h4>
+            <h4 class="date">2018-05-28</h4>
           </div>
 
     
@@ -112,11 +112,11 @@
   (Y_{1i} - \theta_1)^2 - \theta_2
  \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB1_estfun &lt;-<span class="st"> </span>function(data){
-  Y1 &lt;-<span class="st"> </span>data$Y1
-  function(theta){
-      <span class="kw">c</span>(Y1 -<span class="st"> </span>theta[<span class="dv">1</span>],
-       (Y1 -<span class="st"> </span>theta[<span class="dv">1</span>])^<span class="dv">2</span> -<span class="st"> </span>theta[<span class="dv">2</span>])
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB1_estfun &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  Y1 &lt;-<span class="st"> </span>data<span class="op">$</span>Y1
+  <span class="cf">function</span>(theta){
+      <span class="kw">c</span>(Y1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>],
+       (Y1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>])<span class="op">^</span><span class="dv">2</span> <span class="op">-</span><span class="st"> </span>theta[<span class="dv">2</span>])
   }
 }</code></pre></div>
 <p>The primary <code>geex</code> function is <code>m_estimate</code>, which requires two inputs: <code>estFUN</code> (the <span class="math inline">\(\psi\)</span> function), <code>data</code> (the data frame containing <span class="math inline">\(O_i\)</span> for <span class="math inline">\(i = 1, \dots, m\)</span>). The package defaults to <code><a href="http://www.rdocumentation.org/packages/rootSolve/topics/multiroot">rootSolve::multiroot</a></code> or estimating roots of , though the solver algorithm can be specified in the <code>root_control</code> argument. Starting values for <code><a href="http://www.rdocumentation.org/packages/rootSolve/topics/multiroot">rootSolve::multiroot</a></code> are passed via the <code>root_control</code> argument; e.g.,</p>
@@ -130,9 +130,9 @@ A &lt;-<span class="st"> </span><span class="kw">diag</span>(<span class="dv">1<
 
 B &lt;-<span class="st"> </span><span class="kw">with</span>(geexex, {
   Ybar &lt;-<span class="st"> </span><span class="kw">mean</span>(Y1)
-  B11 &lt;-<span class="st"> </span><span class="kw">mean</span>( (Y1 -<span class="st"> </span>Ybar)^<span class="dv">2</span> )
-  B12 &lt;-<span class="st"> </span><span class="kw">mean</span>( (Y1 -<span class="st"> </span>Ybar) *<span class="st"> </span>((Y1 -<span class="st"> </span>Ybar)^<span class="dv">2</span> -<span class="st"> </span>B11) )
-  B22 &lt;-<span class="st"> </span><span class="kw">mean</span>( ((Y1 -<span class="st"> </span>Ybar)^<span class="dv">2</span> -<span class="st"> </span>B11)^<span class="dv">2</span> )
+  B11 &lt;-<span class="st"> </span><span class="kw">mean</span>( (Y1 <span class="op">-</span><span class="st"> </span>Ybar)<span class="op">^</span><span class="dv">2</span> )
+  B12 &lt;-<span class="st"> </span><span class="kw">mean</span>( (Y1 <span class="op">-</span><span class="st"> </span>Ybar) <span class="op">*</span><span class="st"> </span>((Y1 <span class="op">-</span><span class="st"> </span>Ybar)<span class="op">^</span><span class="dv">2</span> <span class="op">-</span><span class="st"> </span>B11) )
+  B22 &lt;-<span class="st"> </span><span class="kw">mean</span>( ((Y1 <span class="op">-</span><span class="st"> </span>Ybar)<span class="op">^</span><span class="dv">2</span> <span class="op">-</span><span class="st"> </span>B11)<span class="op">^</span><span class="dv">2</span> )
   <span class="kw">matrix</span>(
     <span class="kw">c</span>(B11, B12,
       B12, B22), <span class="dt">nrow =</span> <span class="dv">2</span>
@@ -140,12 +140,12 @@ B &lt;-<span class="st"> </span><span class="kw">with</span>(geexex, {
 })
 
 <span class="co"># closed form roots</span>
-theta_cls &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">mean</span>(geexex$Y1),
+theta_cls &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">mean</span>(geexex<span class="op">$</span>Y1),
                <span class="co"># since var() divides by n - 1, not n</span>
-               <span class="kw">var</span>(geexex$Y1) *<span class="st"> </span>(n -<span class="st"> </span><span class="dv">1</span>)/<span class="st"> </span>n ) 
+               <span class="kw">var</span>(geexex<span class="op">$</span>Y1) <span class="op">*</span><span class="st"> </span>(n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)<span class="op">/</span><span class="st"> </span>n ) 
 
 <span class="co"># closed form sigma</span>
-Sigma_cls &lt;-<span class="st"> </span>(<span class="kw">solve</span>(A) %*%<span class="st"> </span>B %*%<span class="st"> </span><span class="kw">t</span>(<span class="kw">solve</span>(A))) /<span class="st"> </span>n
+Sigma_cls &lt;-<span class="st"> </span>(<span class="kw">solve</span>(A) <span class="op">%*%</span><span class="st"> </span>B <span class="op">%*%</span><span class="st"> </span><span class="kw">t</span>(<span class="kw">solve</span>(A))) <span class="op">/</span><span class="st"> </span>n
 
 comparison &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> <span class="kw">list</span>(<span class="dt">estimates =</span> <span class="kw">coef</span>(results), <span class="dt">vcov =</span> <span class="kw">vcov</span>(results)), 
                    <span class="dt">cls  =</span> <span class="kw">list</span>(<span class="dt">estimates =</span> theta_cls, <span class="dt">vcov =</span> Sigma_cls))</code></pre></div>
@@ -182,12 +182,12 @@ Y_{2i} - \theta_2 \\
 \end{pmatrix}
 \]</span></p>
 <p>The solution to  for this <span class="math inline">\(\psi\)</span> function yields <span class="math inline">\(\hat{\theta}_3 = \bar{Y}_1 / \bar{Y}_2\)</span>, where <span class="math inline">\(\bar{Y}_j\)</span> denotes the sample mean of <span class="math inline">\(Y_{j1}, \ldots,Y_{jm}\)</span> for <span class="math inline">\(j=1,2\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB2_estfun &lt;-<span class="st"> </span>function(data){
-  Y1 &lt;-<span class="st"> </span>data$Y1; Y2 &lt;-<span class="st"> </span>data$Y2
-  function(theta){
-      <span class="kw">c</span>(Y1 -<span class="st"> </span>theta[<span class="dv">1</span>],
-        Y2 -<span class="st"> </span>theta[<span class="dv">2</span>],
-        theta[<span class="dv">1</span>] -<span class="st"> </span>(theta[<span class="dv">3</span>] *<span class="st"> </span>theta[<span class="dv">2</span>]) 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB2_estfun &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  Y1 &lt;-<span class="st"> </span>data<span class="op">$</span>Y1; Y2 &lt;-<span class="st"> </span>data<span class="op">$</span>Y2
+  <span class="cf">function</span>(theta){
+      <span class="kw">c</span>(Y1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>],
+        Y2 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">2</span>],
+        theta[<span class="dv">1</span>] <span class="op">-</span><span class="st"> </span>(theta[<span class="dv">3</span>] <span class="op">*</span><span class="st"> </span>theta[<span class="dv">2</span>]) 
     )
   }
 }</code></pre></div>
@@ -200,7 +200,7 @@ A &lt;-<span class="st"> </span><span class="kw">with</span>(geexex, {
  <span class="kw">matrix</span>(
   <span class="kw">c</span>(<span class="dv">1</span> , <span class="dv">0</span>, <span class="dv">0</span>,
     <span class="dv">0</span> , <span class="dv">1</span>, <span class="dv">0</span>,
-    -<span class="dv">1</span>, <span class="kw">mean</span>(Y1)/<span class="kw">mean</span>(Y2), <span class="kw">mean</span>(Y2)),
+    <span class="op">-</span><span class="dv">1</span>, <span class="kw">mean</span>(Y1)<span class="op">/</span><span class="kw">mean</span>(Y2), <span class="kw">mean</span>(Y2)),
   <span class="dt">byrow =</span> <span class="ot">TRUE</span>, <span class="dt">nrow =</span> <span class="dv">3</span>)
 })
 
@@ -213,10 +213,10 @@ B &lt;-<span class="st"> </span><span class="kw">with</span>(geexex, {
 })
 
 ## closed form roots
-theta_cls &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">mean</span>(geexex$Y1), <span class="kw">mean</span>(geexex$Y2))
-theta_cls[<span class="dv">3</span>] &lt;-<span class="st"> </span>theta_cls[<span class="dv">1</span>]/theta_cls[<span class="dv">2</span>]
+theta_cls &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">mean</span>(geexex<span class="op">$</span>Y1), <span class="kw">mean</span>(geexex<span class="op">$</span>Y2))
+theta_cls[<span class="dv">3</span>] &lt;-<span class="st"> </span>theta_cls[<span class="dv">1</span>]<span class="op">/</span>theta_cls[<span class="dv">2</span>]
 ## closed form covariance
-Sigma_cls &lt;-<span class="st"> </span>(<span class="kw">solve</span>(A) %*%<span class="st"> </span>B %*%<span class="st"> </span><span class="kw">t</span>(<span class="kw">solve</span>(A))) /<span class="st"> </span><span class="kw">nrow</span>(geexex)
+Sigma_cls &lt;-<span class="st"> </span>(<span class="kw">solve</span>(A) <span class="op">%*%</span><span class="st"> </span>B <span class="op">%*%</span><span class="st"> </span><span class="kw">t</span>(<span class="kw">solve</span>(A))) <span class="op">/</span><span class="st"> </span><span class="kw">nrow</span>(geexex)
 comparison &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> <span class="kw">list</span>(<span class="dt">estimates =</span> <span class="kw">coef</span>(results), <span class="dt">vcov =</span> <span class="kw">vcov</span>(results)), 
                    <span class="dt">cls  =</span> <span class="kw">list</span>(<span class="dt">estimates =</span> theta_cls, <span class="dt">vcov =</span> Sigma_cls))</code></pre></div>
 <p>SB gave closed form expressions for <span class="math inline">\(A(\theta_0)\)</span> and <span class="math inline">\(B(\theta_0)\)</span>, into which we plug in appropriate estimates for the matrix components and compare to the results from <code>geex</code>. The point estimates again show excellent agreement (maximum absolute difference 4.4e-16), while the covariance estimates differ by the third decimal (maximum absolute difference 1e-03).</p>
@@ -255,33 +255,33 @@ Y_{1i} - \theta_1 \\
 \log(\theta_2) - \theta_4
 \end{pmatrix}
 \]</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB3_estfun &lt;-<span class="st"> </span>function(data){
-  Y1 &lt;-<span class="st"> </span>data$Y1
-  function(theta){
-      <span class="kw">c</span>(Y1 -<span class="st"> </span>theta[<span class="dv">1</span>],
-       (Y1 -<span class="st"> </span>theta[<span class="dv">1</span>])^<span class="dv">2</span> -<span class="st"> </span>theta[<span class="dv">2</span>],
-       <span class="kw">sqrt</span>(theta[<span class="dv">2</span>]) -<span class="st"> </span>theta[<span class="dv">3</span>],
-       <span class="kw">log</span>(theta[<span class="dv">2</span>]) -<span class="st"> </span>theta[<span class="dv">4</span>])
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SB3_estfun &lt;-<span class="st"> </span><span class="cf">function</span>(data){
+  Y1 &lt;-<span class="st"> </span>data<span class="op">$</span>Y1
+  <span class="cf">function</span>(theta){
+      <span class="kw">c</span>(Y1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>],
+       (Y1 <span class="op">-</span><span class="st"> </span>theta[<span class="dv">1</span>])<span class="op">^</span><span class="dv">2</span> <span class="op">-</span><span class="st"> </span>theta[<span class="dv">2</span>],
+       <span class="kw">sqrt</span>(theta[<span class="dv">2</span>]) <span class="op">-</span><span class="st"> </span>theta[<span class="dv">3</span>],
+       <span class="kw">log</span>(theta[<span class="dv">2</span>]) <span class="op">-</span><span class="st"> </span>theta[<span class="dv">4</span>])
   }
 }</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## closed form roots
 theta_cls &lt;-<span class="st"> </span><span class="kw">numeric</span>(<span class="dv">4</span>)
-theta_cls[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw">mean</span>(geexex$Y1)
-theta_cls[<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="kw">sum</span>((geexex$Y1 -<span class="st"> </span>theta_cls[<span class="dv">1</span>])^<span class="dv">2</span>)/<span class="kw">nrow</span>(geexex)
+theta_cls[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw">mean</span>(geexex<span class="op">$</span>Y1)
+theta_cls[<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="kw">sum</span>((geexex<span class="op">$</span>Y1 <span class="op">-</span><span class="st"> </span>theta_cls[<span class="dv">1</span>])<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span><span class="kw">nrow</span>(geexex)
 theta_cls[<span class="dv">3</span>] &lt;-<span class="st"> </span><span class="kw">sqrt</span>(theta_cls[<span class="dv">2</span>])
 theta_cls[<span class="dv">4</span>] &lt;-<span class="st"> </span><span class="kw">log</span>(theta_cls[<span class="dv">2</span>])
 
 ## Compare to closed form ##
 theta2 &lt;-<span class="st"> </span>theta_cls[<span class="dv">2</span>]
-mu3 &lt;-<span class="st"> </span>moments::<span class="kw">moment</span>(geexex$Y1, <span class="dt">order =</span> <span class="dv">3</span>, <span class="dt">central =</span> <span class="ot">TRUE</span>)
-mu4 &lt;-<span class="st"> </span>moments::<span class="kw">moment</span>(geexex$Y1, <span class="dt">order =</span> <span class="dv">4</span>, <span class="dt">central =</span> <span class="ot">TRUE</span>)
+mu3 &lt;-<span class="st"> </span>moments<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/moments/topics/moment">moment</a></span>(geexex<span class="op">$</span>Y1, <span class="dt">order =</span> <span class="dv">3</span>, <span class="dt">central =</span> <span class="ot">TRUE</span>)
+mu4 &lt;-<span class="st"> </span>moments<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/moments/topics/moment">moment</a></span>(geexex<span class="op">$</span>Y1, <span class="dt">order =</span> <span class="dv">4</span>, <span class="dt">central =</span> <span class="ot">TRUE</span>)
 ## closed form covariance
 Sigma_cls &lt;-<span class="st"> </span><span class="kw">matrix</span>(
-  <span class="kw">c</span>(theta2, mu3, mu3/(<span class="dv">2</span>*<span class="kw">sqrt</span>(theta2)), mu3/theta2,
-    mu3, mu4 -<span class="st"> </span>theta2^<span class="dv">2</span>, (mu4 -<span class="st"> </span>theta2^<span class="dv">2</span>)/(<span class="dv">2</span>*<span class="kw">sqrt</span>(theta2)), (mu4 -<span class="st"> </span>theta2^<span class="dv">2</span>)/theta2,
-    mu3/(<span class="dv">2</span> *<span class="st"> </span><span class="kw">sqrt</span>(theta2)), (mu4 -<span class="st"> </span>theta2^<span class="dv">2</span>)/(<span class="dv">2</span>*<span class="kw">sqrt</span>(theta2)), (mu4 -<span class="st"> </span>theta2^<span class="dv">2</span>)/(<span class="dv">4</span>*theta2), (mu4 -<span class="st"> </span>theta2^<span class="dv">2</span>)/(<span class="dv">2</span>*theta2^(<span class="dv">3</span>/<span class="dv">2</span>)),
-    mu3/theta2, (mu4 -<span class="st"> </span>theta2^<span class="dv">2</span>)/theta2, (mu4 -<span class="st"> </span>theta2^<span class="dv">2</span>)/(<span class="dv">2</span>*theta2^(<span class="dv">3</span>/<span class="dv">2</span>)), (mu4/theta2^<span class="dv">2</span>) -<span class="st"> </span><span class="dv">1</span>) ,
-  <span class="dt">nrow =</span> <span class="dv">4</span>, <span class="dt">byrow =</span> <span class="ot">TRUE</span>) /<span class="st"> </span><span class="kw">nrow</span>(geexex)
+  <span class="kw">c</span>(theta2, mu3, mu3<span class="op">/</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">sqrt</span>(theta2)), mu3<span class="op">/</span>theta2,
+    mu3, mu4 <span class="op">-</span><span class="st"> </span>theta2<span class="op">^</span><span class="dv">2</span>, (mu4 <span class="op">-</span><span class="st"> </span>theta2<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">sqrt</span>(theta2)), (mu4 <span class="op">-</span><span class="st"> </span>theta2<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>theta2,
+    mu3<span class="op">/</span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">sqrt</span>(theta2)), (mu4 <span class="op">-</span><span class="st"> </span>theta2<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">sqrt</span>(theta2)), (mu4 <span class="op">-</span><span class="st"> </span>theta2<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>(<span class="dv">4</span><span class="op">*</span>theta2), (mu4 <span class="op">-</span><span class="st"> </span>theta2<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>(<span class="dv">2</span><span class="op">*</span>theta2<span class="op">^</span>(<span class="dv">3</span><span class="op">/</span><span class="dv">2</span>)),
+    mu3<span class="op">/</span>theta2, (mu4 <span class="op">-</span><span class="st"> </span>theta2<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>theta2, (mu4 <span class="op">-</span><span class="st"> </span>theta2<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span>(<span class="dv">2</span><span class="op">*</span>theta2<span class="op">^</span>(<span class="dv">3</span><span class="op">/</span><span class="dv">2</span>)), (mu4<span class="op">/</span>theta2<span class="op">^</span><span class="dv">2</span>) <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) ,
+  <span class="dt">nrow =</span> <span class="dv">4</span>, <span class="dt">byrow =</span> <span class="ot">TRUE</span>) <span class="op">/</span><span class="st"> </span><span class="kw">nrow</span>(geexex)
 ## closed form covariance
 <span class="co"># Sigma_cls &lt;- (solve(A) %*% B %*% t(solve(A))) / n</span>
 comparison &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">geex =</span> <span class="kw">list</span>(<span class="dt">estimates =</span> <span class="kw">coef</span>(results), <span class="dt">vcov =</span> <span class="kw">vcov</span>(results)), 

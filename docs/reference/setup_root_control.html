@@ -413,7 +413,7 @@
 #&gt;         if (trace) 
 #&gt;             cat(sprintf("search in [%g,%g]%s", lower, upper, 
 #&gt;                 if (trace &gt;= 2) 
-#&gt;                   "\\n"
+#&gt;                   "\n"
 #&gt;                 else " ... "))
 #&gt;         Delta &lt;- function(u) 0.01 * pmax(1e-04, abs(u))
 #&gt;         it &lt;- 0L
@@ -445,7 +445,7 @@
 #&gt;                   }
 #&gt;                 }
 #&gt;                 if (trace &gt;= 2) 
-#&gt;                   cat(sprintf(" .. modified lower,upper: (%15g,%15g)\\n", 
+#&gt;                   cat(sprintf(" .. modified lower,upper: (%15g,%15g)\n", 
 #&gt;                     lower, upper))
 #&gt;                 delta &lt;- 2 * delta
 #&gt;             }
@@ -458,7 +458,7 @@
 #&gt;                     it - 1), domain = NA)
 #&gt;                 f.lower &lt;- f(lower &lt;- lower - delta, ...)
 #&gt;                 if (trace &gt;= 2) 
-#&gt;                   cat(sprintf(" .. modified lower: %g\\n", lower))
+#&gt;                   cat(sprintf(" .. modified lower: %g\n", lower))
 #&gt;                 delta &lt;- 2 * delta
 #&gt;             }
 #&gt;             delta &lt;- Delta(upper)
@@ -468,12 +468,12 @@
 #&gt;                     it - 1), domain = NA)
 #&gt;                 f.upper &lt;- f(upper &lt;- upper + delta, ...)
 #&gt;                 if (trace &gt;= 2) 
-#&gt;                   cat(sprintf(" .. modified upper: %g\\n", upper))
+#&gt;                   cat(sprintf(" .. modified upper: %g\n", upper))
 #&gt;                 delta &lt;- 2 * delta
 #&gt;             }
 #&gt;         }
 #&gt;         if (trace &amp;&amp; trace &lt; 2) 
-#&gt;             cat(sprintf("extended to [%g, %g] in %d steps\\n", 
+#&gt;             cat(sprintf("extended to [%g, %g] in %d steps\n", 
 #&gt;                 lower, upper, it))
 #&gt;     }
 #&gt;     if (!isTRUE(as.vector(sign(f.lower) * sign(f.upper) &lt;= 0))) 
@@ -505,7 +505,7 @@
 #&gt;     list(root = val[1L], f.root = f(val[1L], ...), iter = iter, 
 #&gt;         init.it = it, estim.prec = val[3L])
 #&gt; }
-#&gt; &lt;bytecode: 0x107924cb0&gt;
+#&gt; &lt;bytecode: 0x1143088e8&gt;
 #&gt; &lt;environment: namespace:stats&gt;
 #&gt; 
 #&gt; Slot ".options":
