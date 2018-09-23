@@ -4,13 +4,13 @@
 \name{weights,geex-method}
 \alias{weights,geex-method}
 \alias{weights,geex,geex-method}
-\alias{weights,geex-summary-method}
-\alias{weights,geex-summary,geex-summary-method}
+\alias{weights,geex_summary-method}
+\alias{weights,geex_summary,geex_summary-method}
 \title{Extract Model weights}
 \usage{
 \S4method{weights}{geex}(object)
 
-\S4method{weights}{`geex-summary`}(object)
+\S4method{weights}{geex_summary}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{geex}} object}

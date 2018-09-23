@@ -4,13 +4,13 @@
 \name{nobs,geex-method}
 \alias{nobs,geex-method}
 \alias{nobs,geex,geex-method}
-\alias{nobs,geex-summary-method}
-\alias{nobs,geex-summary,geex-summary-method}
+\alias{nobs,geex_summary-method}
+\alias{nobs,geex_summary,geex_summary-method}
 \title{Extract the number observations}
 \usage{
 \S4method{nobs}{geex}(object)
 
-\S4method{nobs}{`geex-summary`}(object)
+\S4method{nobs}{geex_summary}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{geex}} object}

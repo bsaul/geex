@@ -5,7 +5,7 @@
 \alias{roots}
 \alias{roots,geex-method}
 \alias{roots,geex,geex-method}
-\alias{roots,geex-summary-method}
+\alias{roots,geex_summary-method}
 \alias{roots,geex,geex-method}
 \title{Gets the parameter estimates matrix from a geex object}
 \usage{
@@ -13,7 +13,7 @@ roots(object, ...)
 
 \S4method{roots}{geex}(object)
 
-\S4method{roots}{`geex-summary`}(object)
+\S4method{roots}{geex_summary}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{geex}} object}

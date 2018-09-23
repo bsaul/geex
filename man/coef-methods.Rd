@@ -4,12 +4,12 @@
 \name{coef,geex-method}
 \alias{coef,geex-method}
 \alias{coef,geex,geex-method}
-\alias{coef,geex-summary-method}
+\alias{coef,geex_summary-method}
 \title{Gets the parameter estimates from a geex object}
 \usage{
 \S4method{coef}{geex}(object)
 
-\S4method{coef}{`geex-summary`}(object)
+\S4method{coef}{geex_summary}(object)
 }
 \arguments{
 \item{object}{a \code{\linkS4class{geex}} object}
