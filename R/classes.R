@@ -132,15 +132,23 @@ setClass(
   }
 )
 
+
 #------------------------------------------------------------------------------#
+#' Show (print) the S4 geex classes
+#'
+#' @param object the object to print
+#' @docType methods
+#' @rdname show-methods
+#' @export
+
+setGeneric("show",function(object){standardGeneric("show")})
+
 #' Shows the sandwich_components S4 class
 #'
-#' @param object a \code{\linkS4class{sandwich_components}},
 #' \code{\linkS4class{m_estimation_basis}}, or \code{\linkS4class{geex}} object
 #' @rdname show-methods
 #' @aliases show,sandwich_components,sandwich_components-method
 #' @export
-#------------------------------------------------------------------------------#
 
 setMethod(
   "show",
@@ -907,7 +915,7 @@ setMethod(
 #------------------------------------------------------------------------------#
 
 setClass(
-  Class = "geex-summary",
+  Class = "geex_summary",
   slots = c(estFUN          = "function",
             outer_args      = "list",
             inner_args      = "list",
@@ -958,7 +966,7 @@ setMethod(
   f         = "summary",
   signature = "geex",
   function(object, keep_data = TRUE, keep_args = TRUE){
-    methods::new("geex-summary",
+    methods::new("geex_summary",
         estFUN      = object@basis@.estFUN,
         outer_args  = if(keep_args) object@basis@.outer_args else list(),
         inner_args  = if(keep_args) object@basis@.inner_args else list(),
@@ -973,16 +981,16 @@ setMethod(
 )
 
 #------------------------------------------------------------------------------#
-#' Shows the geex-summary object
+#' Shows the geex_summary object
 #'
 #' @rdname show-methods
-#' @aliases show,geex-summary,geex-summary-method
+#' @aliases show,geex_summary,geex_summary-method
 #' @export
 #------------------------------------------------------------------------------#
 
 setMethod(
   "show",
-  signature = "geex-summary",
+  signature = "geex_summary",
   definition = function(object) {
     cat("M-estimation results based on the estimating function:\n", sep = "")
     print(body(object@estFUN))
@@ -1029,12 +1037,12 @@ setMethod(
   })
 
 #' @rdname vcov-methods
-#' @aliases vcov,geex-summary,geex-summary-method
+#' @aliases vcov,geex_summary,geex_summary-method
 #' @export
 
 setMethod(
   "vcov",
-  signature = "geex-summary",
+  signature = "geex_summary",
   definition = function(object) {
     object@vcov
   })
@@ -1071,11 +1079,12 @@ setMethod(
   })
 
 #' @rdname coef-methods
+#' @aliases coef,geex_summary-method
 #' @export
 
 setMethod(
   "coef",
-  signature = "geex-summary",
+  signature = "geex_summary",
   definition = function(object) {
     object@estimates
   })
@@ -1123,7 +1132,7 @@ setMethod(
 
 setMethod(
   "roots",
-  signature = "geex-summary",
+  signature = "geex_summary",
   definition = function(object) {
     object@estimates
   })
@@ -1176,7 +1185,7 @@ setMethod(
 
 setMethod(
   "get_corrections",
-  signature = "geex-summary",
+  signature = "geex_summary",
   definition = function(object) {
     if(length(object@corrections) == 0){
       "No corrections were performed on this object"
@@ -1243,12 +1252,12 @@ setMethod(
 )
 
 #' @rdname nobs-methods
-#' @aliases nobs,geex-summary,geex-summary-method
+#' @aliases nobs,geex_summary,geex_summary-method
 #' @export
 
 setMethod(
   f         = "nobs",
-  signature = "geex-summary",
+  signature = "geex_summary",
   function(object){
     object@nobs
   }
@@ -1273,12 +1282,12 @@ setMethod(
 )
 
 #' @rdname weights-methods
-#' @aliases weights,geex-summary,geex-summary-method
+#' @aliases weights,geex_summary,geex_summary-method
 #' @export
 
 setMethod(
   f         = "weights",
-  signature = "geex-summary",
+  signature = "geex_summary",
   function(object){
     object@weights
   }
