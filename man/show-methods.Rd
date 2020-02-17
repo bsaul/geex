@@ -27,13 +27,5 @@ show(object)
 \item{object}{the object to print}
 }
 \description{
-Show (print) the S4 geex classes
-
 \code{\linkS4class{m_estimation_basis}}, or \code{\linkS4class{geex}} object
-
-Shows the m_estimation_basis
-
-Shows the geex object
-
-Shows the geex_summary object
 }

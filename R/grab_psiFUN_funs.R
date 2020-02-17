@@ -62,7 +62,6 @@ grab_psiFUN <- function(object, ...){
 }
 
 
-#' @inheritParams grab_psiFUN
 #' @describeIn grab_psiFUN Create estimating equation function from a \code{glm} object
 #' @export
 
@@ -102,7 +101,6 @@ grab_psiFUN.glm <- function(object, data, ...){
   }
 }
 
-#' @inheritParams grab_psiFUN
 #' @describeIn grab_psiFUN Create estimating equation function from a \code{geeglm} object
 #' @export
 
@@ -144,7 +142,6 @@ grab_psiFUN.geeglm <- function(object, data, ...){
 }
 
 #' @param numderiv_opts a list of arguments passed to \code{numDeriv::grad}
-#' @inheritParams grab_psiFUN
 #' @describeIn grab_psiFUN Create estimating equation function from a \code{merMod} object
 #' @export
 

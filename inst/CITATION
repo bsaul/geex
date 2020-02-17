@@ -1,0 +1,18 @@
+bibentry(bibtype = "Article",
+  title        = "The Calculus of M-Estimation in {R} with {geex}",
+  author       = c(person(given = c("Bradley", "C."),
+                          family = "Saul",
+                          email = "bradleysaul@gmail.com"),
+                   person(given = c("Michael", "G."),
+                          family = "Hudgens",
+                          email = "mhudgens@email.unc.edu")),
+  journal      = "Journal of Statistical Software",
+  year         = "2020",
+  volume       = "92",
+  number       = "2",
+  pages        = "1--15",
+  doi          = "10.18637/jss.v092.i02",
+
+  header       = "To cite geex in publications use:"
+)
+

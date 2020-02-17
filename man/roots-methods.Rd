@@ -6,7 +6,6 @@
 \alias{roots,geex-method}
 \alias{roots,geex,geex-method}
 \alias{roots,geex_summary-method}
-\alias{roots,geex,geex-method}
 \title{Gets the parameter estimates matrix from a geex object}
 \usage{
 roots(object, ...)

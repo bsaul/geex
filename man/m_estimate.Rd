@@ -4,10 +4,21 @@
 \alias{m_estimate}
 \title{Estimate parameters and their covariance from a set of estimating equations}
 \usage{
-m_estimate(estFUN, data, units = character(0), weights = numeric(0),
-  outer_args = list(), inner_args = list(), roots = NULL,
-  compute_roots = TRUE, compute_vcov = TRUE, corrections, deriv_control,
-  root_control, approx_control)
+m_estimate(
+  estFUN,
+  data,
+  units = character(0),
+  weights = numeric(0),
+  outer_args = list(),
+  inner_args = list(),
+  roots = NULL,
+  compute_roots = TRUE,
+  compute_vcov = TRUE,
+  corrections,
+  deriv_control,
+  root_control,
+  approx_control
+)
 }
 \arguments{
 \item{estFUN}{a function that takes in group-level data and returns a function

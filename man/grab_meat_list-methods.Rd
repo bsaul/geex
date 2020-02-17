@@ -6,7 +6,6 @@
 \alias{grab_meat_list,sandwich_components-method}
 \alias{grab_meat_list,sandwich_components,sandwich_components-method}
 \alias{grab_ee_list,sandwich_components-method}
-\alias{grab_meat_list,sandwich_components,sandwich_components-method}
 \title{Gets the .B_i (list of bread matrices) slot}
 \usage{
 grab_meat_list(object)
