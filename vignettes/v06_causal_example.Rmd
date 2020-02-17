@@ -184,7 +184,7 @@ direct_effect(test, allocation = .35)$std.error # from inferference
 ```
 
 
-I would expect them to be somewhat different, since `inferference` uses a slightly different variance estimator defined in the [web appendix of Perez-Heydrich et al (2014)](http://onlinelibrary.wiley.com/store/10.1111/biom.12184/asset/supinfo/biom12184-sm-0001-SuppData.pdf?v=1&s=f54ecbc59e7600cd32e8f5c110d395f0a34b3fb8).
+I would expect them to be somewhat different, since `inferference` uses a slightly different variance estimator defined in the [web appendix of Perez-Heydrich et al (2014)](https://onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1111%2Fbiom.12184&file=biom12184-sm-0001-SuppData.pdf).
 
 ## Doubly-Robust Estimator
 
