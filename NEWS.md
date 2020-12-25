@@ -1,4 +1,4 @@
-# geex 1.0.13
+# geex 1.1.0
 
 * adds a `Asolver` argument to `m_estimate` to allow for using a different to compute the inverse of the A ("bread") matrix.
 
