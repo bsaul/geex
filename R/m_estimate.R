@@ -25,6 +25,8 @@
 #' Defaults to \code{TRUE}.
 #' @param compute_vcov whether or not to compute the variance-covariance matrix.
 #' Defaults to \code{TRUE}.
+#' @param Asolver a function passed to \code{compute_sigma} used to compute the
+#'  inverse of the "bread" matrix. Defaults to \code{\link{solve}}.
 #' @param roots a vector of parameter estimates must be provided if \code{compute_roots = FALSE}
 #' @param deriv_control a \code{\linkS4class{deriv_control}} object
 #' @param root_control a \code{\linkS4class{root_control}} object
@@ -163,6 +165,7 @@ m_estimate <- function(estFUN,
                        roots             = NULL,
                        compute_roots     = TRUE,
                        compute_vcov      = TRUE,
+                       Asolver           = solve,
                        corrections,
                        deriv_control,
                        root_control,
@@ -218,7 +221,8 @@ m_estimate <- function(estFUN,
 
     out@sandwich_components <- mats
     ## Compute covariance estimate(s) ##
-    out@vcov <- compute_sigma(A = grab_bread(mats), B = grab_meat(mats))
+    out@vcov <- compute_sigma(A = grab_bread(mats), B = grab_meat(mats),
+                              solver = Asolver)
   } else {
     mats <- methods::new('sandwich_components')
   }

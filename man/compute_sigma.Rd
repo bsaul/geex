@@ -4,7 +4,7 @@
 \alias{compute_sigma}
 \title{Compute empirical sandwich covariate estimator}
 \usage{
-compute_sigma(A, B)
+compute_sigma(A, B, solver = solve)
 }
 \arguments{
 \item{A}{a matrix, generally the \code{.A} slot in a
@@ -14,6 +14,9 @@ compute_sigma(A, B)
 \item{B}{a matrix, generally the \code{.B} slot in a
 \code{\linkS4class{sandwich_components}} object created in
 \code{\link{estimate_sandwich_matrices}}}
+
+\item{solver}{the function used to compute the inverse of \code{A}, Defaults
+to \code{\link{solve}}}
 }
 \value{
 the \code{matrix} \code{Ainv \%*\% B \%*\% t(Ainv)}

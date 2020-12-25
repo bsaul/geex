@@ -4,7 +4,8 @@
 \name{geexex}
 \alias{geexex}
 \title{Dataset used to illustrate Stefanski and Boos examples.}
-\format{a dataset with 9 variables and 100 observations
+\format{
+a dataset with 9 variables and 100 observations
 \itemize{
    \item{Y1}{ rnorm(mean = 5, sd = 4)}
    \item{Y2}{ rnorm(mean = 2, sd = 1)}
@@ -15,7 +16,8 @@
    \item{X2}{ 0 for first 50 observation, 1 for rest}
    \item{Y4}{ 0.1 + 0.1*X1 + 0.5*X2 + rnorm(0, 1)}
    \item{Y5}{ rbinom(prob = plogis(0.1 + 0.1*X1 + 0.5*X2))}
- }}
+ }
+}
 \description{
 The data used to illustrate examples 1-9 of Stefanski and Boos (2002).
 }

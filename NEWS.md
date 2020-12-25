@@ -1,3 +1,7 @@
+# geex 1.0.13
+
+* adds a `Asolver` argument to `m_estimate` to allow for using a different to compute the inverse of the A ("bread") matrix.
+
 # geex 1.0.11
 
 * renames the `geex-summary` class to `geex_summary`

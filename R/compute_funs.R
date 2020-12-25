@@ -16,6 +16,8 @@
 #' @param B a matrix, generally the \code{.B} slot in a
 #' \code{\linkS4class{sandwich_components}} object created in
 #' \code{\link{estimate_sandwich_matrices}}
+#' @param solver the function used to compute the inverse of \code{A}, Defaults
+#' to \code{\link{solve}}
 #'
 #' @return the \code{matrix} \code{Ainv \%*\% B \%*\% t(Ainv)}
 #' @export
@@ -25,8 +27,8 @@
 #' compute_sigma(A = A, B = B)
 #------------------------------------------------------------------------------#
 
-compute_sigma <- function(A, B){
-  Ainv <- solve(A)
+compute_sigma <- function(A, B, solver = solve){
+  Ainv <- solver(A)
   Ainv %*% B %*% t(Ainv)
 }
 

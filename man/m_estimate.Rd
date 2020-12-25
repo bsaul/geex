@@ -14,6 +14,7 @@ m_estimate(
   roots = NULL,
   compute_roots = TRUE,
   compute_vcov = TRUE,
+  Asolver = solve,
   corrections,
   deriv_control,
   root_control,
@@ -41,6 +42,9 @@ Defaults to \code{TRUE}.}
 
 \item{compute_vcov}{whether or not to compute the variance-covariance matrix.
 Defaults to \code{TRUE}.}
+
+\item{Asolver}{a function passed to \code{compute_sigma} used to compute the
+inverse of the "bread" matrix. Defaults to \code{\link{solve}}.}
 
 \item{corrections}{an optional list of small sample corrections where each
 list element is a \code{\linkS4class{correct_control}} object which contains
