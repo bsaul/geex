@@ -39,7 +39,8 @@ devtools::install_github("bsaul/geex")
 
 # Usage
 
-Start with the examples in the [package introduction](https://bsaul.github.io/geex/articles/00_geex_intro.html) (also accessible in R by `vignette('00_geex_intro')`). 
+Start with the examples in the [package introduction](https://bsaul.github.io/geex/articles/v00_geex_intro.html) (also accessible in R by `vignette('00_geex_intro')`). 
+
 
 # Contributing to geex
 
