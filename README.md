@@ -45,3 +45,24 @@ Start with the examples in the [package introduction](https://bsaul.github.io/ge
 # Contributing to geex
 
 Please review the [contributing guidelines](https://github.com/bsaul/geex/blob/master/CONTRIBUTING.md). If you have bug reports, feature requests, or other ideas for `geex`, please file an issue or contact [@bsaul](https://github.com/bsaul).
+
+# Citation
+
+If you use `geex` in a project,
+please cite the 
+[Journal of Statistical Software paper](https://www.jstatsoft.org/article/view/v092i02).
+
+BibTex entry:
+
+```
+  @Article{,
+    title = {The Calculus of M-Estimation in {R} with {geex}},
+    author = {Bradley C. Saul and Michael G. Hudgens},
+    journal = {Journal of Statistical Software},
+    year = {2020},
+    volume = {92},
+    number = {2},
+    pages = {1--15},
+    doi = {10.18637/jss.v092.i02},
+  }
+```

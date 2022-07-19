@@ -101,12 +101,12 @@ estimates <- m_estimate(
 
 The R packages [`AER`](https://cran.r-project.org/package=AER) and [`ivpack`](https://cran.r-project.org/package=ivpack) can compute the IV estimator and sandwich variance estimators respectively, which is done below for comparison.  
 
-```{r SB4_clsform, echo = TRUE, message = FALSE, results = 'hide'}
+```{r SB4_clsform, echo = TRUE, eval = FALSE, message = FALSE, results = 'hide'}
 ivfit <- AER::ivreg(Y3 ~ W1 | Z1, data = geexex)
 iv_se <- ivpack::cluster.robust.se(ivfit, clusterid = 1:nrow(geexex))
 ```
 
-```{r SB4_results, echo = TRUE}
+```{r SB4_results, eval = FALSE, echo = TRUE}
 coef(ivfit)[2] 
 coef(estimates)[4]
 iv_se[2, 'Std. Error'] 

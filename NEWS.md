@@ -1,3 +1,8 @@
+# geex 1.1.1
+
+* Removes `ivpack` dependency from additional examples vignette
+in order to get geex back on CRAN.
+
 # geex 1.1.0
 
 * adds a `Asolver` argument to `m_estimate` to allow for using a different to compute the inverse of the A ("bread") matrix.

@@ -30,13 +30,13 @@ Grab estimating functions from a model object
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{glm}: Create estimating equation function from a \code{glm} object
+\item \code{grab_psiFUN(glm)}: Create estimating equation function from a \code{glm} object
 
-\item \code{geeglm}: Create estimating equation function from a \code{geeglm} object
+\item \code{grab_psiFUN(geeglm)}: Create estimating equation function from a \code{geeglm} object
 
-\item \code{merMod}: Create estimating equation function from a \code{merMod} object
+\item \code{grab_psiFUN(merMod)}: Create estimating equation function from a \code{merMod} object
+
 }}
-
 \examples{
 
 \dontrun{
