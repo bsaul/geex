@@ -10,3 +10,5 @@
 ^_pkgdown\.yaml$
 ^codecov\.yml$
 ^LICENSE\.md$
+^doc$
+^Meta$
