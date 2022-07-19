@@ -17,7 +17,6 @@ Description: Provides a general, flexible framework for estimating parameters
 Depends:
     R (>= 3.3)
 Imports:
-    Matrix (>= 1.2-6),
     rootSolve (>= 1.6.6),
     numDeriv (>= 2014.2-1),
     lme4 (>= 1.1-12),
