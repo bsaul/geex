@@ -9,6 +9,9 @@ grab_response_formula(model)
 \arguments{
 \item{model}{a model object such as \code{lm}, \code{glm}, \code{merMod}}
 }
+\value{
+the left-hand side of a model's \code{\link[stats]{formula}} object
+}
 \description{
 Grab the LHS formula from a model object
 }

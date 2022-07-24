@@ -11,6 +11,9 @@ grab_response(data, formula)
 
 \item{formula}{model formula}
 }
+\value{
+a \code{\link[stats]{model.response}}
+}
 \description{
 Grab a vector of responses from a model object
 }

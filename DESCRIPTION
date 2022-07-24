@@ -11,7 +11,8 @@ Description: Provides a general, flexible framework for estimating parameters
     and empirical sandwich variance estimator from a set of unbiased estimating
     equations (i.e., M-estimation in the vein of Stefanski & Boos (2002)
     <doi:10.1198/000313002753631330>). All examples from Stefanski & Boos (2002)
-    are published in the corresponding Journal of Statistical Software paper 
+    are published in the corresponding Journal of Statistical Software paper
+    "The Calculus of M-Estimation in R with geex" by Saul & Hudgens (2020)
     <doi:10.18637/jss.v092.i02>. Also provides an API to compute finite-sample 
     variance corrections.
 Depends:

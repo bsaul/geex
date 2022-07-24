@@ -9,6 +9,9 @@ grab_fixed_formula(model)
 \arguments{
 \item{model}{a model object such as \code{lm}, \code{glm}, \code{merMod}}
 }
+\value{
+the right-hand side of a model's \code{\link[stats]{formula}} object
+}
 \description{
 Grab the RHS formula from a model object
 }

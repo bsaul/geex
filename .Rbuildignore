@@ -12,3 +12,4 @@
 ^LICENSE\.md$
 ^doc$
 ^Meta$
+inst/create_sample_data.R

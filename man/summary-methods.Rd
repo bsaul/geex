@@ -17,7 +17,6 @@
 Object Summaries
 }
 \examples{
-\dontrun{
 library(geepack)
 data('ohio')
 glmfit  <- glm(resp ~ age, data = ohio,
@@ -40,5 +39,4 @@ object.size(z)
 object.size(summary(z))
 object.size(summary(z, keep_data = FALSE))
 object.size(summary(z, keep_data = FALSE, keep_args = FALSE))
-}
 }

@@ -14,3 +14,4 @@ compute_sum_of_list(.l, .w = numeric(0))
 \description{
 Compute the sum of  a list of matrices to sum
 }
+\keyword{internal}

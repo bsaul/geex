@@ -21,3 +21,4 @@ Either \code{.w} or \code{.wFUN} must be specified but not both.}
 \description{
 Compute the sum of  a list of matrices to sum
 }
+\keyword{internal}
