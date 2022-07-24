@@ -2,6 +2,8 @@
 
 * Removes `ivpack` dependency from additional examples vignette
 in order to get geex back on CRAN.
+* Removes the internal `compute_sum_of_list` and `compute_pairwise_sum_of_list`
+functions from exports.
 
 # geex 1.1.0
 

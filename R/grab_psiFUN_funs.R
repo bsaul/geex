@@ -13,10 +13,12 @@
 #' @docType methods
 #'
 #' @export
+#' @return a function corresponding to the estimating equations of a model
 #' @examples
 #'
 #' \dontrun{
 #' library(geepack)
+#' library(lme4)
 #' data('ohio')
 #'
 #' glmfit  <- glm(resp ~ age, data = ohio,

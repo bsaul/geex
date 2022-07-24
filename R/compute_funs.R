@@ -26,7 +26,6 @@
 #' B <- matrix(4, nrow = 2, ncol = 2)
 #' compute_sigma(A = A, B = B)
 #------------------------------------------------------------------------------#
-
 compute_sigma <- function(A, B, solver = solve){
   Ainv <- solver(A)
   Ainv %*% B %*% t(Ainv)
@@ -37,7 +36,7 @@ compute_sigma <- function(A, B, solver = solve){
 #'
 #' @param .l a list of matrices
 #' @param .w a numeric vector of weights
-#' @export
+#' @keywords internal
 #------------------------------------------------------------------------------#
 
 compute_sum_of_list <- function(.l, .w = numeric(0)){
@@ -62,7 +61,7 @@ compute_sum_of_list <- function(.l, .w = numeric(0)){
 #' Either \code{.w} or \code{.wFUN} must be specified but not both.
 #'
 #' @importFrom methods formalArgs
-#' @export
+#' @keywords internal
 #------------------------------------------------------------------------------#
 
 compute_pairwise_sum_of_list <- function(.l, .w = NULL, .wFUN = NULL, ...){

@@ -109,6 +109,7 @@ setMethod(
 #' @inheritParams create_psiFUN_list
 #' @docType methods
 #' @rdname create_GFUN-methods
+#' @return a function
 #' @export
 #' @examples
 #' myee <- function(data){

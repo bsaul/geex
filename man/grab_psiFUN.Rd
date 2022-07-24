@@ -25,6 +25,9 @@ grab_psiFUN(object, ...)
 
 \item{numderiv_opts}{a list of arguments passed to \code{numDeriv::grad}}
 }
+\value{
+a function corresponding to the estimating equations of a model
+}
 \description{
 Grab estimating functions from a model object
 }
@@ -41,6 +44,7 @@ Grab estimating functions from a model object
 
 \dontrun{
 library(geepack)
+library(lme4)
 data('ohio')
 
 glmfit  <- glm(resp ~ age, data = ohio,

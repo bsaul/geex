@@ -47,7 +47,7 @@ are left to the user to implement or confirm.
 \references{
 Saul, Bradley C., and Michael G. Hudgens. (2020).
 "The Calculus of M-estimation in R with geex." Journal of Statistical Software 92(2), 1-15.
-\href{http://dx.doi.org/10.18637/jss.v092.i02}{doi:10.18637/jss.v092.i02}
+\doi{10.18637/jss.v092.i02}.
 }
 \seealso{
 Useful links:

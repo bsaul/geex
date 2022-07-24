@@ -13,6 +13,9 @@ grab_design_matrix(data, rhs_formula, ...)
 
 \item{...}{Can be used to pass \code{xlev} to \code{\link[stats]{model.frame}}}
 }
+\value{
+a \code{\link[stats]{model.matrix}}
+}
 \description{
 Grab a matrix of fixed effects from a model object
 }

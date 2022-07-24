@@ -519,7 +519,7 @@ setClass(
 #' @export
 #' @examples
 #' # For usage, see example 7 in
-#' \dontrun{vignette("01_additional_examples", package = "geex")}
+#' \donttest{vignette("01_additional_examples", package = "geex")}
 #------------------------------------------------------------------------------#
 
 setup_approx_control <- function(FUN, ...){
@@ -936,7 +936,6 @@ setClass(
 #' @rdname summary-methods
 #' @export
 #' @examples
-#' \dontrun{
 #' library(geepack)
 #' data('ohio')
 #' glmfit  <- glm(resp ~ age, data = ohio,
@@ -959,7 +958,6 @@ setClass(
 #' object.size(summary(z))
 #' object.size(summary(z, keep_data = FALSE))
 #' object.size(summary(z, keep_data = FALSE, keep_args = FALSE))
-#' }
 #------------------------------------------------------------------------------#
 
 setMethod(
@@ -1222,12 +1220,17 @@ setMethod(
 #' @aliases nobs,geex,geex-method
 #' @export
 #' @examples
-#' \dontrun{
 #' library(geepack)
 #' data('ohio')
 #'
 #' glmfit  <- glm(resp ~ age, data = ohio,
 #'               family = binomial(link = "logit"))
+#' example_ee <- function(data, model){
+#'   f <- grab_psiFUN(model, data)
+#'   function(theta){
+#'     f(theta)
+#'   }
+#' }
 #' z  <- m_estimate(
 #'   estFUN = example_ee,
 #'   data = ohio,
@@ -1237,7 +1240,7 @@ setMethod(
 #'   outer_args = list(model = glmfit))
 #'
 #' nobs(z)
-#' }
+
 
 setMethod(
   f         = "nobs",

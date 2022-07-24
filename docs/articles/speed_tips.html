@@ -126,11 +126,11 @@ within the returned <code>psiFUN</code>.</p>
   root_control  <span class="op">=</span> <span class="fu"><a href="../reference/setup_root_control.html">setup_root_control</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">test_binomial</span><span class="op">)</span><span class="op">)</span>,
   outer_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">test_binomial</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##    user  system elapsed </span>
-<span class="co">##   1.209   0.050   1.275</span></code></pre>
+<span class="co">##   1.145   0.010   1.168</span></code></pre>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">test</span>, estFUN <span class="op">=</span> <span class="va">glm_eefun2</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##    user  system elapsed </span>
-<span class="co">##   7.806   0.302   8.128</span></code></pre>
+<span class="co">##   7.395   0.026   7.420</span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="use-method-simple-for-computing-numerical-derivatives">Use <code>method = "simple"</code> for computing numerical
@@ -149,13 +149,13 @@ much faster, though less accurate. See the
   compute_roots <span class="op">=</span> <span class="cn">FALSE</span>,
   outer_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">test_binomial</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##    user  system elapsed </span>
-<span class="co">##   0.979   0.033   1.014</span></code></pre>
+<span class="co">##   0.921   0.000   0.921</span></code></pre>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Using method = "simple"</span>
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">test</span>, 
           deriv_control <span class="op">=</span> <span class="fu"><a href="../reference/setup_deriv_control.html">setup_deriv_control</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"simple"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##    user  system elapsed </span>
-<span class="co">##   0.462   0.016   0.480</span></code></pre>
+<span class="co">##   0.430   0.001   0.430</span></code></pre>
 </div>
   </div>
 

@@ -13,6 +13,7 @@
 #' @seealso \code{\link{grab_response}}, \code{\link{grab_design_matrix}},
 #' \code{\link{grab_response_formula}}, \code{\link{grab_fixed_formula}},
 #' \code{\link{grab_design_levels}}
+#' @return the value returns depends on the argument \code{what}.
 #' @export
 #------------------------------------------------------------------------------#
 
@@ -31,6 +32,7 @@ grab <- function(from, what, ...){
 #' Grab the RHS formula from a model object
 #'
 #' @param model a model object such as \code{lm}, \code{glm}, \code{merMod}
+#' @return the right-hand side of a model's \code{\link[stats]{formula}} object
 #' @export
 #' @examples
 #' fit <- lm(Sepal.Width ~ Petal.Width, data = iris)
@@ -44,6 +46,7 @@ grab_fixed_formula <- function(model){
 #' Grab the LHS formula from a model object
 #'
 #' @param model a model object such as \code{lm}, \code{glm}, \code{merMod}
+#' @return the left-hand side of a model's \code{\link[stats]{formula}} object
 #' @export
 #' @examples
 #' fit <- lm(Sepal.Width ~ Petal.Width, data = iris)
@@ -59,6 +62,7 @@ grab_response_formula <- function(model){
 #' @param rhs_formula the right hand side of a model formula
 #' @param data the data from which to extract the matrix
 #' @param ... Can be used to pass \code{xlev} to \code{\link[stats]{model.frame}}
+#' @return a \code{\link[stats]{model.matrix}}
 #' @export
 #' @examples
 #' # Create a "desigm" matrix for the first ten rows of iris data
@@ -70,8 +74,6 @@ grab_response_formula <- function(model){
 grab_design_matrix <- function(data, rhs_formula, ...){
   stats::model.matrix(object = rhs_formula, data = data, ...)
 }
-
-
 
 #------------------------------------------------------------------------------#
 #' Grab a list of the levels of factor variables in a model.
@@ -128,6 +130,7 @@ grab_design_levels <- function(model){
 #'
 #' @param formula model formula
 #' @param data data.frame from which to extract the vector of responses
+#' @return a \code{\link[stats]{model.response}}
 #' @export
 #' @examples
 #' # Grab vector of responses for the first ten rows of iris data

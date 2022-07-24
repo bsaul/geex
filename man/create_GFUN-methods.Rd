@@ -16,6 +16,9 @@ create_GFUN(object, ...)
 
 \item{...}{additional arguments passed to other methods}
 }
+\value{
+a function
+}
 \description{
 From a list of \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} for i = 1, ..., m,
 creates \eqn{G_m = \sum_i \psi(O_i, \theta)}{G_m = \sum_i \psi(O_i, \theta)},

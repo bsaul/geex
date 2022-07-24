@@ -77,7 +77,7 @@ for robust covariance estimation</h1>
                         <h4 data-toc-skip class="author">Bradley
 Saul</h4>
             
-            <h4 data-toc-skip class="date">2022-07-19</h4>
+            <h4 data-toc-skip class="date">2022-07-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bsaul/geex/blob/HEAD/vignettes/v02_sandwich_comparison.Rmd" class="external-link"><code>vignettes/v02_sandwich_comparison.Rmd</code></a></small>
       <div class="hidden name"><code>v02_sandwich_comparison.Rmd</code></div>
@@ -97,7 +97,7 @@ example <span class="math inline">\(\psi\)</span> function written in
   <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">model</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span>
   <span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.extract.html" class="external-link">model.response</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/model.frame.html" class="external-link">model.frame</a></span><span class="op">(</span><span class="va">model</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span><span class="op">)</span>
   <span class="kw">function</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span><span class="op">{</span>
-    <span class="va">lp</span>  <span class="op">&lt;-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">theta</span>
+    <span class="va">lp</span>  <span class="op">&lt;-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/pkg/Matrix/man/matrix-products.html" class="external-link">%*%</a></span> <span class="va">theta</span>
     <span class="va">rho</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="va">lp</span><span class="op">)</span>
 
     <span class="va">score_eqns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">X</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">Y</span> <span class="op">-</span> <span class="va">rho</span><span class="op">)</span> <span class="op">*</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span>
@@ -136,7 +136,7 @@ treating individuals as units:</p>
 <span class="co">## [1,]  0.0028345579 -0.0007476536</span>
 <span class="co">## [2,] -0.0007476536  0.0003870030</span></code></pre>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">sandwich</span><span class="fu">::</span><span class="fu"><a href="https://sandwich.R-Forge.R-project.org/reference/sandwich.html" class="external-link">sandwich</a></span><span class="op">(</span><span class="va">mglm</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu">sandwich</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sandwich/man/sandwich.html" class="external-link">sandwich</a></span><span class="op">(</span><span class="va">mglm</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##               (Intercept)            X1</span>
 <span class="co">## (Intercept)  0.0028345579 -0.0007476536</span>
 <span class="co">## X1          -0.0007476536  0.0003870030</span></code></pre>

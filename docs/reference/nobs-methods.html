@@ -60,10 +60,10 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S4 method for geex</span>
-<span class="fu"><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/lme4/man/merMod-class.html" class="external-link">nobs</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span>
 
 <span class="co"># S4 method for geex_summary</span>
-<span class="fu"><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/lme4/man/merMod-class.html" class="external-link">nobs</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -74,12 +74,17 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">geepack</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">geepack</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'ohio'</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">glmfit</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">resp</span> <span class="op">~</span> <span class="va">age</span>, data <span class="op">=</span> <span class="va">ohio</span>,</span>
 <span class="r-in">              family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">example_ee</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">model</span><span class="op">)</span><span class="op">{</span></span>
+<span class="r-in">  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="grab_psiFUN.html">grab_psiFUN</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">data</span><span class="op">)</span></span>
+<span class="r-in">  <span class="kw">function</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span><span class="op">{</span></span>
+<span class="r-in">    <span class="fu">f</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span></span>
+<span class="r-in">  <span class="op">}</span></span>
+<span class="r-in"><span class="op">}</span></span>
 <span class="r-in"><span class="va">z</span>  <span class="op">&lt;-</span> <span class="fu"><a href="m_estimate.html">m_estimate</a></span><span class="op">(</span></span>
 <span class="r-in">  estFUN <span class="op">=</span> <span class="va">example_ee</span>,</span>
 <span class="r-in">  data <span class="op">=</span> <span class="va">ohio</span>,</span>
@@ -88,8 +93,8 @@
 <span class="r-in">  roots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">glmfit</span><span class="op">)</span>,</span>
 <span class="r-in">  outer_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">glmfit</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/lme4/man/merMod-class.html" class="external-link">nobs</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 537</span>
 </code></pre></div>
     </div>
   </div>

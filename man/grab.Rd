@@ -14,6 +14,9 @@ grab(from, what, ...)
 
 \item{...}{additional arguments passed to \code{grab_**} function}
 }
+\value{
+the value returns depends on the argument \code{what}.
+}
 \description{
 Grab something from an object
 }
