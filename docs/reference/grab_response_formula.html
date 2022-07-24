@@ -67,13 +67,17 @@
     <dl><dt>model</dt>
 <dd><p>a model object such as <code>lm</code>, <code>glm</code>, <code>merMod</code></p></dd>
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    <p>the left-hand side of a model's <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></code> object</p>
+    </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Width</span> <span class="op">~</span> <span class="va">Petal.Width</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu">grab_response_formula</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x7fe6ac80a5c0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x7fea44b01c08&gt;</span>
 </code></pre></div>
     </div>
   </div>

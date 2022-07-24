@@ -82,6 +82,10 @@
 <dt>numderiv_opts</dt>
 <dd><p>a list of arguments passed to <code><a href="https://rdrr.io/pkg/numDeriv/man/grad.html" class="external-link">numDeriv::grad</a></code></p></dd>
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    <p>a function corresponding to the estimating equations of a model</p>
+    </div>
     <div id="methods-by-class-">
     <h2>Methods (by class)</h2>
     
@@ -95,13 +99,14 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
 <span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">geepack</span><span class="op">)</span></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lme4/lme4/" class="external-link">lme4</a></span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">'ohio'</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">glmfit</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">resp</span> <span class="op">~</span> <span class="va">age</span>, data <span class="op">=</span> <span class="va">ohio</span>,</span>
 <span class="r-in">               family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">geefit</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/geepack/man/geeglm.html" class="external-link">geeglm</a></span><span class="op">(</span><span class="va">resp</span> <span class="op">~</span> <span class="va">age</span>, data <span class="op">=</span> <span class="va">ohio</span>, id <span class="op">=</span> <span class="va">id</span>,</span>
 <span class="r-in">                  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">glmmfit</span> <span class="op">&lt;-</span> <span class="fu">glmer</span><span class="op">(</span><span class="va">resp</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">|</span><span class="va">id</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">ohio</span>,</span>
+<span class="r-in"><span class="va">glmmfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/glmer.html" class="external-link">glmer</a></span><span class="op">(</span><span class="va">resp</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">|</span><span class="va">id</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">ohio</span>,</span>
 <span class="r-in">                 family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">example_ee</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">model</span><span class="op">)</span><span class="op">{</span></span>
 <span class="r-in"> <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu">grab_psiFUN</span><span class="op">(</span><span class="va">model</span>, <span class="va">data</span><span class="op">)</span></span>
@@ -129,7 +134,7 @@
 <span class="r-in">  data <span class="op">=</span> <span class="va">ohio</span>,</span>
 <span class="r-in">  compute_roots <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span class="r-in">  units <span class="op">=</span> <span class="st">'id'</span>,</span>
-<span class="r-in">  roots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu">getME</span><span class="op">(</span><span class="va">glmmfit</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'beta'</span>, <span class="st">'theta'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span class="r-in">  roots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/lme4/man/getME.html" class="external-link">getME</a></span><span class="op">(</span><span class="va">glmmfit</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'beta'</span>, <span class="st">'theta'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span class="r-in">  outer_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">glmmfit</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"> <span class="op">}</span></span>
 </code></pre></div>
