@@ -13,3 +13,8 @@
 ^doc$
 ^Meta$
 inst/create_sample_data.R
+^\.direnv$
+^result$
+^\.envrc$
+^\.vscode$
+^\.nix$

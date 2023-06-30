@@ -39,7 +39,9 @@
           pkgs.R
           pkgs.rPackages.devtools
           pkgs.rPackages.languageserver
-
+          pkgs.rPackages.lintr
+          pkgs.rPackages.styler
+          
           # Documentation/writing tools
           pkgs.pandoc
         ] ++ geexRDeps;

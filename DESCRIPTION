@@ -1,7 +1,7 @@
 Package: geex
 Type: Package
 Title: An API for M-Estimation
-Version: 1.1.1
+Version: 2.0.0
 Authors@R: c(person("Bradley", "Saul", role = c("aut", "cre"),
                     email = "bradleysaul@gmail.com"),
              person("Brian", "Barkley", role = c("ctb")))
@@ -21,7 +21,6 @@ Imports:
     Matrix (>= 1.2-6),
     rootSolve (>= 1.6.6),
     numDeriv (>= 2014.2-1),
-    lme4 (>= 1.1-12),
     methods (>= 3.3)
 Suggests:
     testthat,
@@ -45,5 +44,5 @@ BugReports: https://github.com/bsaul/geex/issues
 License: MIT + file LICENSE
 LazyData: TRUE
 VignetteBuilder: knitr
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Encoding: UTF-8

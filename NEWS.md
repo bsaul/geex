@@ -1,3 +1,9 @@
+# geex 2.0.0
+
+* Removes `lme4` dependency.
+* Removes `grab_psiFUN` functions.
+These may be moved to separate package in the future.
+
 # geex 1.1.1
 
 * Removes `ivpack` dependency from additional examples vignette
