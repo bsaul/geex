@@ -10,24 +10,28 @@
 #' @return a \code{\linkS4class{m_estimation_basis}}
 #' @export
 #' @examples
-#' myee <- function(data){
-#'    function(theta){
-#'     c(data$Y1 - theta[1],
-#'      (data$Y1 - theta[1])^2 - theta[2])
-#'    }
-#'  }
+#' myee <- function(data) {
+#'   function(theta) {
+#'     c(
+#'       data$Y1 - theta[1],
+#'       (data$Y1 - theta[1])^2 - theta[2]
+#'     )
+#'   }
+#' }
 #' mybasis <- create_basis(
-#'    estFUN = myee,
-#'    data   = geexex)
+#'   estFUN = myee,
+#'   data   = geexex
+#' )
 #------------------------------------------------------------------------------#
-
-create_basis <- function(estFUN, data, units, outer_args, inner_args){
-  methods::new(Class="m_estimation_basis",
-      .estFUN = estFUN,
-      .data   = data,
-      .units  =  if(!missing(units)) units else character(),
-      .outer_args = if(!missing(outer_args)) outer_args else list(),
-      .inner_args = if(!missing(inner_args)) inner_args else list() )
+create_basis <- function(estFUN, data, units, outer_args, inner_args) {
+  methods::new(
+    Class = "m_estimation_basis",
+    .estFUN = estFUN,
+    .data = data,
+    .units = if (!missing(units)) units else character(),
+    .outer_args = if (!missing(outer_args)) outer_args else list(),
+    .inner_args = if (!missing(inner_args)) inner_args else list()
+  )
 }
 
 #------------------------------------------------------------------------------#
@@ -45,15 +49,18 @@ create_basis <- function(estFUN, data, units, outer_args, inner_args){
 #' @return the \code{object} with the \code{.psiFUN_list} slot populated.
 #' @export
 #' @examples
-#' myee <- function(data){
-#'    function(theta){
-#'     c(data$Y1 - theta[1],
-#'      (data$Y1 - theta[1])^2 - theta[2])
-#'    }
-#'  }
+#' myee <- function(data) {
+#'   function(theta) {
+#'     c(
+#'       data$Y1 - theta[1],
+#'       (data$Y1 - theta[1])^2 - theta[2]
+#'     )
+#'   }
+#' }
 #' mybasis <- create_basis(
-#'    estFUN = myee,
-#'    data   = geexex)
+#'   estFUN = myee,
+#'   data   = geexex
+#' )
 #' psi_list <- grab_psiFUN_list(create_psiFUN_list(mybasis))
 #'
 #' # A list of functions
@@ -67,27 +74,27 @@ setGeneric("create_psiFUN_list", function(object, ...) standardGeneric("create_p
 setMethod(
   f = "create_psiFUN_list",
   signature = "m_estimation_basis",
-  definition = function(object){
-
+  definition = function(object) {
     # Split data frame into data frames for each independent unit
     # if units are not specified, split into one per observation
     dt <- grab_basis_data(object)
-    ut <- if(length(object@.units) == 0) 1:nrow(dt) else dt[[object@.units]]
+    ut <- if (length(object@.units) == 0) 1:nrow(dt) else dt[[object@.units]]
     split_data <- split(x = dt, f = ut)
 
     # Apply estFUN to each unit's data
-    out <- lapply(split_data, function(data_i){
+    out <- lapply(split_data, function(data_i) {
       do.call(grab_estFUN(object),
-              args = append(list(data = data_i), object@.outer_args))
+        args = append(list(data = data_i), object@.outer_args)
+      )
     })
 
     # if user specifies an approximation function, apply the function to each
     # evaluation of psi
 
-    appFUN  <- grab_FUN(object@.control, "approx")
+    appFUN <- grab_FUN(object@.control, "approx")
     appopts <- grab_options(object@.control, "approx")
-    if(!(is.null(body(appFUN)))){
-      lapply(out, function(f){
+    if (!(is.null(body(appFUN)))) {
+      lapply(out, function(f) {
         do.call(appFUN, args = append(list(psi = f), appopts))
       }) -> out
     }
@@ -112,24 +119,26 @@ setMethod(
 #' @return a function
 #' @export
 #' @examples
-#' myee <- function(data){
-#'    function(theta){
-#'     c(data$Y1 - theta[1],
-#'      (data$Y1 - theta[1])^2 - theta[2])
-#'    }
-#'  }
+#' myee <- function(data) {
+#'   function(theta) {
+#'     c(
+#'       data$Y1 - theta[1],
+#'       (data$Y1 - theta[1])^2 - theta[2]
+#'     )
+#'   }
+#' }
 #' mybasis <- create_basis(
-#'    estFUN = myee,
-#'    data   = geexex)
+#'   estFUN = myee,
+#'   data   = geexex
+#' )
 #' f <- grab_GFUN(create_GFUN(mybasis))
 #'
 #' # Evaluate GFUN at mean and variance: should be close to zero
 #' n <- nrow(geexex)
-#' f(c(mean(geexex$Y1), var(geexex$Y1) * (n - 1)/n))
+#' f(c(mean(geexex$Y1), var(geexex$Y1) * (n - 1) / n))
 #'
 #'
 #------------------------------------------------------------------------------#
-
 setGeneric("create_GFUN", function(object, ...) standardGeneric("create_GFUN"))
 
 #' @rdname create_GFUN-methods
@@ -138,9 +147,9 @@ setGeneric("create_GFUN", function(object, ...) standardGeneric("create_GFUN"))
 setMethod(
   f = "create_GFUN",
   signature = "m_estimation_basis",
-  definition = function(object){
+  definition = function(object) {
     psi_list <- grab_psiFUN_list(object)
-    GFUN <- function(theta){
+    GFUN <- function(theta) {
       psii <- lapply(psi_list, function(psi) {
         do.call(psi, args = append(list(theta = theta), object@.inner_args))
       })

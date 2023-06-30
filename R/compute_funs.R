@@ -26,7 +26,7 @@
 #' B <- matrix(4, nrow = 2, ncol = 2)
 #' compute_sigma(A = A, B = B)
 #------------------------------------------------------------------------------#
-compute_sigma <- function(A, B, solver = solve){
+compute_sigma <- function(A, B, solver = solve) {
   Ainv <- solver(A)
   Ainv %*% B %*% t(Ainv)
 }
@@ -39,13 +39,15 @@ compute_sigma <- function(A, B, solver = solve){
 #' @keywords internal
 #------------------------------------------------------------------------------#
 
-compute_sum_of_list <- function(.l, .w = numeric(0)){
+compute_sum_of_list <- function(.l, .w = numeric(0)) {
   dimw <- length(.w)
 
-  M_i_pre   <- if(dimw > 0){
+  M_i_pre <- if (dimw > 0) {
     stopifnot(dimw == length(.l))
     Map(`*`, .l, .w)
-  } else .l
+  } else {
+    .l
+  }
   Reduce(`+`, M_i_pre)
 }
 
@@ -64,26 +66,25 @@ compute_sum_of_list <- function(.l, .w = numeric(0)){
 #' @keywords internal
 #------------------------------------------------------------------------------#
 
-compute_pairwise_sum_of_list <- function(.l, .w = NULL, .wFUN = NULL, ...){
-
-  use_w    <- !missing(.w)
+compute_pairwise_sum_of_list <- function(.l, .w = NULL, .wFUN = NULL, ...) {
+  use_w <- !missing(.w)
   use_wFUN <- !missing(.wFUN)
 
-  if((use_w && use_wFUN) || (!use_w && !use_wFUN)){
+  if ((use_w && use_wFUN) || (!use_w && !use_wFUN)) {
     stop("Either a vector of weights (.w) or a function (.wFUN) must be specified and not both.")
   }
 
-  if(use_w && (length(.l) != length(.w))){
+  if (use_w && (length(.l) != length(.w))) {
     stop("The length of the weight vector must equal the length of the list.")
   }
 
-  if(use_wFUN && all(methods::formalArgs(.wFUN)[1:2] != c("i", "j"))){
+  if (use_wFUN && all(methods::formalArgs(.wFUN)[1:2] != c("i", "j"))) {
     stop("The first two arguments of .wFUN must be i and j.")
   }
 
-  lapply(seq_along(.l), function(i){
-    lapply(seq_along(.l), function(j){
-      if(use_wFUN){
+  lapply(seq_along(.l), function(i) {
+    lapply(seq_along(.l), function(j) {
+      if (use_wFUN) {
         .w <- .wFUN(i, j, ...)
       }
       .w * tcrossprod(.l[[i]], .l[[j]])

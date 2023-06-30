@@ -26,20 +26,23 @@ see the root solver vignette, \code{vignette('geex_root_solvers', package = 'gee
 }
 \examples{
 
-myee <- function(data){
-  function(theta){
-    c(data$Y1 - theta[1],
-     (data$Y1 - theta[1])^2 - theta[2])
-   }
- }
+myee <- function(data) {
+  function(theta) {
+    c(
+      data$Y1 - theta[1],
+      (data$Y1 - theta[1])^2 - theta[2]
+    )
+  }
+}
 
 # Start with a basic basis
 mybasis <- create_basis(
   estFUN = myee,
-  data   = geexex)
+  data   = geexex
+)
 
 # Add a control for the root solver
-mycontrol <- new('geex_control', .root = setup_root_control(start = c(1, 1)))
+mycontrol <- new("geex_control", .root = setup_root_control(start = c(1, 1)))
 mybasis@.control <- mycontrol
 
 # Now estimate roots of GFUN

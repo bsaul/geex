@@ -120,36 +120,43 @@
 #'
 #' @examples
 #' # Estimate the mean and variance of Y1 in the geexex dataset
-#' ex_eeFUN <- function(data){
-#'  function(theta){
-#'    with(data,
-#'     c(Y1 - theta[1],
-#'      (Y1 - theta[1])^2 - theta[2] ))
-#' }}
+#' ex_eeFUN <- function(data) {
+#'   function(theta) {
+#'     with(
+#'       data,
+#'       c(
+#'         Y1 - theta[1],
+#'         (Y1 - theta[1])^2 - theta[2]
+#'       )
+#'     )
+#'   }
+#' }
 #'
 #' m_estimate(
-#'  estFUN = ex_eeFUN,
-#'  data  = geexex,
-#'  root_control = setup_root_control(start = c(1,1)))
+#'   estFUN = ex_eeFUN,
+#'   data = geexex,
+#'   root_control = setup_root_control(start = c(1, 1))
+#' )
 #'
 #' # compare to the mean() and variance() functions
 #' mean(geexex$Y1)
 #' n <- nrow(geexex)
-#' var(geexex$Y1) * (n - 1)/n
+#' var(geexex$Y1) * (n - 1) / n
 #'
 #' # A simple linear model for regressing X1 and X2 on Y4
-#' lm_eefun <- function(data){
-#'  X <- cbind(1, data$X1, data$X2)
-#'  Y <- data$Y4
-#'  function(theta){
+#' lm_eefun <- function(data) {
+#'   X <- cbind(1, data$X1, data$X2)
+#'   Y <- data$Y4
+#'   function(theta) {
 #'     t(X) %*% (Y - X %*% theta)
-#'    }
-#'  }
+#'   }
+#' }
 #'
 #' m_estimate(
-#'  estFUN = lm_eefun,
-#'  data  = geexex,
-#'  root_control = setup_root_control(start = c(0, 0, 0)))
+#'   estFUN = lm_eefun,
+#'   data = geexex,
+#'   root_control = setup_root_control(start = c(0, 0, 0))
+#' )
 #'
 #' # Compare to lm() results
 #' summary(lm(Y4 ~ X1 + X2, data = geexex))
@@ -158,50 +165,52 @@
 
 m_estimate <- function(estFUN,
                        data,
-                       units             = character(0),
-                       weights           = numeric(0),
-                       outer_args        = list(),
-                       inner_args        = list(),
-                       roots             = NULL,
-                       compute_roots     = TRUE,
-                       compute_vcov      = TRUE,
-                       Asolver           = solve,
+                       units = character(0),
+                       weights = numeric(0),
+                       outer_args = list(),
+                       inner_args = list(),
+                       roots = NULL,
+                       compute_roots = TRUE,
+                       compute_vcov = TRUE,
+                       Asolver = solve,
                        corrections,
                        deriv_control,
                        root_control,
-                       approx_control){
-  call    <- match.call()
-  control <- methods::new('geex_control')
+                       approx_control) {
+  call <- match.call()
+  control <- methods::new("geex_control")
 
-  if(!missing(deriv_control)){
-    set_control(control, 'deriv') <- deriv_control
+  if (!missing(deriv_control)) {
+    set_control(control, "deriv") <- deriv_control
   }
-  if(!missing(root_control)){
-    set_control(control, 'root') <- root_control
+  if (!missing(root_control)) {
+    set_control(control, "root") <- root_control
   }
-  if(!missing(approx_control)){
-    set_control(control, 'approx') <- approx_control
+  if (!missing(approx_control)) {
+    set_control(control, "approx") <- approx_control
   }
 
   basis <- methods::new("m_estimation_basis",
-                        .estFUN     = estFUN,
-                        .data       = data,
-                        .units      = units,
-                        .weights    = weights,
-                        .outer_args = outer_args,
-                        .inner_args = inner_args,
-                        .control    = control)
+    .estFUN     = estFUN,
+    .data       = data,
+    .units      = units,
+    .weights    = weights,
+    .outer_args = outer_args,
+    .inner_args = inner_args,
+    .control    = control
+  )
 
-  out <- methods::new('geex',
-                      basis           = basis)
+  out <- methods::new("geex",
+    basis = basis
+  )
   out@call <- call
   ## Checks/Warnings ##
-  if(is.null(roots) & !compute_roots){
-    stop('If compute_roots = FALSE, estimates for the roots must be specified in the roots argument.')
+  if (is.null(roots) & !compute_roots) {
+    stop("If compute_roots = FALSE, estimates for the roots must be specified in the roots argument.")
   }
 
   ## Compute estimating equation roots ##
-  if(compute_roots == TRUE){
+  if (compute_roots == TRUE) {
     eesolved <- estimate_GFUN_roots(basis)
     out@rootFUN_results <- eesolved
     theta_hat <- eesolved[[root_control@.object_name]]
@@ -212,19 +221,21 @@ m_estimate <- function(estFUN,
   out@estimates <- theta_hat
 
   ## Compute component matrices ##
-  if(compute_vcov == TRUE){
+  if (compute_vcov == TRUE) {
     mats <- estimate_sandwich_matrices(.basis = basis, .theta = theta_hat)
     ## Compute corrections ##
-    if(!missing(corrections)){
+    if (!missing(corrections)) {
       out@corrections <- make_corrections(mats, corrections)
     }
 
     out@sandwich_components <- mats
     ## Compute covariance estimate(s) ##
-    out@vcov <- compute_sigma(A = grab_bread(mats), B = grab_meat(mats),
-                              solver = Asolver)
+    out@vcov <- compute_sigma(
+      A = grab_bread(mats), B = grab_meat(mats),
+      solver = Asolver
+    )
   } else {
-    mats <- methods::new('sandwich_components')
+    mats <- methods::new("sandwich_components")
   }
 
   out

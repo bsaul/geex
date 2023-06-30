@@ -90,11 +90,13 @@ The first example estimates the population mean ($\theta_1$) and variance ($\the
 \]
 
 ```{r SB1_estfun, echo=TRUE, results='hide'}
-SB1_estfun <- function(data){
+SB1_estfun <- function(data) {
   Y1 <- data$Y1
-  function(theta){
-      c(Y1 - theta[1],
-       (Y1 - theta[1])^2 - theta[2])
+  function(theta) {
+    c(
+      Y1 - theta[1],
+      (Y1 - theta[1])^2 - theta[2]
+    )
   }
 }
 ```
@@ -104,9 +106,10 @@ The primary `geex` function is `m_estimate`, which requires two inputs: `estFUN`
 ```{r SB1_run, echo=TRUE, eval=TRUE, message=FALSE}
 library(geex)
 results <- m_estimate(
-    estFUN = SB1_estfun, 
-    data   = geexex,
-    root_control = setup_root_control(start = c(1,1)))
+  estFUN = SB1_estfun,
+  data = geexex,
+  root_control = setup_root_control(start = c(1, 1))
+)
 ```
 
 ```{r SB1_clsform, echo=TRUE, eval = TRUE}
@@ -115,25 +118,32 @@ A <- diag(1, nrow = 2)
 
 B <- with(geexex, {
   Ybar <- mean(Y1)
-  B11 <- mean( (Y1 - Ybar)^2 )
-  B12 <- mean( (Y1 - Ybar) * ((Y1 - Ybar)^2 - B11) )
-  B22 <- mean( ((Y1 - Ybar)^2 - B11)^2 )
+  B11 <- mean((Y1 - Ybar)^2)
+  B12 <- mean((Y1 - Ybar) * ((Y1 - Ybar)^2 - B11))
+  B22 <- mean(((Y1 - Ybar)^2 - B11)^2)
   matrix(
-    c(B11, B12,
-      B12, B22), nrow = 2
+    c(
+      B11, B12,
+      B12, B22
+    ),
+    nrow = 2
   )
 })
 
 # closed form roots
-theta_cls <- c(mean(geexex$Y1),
-               # since var() divides by n - 1, not n
-               var(geexex$Y1) * (n - 1)/ n ) 
+theta_cls <- c(
+  mean(geexex$Y1),
+  # since var() divides by n - 1, not n
+  var(geexex$Y1) * (n - 1) / n
+)
 
 # closed form sigma
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
 
-comparison <- list(geex = list(estimates = coef(results), vcov = vcov(results)), 
-                   cls  = list(estimates = theta_cls, vcov = Sigma_cls))
+comparison <- list(
+  geex = list(estimates = coef(results), vcov = vcov(results)),
+  cls = list(estimates = theta_cls, vcov = Sigma_cls)
+)
 ```
 
 The `m_estimate` function returns an object of the `S4` class `geex`, which contains an `estimates` slot and `vcov` slot for $\hat{\theta}$ and $\hat{\Sigma}$, respectively. These slots can be accessed by the functions `coef` (or `roots`) and `vcov`. The point estimates obtained for $\theta_1$ and $\theta_2$ are analogous to the base R functions `mean` and `var` (after multiplying by $m-1/m$ for the latter). SB gave a closed form for $A(\theta_0)$ (an identity matrix) and $B(\theta_0)$ (not shown here) and suggest plugging in sample moments to compute $B(\hat{\theta})$. The point and variance estimates using both `geex` and the analytic solutions are shown below}. The maximum absolute difference between either the point or variance estimates is `r format(max(abs(comparison$geex$estimates - comparison$cls$estimates), abs(comparison$geex$vcov - comparison$cls$vcov)), digits = 1)`, thus demonstrating excellent agreement between the numerical results obtained from `geex` and the closed form solutions for this set of estimating equations and data. 
@@ -158,12 +168,14 @@ Y_{2i} - \theta_2 \\
 \noindent The solution to \eqref{eq:psi} for this $\psi$ function yields $\hat{\theta}_3 = \bar{Y}_1 / \bar{Y}_2$, where $\bar{Y}_j$ denotes the sample mean of $Y_{j1}, \ldots,Y_{jm}$ for $j=1,2$.
 
 ```{r SB2_eefun, echo = TRUE}
-SB2_estfun <- function(data){
-  Y1 <- data$Y1; Y2 <- data$Y2
-  function(theta){
-      c(Y1 - theta[1],
-        Y2 - theta[2],
-        theta[1] - (theta[3] * theta[2]) 
+SB2_estfun <- function(data) {
+  Y1 <- data$Y1
+  Y2 <- data$Y2
+  function(theta) {
+    c(
+      Y1 - theta[1],
+      Y2 - theta[2],
+      theta[1] - (theta[3] * theta[2])
     )
   }
 }
@@ -171,36 +183,45 @@ SB2_estfun <- function(data){
 
 ```{r SB2_run, echo = TRUE, message = FALSE}
 results <- m_estimate(
-    estFUN = SB2_estfun, 
-    data  = geexex, 
-    root_control = setup_root_control(start = c(1, 1, 1)))
+  estFUN = SB2_estfun,
+  data = geexex,
+  root_control = setup_root_control(start = c(1, 1, 1))
+)
 ```
 
 ```{r SB2_clsform, echo = TRUE}
 # Comparison to an analytically derived sanwich estimator
 A <- with(geexex, {
- matrix(
-  c(1 , 0, 0,
-    0 , 1, 0,
-    -1, mean(Y1)/mean(Y2), mean(Y2)),
-  byrow = TRUE, nrow = 3)
+  matrix(
+    c(
+      1, 0, 0,
+      0, 1, 0,
+      -1, mean(Y1) / mean(Y2), mean(Y2)
+    ),
+    byrow = TRUE, nrow = 3
+  )
 })
 
 B <- with(geexex, {
   matrix(
-    c(var(Y1)   , cov(Y1, Y2), 0,
-      cov(Y1, Y2), var(Y2)   , 0,
-      0, 0, 0),
-    byrow = TRUE, nrow = 3)
+    c(
+      var(Y1), cov(Y1, Y2), 0,
+      cov(Y1, Y2), var(Y2), 0,
+      0, 0, 0
+    ),
+    byrow = TRUE, nrow = 3
+  )
 })
 
 ## closed form roots
 theta_cls <- c(mean(geexex$Y1), mean(geexex$Y2))
-theta_cls[3] <- theta_cls[1]/theta_cls[2]
+theta_cls[3] <- theta_cls[1] / theta_cls[2]
 ## closed form covariance
 Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / nrow(geexex)
-comparison <- list(geex = list(estimates = coef(results), vcov = vcov(results)), 
-                   cls  = list(estimates = theta_cls, vcov = Sigma_cls))
+comparison <- list(
+  geex = list(estimates = coef(results), vcov = vcov(results)),
+  cls = list(estimates = theta_cls, vcov = Sigma_cls)
+)
 ```
 
 SB gave closed form expressions for $A(\theta_0)$ and $B(\theta_0)$, into which we plug in appropriate estimates for the matrix components and compare to the results from `geex`. The point estimates again show excellent agreement (maximum absolute difference `r format(max(abs(comparison$geex$estimates - comparison$cls$estimates)), digits = 2)`), while the covariance estimates differ by the third decimal (maximum absolute difference `r format(max(abs(comparison$geex$vcov - comparison$cls$vcov)), scientific = TRUE, digits = 2)`). 
@@ -224,29 +245,32 @@ Y_{1i} - \theta_1 \\
 \]
 
 ```{r SB3_eefun, echo = TRUE, warning = FALSE, message=FALSE}
-SB3_estfun <- function(data){
+SB3_estfun <- function(data) {
   Y1 <- data$Y1
-  function(theta){
-      c(Y1 - theta[1],
-       (Y1 - theta[1])^2 - theta[2],
-       sqrt(theta[2]) - theta[3],
-       log(theta[2]) - theta[4])
+  function(theta) {
+    c(
+      Y1 - theta[1],
+      (Y1 - theta[1])^2 - theta[2],
+      sqrt(theta[2]) - theta[3],
+      log(theta[2]) - theta[4]
+    )
   }
 }
 ```
 
 ```{r SB3_run, echo = FALSE, message=FALSE}
 results <- m_estimate(
-   estFUN= SB3_estfun, 
-   data  = geexex,
-   root_control = setup_root_control(start = rep(2, 4, 4, 4)))
+  estFUN = SB3_estfun,
+  data = geexex,
+  root_control = setup_root_control(start = rep(2, 4, 4, 4))
+)
 ```
 
 ```{r SB3_clsform, echo = TRUE}
 ## closed form roots
 theta_cls <- numeric(4)
 theta_cls[1] <- mean(geexex$Y1)
-theta_cls[2] <- sum((geexex$Y1 - theta_cls[1])^2)/nrow(geexex)
+theta_cls[2] <- sum((geexex$Y1 - theta_cls[1])^2) / nrow(geexex)
 theta_cls[3] <- sqrt(theta_cls[2])
 theta_cls[4] <- log(theta_cls[2])
 
@@ -256,15 +280,20 @@ mu3 <- moments::moment(geexex$Y1, order = 3, central = TRUE)
 mu4 <- moments::moment(geexex$Y1, order = 4, central = TRUE)
 ## closed form covariance
 Sigma_cls <- matrix(
-  c(theta2, mu3, mu3/(2*sqrt(theta2)), mu3/theta2,
-    mu3, mu4 - theta2^2, (mu4 - theta2^2)/(2*sqrt(theta2)), (mu4 - theta2^2)/theta2,
-    mu3/(2 * sqrt(theta2)), (mu4 - theta2^2)/(2*sqrt(theta2)), (mu4 - theta2^2)/(4*theta2), (mu4 - theta2^2)/(2*theta2^(3/2)),
-    mu3/theta2, (mu4 - theta2^2)/theta2, (mu4 - theta2^2)/(2*theta2^(3/2)), (mu4/theta2^2) - 1) ,
-  nrow = 4, byrow = TRUE) / nrow(geexex)
+  c(
+    theta2, mu3, mu3 / (2 * sqrt(theta2)), mu3 / theta2,
+    mu3, mu4 - theta2^2, (mu4 - theta2^2) / (2 * sqrt(theta2)), (mu4 - theta2^2) / theta2,
+    mu3 / (2 * sqrt(theta2)), (mu4 - theta2^2) / (2 * sqrt(theta2)), (mu4 - theta2^2) / (4 * theta2), (mu4 - theta2^2) / (2 * theta2^(3 / 2)),
+    mu3 / theta2, (mu4 - theta2^2) / theta2, (mu4 - theta2^2) / (2 * theta2^(3 / 2)), (mu4 / theta2^2) - 1
+  ),
+  nrow = 4, byrow = TRUE
+) / nrow(geexex)
 ## closed form covariance
 # Sigma_cls <- (solve(A) %*% B %*% t(solve(A))) / n
-comparison <- list(geex = list(estimates = coef(results), vcov = vcov(results)), 
-                   cls  = list(estimates = theta_cls, vcov = Sigma_cls))
+comparison <- list(
+  geex = list(estimates = coef(results), vcov = vcov(results)),
+  cls = list(estimates = theta_cls, vcov = Sigma_cls)
+)
 ```
 
 SB again provided a closed form for $A(\theta_0)$ and $B(\theta_0)$, which we compare to the `geex` results. The maximum absolute difference between `geex` and the closed form estimates for both the parameters and the covariance is `r format(max(abs(comparison$geex$estimates - comparison$cls$estimates), abs(comparison$geex$vcov - comparison$cls$vcov)), digits = 2)`. 

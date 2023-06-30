@@ -23,20 +23,23 @@
 #' @export
 #' @examples
 #'
-#' myee <- function(data){
-#'   function(theta){
-#'     c(data$Y1 - theta[1],
-#'      (data$Y1 - theta[1])^2 - theta[2])
-#'    }
-#'  }
+#' myee <- function(data) {
+#'   function(theta) {
+#'     c(
+#'       data$Y1 - theta[1],
+#'       (data$Y1 - theta[1])^2 - theta[2]
+#'     )
+#'   }
+#' }
 #'
 #' # Start with a basic basis
 #' mybasis <- create_basis(
 #'   estFUN = myee,
-#'   data   = geexex)
+#'   data   = geexex
+#' )
 #'
 #' # Add a control for the root solver
-#' mycontrol <- new('geex_control', .root = setup_root_control(start = c(1, 1)))
+#' mycontrol <- new("geex_control", .root = setup_root_control(start = c(1, 1)))
 #' mybasis@.control <- mycontrol
 #'
 #' # Now estimate roots of GFUN
@@ -44,11 +47,10 @@
 #' roots
 #'
 #------------------------------------------------------------------------------#
-
-estimate_GFUN_roots <- function(.basis){
-  GFUN    <- grab_GFUN(.basis)
+estimate_GFUN_roots <- function(.basis) {
+  GFUN <- grab_GFUN(.basis)
   rootFUN <- match.fun(grab_FUN(.basis@.control, "root"))
-  rargs   <- append(grab_options(.basis@.control, "root"), list(f = GFUN))
+  rargs <- append(grab_options(.basis@.control, "root"), list(f = GFUN))
   do.call(rootFUN, args = rargs)
 }
 
@@ -84,42 +86,44 @@ estimate_GFUN_roots <- function(.basis){
 #' @references Stefanski, L. A., & Boos, D. D. (2002). The calculus of m-estimation. The American Statistician, 56(1), 29-38.
 #' @examples
 #'
-#' myee <- function(data){
-#'   function(theta){
-#'     c(data$Y1 - theta[1],
-#'      (data$Y1 - theta[1])^2 - theta[2])
-#'    }
-#'  }
+#' myee <- function(data) {
+#'   function(theta) {
+#'     c(
+#'       data$Y1 - theta[1],
+#'       (data$Y1 - theta[1])^2 - theta[2]
+#'     )
+#'   }
+#' }
 #'
 #' # Start with a basic basis
 #' mybasis <- create_basis(
 #'   estFUN = myee,
-#'   data   = geexex)
+#'   data   = geexex
+#' )
 #'
 #' # Now estimate sandwich matrices
 #' estimate_sandwich_matrices(
-#'  mybasis, c(mean(geexex$Y1), var(geexex$Y1)))
+#'   mybasis, c(mean(geexex$Y1), var(geexex$Y1))
+#' )
 #------------------------------------------------------------------------------#
-
-estimate_sandwich_matrices <- function(.basis, .theta){
-
+estimate_sandwich_matrices <- function(.basis, .theta) {
   derivFUN <- match.fun(grab_FUN(.basis@.control, "deriv"))
   derivOPT <- grab_options(.basis@.control, "deriv")
-  w        <- .basis@.weights
+  w <- .basis@.weights
   psi_list <- grab_psiFUN_list(.basis)
 
   # Compute the negative of the derivative matrix of estimating eqn functions
   # (the information matrix)
-  A_i <- lapply(psi_list, function(ee){
+  A_i <- lapply(psi_list, function(ee) {
     args <- append(list(func = ee, x = .theta), derivOPT)
-    val  <- do.call(derivFUN, args = append(args, .basis@.inner_args))
+    val <- do.call(derivFUN, args = append(args, .basis@.inner_args))
     -val
   })
 
   A <- compute_sum_of_list(A_i, w)
 
   # Compute observed estimating function
-  ee_i <- lapply(psi_list, function(ee){
+  ee_i <- lapply(psi_list, function(ee) {
     do.call(ee, args = append(list(theta = .theta), .basis@.inner_args))
   })
 
@@ -130,6 +134,7 @@ estimate_sandwich_matrices <- function(.basis, .theta){
 
   B <- compute_sum_of_list(B_i, w)
 
-  methods::new('sandwich_components',
-      .A = A, .A_i = A_i, .B = B, .B_i = B_i, .ee_i = ee_i)
+  methods::new("sandwich_components",
+    .A = A, .A_i = A_i, .B = B, .B_i = B_i, .ee_i = ee_i
+  )
 }

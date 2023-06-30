@@ -47,11 +47,13 @@ An `m_estimation_basis` object, at a minimum needs two objects: an `estFUN` and 
 library(geex)
 library(dplyr)
 
-myee <- function(data){
+myee <- function(data) {
   Y1 <- data$Y1
-  function(theta){
-    c(Y1 - theta[1],
-      (Y1 - theta[1])^2 - theta[2])
+  function(theta) {
+    c(
+      Y1 - theta[1],
+      (Y1 - theta[1])^2 - theta[2]
+    )
   }
 }
 ```
@@ -59,8 +61,9 @@ myee <- function(data){
 Now we can create a basis:
 ```{r}
 mybasis <- new("m_estimation_basis",
-               .estFUN = myee,
-               .data   = geexex)
+  .estFUN = myee,
+  .data   = geexex
+)
 ```
 
 And look at what this object contains:
@@ -76,7 +79,7 @@ mybasis@.psiFUN_list[1:2]
 This object is essentially equivalent to:
 ```{r, eval=FALSE}
 m <- nrow(geexex)
-lapply(split(geexex, f = 1:m), function(O_i){
+lapply(split(geexex, f = 1:m), function(O_i) {
   myee(O_i)
 })
 ```
@@ -92,13 +95,14 @@ Now that we have $G_m$ as a function of `theta`, we can found its roots using a 
 
 ```{r}
 rootSolve::multiroot(
-  f = mybasis@.GFUN, 
-  start = c(0, 0))
+  f = mybasis@.GFUN,
+  start = c(0, 0)
+)
 ```
 
 Within `geex` this is done with the `estimate_GFUN_roots` function. To illustrate, I first need to update the `.control` slot in `mybasis` with starting values for `multiroot`. 
 ```{r setup}
-mycontrol <- new('geex_control', .root = setup_root_control(start = c(1, 1)))
+mycontrol <- new("geex_control", .root = setup_root_control(start = c(1, 1)))
 mybasis@.control <- mycontrol
 roots <- mybasis %>%
   estimate_GFUN_roots()
@@ -121,7 +125,7 @@ In the last section, we found $\hat{\theta}$, which we now use to compute the $A
 
 ```{r}
 mats <- mybasis %>%
-  estimate_sandwich_matrices(.theta = roots$root) 
+  estimate_sandwich_matrices(.theta = roots$root)
 
 # Compare to the numDeriv computation above
 grab_bread_list(mats)[[1]]
@@ -131,7 +135,9 @@ Finally, computing $\hat{\Sigma} = A^{-1} B (A^{-1})^{\intercal}$ is accomplishe
 
 ```{r}
 mats %>%
-  {compute_sigma(A = grab_bread(.), B = grab_meat(.))}
+  {
+    compute_sigma(A = grab_bread(.), B = grab_meat(.))
+  }
 ```
 
 ## M-estimation with `m_estimate`
@@ -141,8 +147,7 @@ All of the operations described above are wrapped and packaged in the `m_estimat
 ```{r}
 m_estimate(
   estFUN = myee,
-  data   = geexex,
+  data = geexex,
   root_control = setup_root_control(start = c(0, 0))
 )
-
 ```

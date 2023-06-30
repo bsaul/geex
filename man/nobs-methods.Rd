@@ -19,23 +19,26 @@ Extract the number observations
 }
 \examples{
 library(geepack)
-data('ohio')
+data("ohio")
 
-glmfit  <- glm(resp ~ age, data = ohio,
-              family = binomial(link = "logit"))
-example_ee <- function(data, model){
+glmfit <- glm(resp ~ age,
+  data = ohio,
+  family = binomial(link = "logit")
+)
+example_ee <- function(data, model) {
   f <- grab_psiFUN(model, data)
-  function(theta){
+  function(theta) {
     f(theta)
   }
 }
-z  <- m_estimate(
+z <- m_estimate(
   estFUN = example_ee,
   data = ohio,
   compute_roots = FALSE,
-  units = 'id',
+  units = "id",
   roots = coef(glmfit),
-  outer_args = list(model = glmfit))
+  outer_args = list(model = glmfit)
+)
 
 nobs(z)
 }

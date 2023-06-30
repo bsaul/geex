@@ -19,10 +19,10 @@ By default, `geex` uses the [`rootSolve::multiroot`](https://cran.r-project.org/
 
 For example, consider the following `estFUN` which is Huber's estimator for the center of symmetric distributions [@stefanski2002; example 6]. This example was chosen because it has a single root, so that the `stats::uniroot` function can be used to find the roots.
 ```{r SB6_estFUN, echo = TRUE}
-myefun <- function(data, k = 1.5){
-  function(theta){
+myefun <- function(data, k = 1.5) {
+  function(theta) {
     x <- data$Y1 - theta[1]
-    if(abs(x) <= k) x else sign(x) * k
+    if (abs(x) <= k) x else sign(x) * k
   }
 }
 ```
@@ -31,18 +31,20 @@ Internally, `estFUN` is used to build $G_m = \sum_{i = 1}^m  \psi(O_i, \theta)$ 
 
 ```{r multiroot_example, echo = TRUE, message=FALSE}
 multiroot_results <- m_estimate(
-  estFUN = myefun, 
-  data  = geexex,
-  root_control = setup_root_control(start = 3))
+  estFUN = myefun,
+  data = geexex,
+  root_control = setup_root_control(start = 3)
+)
 ```
 
 The `stats::uniroot` function, however, requires the arguments `f` and `interval` (or `lower` and `upper`)
 
 ```{r uniroot_example, echo = TRUE, message=FALSE}
 uniroot_results <- m_estimate(
-  estFUN = myefun, 
-  data  = geexex,
-  root_control = setup_root_control(stats::uniroot, interval = c(0, 10)))
+  estFUN = myefun,
+  data = geexex,
+  root_control = setup_root_control(stats::uniroot, interval = c(0, 10))
+)
 ```
 
 Comparing results:

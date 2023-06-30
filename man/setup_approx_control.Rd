@@ -19,5 +19,7 @@ Setup an approx_control object
 }
 \examples{
 # For usage, see example 7 in
-\donttest{vignette("01_additional_examples", package = "geex")}
+\donttest{
+vignette("01_additional_examples", package = "geex")
+}
 }

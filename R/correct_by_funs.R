@@ -15,9 +15,9 @@
 #  \code{corrections}
 # @export
 #------------------------------------------------------------------------------#
-make_corrections <- function(components, corrections){
-  lapply(corrections, function(correction){
-     correct_by(.components = components, .correct_control = correction)
+make_corrections <- function(components, corrections) {
+  lapply(corrections, function(correction) {
+    correct_by(.components = components, .correct_control = correction)
   })
 }
 
@@ -42,22 +42,26 @@ make_corrections <- function(components, corrections){
 #' @seealso \code{\link{fay_bias_correction}} and \code{\link{fay_df_correction}}
 #' for corrections provided by \code{geex}
 #' @examples
-#' myee <- function(data){
-#'    function(theta){
-#'     c(data$Y1 - theta[1],
-#'      (data$Y1 - theta[1])^2 - theta[2])
-#'    }
-#'  }
+#' myee <- function(data) {
+#'   function(theta) {
+#'     c(
+#'       data$Y1 - theta[1],
+#'       (data$Y1 - theta[1])^2 - theta[2]
+#'     )
+#'   }
+#' }
 #' mybasis <- create_basis(
-#'    estFUN = myee,
-#'    data   = geexex)
+#'   estFUN = myee,
+#'   data   = geexex
+#' )
 #' mats <- estimate_sandwich_matrices(mybasis, .theta = c(5.04, 10.04))
 #' correct_by(mats,
-#'    .correct_control =  correction(fay_bias_correction, b = .75))
+#'   .correct_control = correction(fay_bias_correction, b = .75)
+#' )
 #' @export
 #------------------------------------------------------------------------------#
 
-correct_by <- function(.components, .correct_control){
+correct_by <- function(.components, .correct_control) {
   f <- grab_FUN(.correct_control)
   opts <- grab_options(.correct_control)
   do.call(f, args = append(list(components = .components), opts))
@@ -74,12 +78,13 @@ correct_by <- function(.components, .correct_control){
 #' @examples
 #' correction(FUN = fay_bias_correction, b = 0.75)
 #------------------------------------------------------------------------------#
-
-correction <- function(FUN, ...){
+correction <- function(FUN, ...) {
   dots <- list(...)
-  methods::new(Class="correct_control",
-      .FUN = FUN,
-      .options   = dots)
+  methods::new(
+    Class = "correct_control",
+    .FUN = FUN,
+    .options = dots
+  )
 }
 
 #------------------------------------------------------------------------------#
@@ -97,27 +102,29 @@ correction <- function(FUN, ...){
 #' @export
 #' @examples
 #' # This example demonstrates usage of the corrections, not a meaningful application
-#' myee <- function(data){
-#'  function(theta){
-#'    c(data$Y1 - theta[1],
-#'    (data$Y1 - theta[1])^2 - theta[2])
+#' myee <- function(data) {
+#'   function(theta) {
+#'     c(
+#'       data$Y1 - theta[1],
+#'       (data$Y1 - theta[1])^2 - theta[2]
+#'     )
 #'   }
 #' }
 #'
 #' results <- m_estimate(
-#'    estFUN = myee,
-#'    data = geexex,
-#'    root_control = setup_root_control(start = c(1,1)),
-#'    corrections  = list(
-#'      bias_correction_.1 = correction(fay_bias_correction, b = .1),
-#'      bias_correction_.3 = correction(fay_bias_correction, b = .3))
-#'    )
+#'   estFUN = myee,
+#'   data = geexex,
+#'   root_control = setup_root_control(start = c(1, 1)),
+#'   corrections = list(
+#'     bias_correction_.1 = correction(fay_bias_correction, b = .1),
+#'     bias_correction_.3 = correction(fay_bias_correction, b = .3)
+#'   )
+#' )
 #'
 #' get_corrections(results)
 #------------------------------------------------------------------------------#
-
-fay_bias_correction <- function(components, b = 0.75){
-  fay_bias_correction_partial(components, b = b) ->  corrected_matrices
+fay_bias_correction <- function(components, b = 0.75) {
+  fay_bias_correction_partial(components, b = b) -> corrected_matrices
 
   compute_sigma(A = grab_bread(components), B = corrected_matrices$Bbc)
 }
@@ -139,39 +146,42 @@ fay_bias_correction <- function(components, b = 0.75){
 #' @examples
 #'
 #' # This example demonstrates usage of the corrections, not a meaningful application
-#' myee <- function(data){
-#'  function(theta){
-#'    c(data$Y1 - theta[1],
-#'    (data$Y1 - theta[1])^2 - theta[2])
+#' myee <- function(data) {
+#'   function(theta) {
+#'     c(
+#'       data$Y1 - theta[1],
+#'       (data$Y1 - theta[1])^2 - theta[2]
+#'     )
 #'   }
 #' }
 #'
 #' results <- m_estimate(
-#'    estFUN = myee,
-#'    data = geexex,
-#'    root_control = setup_root_control(start = c(1,1)),
-#'    corrections  = list(
-#'      df_correction1 = correction(fay_df_correction,
-#'                         b = .75, L = c(0, 1), version = 1 ),
-#'      df_correction2 = correction(fay_df_correction,
-#'                         b = .75, L = c(0, 1), version = 2 ))
-#'    )
+#'   estFUN = myee,
+#'   data = geexex,
+#'   root_control = setup_root_control(start = c(1, 1)),
+#'   corrections = list(
+#'     df_correction1 = correction(fay_df_correction,
+#'       b = .75, L = c(0, 1), version = 1
+#'     ),
+#'     df_correction2 = correction(fay_df_correction,
+#'       b = .75, L = c(0, 1), version = 2
+#'     )
+#'   )
+#' )
 #'
 #' get_corrections(results)
 #------------------------------------------------------------------------------#
-
-fay_df_correction <- function(components, b = .75, L, version){
-
+fay_df_correction <- function(components, b = .75, L, version) {
   ## Prepare necessary matrices ##
   bias_mats <- fay_bias_correction_partial(components, b = b)
-  A   <- grab_bread(components)
+  A <- grab_bread(components)
   A_i <- grab_bread_list(components)
-  df_prep   <- df_correction_prep(L = L, A = A, A_i = A_i, H_i = bias_mats$H_i)
+  df_prep <- df_correction_prep(L = L, A = A, A_i = A_i, H_i = bias_mats$H_i)
 
   ## Compute DF corrections ##
-  if(version == 1){
+  if (version == 1) {
     out <- df_correction_1(df_prep$A_d, df_prep$C)
-  } else if(version == 2){
+  } else if (version == 2) {
     out <- df_correction_2(A = A, A_i = A_i, C = df_prep$C, L = L, Bbc = bias_mats$Bbc)
   }
   out
@@ -194,23 +204,22 @@ fay_df_correction <- function(components, b = .75, L, version){
 # @export
 #------------------------------------------------------------------------------#
 
-fay_bias_correction_partial <- function(components, b){
-
-  A   <- grab_bread(components)
+fay_bias_correction_partial <- function(components, b) {
+  A <- grab_bread(components)
   A_i <- grab_bread_list(components)
   B_i <- grab_meat_list(components)
 
   Ainv <- solve(A)
-  H_i <- lapply(A_i, function(Ai){
-    diag( (1 - pmin(b, diag(Ai %*% Ainv) ))^(-0.5) )
+  H_i <- lapply(A_i, function(Ai) {
+    diag((1 - pmin(b, diag(Ai %*% Ainv)))^(-0.5))
   })
 
   stopifnot(length(B_i) == length(H_i))
 
-  Bbc_i <- lapply(seq_along(B_i), function(i){
+  Bbc_i <- lapply(seq_along(B_i), function(i) {
     H_i[[i]] %*% B_i[[i]] %*% H_i[[i]]
   })
-  Bbc <- compute_sum_of_list(Bbc_i) #apply(simplify2array(Bbc_i), 1:2, sum)
+  Bbc <- compute_sum_of_list(Bbc_i) # apply(simplify2array(Bbc_i), 1:2, sum)
 
   list(H_i = H_i, Bbc = Bbc)
 }
@@ -223,24 +232,24 @@ fay_bias_correction_partial <- function(components, b){
 # @inheritParams fay_df_correction
 # @export
 #------------------------------------------------------------------------------#
-df_correction_prep <- function(L, A, A_i, H_i){
+df_correction_prep <- function(L, A, A_i, H_i) {
   p <- ncol(A)
   m <- length(A_i)
 
   Ainv <- solve(A)
-  II   <- diag(1, p*m)
-  AA   <- do.call(rbind, A_i)
-  calI <- do.call(cbind, args = lapply(1:m, function(i) diag(1, p) ))
-  G    <- II - (AA %*% solve(A) %*% calI)
+  II <- diag(1, p * m)
+  AA <- do.call(rbind, A_i)
+  calI <- do.call(cbind, args = lapply(1:m, function(i) diag(1, p)))
+  G <- II - (AA %*% solve(A) %*% calI)
 
-  M_i  <- lapply(H_i, function(mat){
+  M_i <- lapply(H_i, function(mat) {
     mat %*% Ainv %*% L %*% t(L) %*% t(Ainv) %*% mat
   })
-  M    <- Matrix::bdiag(M_i)
+  M <- Matrix::bdiag(M_i)
 
-  C    <- t(G) %*% M %*% G
+  C <- t(G) %*% M %*% G
 
-  A_diag  <- Matrix::bdiag(A_i)
+  A_diag <- Matrix::bdiag(A_i)
 
   list(A_d = A_diag, C = C)
 }
@@ -253,7 +262,7 @@ df_correction_prep <- function(L, A, A_i, H_i){
 #
 # @export
 #------------------------------------------------------------------------------#
-df_correction_1 <- function(A_d, C){
+df_correction_1 <- function(A_d, C) {
   estimate_df(A = A_d, C = C)
 }
 
@@ -267,18 +276,18 @@ df_correction_1 <- function(A_d, C){
 #
 # @export
 #------------------------------------------------------------------------------#
-df_correction_2 <- function(A, A_i, C, L, Bbc){
-  w_i  <- lapply(seq_along(A_i), function(i) {
+df_correction_2 <- function(A, A_i, C, L, Bbc) {
+  w_i <- lapply(seq_along(A_i), function(i) {
     # exclude the ith element
     Oi <- apply(simplify2array(A_i[-i]), 1:2, sum)
-    t(L) %*% (solve(Oi) - solve(A) ) %*% L
+    t(L) %*% (solve(Oi) - solve(A)) %*% L
   })
   wbar <- sum(unlist(w_i))
 
-  Abc_i <- lapply(w_i, function(w){
-    as.numeric(w/wbar) * Bbc
+  Abc_i <- lapply(w_i, function(w) {
+    as.numeric(w / wbar) * Bbc
   })
-  Abc  <- Matrix::bdiag(Abc_i)
+  Abc <- Matrix::bdiag(Abc_i)
 
   estimate_df(A = Abc, C = C)
 }
@@ -291,8 +300,7 @@ df_correction_2 <- function(A, A_i, C, L, Bbc){
 # @export
 #------------------------------------------------------------------------------#
 
-estimate_df <- function(A, C){
+estimate_df <- function(A, C) {
   AC <- A %*% C
   (sum(Matrix::diag(AC)))^2 / sum(Matrix::diag(AC %*% AC))
 }
-

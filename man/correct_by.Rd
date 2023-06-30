@@ -24,18 +24,22 @@ The function \code{\link{correction}} is a utility for creating
 See the finite sample corrections vignette for further examples.
 }
 \examples{
-myee <- function(data){
-   function(theta){
-    c(data$Y1 - theta[1],
-     (data$Y1 - theta[1])^2 - theta[2])
-   }
- }
+myee <- function(data) {
+  function(theta) {
+    c(
+      data$Y1 - theta[1],
+      (data$Y1 - theta[1])^2 - theta[2]
+    )
+  }
+}
 mybasis <- create_basis(
-   estFUN = myee,
-   data   = geexex)
+  estFUN = myee,
+  data   = geexex
+)
 mats <- estimate_sandwich_matrices(mybasis, .theta = c(5.04, 10.04))
 correct_by(mats,
-   .correct_control =  correction(fay_bias_correction, b = .75))
+  .correct_control = correction(fay_bias_correction, b = .75)
+)
 }
 \seealso{
 \code{\link{fay_bias_correction}} and \code{\link{fay_df_correction}}

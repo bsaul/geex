@@ -18,22 +18,25 @@ Object Summaries
 }
 \examples{
 library(geepack)
-data('ohio')
-glmfit  <- glm(resp ~ age, data = ohio,
-              family = binomial(link = "logit"))
-example_ee <- function(data, model){
+data("ohio")
+glmfit <- glm(resp ~ age,
+  data = ohio,
+  family = binomial(link = "logit")
+)
+example_ee <- function(data, model) {
   f <- grab_psiFUN(model, data)
-  function(theta){
+  function(theta) {
     f(theta)
   }
 }
-z  <- m_estimate(
-estFUN = example_ee,
-data = ohio,
-compute_roots = FALSE,
-units = 'id',
-roots = coef(glmfit),
-outer_args = list(model = glmfit))
+z <- m_estimate(
+  estFUN = example_ee,
+  data = ohio,
+  compute_roots = FALSE,
+  units = "id",
+  roots = coef(glmfit),
+  outer_args = list(model = glmfit)
+)
 
 object.size(z)
 object.size(summary(z))

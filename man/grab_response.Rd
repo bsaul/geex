@@ -22,5 +22,6 @@ Grab a vector of responses from a model object
 fit <- lm(Sepal.Width ~ Petal.Width, data = iris)
 grab_response(
   data = iris[1:10, ],
-  formula(fit))
+  formula(fit)
+)
 }

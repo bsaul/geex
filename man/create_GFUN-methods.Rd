@@ -27,20 +27,23 @@ called \code{GFUN}. Here, \eqn{\psi(O_i, \theta)}{\psi(O_i, \theta)} is the
 is a function of \eqn{\theta)}{\theta}.
 }
 \examples{
-myee <- function(data){
-   function(theta){
-    c(data$Y1 - theta[1],
-     (data$Y1 - theta[1])^2 - theta[2])
-   }
- }
+myee <- function(data) {
+  function(theta) {
+    c(
+      data$Y1 - theta[1],
+      (data$Y1 - theta[1])^2 - theta[2]
+    )
+  }
+}
 mybasis <- create_basis(
-   estFUN = myee,
-   data   = geexex)
+  estFUN = myee,
+  data   = geexex
+)
 f <- grab_GFUN(create_GFUN(mybasis))
 
 # Evaluate GFUN at mean and variance: should be close to zero
 n <- nrow(geexex)
-f(c(mean(geexex$Y1), var(geexex$Y1) * (n - 1)/n))
+f(c(mean(geexex$Y1), var(geexex$Y1) * (n - 1) / n))
 
 
 }

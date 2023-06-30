@@ -25,12 +25,15 @@ n <- 1000
 
 data1 <- data_frame(
   ID = 1:n,
-  Y_tau = rbinom(n,1,0.2),
-  S_star = rbinom(n,1,0.6),
-  Y = rbinom(n,1,0.4),
-  Z = rbinom(n,1,0.5))
+  Y_tau = rbinom(n, 1, 0.2),
+  S_star = rbinom(n, 1, 0.6),
+  Y = rbinom(n, 1, 0.4),
+  Z = rbinom(n, 1, 0.5)
+)
 
-data2 <- data1 %>% group_by(Y_tau, S_star, Y, Z) %>% count()
+data2 <- data1 %>%
+  group_by(Y_tau, S_star, Y, Z) %>%
+  count()
 ```
 
 ## Estimating equations
@@ -40,10 +43,14 @@ This is the estimating equation that the user provided as an example. I have no 
 ```{r}
 example <- function(data) {
   function(theta) {
-    with(data, 
-         c( (1 - Y_tau)*(1 -Z )*(Y - theta[1]),
-            (1-Y_tau)*Z*(Y-theta[2]),
-             theta[3] - theta[2]*theta[1]))
+    with(
+      data,
+      c(
+        (1 - Y_tau) * (1 - Z) * (Y - theta[1]),
+        (1 - Y_tau) * Z * (Y - theta[2]),
+        theta[3] - theta[2] * theta[1]
+      )
+    )
   }
 }
 ```
@@ -53,19 +60,21 @@ example <- function(data) {
 The timing to find point and variance estimates is compared:
 ```{r}
 system.time({
-results1 <- m_estimate(
-  estFUN = example,
-  data  = data1,
-  root_control = setup_root_control(start = c(.5, .5, .5))
-)})
+  results1 <- m_estimate(
+    estFUN = example,
+    data = data1,
+    root_control = setup_root_control(start = c(.5, .5, .5))
+  )
+})
 
 system.time({
   results2 <- m_estimate(
-  estFUN = example,
-  data  = data2,
-  weights = data2$n,
-  root_control = setup_root_control(start = c(.5, .5, .5))
-)})
+    estFUN = example,
+    data = data2,
+    weights = data2$n,
+    root_control = setup_root_control(start = c(.5, .5, .5))
+  )
+})
 ```
 
 The latter option is clearly preferred.

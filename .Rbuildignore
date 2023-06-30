@@ -17,4 +17,6 @@ inst/create_sample_data.R
 ^result$
 ^\.envrc$
 ^\.vscode$
-^\.nix$
+^flake\.nix$
+^flake\.lock$
+^shell\.nix$

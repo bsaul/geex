@@ -22,16 +22,16 @@ or especially when calling \code{\link{grab_psiFUN}} from within an eeFun.
 }
 \examples{
 \dontrun{
-  geex::grab_design_matrix(
-    data = data,
-    rhs_formula = geex::grab_fixed_formula(model),
-    xlev = geex::grab_design_levels(model)
-  )
-  ## Below is helpful within an eeFun.
-  geex::grab_psiFUN(
-    data = data,## Especially when this is a subset of the data
-    rhs_formula = geex::grab_fixed_formula(model),
-    xlev = geex::grab_design_levels(model)
-  )
+geex::grab_design_matrix(
+  data = data,
+  rhs_formula = geex::grab_fixed_formula(model),
+  xlev = geex::grab_design_levels(model)
+)
+## Below is helpful within an eeFun.
+geex::grab_psiFUN(
+  data = data, ## Especially when this is a subset of the data
+  rhs_formula = geex::grab_fixed_formula(model),
+  xlev = geex::grab_design_levels(model)
+)
 }
 }
