@@ -6,7 +6,7 @@
 
 <img src = "https://raw.githubusercontent.com/bsaul/geex/master/inst/logos/geex-icon-pocket_250x250.png" style = "float:right; padding:0 0 10px 5px">
 
-`geex` provides an extensible API for estimating parameters and their covariance from a set of estimating functions (M-estimation). M-estimation theory has a long history (see the [M-estimation bibliography](https://bsaul.github.io/geex/articles/articles/mestimation_bib.html)). For an excellent introduction, see the primer by L.A. Stefanski and D.D. Boos,  "The Calculus of M-estimation" ([The American Statistician (2002), 56(1), 29-38)](http://www.jstor.org/stable/3087324?seq=1#page_scan_tab_contents); [also available here](http://www4.stat.ncsu.edu/~boos/papers/mest6.pdf)). 
+`geex` provides an extensible API for estimating parameters and their covariance from a set of estimating functions (M-estimation). M-estimation theory has a long history (see the [M-estimation bibliography](https://bsaul.github.io/geex/articles/articles/mestimation_bib.html)). For an excellent introduction, see the primer by L.A. Stefanski and D.D. Boos,  "The Calculus of M-estimation" ([The American Statistician (2002), 56(1), 29-38)](http://www.jstor.org/stable/3087324?seq=1#page_scan_tab_contents); [also available here](http://www4.stat.ncsu.edu/~boos/papers/mest6.pdf)).
 
 M-estimation encompasses a broad swath of statistical estimators and ideas including:
 
@@ -16,7 +16,7 @@ M-estimation encompasses a broad swath of statistical estimators and ideas inclu
 * robust regression
 * and many more
 
-`geex` can implement all of these using a user-defined estimating function. 
+`geex` can implement all of these using a user-defined estimating function.
 
 ## Goals
 
@@ -33,14 +33,13 @@ The goals of `geex` are simply:
 
 To install the current version:
 
-```
+```r
 devtools::install_github("bsaul/geex")
 ```
 
 # Usage
 
-Start with the examples in the [package introduction](https://bsaul.github.io/geex/articles/v00_geex_intro.html) (also accessible in R by `vignette('00_geex_intro')`). 
-
+Start with the examples in the [package introduction](https://bsaul.github.io/geex/articles/v00_geex_intro.html) (also accessible in R by `vignette('00_geex_intro')`).
 
 # Contributing to geex
 
@@ -54,7 +53,7 @@ please cite the
 
 BibTex entry:
 
-```
+```bib
   @Article{,
     title = {The Calculus of M-Estimation in {R} with {geex}},
     author = {Bradley C. Saul and Michael G. Hudgens},
@@ -66,3 +65,9 @@ BibTex entry:
     doi = {10.18637/jss.v092.i02},
   }
 ```
+
+# Get Help
+
+Need help using `geex` or writing your estimating function?
+Feel free to contact [@bsaul](https://github.com/bsaul).
+You can find examples of help [in the `geex-help` repository](https://gitlab.com/bsaul/geex-help).
