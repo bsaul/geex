@@ -6,7 +6,7 @@
 \title{Dataset used to illustrate Stefanski and Boos examples.}
 \format{
 a dataset with 9 variables and 100 observations
-\itemize{
+\describe{
    \item{Y1}{ rnorm(mean = 5, sd = 4)}
    \item{Y2}{ rnorm(mean = 2, sd = 1)}
    \item{X1}{ rgamma(shape =5)}
